@@ -1,4 +1,4 @@
-import RestaurantCard from "./ReataurantCard";
+import RestaurantCard from "./RestaurantCard";
 import type { Restaurant } from "@/types/restaurant";
 
 type Props = {

@@ -27,14 +27,84 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
         alt: "좌석 2",
       },
       {
-        url: "/seatImg3.jpg",
+        url: "/seatImg1.jpg",
         alt: "좌석 3",
       },
       {
-        url: "/seatImg4.jpg",
+        url: "/seatImg2.jpg",
         alt: "좌석 4",
       },
     ],
     markerPosition: { leftPct: 30, topPct: 40 },
+  },
+  {
+    id: "2",
+    name: "이탈리아 트라토리아",
+    category: "이탈리아",
+    thumbnailUrl: "/ItalyTrattoria.jpg",
+    rating: 4.5,
+    reviewCount: 215,
+    operatingHours: {
+      open: "12:00",
+      close: "23:00 (연중무휴)",
+    },
+    totalSeats: 36,
+    address: "서울특별시 종로구 인사동길 45",
+    description:
+      "정통 이탈리아 가정식을 선보이는 아늑한 레스토랑입니다. 직접 만든 파스타와 피자를 즐기실 수 있습니다.",
+    seatImages: [
+      {
+        url: "/seatImg1.jpg",
+        alt: "좌석 1",
+      },
+      {
+        url: "/seatImg2.jpg",
+        alt: "좌석 2",
+      },
+      {
+        url: "/seatImg1.jpg",
+        alt: "좌석 1",
+      },
+      {
+        url: "/seatImg2.jpg",
+        alt: "좌석 2",
+      },
+    ],
+    markerPosition: { leftPct: 50, topPct: 20 },
+  },
+  {
+    id: "3",
+    name: "스카이뷰 레스토랑",
+    category: "다이닝",
+    thumbnailUrl: "/seatImg3.jpg",
+    rating: 4.8,
+    reviewCount: 452,
+    operatingHours: {
+      open: "10:00",
+      close: "00:00 (라스트오더 23:00)",
+    },
+    totalSeats: 62,
+    address: "서울특별시 마포구 월드컵북로 56",
+    description:
+      "한강 뷰를 감상하며 식사할 수 있는 프리미엄 다이닝 레스토랑입니다. 로맨틱한 분위기와 훌륭한 전망을 자랑합니다.",
+    seatImages: [
+      {
+        url: "/seatImg1.jpg",
+        alt: "좌석 1",
+      },
+      {
+        url: "/seatImg2.jpg",
+        alt: "좌석 2",
+      },
+      {
+        url: "/seatImg1.jpg",
+        alt: "좌석 1",
+      },
+      {
+        url: "/seatImg2.jpg",
+        alt: "좌석 2",
+      },
+    ],
+    markerPosition: { leftPct: 90, topPct: 90 },
   },
 ];

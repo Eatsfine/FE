@@ -4,6 +4,7 @@ import RestaurantList from "@/components/restaurant/RestaurantList";
 import type { Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
+import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -54,7 +55,7 @@ export default function SearchPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
               aria-label="검색"
               onClick={() => {}} //버튼은 지금 UI용으로
             >
@@ -72,9 +73,18 @@ export default function SearchPage() {
               </div>
             </div>
           </div>
+          <div className="absolute inset-0 z-10">
+            {results.map((r) => (
+              <RestaurantMarker
+                key={r.id}
+                restaurant={r}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="mt-6 w-full">
+        <div className="mt-6 w-full max-w-2xl mx-auto">
           {query.trim() ? (
             <RestaurantList restaurants={results} onSelect={handleSelect} />
           ) : null}
