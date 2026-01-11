@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import Intro from "./pages/Intro";
+import SearchPage from "./pages/SearchPage";
 
 export const queryClient = new QueryClient();
 
@@ -14,6 +15,11 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: <Intro />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/search",
+    element: <SearchPage />,
     errorElement: <NotFound />,
   },
 ];
