@@ -10,6 +10,30 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Restaurant | null>(null);
 
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [reserveOpen, setReserveOpen] = useState(false);
+
+  const openDetail = (restaurant: Restaurant) => {
+    setSelected(restaurant);
+    setReserveOpen(false);
+    setDetailOpen(true);
+  };
+
+  const goReserve = () => {
+    setDetailOpen(false);
+    setReserveOpen(true);
+  };
+
+  const backToDetail = () => {
+    setReserveOpen(false);
+    setDetailOpen(true);
+  };
+  const closeAll = () => {
+    setDetailOpen(false);
+    setReserveOpen(false);
+    setSelected(null);
+  };
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
 
@@ -18,18 +42,17 @@ export default function SearchPage() {
       const name = r.name.toLowerCase();
       const category = (r.category ?? "").toLowerCase();
       const address = r.address.toLowerCase();
-
       return name.includes(q) || category.includes(q) || address.includes(q);
     });
   }, [query]);
 
   const handleSelect = (restaurant: Restaurant) => {
-    setSelected(restaurant);
+    openDetail(restaurant);
   };
 
-  const handleCloseModal = () => {
-    setSelected(null);
-  };
+  // const handleCloseModal = () => {
+  //   setSelected(null);
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -90,12 +113,30 @@ export default function SearchPage() {
           ) : null}
         </div>
       </main>
-      {selected ? (
+      {/* 상세 페이지 모달 */}
+      {selected && (
         <RestaurantDetailModal
+          open={detailOpen}
+          onOpenChange={(o: boolean) => {
+            setDetailOpen(o);
+            if (!o) closeAll();
+          }}
           restaurant={selected}
-          onClose={handleCloseModal}
+          onClickReverse={goReserve}
         />
-      ) : null}
+      )}
+      {/* 예약 페이지 모달 */}
+      {selected && (
+        <ReservationModal
+          open={reserveOpen}
+          onOpenChange={(o: boolean) => {
+            setReserveOpen(o);
+            if (!o) closeAll();
+          }}
+          restaurant={selected}
+          onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
+        />
+      )}
     </div>
   );
 }
