@@ -1,0 +1,295 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogHeader,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema, type SignupFormValues } from "./signup.schema";
+import { useEffect } from "react";
+
+interface SignupDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToLogin: () => void;
+}
+
+const defaultValues = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  confirmPassword: "",
+  terms: false,
+  privacy: false,
+  marketing: false,
+};
+
+export function SignupDialog({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+}: SignupDialogProps) {
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    defaultValues,
+    resolver: zodResolver(signupSchema),
+    mode: "onBlur",
+  });
+
+  // 폼 열릴 때마다 초기화
+  useEffect(() => {
+    if (isOpen) {
+      reset(defaultValues);
+    }
+  }, [isOpen, reset]);
+
+  const handleSocialSignup = (provider: string) => {
+    console.log(`Signup with ${provider}`);
+    alert("가입 완료되었습니다.");
+    onClose();
+  };
+
+  const onSubmit = async (data: SignupFormValues) => {
+    try {
+      console.log("Signup data:", data);
+      //await API
+
+      alert("가입 완료되었습니다.");
+
+      onClose();
+
+    } catch (e) {
+      console.error("Signup error:", e);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-center text-2xl font-bold">
+            회원가입
+          </DialogTitle>
+          {/* 스크린 리더용 설명(경고 방지) */}
+          <DialogDescription className="sr-only">
+            이메일과 소셜 계정으로 회원가입을 할 수 있는 폼
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* 소셜 회원가입 */}
+          <div className="flex flex-col gap-4 py-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-12 text-base cursor-pointer"
+              onClick={() => handleSocialSignup("google")}
+            >
+              <img
+                src="/icons/google.svg"
+                alt="Google Logo"
+                className="w-5 h-5 mr-3"
+              />
+              구글로 가입하기
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
+              onClick={() => handleSocialSignup("kakao")}
+            >
+              <img
+                src="/icons/kakao.svg"
+                alt="Kakao Logo"
+                className="w-5 h-5 mr-3"
+              />
+              카카오톡으로 가입하기
+            </Button>
+          </div>
+
+          <div className="relative">
+            <Separator />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">
+              또는
+            </span>
+          </div>
+
+          {/* 이메일 회원가입 폼 */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="signup-name">이름</Label>
+              <Input
+                id="signup-name"
+                placeholder="이름을 입력하세요"
+                className="h-12"
+                {...register("name")}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="signup-email">이메일</Label>
+              <Input
+                id="signup-email"
+                type="email"
+                placeholder="example@email.com"
+                className="h-12"
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="signup-phone">휴대폰 번호</Label>
+              <Input
+                id="signup-phone"
+                type="tel"
+                placeholder="01012345678"
+                className="h-12"
+                {...register("phone")}
+              />
+              {errors.phone && (
+                <p className="text-sm text-red-500">{errors.phone.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="signup-password">비밀번호</Label>
+              <Input
+                id="signup-password"
+                type="password"
+                placeholder="8자 이상 입력하세요"
+                className="h-12"
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="signup-confirm-password">비밀번호 확인</Label>
+              <Input
+                id="signup-confirm-password"
+                type="password"
+                placeholder="비밀번호를 다시 입력하세요"
+                className="h-12"
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            {/* 동의 */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex items-center space-x-2">
+                <Controller
+                  control={control}
+                  name="terms"
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="terms"
+                    />
+                  )}
+                />
+                <Label htmlFor="terms" className="text-sm cursor-pointer">
+                  <span className="text-red-500">*</span> 이용약관에 동의합니다
+                </Label>
+              </div>
+              {errors.terms && (
+                <p className="text-sm text-red-500 pl-9">
+                  {errors.terms.message}
+                </p>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <Controller
+                  control={control}
+                  name="privacy"
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="privacy"
+                    />
+                  )}
+                />
+                <Label htmlFor="privacy" className="text-sm cursor-pointer">
+                  <span className="text-red-500">*</span> 개인정보 처리방침에
+                  동의합니다
+                </Label>
+              </div>
+              {errors.privacy && (
+                <p className="text-sm text-red-500 pl-9">
+                  {errors.privacy.message}
+                </p>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <Controller
+                  control={control}
+                  name="marketing"
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="marketing"
+                    />
+                  )}
+                />
+                <Label htmlFor="marketing" className="text-sm cursor-pointer">
+                  마케팅 정보 수신에 동의합니다 (선택)
+                </Label>
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+            >
+              {isSubmitting ? "가입 중..." : "가입하기"}
+            </Button>
+          </form>
+
+          <Separator />
+
+          {/* 로그인으로 이동 */}
+          <div className="text-center text-sm text-gray-600">
+            이미 계정이 있으신가요?{" "}
+            <button
+              onClick={onSwitchToLogin}
+              className="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+            >
+              로그인
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
