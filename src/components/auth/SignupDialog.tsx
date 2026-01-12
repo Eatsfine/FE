@@ -70,7 +70,6 @@ export function SignupDialog({
       alert("가입 완료되었습니다.");
 
       onClose();
-
     } catch (e) {
       console.error("Signup error:", e);
     }
@@ -214,6 +213,7 @@ export function SignupDialog({
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       id="terms"
+                      className="cursor-pointer"
                     />
                   )}
                 />
@@ -236,6 +236,7 @@ export function SignupDialog({
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       id="privacy"
+                      className="cursor-pointer"
                     />
                   )}
                 />
@@ -259,6 +260,7 @@ export function SignupDialog({
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       id="marketing"
+                      className="cursor-pointer"
                     />
                   )}
                 />
@@ -283,7 +285,7 @@ export function SignupDialog({
             이미 계정이 있으신가요?{" "}
             <button
               onClick={onSwitchToLogin}
-              className="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+              className="text-blue-600 hover:bg-gray-200 rounded-sm transition-colors cursor-pointer font-bold"
             >
               로그인
             </button>

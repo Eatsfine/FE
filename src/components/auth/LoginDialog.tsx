@@ -62,7 +62,6 @@ export function LoginDialog({
       alert("로그인 완료되었습니다.");
 
       onClose();
-
     } catch (e) {
       console.error("Login error:", e);
     }
@@ -213,7 +212,7 @@ export function LoginDialog({
             계정이 없으신가요?{" "}
             <button
               onClick={onSwitchToSignup}
-              className="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+              className="text-blue-600 hover:bg-gray-200 rounded-sm transition-colors cursor-pointer font-bold"
             >
               회원가입
             </button>
