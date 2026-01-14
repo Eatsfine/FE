@@ -5,6 +5,7 @@ import type { Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
+import ReservationModal from "@/components/restaurant/ReservationModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -122,7 +123,7 @@ export default function SearchPage() {
             if (!o) closeAll();
           }}
           restaurant={selected}
-          onClickReverse={goReserve}
+          onClickReserve={goReserve}
         />
       )}
       {/* 예약 페이지 모달 */}
