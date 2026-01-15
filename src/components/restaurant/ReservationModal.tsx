@@ -1,10 +1,10 @@
 import type { Restaurant } from "@/types/restaurant";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
-import { DialogHeader } from "../ui/dialog";
-import { Button } from "../ui/button";
 import { CalendarIcon, Clock3, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { Button } from "../ui/button";
 
 type SeatType = "일반석" | "창가석" | "룸/프라이빗" | "바(Bar)석" | "야외석";
 type TablePref = "split_ok" | "one_table";
@@ -45,6 +45,13 @@ const SEATS: SeatType[] = [
   "야외석",
 ];
 
+function toYmd(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export default function ReservationModal({
   open,
   onOpenChange,
@@ -56,7 +63,7 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType>("일반석");
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
-  const payType = "사전결제";
+  // const payType = "사전결제";
 
   useEffect(() => {
     if (!open) return;
@@ -76,7 +83,7 @@ export default function ReservationModal({
     console.log({
       restaurantId: restaurant.id,
       people,
-      date: date, //? format(date, "yyyy-MM-dd"): null
+      date,
       time,
       seatType,
       tablePref,
@@ -88,39 +95,39 @@ export default function ReservationModal({
   if (!open) return null;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (!o) onOpenChange(false);
-      }}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="식당 예약 모달"
     >
-      <DialogContent className="max-w-[760px] p-0">
-        {/* 헤더부분 */}
-        <div className="flex items-start justify-between px-6 pt-6">
-          <DialogHeader className="space-y-1">
-            <DialogTitle className="text-lg font-bold">
-              {restaurant.name} 예약
-            </DialogTitle>
-            <p className="text-sm text-muted-foreground">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50"
+        aria-label="모달 닫기"
+        onClick={() => onOpenChange(false)}
+      />
+      <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+          <div className="min-w-0">
+            <h2 className="text-xl truncate">{restaurant.name} 예약</h2>
+            <p className="text-sm text-muted-foreground truncate">
               {restaurant.address}
             </p>
-          </DialogHeader>
-
-          <Button
-            variant="ghost"
-            size="icon"
+          </div>
+          <button
+            type="button"
             onClick={onBack}
-            className="mt-1"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             aria-label="상세로 돌아가기"
           >
-            <X className="h-5 w-5" />
-          </Button>
+            <X />
+          </button>
         </div>
-
-        <div className="px-6 pb-6">
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Users className="h-4 w-4" />
+        <div className="overflow-y-auto px-6 py-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-md mb-3">
+              <Users className="h-5 w-5" />
               인원
             </div>
 
@@ -134,8 +141,9 @@ export default function ReservationModal({
                     variant="outline"
                     onClick={() => setPeople(n)}
                     className={cn(
-                      "h-9 rounded-md px-3 text-sm",
-                      active && "border-primary text-primary"
+                      "rounded-md py-5 px-4 text-md cursor-pointer border-2",
+                      active &&
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
                     )}
                   >
                     {n}명
@@ -146,16 +154,32 @@ export default function ReservationModal({
           </div>
           {/* 날짜 */}
           <div className="mt-5 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <CalendarIcon className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-md mb-3">
+              <CalendarIcon className="h-5 w-5" />
               날짜
             </div>
-            {/* 날짜 부분 keep */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between rounded-md text-md p-5 border-2 cursor-pointer",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  {date ? toYmd(date) : "연도-월-일"}
+                  <CalendarIcon className="h-4 w-4 opacity-70" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" align="start">
+                <Calendar mode="single" selected={date} onSelect={setDate} />
+              </PopoverContent>
+            </Popover>
           </div>
           {/* 시간대 */}
           <div className="mt-5 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Clock3 className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-md mb-3">
+              <Clock3 className="h-5 w-5" />
               시간대
             </div>
             <div className="flex flex-wrap gap-2">
@@ -168,8 +192,9 @@ export default function ReservationModal({
                     variant="outline"
                     onClick={() => setTime(t)}
                     className={cn(
-                      "h-9 w-[74px] rounded-md px-0 text-sm",
-                      active && "border-primary text-primary"
+                      "rounded-md py-5 px-4 w-24 text-md cursor-pointer border-2",
+                      active &&
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
                     )}
                   >
                     {t}
@@ -180,7 +205,7 @@ export default function ReservationModal({
           </div>
           {/* 좌석 유형 */}
           <div className="mt-6 space-y-2">
-            <div className="text-sm font-semibold">좌석 유형</div>
+            <div className="text-md mb-3">좌석 유형</div>
             <div className="flex flex-wrap gap-2">
               {SEATS.map((s) => {
                 const active = seatType === s;
@@ -191,8 +216,9 @@ export default function ReservationModal({
                     variant="outline"
                     onClick={() => setSeatType(s)}
                     className={cn(
-                      "h-9 rounded-md px-4 text-sm",
-                      active && "border-primary text-primary"
+                      "rounded-md p-6 w-40 text-md cursor-pointer border-2",
+                      active &&
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
                     )}
                   >
                     {s}
@@ -204,27 +230,27 @@ export default function ReservationModal({
 
           {/* 테이블 선호도 */}
           <div className="mt-6 space-y-2">
-            <div className="text-sm font-semibold">테이블 선호도</div>
+            <div className="text-md mb-3">테이블 선호도</div>
             <div className="space-y-3">
               <button
                 type="button"
                 onClick={() => setTablePref("split_ok")}
                 className={cn(
-                  "w-full rounded-lg border p-4 text-left",
-                  tablePref === "split_ok" && "border-primary"
+                  "w-full rounded-lg border p-4 text-left cursor-pointer hover:bg-gray-50",
+                  tablePref === "split_ok"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <span className="mt-1 inline-flex h-4 w-4 items-center justify-center rounded-full border">
+                  <span className="mt-4 inline-flex h-5 w-5 items-center justify-center rounded-full border">
                     {tablePref === "split_ok" ? (
-                      <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+                      <span className="h-3 w-3 rounded-full bg-blue-500" />
                     ) : null}
                   </span>
                   <div>
-                    <div className="text-sm font-medium">
+                    <div className="text-md font-medium">
                       테이블 떨어져도 상관없어요
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       인원이 많을 경우 여러 테이블로 나누어 앉을 수 있습니다
                     </div>
                   </div>
@@ -234,21 +260,19 @@ export default function ReservationModal({
                 type="button"
                 onClick={() => setTablePref("one_table")}
                 className={cn(
-                  "w-full rounded-lg border p-4 text-left",
-                  tablePref === "one_table" && "border-primary"
+                  "w-full rounded-lg border p-4 text-left cursor-pointer hover:bg-gray-50",
+                  tablePref === "one_table"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <span className="mt-1 inline-flex h-4 w-4 items-center justify-center rounded-full border">
+                  <span className="mt-4 inline-flex h-5 w-5 items-center justify-center rounded-full border">
                     {tablePref === "one_table" ? (
-                      <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+                      <span className="h-3 w-3 rounded-full bg-blue-500" />
                     ) : null}
                   </span>
                   <div>
-                    <div className="text-sm font-medium">
-                      한 테이블에서만 먹을거에요
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
+                    <div className="text-md">한 테이블에서만 먹을거에요</div>
+                    <div className="text-sm text-muted-foreground">
                       모든 인원이 같은 테이블에 앉습니다
                     </div>
                   </div>
@@ -257,12 +281,19 @@ export default function ReservationModal({
             </div>
           </div>
           {/* 결제 유형 */}
-          <div>{/* 결제 유형 keep */}</div>
-          {/* Separator */}
+          <div className="mt-6 space-y-2">
+            <div className="text-md">결제 유형</div>
+            <div className="rounded-lg p-4 text-md border-2 border-blue-500 text-blue-500 bg-blue-50">
+              사전결제
+              <p className="text-sm text-muted-foreground">
+                결제는 예약 확정 단계에서 진행됩니다.
+              </p>
+            </div>
+          </div>
 
           {/* 예약 완료 */}
           <Button
-            className="h-11 w-full rounded-lg"
+            className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={handleSubmit}
           >
@@ -274,7 +305,7 @@ export default function ReservationModal({
             </p>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
