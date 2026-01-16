@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
-import { toYmd } from "@/utils/reservation";
+import { startOfTodayInKst, toYmd } from "@/utils/date";
 
 type Props = {
   open: boolean;
@@ -65,6 +65,8 @@ export default function ReservationModal({
   }, [open]);
 
   const canSubmit = !!date && !!time;
+
+  const todayKst = startOfTodayInKst();
 
   if (!open) return null;
 
@@ -146,7 +148,12 @@ export default function ReservationModal({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-2" align="start">
-                <Calendar mode="single" selected={date} onSelect={setDate} />
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={(d) => d < todayKst} //오늘포함 허용함. 오늘 제외하려면 <=로 변경하기.
+                />
               </PopoverContent>
             </Popover>
           </div>

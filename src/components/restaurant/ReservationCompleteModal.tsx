@@ -1,5 +1,5 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
-import { toYmd } from "@/utils/reservation";
+import { toYmd } from "@/utils/date";
 import { CircleCheck } from "lucide-react";
 import { useEffect } from "react";
 

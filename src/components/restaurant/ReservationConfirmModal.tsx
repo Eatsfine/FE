@@ -1,5 +1,6 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
-import { tablePrefLabel, toYmd } from "@/utils/reservation";
+import { toYmd } from "@/utils/date";
+import { tablePrefLabel } from "@/utils/reservation";
 import { X } from "lucide-react";
 
 type Props = {
