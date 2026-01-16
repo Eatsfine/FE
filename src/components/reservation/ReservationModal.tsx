@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
+import { formatKrw } from "@/utils/money";
 
 type Props = {
   open: boolean;
@@ -53,7 +54,7 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType>("일반석");
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
-  // const [confirmOpen, setConfirmOpen] = useState(false);
+  const policy = restaurant.paymentPolicy;
 
   useEffect(() => {
     if (!open) return;
@@ -67,6 +68,14 @@ export default function ReservationModal({
   const canSubmit = !!date && !!time;
 
   const todayKst = startOfTodayInKst();
+
+  const paymentDraft = {
+    depositRate: policy?.depositRate ?? 0.1,
+    depositAmount: policy?.depositAmount ?? 0,
+    notice:
+      policy?.notice ??
+      "예약 확정을 위해 예약금 결제가 필요합니다. (노쇼 방지 목적)",
+  };
 
   if (!open) return null;
 
@@ -264,24 +273,42 @@ export default function ReservationModal({
           {/* 결제 유형 */}
           <div className="mt-6 space-y-2">
             <div className="text-md">결제 유형</div>
-            <div className="rounded-lg p-4 text-md border-2 border-blue-500 text-blue-500 bg-blue-50">
-              사전결제
+            <div className="rounded-lg p-4 text-md border-2 border-blue-500 text-blue-500 bg-blue-50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span>사전결제</span>
+                <span className="font-semibold">
+                  예약금: {formatKrw(paymentDraft.depositAmount)}원
+                </span>
+              </div>
               <p className="text-sm text-muted-foreground">
-                결제는 예약 확정 단계에서 진행됩니다.
+                예약 확정을 위해 예약금 결제가 필요합니다.{" "}
+                {paymentDraft.depositRate
+                  ? `(${Math.round(paymentDraft.depositRate * 100)}% 정책 적용)`
+                  : null}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {paymentDraft.notice}
               </p>
             </div>
           </div>
 
-          {/* 예약 완료 */}
+          {/* 예약 확인 모달 이동 */}
           <Button
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {
               if (!date || !time) return;
-              onClickConfirm({ people, date, time, seatType, tablePref });
+              onClickConfirm({
+                people,
+                date,
+                time,
+                seatType,
+                tablePref,
+                payment: paymentDraft,
+              });
             }}
           >
-            예약 완료
+            예약 진행
           </Button>
           {!canSubmit && (
             <p className="mt-2 text-center text-xs text-muted-foreground">

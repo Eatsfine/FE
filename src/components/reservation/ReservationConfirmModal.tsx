@@ -1,5 +1,6 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { toYmd } from "@/utils/date";
+import { formatKrw } from "@/utils/money";
 import { tablePrefLabel } from "@/utils/reservation";
 import { X } from "lucide-react";
 
@@ -86,7 +87,10 @@ export default function ReservationConfirmMoodal({
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
             <div className="text-sm text-gray-800 mt-1">
-              결제는 예약 확정 단계에서 진행됩니다.
+              예약금: {formatKrw(draft.payment.depositAmount)}원
+              {draft.payment.depositRate
+                ? ` (${Math.round(draft.payment.depositRate * 100)}% 정책 적용)`
+                : null}
             </div>
           </div>
           <p className="text-gray-700 text-center">
@@ -105,7 +109,7 @@ export default function ReservationConfirmMoodal({
               type="button"
               onClick={onConfirm}
             >
-              예약 확정
+              예약금 결제하기
             </button>
           </div>
         </div>

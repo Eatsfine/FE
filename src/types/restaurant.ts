@@ -29,6 +29,7 @@ export type Restaurant = {
     topPct: number;
   };
   thumbnailUrl?: string;
+  paymentPolicy?: PaymentPolicy;
 };
 
 export const SEATS = [
@@ -47,4 +48,11 @@ export type ReservationDraft = {
   time: string;
   seatType: SeatType;
   tablePref: TablePref;
+  payment: PaymentPolicy;
+};
+
+export type PaymentPolicy = {
+  depositRate: 0.1 | 0.2 | 0.3 | 0.4 | 0.5;
+  depositAmount: number;
+  notice?: string;
 };

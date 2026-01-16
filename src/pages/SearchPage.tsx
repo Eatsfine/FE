@@ -5,9 +5,10 @@ import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
-import ReservationModal from "@/components/restaurant/ReservationModal";
-import ReservationConfirmMoodal from "@/components/restaurant/ReservationConfirmModal";
-import ReservationCompleteModal from "@/components/restaurant/ReservationCompleteModal";
+import ReservationModal from "@/components/reservation/ReservationModal";
+import ReservationConfirmMoodal from "@/components/reservation/ReservationConfirmModal";
+import ReservationCompleteModal from "@/components/reservation/ReservationCompleteModal";
+import PaymentModal from "@/components/reservation/PaymentModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -18,6 +19,7 @@ export default function SearchPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [completeOpen, setCompleteOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const openDetail = (restaurant: Restaurant) => {
     setSelected(restaurant);
@@ -48,6 +50,11 @@ export default function SearchPage() {
     setConfirmOpen(false);
   };
 
+  const goPayment = () => {
+    setConfirmOpen(false);
+    setPaymentOpen(true);
+  };
+
   const closeAll = () => {
     setDetailOpen(false);
     setReserveOpen(false);
@@ -71,18 +78,6 @@ export default function SearchPage() {
 
   const handleSelect = (restaurant: Restaurant) => {
     openDetail(restaurant);
-  };
-
-  const handleConfirm = () => {
-    if (!selected || !draft) return;
-
-    // TODO: 여기에 예약 확정 API 붙이기
-    console.log("예약 확정", {
-      restaurantId: selected.id,
-      ...draft,
-    });
-    setConfirmOpen(false);
-    setCompleteOpen(true);
   };
 
   return (
@@ -175,9 +170,22 @@ export default function SearchPage() {
           open={confirmOpen}
           onClose={closeAll}
           onBack={backToReserve} //X표시 누르면 예약페이지 모달로 이동
-          onConfirm={handleConfirm}
+          onConfirm={goPayment}
           restaurant={selected}
           draft={draft}
+        />
+      )}
+
+      {/* 결제 모달 */}
+      {selected && draft && (
+        <PaymentModal
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          restaurant={selected}
+          draft={draft}
+          onSuccess={() => {
+            setCompleteOpen(true); //결제 성공 완료모달
+          }}
         />
       )}
       {/* 예약완료 페이지 모달 */}
