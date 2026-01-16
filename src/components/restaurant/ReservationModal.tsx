@@ -1,19 +1,23 @@
-import type { Restaurant } from "@/types/restaurant";
+import {
+  SEATS,
+  type ReservationDraft,
+  type Restaurant,
+  type SeatType,
+  type TablePref,
+} from "@/types/restaurant";
 import { useEffect, useState } from "react";
 import { CalendarIcon, Clock3, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
-
-type SeatType = "일반석" | "창가석" | "룸/프라이빗" | "바(Bar)석" | "야외석";
-type TablePref = "split_ok" | "one_table";
-// type PayType = "사전결제" | "현장결제";
+import { toYmd } from "@/utils/reservation";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
+  onClickConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
 };
 
@@ -37,25 +41,19 @@ const TIMES = [
   "20:30",
 ];
 
-const SEATS: SeatType[] = [
-  "일반석",
-  "창가석",
-  "룸/프라이빗",
-  "바(Bar)석",
-  "야외석",
-];
-
-function toYmd(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
+// const SEATS: SeatType[] = [
+//   "일반석",
+//   "창가석",
+//   "룸/프라이빗",
+//   "바(Bar)석",
+//   "야외석",
+// ];
 
 export default function ReservationModal({
   open,
   onOpenChange,
   restaurant,
+  onClickConfirm,
   onBack,
 }: Props) {
   const [people, setPeople] = useState<number>(2);
@@ -63,7 +61,7 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType>("일반석");
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
-  // const payType = "사전결제";
+  // const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -75,22 +73,6 @@ export default function ReservationModal({
   }, [open]);
 
   const canSubmit = !!date && !!time;
-
-  const handleSubmit = () => {
-    if (!canSubmit) return;
-
-    //TODO: 예약 API 붙이기 전에 임시 확인용임.
-    console.log({
-      restaurantId: restaurant.id,
-      people,
-      date,
-      time,
-      seatType,
-      tablePref,
-    });
-    //TODO: 예약완료후 모달로 바꾸기. 혹은, alert로 확인한번하고 진행하는걸로 바꾸기
-    onOpenChange(false);
-  };
 
   if (!open) return null;
 
@@ -295,7 +277,10 @@ export default function ReservationModal({
           <Button
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
-            onClick={handleSubmit}
+            onClick={() => {
+              if (!date || !time) return;
+              onClickConfirm({ people, date, time, seatType, tablePref });
+            }}
           >
             예약 완료
           </Button>

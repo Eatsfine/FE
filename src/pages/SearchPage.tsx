@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
-import type { Restaurant } from "@/types/restaurant";
+import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
 import ReservationModal from "@/components/restaurant/ReservationModal";
+import ReservationConfirmMoodal from "@/components/restaurant/ReservationConfirmModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -13,26 +14,45 @@ export default function SearchPage() {
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [draft, setDraft] = useState<ReservationDraft | null>(null);
 
   const openDetail = (restaurant: Restaurant) => {
     setSelected(restaurant);
+    setDraft(null);
+    setConfirmOpen(false);
     setReserveOpen(false);
     setDetailOpen(true);
   };
 
   const goReserve = () => {
     setDetailOpen(false);
+    setConfirmOpen(false);
     setReserveOpen(true);
   };
 
   const backToDetail = () => {
     setReserveOpen(false);
+    setConfirmOpen(false);
     setDetailOpen(true);
+  };
+
+  const goConfirm = (d: ReservationDraft) => {
+    setDraft(d);
+    setReserveOpen(false);
+    setConfirmOpen(true);
+  };
+
+  const backToReserve = () => {
+    setReserveOpen(true);
+    setConfirmOpen(false);
   };
   const closeAll = () => {
     setDetailOpen(false);
     setReserveOpen(false);
+    setConfirmOpen(false);
     setSelected(null);
+    setDraft(null);
   };
 
   const results = useMemo(() => {
@@ -51,9 +71,14 @@ export default function SearchPage() {
     openDetail(restaurant);
   };
 
-  // const handleCloseModal = () => {
-  //   setSelected(null);
-  // };
+  const handleConfirm = () => {
+    if (!selected || !draft) return;
+
+    //TODO: 나중에 예약 API 붙이기
+    console.log("예약확정", { restaurantId: selected.id, ...draft });
+
+    closeAll();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -135,7 +160,19 @@ export default function SearchPage() {
             if (!o) closeAll();
           }}
           restaurant={selected}
+          onClickConfirm={goConfirm}
           onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
+        />
+      )}
+      {/* 예약확인 페이지 모달 */}
+      {selected && draft && (
+        <ReservationConfirmMoodal
+          open={confirmOpen}
+          onClose={closeAll}
+          onBack={backToReserve} //X표시 누르면 예약페이지 모달로 이동
+          onConfirm={handleConfirm}
+          restaurant={selected}
+          draft={draft}
         />
       )}
     </div>

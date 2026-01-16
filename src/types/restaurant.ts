@@ -30,3 +30,21 @@ export type Restaurant = {
   };
   thumbnailUrl?: string;
 };
+
+export const SEATS = [
+  "일반석",
+  "창가석",
+  "룸/프라이빗",
+  "바(Bar)석",
+  "야외석",
+] as const;
+export type SeatType = (typeof SEATS)[number];
+export type TablePref = "split_ok" | "one_table";
+
+export type ReservationDraft = {
+  people: number;
+  date: Date;
+  time: string;
+  seatType: SeatType;
+  tablePref: TablePref;
+};
