@@ -7,6 +7,7 @@ import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
 import ReservationModal from "@/components/restaurant/ReservationModal";
 import ReservationConfirmMoodal from "@/components/restaurant/ReservationConfirmModal";
+import ReservationCompleteModal from "@/components/restaurant/ReservationCompleteModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -16,6 +17,7 @@ export default function SearchPage() {
   const [reserveOpen, setReserveOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
+  const [completeOpen, setCompleteOpen] = useState(false);
 
   const openDetail = (restaurant: Restaurant) => {
     setSelected(restaurant);
@@ -27,13 +29,11 @@ export default function SearchPage() {
 
   const goReserve = () => {
     setDetailOpen(false);
-    setConfirmOpen(false);
     setReserveOpen(true);
   };
 
   const backToDetail = () => {
     setReserveOpen(false);
-    setConfirmOpen(false);
     setDetailOpen(true);
   };
 
@@ -47,12 +47,14 @@ export default function SearchPage() {
     setReserveOpen(true);
     setConfirmOpen(false);
   };
+
   const closeAll = () => {
     setDetailOpen(false);
     setReserveOpen(false);
     setConfirmOpen(false);
     setSelected(null);
     setDraft(null);
+    setCompleteOpen(false);
   };
 
   const results = useMemo(() => {
@@ -74,10 +76,13 @@ export default function SearchPage() {
   const handleConfirm = () => {
     if (!selected || !draft) return;
 
-    //TODO: 나중에 예약 API 붙이기
-    console.log("예약확정", { restaurantId: selected.id, ...draft });
-
-    closeAll();
+    // TODO: 여기에 예약 확정 API 붙이기
+    console.log("예약 확정", {
+      restaurantId: selected.id,
+      ...draft,
+    });
+    setConfirmOpen(false);
+    setCompleteOpen(true);
   };
 
   return (
@@ -173,6 +178,16 @@ export default function SearchPage() {
           onConfirm={handleConfirm}
           restaurant={selected}
           draft={draft}
+        />
+      )}
+      {/* 예약완료 페이지 모달 */}
+      {selected && draft && (
+        <ReservationCompleteModal
+          open={completeOpen}
+          restaurant={selected}
+          draft={draft}
+          onClose={closeAll}
+          autoCloseMs={5000}
         />
       )}
     </div>

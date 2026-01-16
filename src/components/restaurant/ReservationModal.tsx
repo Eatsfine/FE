@@ -41,14 +41,6 @@ const TIMES = [
   "20:30",
 ];
 
-// const SEATS: SeatType[] = [
-//   "일반석",
-//   "창가석",
-//   "룸/프라이빗",
-//   "바(Bar)석",
-//   "야외석",
-// ];
-
 export default function ReservationModal({
   open,
   onOpenChange,

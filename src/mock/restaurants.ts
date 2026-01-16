@@ -76,7 +76,7 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     id: "3",
     name: "스카이뷰 레스토랑",
     category: "다이닝",
-    thumbnailUrl: "/seatImg3.jpg",
+    thumbnailUrl: "/seatImg1.jpg",
     rating: 4.8,
     reviewCount: 452,
     operatingHours: {
