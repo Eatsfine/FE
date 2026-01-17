@@ -1,4 +1,4 @@
-// n*m 격자 그리드. 어떤 테이블 몇번째 칸에 있는지 배치도 데이터 제공
+// n*m 격자 그리드. 어떤 테이블 몇번째 칸에 있는지 배치도 데이터
 
 import type { SeatLayout } from "@/types/restaurant";
 
@@ -7,7 +7,7 @@ export const MOCK_SEAT_LAYOUT_BY_RESTAURANT: Record<string, SeatLayout> = {
     gridCols: 8,
     gridRows: 6,
     tables: [
-      // 일반석
+      // 일반석 (있다고 가정)
       {
         id: "t-101",
         tableNo: 1,
@@ -54,7 +54,7 @@ export const MOCK_SEAT_LAYOUT_BY_RESTAURANT: Record<string, SeatLayout> = {
         gridY: 2,
       },
 
-      // 룸
+      // 룸 (있다고 가정)
       {
         id: "t-201",
         tableNo: 10,
@@ -74,12 +74,12 @@ export const MOCK_SEAT_LAYOUT_BY_RESTAURANT: Record<string, SeatLayout> = {
         gridY: 2,
       },
 
-      // 창가석 (SEATS에 있다고 가정)
+      // 창가석 (있다고 가정)
       {
         id: "t-301",
         tableNo: 20,
         minPeople: 2,
-        maxPeople: 2,
+        maxPeople: 4,
         seatType: "창가석",
         gridX: 0,
         gridY: 4,

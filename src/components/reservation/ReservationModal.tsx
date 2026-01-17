@@ -73,10 +73,10 @@ export default function ReservationModal({
     setSelectedTableId(null);
   }, [open]);
 
-  // date, time, people, seatType 바뀌면 테이블 재선택 필요
+  // date, time, people바뀌면 테이블 재선택 필요
   useEffect(() => {
     setSelectedTableId(null);
-  }, [people, date, time, seatType]);
+  }, [people, date, time]);
 
   const todayKst = startOfTodayInKst();
 
@@ -113,6 +113,11 @@ export default function ReservationModal({
   }, [layout, date, time, dateYmd, restaurant.id]);
 
   const canSubmit = !!date && !!time && !!selectedTableId && !!seatType;
+
+  const seatTypeExists = useMemo(() => {
+    if (!layout) return new Set<SeatType>();
+    return new Set(layout.tables.map((t) => t.seatType));
+  }, [layout]);
 
   if (!open) return null;
 
@@ -236,12 +241,17 @@ export default function ReservationModal({
             <div className="flex flex-wrap gap-2">
               {SEATS.map((s) => {
                 const active = seatType === s;
+                const exists = seatTypeExists.has(s);
                 return (
                   <Button
                     key={s}
                     type="button"
                     variant="outline"
-                    onClick={() => setSeatType(s)}
+                    disabled={!exists}
+                    onClick={() => {
+                      setSeatType(s);
+                      setSelectedTableId(null);
+                    }}
                     className={cn(
                       "rounded-md p-6 w-40 text-md cursor-pointer border-2",
                       active &&

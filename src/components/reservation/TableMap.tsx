@@ -27,6 +27,7 @@ export default function TableMap({
 
   // 선택된 좌석유형이 있을때만 흐리게 적용되도록.
   const shouldDimOthers = activeSeatType !== null;
+
   return (
     <div className="border rounded-xl bg-gray-50 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -87,9 +88,11 @@ export default function TableMap({
                 gridRowStart: t.gridY + 1,
               }}
             >
-              <div className="text-sm">{t.tableNo}번</div>
-              <div className="text-[11px] text-muted-foreground">
-                {t.minPeople}~{t.maxPeople}명
+              <div className="text-center">
+                <div className="text-sm">{t.tableNo}번</div>
+                <div className="text-xs text-muted-foreground">
+                  {t.minPeople}~{t.maxPeople}명
+                </div>
               </div>
             </button>
           );
