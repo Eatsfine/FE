@@ -186,6 +186,7 @@ export default function SearchPage() {
           onSuccess={() => {
             setCompleteOpen(true); //결제 성공 완료모달
           }}
+          onBack={() => setConfirmOpen(true)}
         />
       )}
       {/* 예약완료 페이지 모달 */}

@@ -49,8 +49,13 @@ export default function ReservationConfirmMoodal({
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약 내용 확인</h3>
-          <button type="button" onClick={handleRequestClose} aria-label="닫기">
-            <X className="h-5 w-5" />
+          <button
+            type="button"
+            onClick={handleRequestClose}
+            aria-label="닫기"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            <X />
           </button>
         </div>
 
