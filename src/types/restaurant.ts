@@ -49,10 +49,28 @@ export type ReservationDraft = {
   seatType: SeatType;
   tablePref: TablePref;
   payment: PaymentPolicy;
+  tableId: string;
 };
 
 export type PaymentPolicy = {
   depositRate: 0.1 | 0.2 | 0.3 | 0.4 | 0.5;
   depositAmount: number;
   notice?: string;
+};
+
+export type SeatTable = {
+  id: string;
+  tableNo: number;
+  minPeople: number;
+  maxPeople: number;
+  seatType: SeatType;
+  gridX: number;
+  gridY: number;
+  imageUrl?: string;
+};
+
+export type SeatLayout = {
+  gridCols: number;
+  gridRows: number;
+  tables: SeatTable[];
 };

@@ -1,11 +1,14 @@
 import {
   SEATS,
+  type PaymentPolicy,
   type ReservationDraft,
   type Restaurant,
+  type SeatLayout,
+  type SeatTable,
   type SeatType,
   type TablePref,
 } from "@/types/restaurant";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarIcon, Clock3, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -13,6 +16,9 @@ import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
 import { formatKrw } from "@/utils/money";
+import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
+import { getMockAvailableTableIds } from "@/mock/tableAvailability";
+import TableMap from "./TableMap";
 
 type Props = {
   open: boolean;
@@ -54,6 +60,8 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType>("일반석");
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+
   const policy = restaurant.paymentPolicy;
 
   useEffect(() => {
@@ -63,19 +71,59 @@ export default function ReservationModal({
     setTime("");
     setSeatType("일반석");
     setTablePref("split_ok");
+    setSelectedTableId(null);
   }, [open]);
 
-  const canSubmit = !!date && !!time;
+  // date, time, people, seatType 바뀌면 테이블 재선택 필요
+  useEffect(() => {
+    setSelectedTableId(null);
+  }, [people, date, time, seatType]);
 
   const todayKst = startOfTodayInKst();
 
-  const paymentDraft = {
+  const paymentDraft: PaymentPolicy = {
     depositRate: policy?.depositRate ?? 0.1,
     depositAmount: policy?.depositAmount ?? 0,
     notice:
       policy?.notice ??
       "예약 확정을 위해 예약금 결제가 필요합니다. (노쇼 방지 목적)",
   };
+
+  // 레이아웃 mock 넣음. (나중에 API로 교체예정)
+  const layout: SeatLayout | null = useMemo(() => {
+    // 레스토랑 id없으면 name등 다른걸로 매핑하지말고 실제로 식당id가 있어야함.
+    // 레스토랑 id가 있다고 가정함.
+    // return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
+    // }, [restaurant]);
+    return getMockLayoutByRestaurantId("r-1"); //UI테스트 용으로 고정시켜 놓음.
+  }, []);
+
+  const dateYmd = date ? toYmd(date) : "";
+  const canQueryTables = !!layout && !!date && !!time;
+
+  // 조건맞는 테이블만 먼저 필터링
+  const visibleTables: SeatTable[] = useMemo(() => {
+    if (!layout) return [];
+    return layout.tables.filter((t) => {
+      const seatOk = t.seatType === seatType;
+      const peopleOk = t.minPeople <= people && people <= t.maxPeople;
+      return seatOk && peopleOk;
+    });
+  }, [layout, seatType, people]);
+
+  // date, time 기준가능 mock
+  const availableIds = useMemo(() => {
+    if (!layout || !date || !time) return new Set<string>();
+    const restaurantId = restaurant.id ?? "r-1";
+    return getMockAvailableTableIds({
+      restaurantId,
+      dateYmd,
+      time,
+      tableIds: layout.tables.map((t) => t.id),
+    });
+  }, [layout, date, time, dateYmd, restaurant.id]);
+
+  const canSubmit = !!date && !!time && !!selectedTableId;
 
   if (!open) return null;
 
@@ -217,6 +265,37 @@ export default function ReservationModal({
               })}
             </div>
           </div>
+          {/* 테이블 배치도 */}
+          <div className="mt-6 space-y-2">
+            <div className="mb-3">테이블 선택</div>
+            {!layout && (
+              <p className="text-sm text-muted-foreground">
+                테이블 배치 정보가 없어요. (백엔드 연결필요)
+              </p>
+            )}
+            {layout && !canQueryTables && (
+              <p className="text-sm text-muted-foreground">
+                날짜와 시간대를 선택하면 테이블 선택 가능합니다.
+              </p>
+            )}
+            {layout && canQueryTables && (
+              <>
+                <TableMap
+                  layout={layout}
+                  visibleTables={visibleTables}
+                  availableIds={availableIds}
+                  selectedTableId={selectedTableId}
+                  onSelectTable={setSelectedTableId}
+                />
+
+                {!selectedTableId && (
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    배치도에서 테이블을 선택해주세요
+                  </p>
+                )}
+              </>
+            )}
+          </div>
 
           {/* 테이블 선호도 */}
           <div className="mt-6 space-y-2">
@@ -297,7 +376,7 @@ export default function ReservationModal({
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {
-              if (!date || !time) return;
+              if (!date || !time || !selectedTableId) return;
               onClickConfirm({
                 people,
                 date,
@@ -305,6 +384,7 @@ export default function ReservationModal({
                 seatType,
                 tablePref,
                 payment: paymentDraft,
+                tableId: selectedTableId,
               });
             }}
           >
@@ -312,7 +392,7 @@ export default function ReservationModal({
           </Button>
           {!canSubmit && (
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              날짜와 시간대를 선택하면 예약할 수 있어요.
+              날짜/시간대/테이블을 선택하면 예약할 수 있어요.
             </p>
           )}
         </div>
