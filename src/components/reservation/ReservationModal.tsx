@@ -4,7 +4,6 @@ import {
   type ReservationDraft,
   type Restaurant,
   type SeatLayout,
-  type SeatTable,
   type SeatType,
   type TablePref,
 } from "@/types/restaurant";
@@ -58,7 +57,7 @@ export default function ReservationModal({
   const [people, setPeople] = useState<number>(2);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState<string>("");
-  const [seatType, setSeatType] = useState<SeatType>("일반석");
+  const [seatType, setSeatType] = useState<SeatType | null>(null);
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
@@ -69,7 +68,7 @@ export default function ReservationModal({
     setPeople(2);
     setDate(undefined);
     setTime("");
-    setSeatType("일반석");
+    setSeatType(null);
     setTablePref("split_ok");
     setSelectedTableId(null);
   }, [open]);
@@ -101,16 +100,6 @@ export default function ReservationModal({
   const dateYmd = date ? toYmd(date) : "";
   const canQueryTables = !!layout && !!date && !!time;
 
-  // 조건맞는 테이블만 먼저 필터링
-  const visibleTables: SeatTable[] = useMemo(() => {
-    if (!layout) return [];
-    return layout.tables.filter((t) => {
-      const seatOk = t.seatType === seatType;
-      const peopleOk = t.minPeople <= people && people <= t.maxPeople;
-      return seatOk && peopleOk;
-    });
-  }, [layout, seatType, people]);
-
   // date, time 기준가능 mock
   const availableIds = useMemo(() => {
     if (!layout || !date || !time) return new Set<string>();
@@ -123,7 +112,7 @@ export default function ReservationModal({
     });
   }, [layout, date, time, dateYmd, restaurant.id]);
 
-  const canSubmit = !!date && !!time && !!selectedTableId;
+  const canSubmit = !!date && !!time && !!selectedTableId && !!seatType;
 
   if (!open) return null;
 
@@ -282,10 +271,11 @@ export default function ReservationModal({
               <>
                 <TableMap
                   layout={layout}
-                  visibleTables={visibleTables}
                   availableIds={availableIds}
                   selectedTableId={selectedTableId}
+                  seatType={seatType}
                   onSelectTable={setSelectedTableId}
+                  onSelectSeatType={setSeatType}
                 />
 
                 {!selectedTableId && (
@@ -376,7 +366,7 @@ export default function ReservationModal({
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {
-              if (!date || !time || !selectedTableId) return;
+              if (!date || !time || !selectedTableId || !seatType) return;
               onClickConfirm({
                 people,
                 date,

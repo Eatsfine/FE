@@ -1,21 +1,32 @@
 import { cn } from "@/lib/utils";
-import type { SeatLayout, SeatTable } from "@/types/restaurant";
+import type { SeatLayout, SeatTable, SeatType } from "@/types/restaurant";
 
 type Props = {
   layout: SeatLayout;
-  visibleTables: SeatTable[];
   availableIds: Set<string>;
   selectedTableId: string | null;
+  seatType: SeatType | null;
   onSelectTable: (tableId: string) => void;
+  onSelectSeatType: (seatType: SeatType) => void;
 };
 
 export default function TableMap({
   layout,
-  visibleTables,
   availableIds,
   selectedTableId,
+  seatType,
   onSelectTable,
+  onSelectSeatType,
 }: Props) {
+  const selectedTable = selectedTableId
+    ? (layout.tables.find((t) => t.id === selectedTableId) ?? null)
+    : null;
+
+  const activeSeatType: SeatType | null =
+    selectedTable?.seatType ?? seatType ?? null;
+
+  // 선택된 좌석유형이 있을때만 흐리게 적용되도록.
+  const shouldDimOthers = activeSeatType !== null;
   return (
     <div className="border rounded-xl bg-gray-50 p-3">
       <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -23,11 +34,14 @@ export default function TableMap({
           <span className="h-3 w-3 border rounded bg-white" /> 선택 가능
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-3 w-3 border rounded bg-gray-200" /> 예약 불가
+          <span className="h-3 w-3 border rounded bg-red-400" /> 예약 불가
         </span>
         <span className="inline-flex items-center gap-1">
           <span className="h-3 w-3 border border-blue-400 rounded bg-blue-100" />{" "}
           선택됨
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-3 w-3 border rounded bg-gray-300" /> 다른 좌석유형
         </span>
       </div>
       <div
@@ -39,22 +53,34 @@ export default function TableMap({
           gap: 8,
         }}
       >
-        {visibleTables.map((t) => {
+        {layout.tables.map((t: SeatTable) => {
           const isAvailable = availableIds.has(t.id);
           const isSelected = selectedTableId === t.id;
+          const isActiveType = activeSeatType
+            ? t.seatType === activeSeatType
+            : true;
 
           return (
             <button
               key={t.id}
               type="button"
               disabled={!isAvailable}
-              onClick={() => onSelectTable(t.id)}
+              onClick={() => {
+                if (!isAvailable) return;
+                onSelectTable(t.id);
+                onSelectSeatType(t.seatType);
+              }}
               className={cn(
-                "border rounded-lg text-left px-2 py-2 transition-colors",
-                isAvailable
-                  ? "bg-white hover:bg-gray-100 cursor-pointer"
-                  : "bg-gray-200 text-muted-foreground cursor-not-allowed",
-                isSelected && "bg-blue-100 border-blue-400 border-2"
+                "border rounded-lg text-left px-2 py-2 transition-colors bg-white",
+                //다른유형좌석은 흐리게 설정.
+                shouldDimOthers && !isActiveType && "bg-gray-300",
+                //예약불가
+                !isAvailable &&
+                  "bg-red-100 text-red-700 border-red-200 cursor-not-allowed",
+                //선택됨 강조
+                isSelected && "bg-blue-100 border-blue-400 border-2",
+                //예약가능한것만 hover 스타일
+                isAvailable && "hover:brightness-95 cursor-pointer"
               )}
               style={{
                 gridColumnStart: t.gridX + 1,
@@ -69,12 +95,6 @@ export default function TableMap({
           );
         })}
       </div>
-      {visibleTables.length === 0 && (
-        <p className="mt-3 text-sm text-muted-foreground text-center">
-          조건에 맞는 테이블이 없습니다. (좌석유형 또는 인원수 변경을
-          추천드립니다)
-        </p>
-      )}
     </div>
   );
 }

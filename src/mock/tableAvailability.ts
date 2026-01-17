@@ -7,6 +7,7 @@ export function getMockAvailableTableIds(params: {
   tableIds: string[];
 }): Set<string> {
   const { restaurantId, dateYmd, time, tableIds } = params;
+
   const seedStr = `${restaurantId}|${dateYmd}|${time}`;
 
   // 간단한 문자열 해시
