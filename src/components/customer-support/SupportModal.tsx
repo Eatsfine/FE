@@ -183,7 +183,7 @@ export default function SupportModal({
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800 text-sm">
+              <p className="text-blue-800 text-sm break-keep">
                 📧 문의하신 내용은 영업일 기준 24시간 이내에 이메일로
                 답변드립니다.
               </p>
