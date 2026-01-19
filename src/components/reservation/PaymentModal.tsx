@@ -32,7 +32,7 @@ export default function PaymentModal({
   onSuccess,
   onBack,
 }: Props) {
-  const [method, setMethod] = useState<PayMethod>("KAKAOPAY");
+  const [method, setMethod] = useState<PayMethod | undefined>();
   const [loading, setLoading] = useState(false);
 
   const amount = useMemo(() => draft.payment.depositAmount, [draft.payment]);
@@ -96,7 +96,7 @@ export default function PaymentModal({
                 className={cn(
                   "h-12 cursor-pointer justify-center rounded-xl",
                   method === "KAKAOPAY" &&
-                    "text-black bg-[#FFEB00] hover:bg-[#f2de00]"
+                    "text-black bg-[#FFEB00] hover:bg-[#f2de00]",
                 )}
               >
                 카카오페이
@@ -108,7 +108,7 @@ export default function PaymentModal({
                 className={cn(
                   "h-12 cursor-pointer justify-center rounded-xl",
                   method === "TOSSPAY" &&
-                    "text-white bg-[#0064FF] hover:bg-[#005fee] hover:text-white"
+                    "text-white bg-[#0064FF] hover:bg-[#005fee] hover:text-white",
                 )}
               >
                 토스페이

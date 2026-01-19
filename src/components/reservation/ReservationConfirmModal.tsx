@@ -27,7 +27,7 @@ export default function ReservationConfirmMoodal({
 
   const handleRequestClose = () => {
     const ok = window.confirm(
-      "예약이 확정되지 않았습니다.\n예약화면을 벗어나시겠습니까?"
+      "예약이 확정되지 않았습니다.\n예약화면을 벗어나시겠습니까?",
     );
     if (ok) onClose();
   };
@@ -45,7 +45,7 @@ export default function ReservationConfirmMoodal({
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
-      <div className="relative z-10 w-[92vw] max-w-md rounded-2xl bg-white shadow-xl overflow-hidden">
+      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약 내용 확인</h3>

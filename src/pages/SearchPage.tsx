@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import {
+  type Step,
+  type ReservationDraft,
+  type Restaurant,
+} from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
@@ -21,6 +25,8 @@ export default function SearchPage() {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  const [step, setStep] = useState<Step>("form");
+
   const openDetail = (restaurant: Restaurant) => {
     setSelected(restaurant);
     setDraft(null);
@@ -30,6 +36,7 @@ export default function SearchPage() {
   };
 
   const goReserve = () => {
+    setDraft(null);
     setDetailOpen(false);
     setReserveOpen(true);
   };
@@ -56,11 +63,11 @@ export default function SearchPage() {
   };
 
   const closeAll = () => {
+    setDraft(null);
     setDetailOpen(false);
     setReserveOpen(false);
     setConfirmOpen(false);
     setSelected(null);
-    setDraft(null);
     setCompleteOpen(false);
   };
 
@@ -160,6 +167,7 @@ export default function SearchPage() {
             if (!o) closeAll();
           }}
           restaurant={selected}
+          initialDraft={draft ?? undefined}
           onClickConfirm={goConfirm}
           onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
         />

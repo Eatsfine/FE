@@ -23,6 +23,7 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
+  initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
 };
@@ -51,6 +52,7 @@ export default function ReservationModal({
   open,
   onOpenChange,
   restaurant,
+  initialDraft,
   onClickConfirm,
   onBack,
 }: Props) {
@@ -65,13 +67,16 @@ export default function ReservationModal({
 
   useEffect(() => {
     if (!open) return;
-    setPeople(2);
-    setDate(undefined);
-    setTime("");
-    setSeatType(null);
-    setTablePref("split_ok");
-    setSelectedTableId(null);
-  }, [open]);
+    if (initialDraft) {
+      setPeople(initialDraft.people);
+      setDate(initialDraft.date);
+      setTime(initialDraft.time);
+      setSeatType(initialDraft.seatType);
+      setTablePref(initialDraft.tablePref);
+
+      setSelectedTableId((initialDraft as any).tableId ?? null);
+    }
+  }, [open, initialDraft]);
 
   // date, time, people바뀌면 테이블 재선택 필요
   useEffect(() => {
@@ -118,6 +123,11 @@ export default function ReservationModal({
     if (!layout) return new Set<SeatType>();
     return new Set(layout.tables.map((t) => t.seatType));
   }, [layout]);
+
+  const seatOptions = useMemo(() => {
+    if (!layout) return SEATS;
+    return SEATS.filter((s) => seatTypeExists.has(s));
+  }, [layout, seatTypeExists]);
 
   if (!open) return null;
 
@@ -170,7 +180,7 @@ export default function ReservationModal({
                     className={cn(
                       "rounded-md py-5 px-4 text-md cursor-pointer border-2",
                       active &&
-                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500",
                     )}
                   >
                     {n}명
@@ -191,7 +201,7 @@ export default function ReservationModal({
                   variant="outline"
                   className={cn(
                     "w-full justify-between rounded-md text-md p-5 border-2 cursor-pointer",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                 >
                   {date ? toYmd(date) : "연도-월-일"}
@@ -226,7 +236,7 @@ export default function ReservationModal({
                     className={cn(
                       "rounded-md py-5 px-4 w-24 text-md cursor-pointer border-2",
                       active &&
-                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500",
                     )}
                   >
                     {t}
@@ -239,7 +249,7 @@ export default function ReservationModal({
           <div className="mt-6 space-y-2">
             <div className="text-md mb-3">좌석 유형</div>
             <div className="flex flex-wrap gap-2">
-              {SEATS.map((s) => {
+              {seatOptions.map((s) => {
                 const active = seatType === s;
                 const exists = seatTypeExists.has(s);
                 return (
@@ -255,7 +265,7 @@ export default function ReservationModal({
                     className={cn(
                       "rounded-md p-6 w-40 text-md cursor-pointer border-2",
                       active &&
-                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500"
+                        "border-blue-500 text-blue-500 bg-gray-100 hover:bg-gray-100 hover:text-blue-500",
                     )}
                   >
                     {s}
@@ -306,7 +316,7 @@ export default function ReservationModal({
                 onClick={() => setTablePref("split_ok")}
                 className={cn(
                   "w-full rounded-lg border p-4 text-left cursor-pointer hover:bg-gray-50",
-                  tablePref === "split_ok"
+                  tablePref === "split_ok",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -330,7 +340,7 @@ export default function ReservationModal({
                 onClick={() => setTablePref("one_table")}
                 className={cn(
                   "w-full rounded-lg border p-4 text-left cursor-pointer hover:bg-gray-50",
-                  tablePref === "one_table"
+                  tablePref === "one_table",
                 )}
               >
                 <div className="flex items-start gap-3">

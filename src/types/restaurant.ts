@@ -74,3 +74,5 @@ export type SeatLayout = {
   gridRows: number;
   tables: SeatTable[];
 };
+
+export type Step = "form" | "confirm";
