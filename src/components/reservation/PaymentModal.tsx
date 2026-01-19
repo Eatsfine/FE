@@ -10,6 +10,7 @@ type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
 type Props = {
   open: boolean;
+  onClose: () => void;
   onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
   draft: ReservationDraft;
@@ -26,6 +27,7 @@ function mockPay(method: PayMethod, amount: number) {
 
 export default function PaymentModal({
   open,
+  onClose,
   onOpenChange,
   restaurant,
   draft,
@@ -54,25 +56,42 @@ export default function PaymentModal({
     onBack();
   };
 
+  const handleRequestClose = () => {
+    const ok = window.confirm(
+      "예약금이 결제되지 않았습니다. \n 예약화면을 벗어나시겠습니까?",
+    );
+    if (ok) onClose();
+  };
+
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        className="sm:max-w-md rounded-2xl p-0 overflow-hidden"
-      >
-        <DialogHeader className="px-6 py-1 border-b">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <DialogTitle className="text-lg">예약금 결제</DialogTitle>
-            <button
-              type="button"
-              onClick={handleBack}
-              aria-label="뒤로 가기"
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <X />
-            </button>
-          </div>
-        </DialogHeader>
+    <div
+      className="fixed inset-0 z-60 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="예약 내용 확인모달"
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/50"
+        aria-label="모달 닫기"
+        onClick={handleRequestClose}
+      />
+      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
+        {/* 헤더 */}
+        <div className="flex items-center justify-between px-5 py-4 border-b">
+          <h3 className="text-lg">예약금 결제</h3>
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="닫기"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            {" "}
+            <X />
+          </button>
+        </div>
         <div className="px-6 py-5 space-y-4">
           <div className="border rounded-xl p-4">
             <div className="text-sm text-muted-foreground">매장</div>
@@ -86,6 +105,7 @@ export default function PaymentModal({
               </div>
             </div>
           </div>
+          {/* 본문 */}
           <div className="space-y-2">
             <div className="text-sm">결제수단</div>
             <div className="grid grid-cols-2 gap-2">
@@ -127,7 +147,7 @@ export default function PaymentModal({
             현재는 임시 결제입니다.
           </p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

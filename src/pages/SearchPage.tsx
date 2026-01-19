@@ -50,6 +50,7 @@ export default function SearchPage() {
     setDraft(d);
     setReserveOpen(false);
     setConfirmOpen(true);
+    setPaymentOpen(false);
   };
 
   const backToReserve = () => {
@@ -188,6 +189,7 @@ export default function SearchPage() {
       {selected && draft && (
         <PaymentModal
           open={paymentOpen}
+          onClose={closeAll}
           onOpenChange={setPaymentOpen}
           restaurant={selected}
           draft={draft}
