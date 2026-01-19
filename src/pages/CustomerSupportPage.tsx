@@ -1,4 +1,5 @@
-import SupportFAQ from "@/components/customer-support/supportFaq";
+import SupportContact from "@/components/customer-support/SupportContact";
+import SupportFAQ from "@/components/customer-support/SupportFAQ";
 import SupportHero from "@/components/customer-support/SupportHero";
 import { CircleHelp } from "lucide-react";
 
@@ -18,7 +19,8 @@ export default function CustomerSupportPage() {
       {/* FAQ 메인 */}
       <SupportFAQ />
 
-      {/* 카드 섹션 */}
+      {/* 문의처 정보 섹션 */}
+      <SupportContact />
 
       <footer className="bg-gray-900 text-gray-400">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16 py-8">
