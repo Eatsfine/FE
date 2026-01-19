@@ -1,11 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
-import {
-  type Step,
-  type ReservationDraft,
-  type Restaurant,
-} from "@/types/restaurant";
+import { type ReservationDraft, type Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
@@ -24,8 +20,6 @@ export default function SearchPage() {
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
-
-  const [step, setStep] = useState<Step>("form");
 
   const openDetail = (restaurant: Restaurant) => {
     setSelected(restaurant);

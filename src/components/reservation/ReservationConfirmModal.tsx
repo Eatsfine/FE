@@ -1,3 +1,4 @@
+import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { toYmd } from "@/utils/date";
 import { formatKrw } from "@/utils/money";
@@ -24,6 +25,12 @@ export default function ReservationConfirmMoodal({
   if (!open) return null;
 
   const { people, date, time, seatType, tablePref } = draft;
+
+  //UI테스트를 위해서 r-1로 고정함. 나중에 백엔드 연결시 주석으로 변경필요. ReservationModal또한 변경필요.
+  // const layout = getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
+  const layout = getMockLayoutByRestaurantId("r-1");
+
+  const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
 
   const handleRequestClose = () => {
     const ok = window.confirm(
@@ -81,7 +88,9 @@ export default function ReservationConfirmMoodal({
             </div>
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">좌석</div>
-              <div>{seatType}</div>
+              <div>
+                {seatType}, {seatTable?.tableNo}번
+              </div>
             </div>
           </div>
           <div className="border rounded-lg p-3">

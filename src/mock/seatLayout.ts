@@ -98,7 +98,7 @@ export const MOCK_SEAT_LAYOUT_BY_RESTAURANT: Record<string, SeatLayout> = {
 };
 
 export function getMockLayoutByRestaurantId(
-  restaurantId: string
+  restaurantId: string,
 ): SeatLayout | null {
   return MOCK_SEAT_LAYOUT_BY_RESTAURANT[restaurantId] ?? null;
 }

@@ -1,6 +1,5 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { formatKrw } from "@/utils/money";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";

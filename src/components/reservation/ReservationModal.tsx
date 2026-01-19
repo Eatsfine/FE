@@ -73,8 +73,14 @@ export default function ReservationModal({
       setTime(initialDraft.time);
       setSeatType(initialDraft.seatType);
       setTablePref(initialDraft.tablePref);
-
-      setSelectedTableId((initialDraft as any).tableId ?? null);
+      setSelectedTableId(initialDraft.tableId);
+    } else {
+      setPeople(2);
+      setDate(undefined);
+      setTime("");
+      setSeatType(null);
+      setTablePref("split_ok");
+      setSelectedTableId(null);
     }
   }, [open, initialDraft]);
 
@@ -97,7 +103,7 @@ export default function ReservationModal({
   const layout: SeatLayout | null = useMemo(() => {
     // 레스토랑 id없으면 name등 다른걸로 매핑하지말고 실제로 식당id가 있어야함.
     // 레스토랑 id가 있다고 가정함.
-    // return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
+    //   return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
     // }, [restaurant]);
     return getMockLayoutByRestaurantId("r-1"); //UI테스트 용으로 고정시켜 놓음.
   }, []);

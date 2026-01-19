@@ -81,7 +81,7 @@ export default function TableMap({
                 //선택됨 강조
                 isSelected && "bg-blue-100 border-blue-400 border-2",
                 //예약가능한것만 hover 스타일
-                isAvailable && "hover:brightness-95 cursor-pointer"
+                isAvailable && "hover:brightness-95 cursor-pointer",
               )}
               style={{
                 gridColumnStart: t.gridX + 1,
