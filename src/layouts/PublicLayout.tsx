@@ -15,7 +15,7 @@ export default function PublicLayout({
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/">
             <img
-              src="/EatsfineLogo.png"
+              src="/eatsfineLogo.png"
               alt="잇츠파인 로고"
               className="h-14 w-14 rounded hover:scale-110 transition"
             />
