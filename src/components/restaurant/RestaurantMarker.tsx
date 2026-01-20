@@ -14,7 +14,7 @@ export default function RestaurantMarker({ restaurant, onSelect }: Props) {
     <button
       type="button"
       onClick={() => onSelect(restaurant)}
-      className="absolute -translate-x-1/2 -translate-y-full cursor-pointer transition-transform hover:scale-110"
+      className="absolute -translate-x-1/2 -translate-y-full cursor-pointer transition-transform hover:scale-110 flex flex-col items-center"
       style={{
         left: `${pos.leftPct}%`,
         top: `${pos.topPct}%`,

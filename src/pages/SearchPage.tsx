@@ -1,14 +1,70 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
-import type { Restaurant } from "@/types/restaurant";
+import { type ReservationDraft, type Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
+import ReservationModal from "@/components/reservation/ReservationModal";
+import ReservationConfirmMoodal from "@/components/reservation/ReservationConfirmModal";
+import ReservationCompleteModal from "@/components/reservation/ReservationCompleteModal";
+import PaymentModal from "@/components/reservation/PaymentModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Restaurant | null>(null);
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [reserveOpen, setReserveOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [draft, setDraft] = useState<ReservationDraft | null>(null);
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
+  const openDetail = (restaurant: Restaurant) => {
+    setSelected(restaurant);
+    setDraft(null);
+    setConfirmOpen(false);
+    setReserveOpen(false);
+    setDetailOpen(true);
+  };
+
+  const goReserve = () => {
+    setDraft(null);
+    setDetailOpen(false);
+    setReserveOpen(true);
+  };
+
+  const backToDetail = () => {
+    setReserveOpen(false);
+    setDetailOpen(true);
+  };
+
+  const goConfirm = (d: ReservationDraft) => {
+    setDraft(d);
+    setReserveOpen(false);
+    setConfirmOpen(true);
+    setPaymentOpen(false);
+  };
+
+  const backToReserve = () => {
+    setReserveOpen(true);
+    setConfirmOpen(false);
+  };
+
+  const goPayment = () => {
+    setConfirmOpen(false);
+    setPaymentOpen(true);
+  };
+
+  const closeAll = () => {
+    setDraft(null);
+    setDetailOpen(false);
+    setReserveOpen(false);
+    setConfirmOpen(false);
+    setSelected(null);
+    setCompleteOpen(false);
+  };
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -18,17 +74,12 @@ export default function SearchPage() {
       const name = r.name.toLowerCase();
       const category = (r.category ?? "").toLowerCase();
       const address = r.address.toLowerCase();
-
       return name.includes(q) || category.includes(q) || address.includes(q);
     });
   }, [query]);
 
   const handleSelect = (restaurant: Restaurant) => {
-    setSelected(restaurant);
-  };
-
-  const handleCloseModal = () => {
-    setSelected(null);
+    openDetail(restaurant);
   };
 
   return (
@@ -90,12 +141,68 @@ export default function SearchPage() {
           ) : null}
         </div>
       </main>
-      {selected ? (
+      {/* 상세 페이지 모달 */}
+      {selected && (
         <RestaurantDetailModal
+          open={detailOpen}
+          onOpenChange={(o: boolean) => {
+            setDetailOpen(o);
+            if (!o) closeAll();
+          }}
           restaurant={selected}
-          onClose={handleCloseModal}
+          onClickReserve={goReserve}
         />
-      ) : null}
+      )}
+      {/* 예약 페이지 모달 */}
+      {selected && (
+        <ReservationModal
+          open={reserveOpen}
+          onOpenChange={(o: boolean) => {
+            setReserveOpen(o);
+            if (!o) closeAll();
+          }}
+          restaurant={selected}
+          initialDraft={draft ?? undefined}
+          onClickConfirm={goConfirm}
+          onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
+        />
+      )}
+      {/* 예약확인 페이지 모달 */}
+      {selected && draft && (
+        <ReservationConfirmMoodal
+          open={confirmOpen}
+          onClose={closeAll}
+          onBack={backToReserve} //X표시 누르면 예약페이지 모달로 이동
+          onConfirm={goPayment}
+          restaurant={selected}
+          draft={draft}
+        />
+      )}
+
+      {/* 결제 모달 */}
+      {selected && draft && (
+        <PaymentModal
+          open={paymentOpen}
+          onClose={closeAll}
+          onOpenChange={setPaymentOpen}
+          restaurant={selected}
+          draft={draft}
+          onSuccess={() => {
+            setCompleteOpen(true); //결제 성공 완료모달
+          }}
+          onBack={() => setConfirmOpen(true)}
+        />
+      )}
+      {/* 예약완료 페이지 모달 */}
+      {selected && draft && (
+        <ReservationCompleteModal
+          open={completeOpen}
+          restaurant={selected}
+          draft={draft}
+          onClose={closeAll}
+          autoCloseMs={5000}
+        />
+      )}
     </div>
   );
 }

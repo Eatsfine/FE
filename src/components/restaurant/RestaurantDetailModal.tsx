@@ -2,8 +2,10 @@ import type { Restaurant } from "@/types/restaurant";
 import { Clock, Star, Users, X } from "lucide-react";
 
 type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
-  onClose: () => void;
+  onClickReserve: () => void;
 };
 
 function formatHours(r: Restaurant) {
@@ -14,18 +16,25 @@ function formatHours(r: Restaurant) {
   return `${open} - ${close} (브레이크타임 ${breakTime.start} - ${breakTime.end})`;
 }
 
-export default function RestaurantDetailModal({ restaurant, onClose }: Props) {
+export default function RestaurantDetailModal({
+  open,
+  onOpenChange,
+  restaurant,
+  onClickReserve,
+}: Props) {
+  if (!open) return null;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
+      aria-label="식당 상세 모달"
     >
       <button
         type="button"
         className="absolute inset-0 bg-black/40"
         aria-label="모달 닫기"
-        onClick={onClose}
+        onClick={() => onOpenChange(false)}
       />
       <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
@@ -34,7 +43,7 @@ export default function RestaurantDetailModal({ restaurant, onClose }: Props) {
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => onOpenChange(false)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <X />
@@ -111,9 +120,7 @@ export default function RestaurantDetailModal({ restaurant, onClose }: Props) {
               <button
                 type="button"
                 className="flex-1 bg-blue-500 text-white py-4 rounded-xl hover:bg-blue-600 transition-colors cursor-pointer"
-                onClick={() => {
-                  // Todo: 예약페이지로 이동
-                }}
+                onClick={onClickReserve}
               >
                 식당 예약
               </button>
