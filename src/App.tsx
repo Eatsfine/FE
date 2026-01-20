@@ -8,6 +8,7 @@ import {
 import NotFound from "./pages/NotFound";
 import Intro from "./pages/Intro";
 import SearchPage from "./pages/SearchPage";
+import CustomerSupportPage from "./pages/CustomerSupportPage";
 
 export const queryClient = new QueryClient();
 
@@ -22,6 +23,11 @@ const routes: RouteObject[] = [
     element: <SearchPage />,
     errorElement: <NotFound />,
   },
+  {
+    path: "/customer-support",
+    element: <CustomerSupportPage />,
+    errorElement: <NotFound />,
+  }
 ];
 
 const router = createBrowserRouter(routes);
