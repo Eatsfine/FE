@@ -1,5 +1,6 @@
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { SignupDialog } from "@/components/auth/SignupDialog";
+import Header from "@/components/main/Header";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -9,6 +10,7 @@ const Intro = () => {
 
   return (
     <>
+      <Header />
       <div className="p-4">
         소개 페이지
         <br />
