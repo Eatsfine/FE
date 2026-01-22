@@ -9,18 +9,31 @@ import NotFound from "./pages/NotFound";
 import Intro from "./pages/Intro";
 import SearchPage from "./pages/SearchPage";
 import MyPage from "./pages/myPage/myPage";
+import CustomerSupportPage from "./pages/CustomerSupportPage";
+import PublicLayout from "./layouts/PublicLayout";
 
 export const queryClient = new QueryClient();
 
 const routes: RouteObject[] = [
   {
+    element: (
+      <PublicLayout
+        title="잇츠파인"
+        subtitle="원하는 자리를 직접 선택하는 스마트 식당 예약"
+      />
+    ),
+    errorElement: <NotFound />,
+    children: [{ path: "/search", element: <SearchPage /> }],
+  },
+  {
     path: "/",
     element: <Intro />,
     errorElement: <NotFound />,
   },
+
   {
-    path: "/search",
-    element: <SearchPage />,
+    path: "/customer-support",
+    element: <CustomerSupportPage />,
     errorElement: <NotFound />,
   },
   {
