@@ -8,6 +8,7 @@ import {
 import NotFound from "./pages/NotFound";
 import Intro from "./pages/Intro";
 import SearchPage from "./pages/SearchPage";
+import MyPage from "./pages/myPage/myPage";
 import CustomerSupportPage from "./pages/CustomerSupportPage";
 import PublicLayout from "./layouts/PublicLayout";
 
@@ -33,6 +34,11 @@ const routes: RouteObject[] = [
   {
     path: "/customer-support",
     element: <CustomerSupportPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/mypage/*",
+    element: <MyPage />,
     errorElement: <NotFound />,
   },
 ];
