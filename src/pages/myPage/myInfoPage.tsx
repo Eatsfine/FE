@@ -49,7 +49,7 @@ export default function MyInfoPage() {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50"
+            className="cursor-pointer rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50"
           >
             수정하기
           </button>
@@ -57,13 +57,13 @@ export default function MyInfoPage() {
           <div className="flex gap-2">
             <button
               onClick={handleCancel}
-              className="rounded-lg px-3 py-2 text-md text-gray-600 hover:bg-gray-100"
+              className="cursor-pointer rounded-lg px-3 py-2 text-md text-gray-600 hover:bg-gray-100"
             >
               취소
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="cursor-pointer flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
               <Save size={16} />
               <p className="px-2">
@@ -94,7 +94,7 @@ export default function MyInfoPage() {
             <>
             <button
                 onClick={handleImageClick}
-                className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-700"
+                className="cursor-pointer absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-700"
             >
                 <Camera size={20} />
             </button>

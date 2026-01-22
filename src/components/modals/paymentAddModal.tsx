@@ -1,4 +1,4 @@
-import { X, CreditCard } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../lib/cn";
 
@@ -7,10 +7,10 @@ interface Props {
   onClose: () => void;
 }
 
-type PaymentType = "card" | "kakao" | "toss";
+type PaymentType = "kakao" | "toss";
 
 export default function PaymentAddModal({ isOpen, onClose }: Props) {
-  const [selectedType, setSelectedType] = useState<PaymentType>("card");
+  const [selectedType, setSelectedType] = useState<PaymentType>("kakao");
 
   const handleAddSubmit = () =>{
     alert("결제수단이 성공적으로 추가되었습니다.");
@@ -35,12 +35,6 @@ export default function PaymentAddModal({ isOpen, onClose }: Props) {
             <p className="text-md font-medium text-gray-700">결제 방법 선택</p>
             <div className="grid grid-cols-3 gap-3">
               <PaymentTypeButton
-                active={selectedType === "card"}
-                onClick={() => setSelectedType("card")}
-                label="카드"
-                icon={<CreditCard size={24} className="text-blue-500" />}
-              />
-              <PaymentTypeButton
                 active={selectedType === "kakao"}
                 onClick={() => setSelectedType("kakao")}
                 label="카카오페이"
@@ -54,44 +48,6 @@ export default function PaymentAddModal({ isOpen, onClose }: Props) {
               />
             </div>
           </div>
-
-          {/* 카드 입력 폼 (카드 선택 시에만 표시) */}
-          {selectedType === "card" && (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">카드번호</label>
-                <input
-                  placeholder="0000-0000-0000-0000"
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-md focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">유효기간</label>
-                  <input
-                    placeholder="MM/YY"
-                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-md focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">CVC</label>
-                  <input
-                    placeholder="000"
-                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-md focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">카드 별명 (선택)</label>
-                <input
-                  placeholder="예: 주거래카드"
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-md focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-            </div>
-          )}
 
           {/* 하단 옵션 및 버튼 */}
           <div className="space-y-6">

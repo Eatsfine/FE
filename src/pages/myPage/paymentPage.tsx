@@ -5,24 +5,17 @@ import PaymentAddModal from "@/components/modals/paymentAddModal";
 
 interface PaymentMethod {
   id: string;
-  type: "card" | "easy-pay";
+  type: "easy-pay";
   name: string;
   detail: string;
   isDefault: boolean;
-  iconUrl?: string; // 카드사나 간편결제 로고 URL
+  iconUrl?: string; // 간편결제 로고 URL
 }
 
 export default function PaymentPage() {
   const [methods, setMethods] = useState<PaymentMethod[]>([
     {
       id: "1",
-      type: "card",
-      name: "신한카드",
-      detail: "•••• 1234",
-      isDefault: true,
-    },
-    {
-      id: "2",
       type: "easy-pay",
       name: "카카오페이",
       detail: "",
@@ -55,7 +48,7 @@ export default function PaymentPage() {
           <h2 className="text-lg text-gray-900">결제수단 관리</h2>
           <p className="mt-1 text-sm text-gray-900">예약 시 사용할 결제수단을 관리하세요</p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        <button className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
         onClick={()=>setIsModalOpen(true)}>
           <Plus size={18} />
           결제수단 추가
@@ -77,11 +70,8 @@ export default function PaymentPage() {
             <div className="flex items-center gap-4">
               {/* 아이콘 영역 */}
               <div className="flex h-12 w-12 items-center justify-center rounded-lg">
-                {method.type === "card" ? (
-                  <CreditCard className="text-blue-500" size={24} />
-                ) : (
-                  <span className="text-xl">💛</span> // 카카오페이 등 로고 대용
-                )}
+                  <span className="text-xl">💛</span>
+
               </div>
 
               {/* 정보 영역 */}
@@ -96,7 +86,7 @@ export default function PaymentPage() {
                   )}
                 </div>
                 <p className="text-xs text-gray-600">
-                  {method.type === "card" ? "신용/체크카드" : "간편결제"}
+                  간편결제
                 </p>
               </div>
             </div>
@@ -106,14 +96,14 @@ export default function PaymentPage() {
               {!method.isDefault && (
                 <button 
                   onClick={() => handleSetDefault(method.id)}
-                  className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   기본으로 설정
                 </button>
               )}
               <button 
                 onClick={() => handleDelete(method.id)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
               >
                 <Trash2 size={15} color="red" />
               </button>

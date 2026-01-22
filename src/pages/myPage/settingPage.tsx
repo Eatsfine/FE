@@ -31,7 +31,7 @@ export default function SettingsPage() {
               <h3 className="text-md font-medium text-gray-900">비밀번호 변경</h3>
               <p className="text-md text-gray-500 mt-2">정기적인 비밀번호 변경으로 계정을 안전하게 보호하세요</p>
             </div>
-            <button className="rounded-lg border border-gray-200 px-4 py-2 text-md font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <button className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-md font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               비밀번호 변경하기
             </button>
           </div>
@@ -83,7 +83,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <button className="rounded-lg bg-blue-500 px-4 py-2 text-md font-medium text-white hover:bg-blue-700 transition-colors">
+            <button className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-md font-medium text-white hover:bg-blue-700 transition-colors">
               저장하기
             </button>
           </div>
@@ -99,7 +99,7 @@ export default function SettingsPage() {
               <h3 className="text-md font-medium text-gray-900">계정 탈퇴</h3>
               <p className="text-md text-gray-500 mt-2">계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다</p>
             </div>
-            <button className="rounded-lg border border-1 border-red-500 px-4 py-2 text-md font-medium text-red-600 hover:bg-red-50 transition-colors">
+            <button className="cursor-pointer rounded-lg border border-1 border-red-500 px-4 py-2 text-md font-medium text-red-600 hover:bg-red-50 transition-colors">
               계정 탈퇴하기
             </button>
           </div>
@@ -112,7 +112,7 @@ export default function SettingsPage() {
 // 토글 아이템 컴포넌트
 function ToggleButton({ label, description, enabled, onClick }: { label: string; description: string; enabled: boolean; onClick: () => void }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="cursor-pointer flex items-center justify-between">
       <div className="space-y-0.5">
         <p className="text-md font-medium text-gray-900">{label}</p>
         <p className="text-sm text-gray-500">{description}</p>
@@ -128,7 +128,7 @@ function Switch({ enabled, onClick }: { enabled: boolean; onClick: () => void })
     <button
       onClick={onClick}
       className={cn(
-        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+        "cursor-pointer relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
         enabled ? "bg-blue-600" : "bg-gray-200"
       )}
     >

@@ -81,7 +81,7 @@ export default function ReservationPage() {
             key={tab}
             onClick={() => setActiveTab(tab as ReservationStatus)}
             className={cn(
-              "pb-4 text-sm font-medium transition-all relative",
+              "cursor-pointer pb-4 text-sm font-medium transition-all relative",
               activeTab === tab ? "text-blue-600" : "text-gray-800 hover:text-gray-600"
             )}
           >
@@ -127,21 +127,21 @@ export default function ReservationPage() {
               <div className="flex items-center justify-between">
                 <span className={cn(
                   "text-sm font-medium",
-                  res.status === "취소됨" ? "text-gray-400" : "text-gray-600"
+                  res.status === "취소됨" ? "text-gray-400" : "text-green-600"
                 )}>{res.step}</span>
                 <div className="flex gap-2">
                   {res.status === "예약 확정" && (
                     <>
-                      <button className="flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                      <button className="cursor-pointer flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                         <Pencil size={14} /> 수정
                       </button>
-                      <button className="flex items-center gap-1 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+                      <button className="cursor-pointer flex items-center gap-1 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
                         <X size={14} /> 취소
                       </button>
                     </>
                   )}
                   {res.status === "방문 완료" && (
-                    <button className="px-6 py-2 rounded-lg bg-blue-500 text-sm font-bold text-white hover:bg-blue-600 transition-colors">
+                    <button className="cursor-pointer px-6 py-2 rounded-lg bg-blue-500 text-sm font-bold text-white hover:bg-blue-600 transition-colors">
                       리뷰 작성
                     </button>
                   )}

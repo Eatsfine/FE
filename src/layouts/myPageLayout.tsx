@@ -53,7 +53,7 @@ export default function MyPageLayout() {
                   to={to}
                   className={({ isActive }) =>
                     cn(
-                      "relative flex h-12 items-center gap-3 rounded-lg px-5 py-7 text-md font-medium transition",
+                      "relative flex h-12 items-center gap-3 px-5 py-7 text-md font-medium transition",
                       isActive
                         ? "bg-blue-50 text-blue-600"
                         : "text-gray-700 hover:bg-gray-100"

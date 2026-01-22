@@ -49,7 +49,7 @@ export default function StorePage() {
           <h2 className="text-lg text-gray-900">내 가게 관리</h2>
           <p className="mt-1 text-sm text-gray-500">등록한 식당을 관리하고 대시보드로 이동하세요</p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors">
+        <button className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors">
           <Plus size={18} /> 새 가게 등록
         </button>
       </div>
@@ -138,7 +138,7 @@ export default function StorePage() {
             <p className="text-xs text-gray-500 mt-1 ">프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트, 상세 분석 리포트를 받아보세요.</p>
           </div>
         </div>
-        <button className="mt-6 w-full sm:w-auto px-10 py-3 rounded-lg bg-blue-500 text-xs font-bold text-white hover:bg-blue-600 shadow-sm transition-all">
+        <button className="cursor-pointer mt-6 w-full sm:w-auto px-10 py-3 rounded-lg bg-blue-500 text-xs font-bold text-white hover:bg-blue-600 shadow-sm transition-all">
           프리미엄 플랜 알아보기
         </button>
       </div>

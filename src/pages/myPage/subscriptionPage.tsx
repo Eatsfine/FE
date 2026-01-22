@@ -93,7 +93,7 @@ export default function SubscriptionPage() {
           <button
             onClick={() => setBillingCycle("monthly")}
             className={cn(
-              "relative z-10 px-6 py-2 text-sm font-medium transition-colors",
+              "cursor-pointer relative z-10 px-6 py-2 text-sm font-medium transition-colors",
               billingCycle === "monthly" ? "text-white" : "text-gray-500"
             )}
           >
@@ -102,7 +102,7 @@ export default function SubscriptionPage() {
           <button
             onClick={() => setBillingCycle("yearly")}
             className={cn(
-              "relative z-10 px-6 py-2 text-sm font-medium transition-colors",
+              "cursor-pointer relative z-10 px-6 py-2 text-sm font-medium transition-colors",
               billingCycle === "yearly" ? "text-white" : "text-gray-500"
             )}
           >
@@ -170,7 +170,7 @@ export default function SubscriptionPage() {
                 disabled={isCurrent}
                 onClick={() => handlePlanChange(plan.name)}
                 className={cn(
-                  "w-full rounded-lg py-3 text-md transition-all",
+                  "cursor-pointer w-full rounded-lg py-3 text-md transition-all",
                   isCurrent
                     ? "bg-gray-100 text-gray-400 cursor-default"
                     : isRecommended
@@ -195,13 +195,13 @@ export default function SubscriptionPage() {
           <div className="flex gap-3">
             <button
               onClick={handlePause}
-              className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               일시정지
             </button>
             <button
               onClick={handleCancel}
-              className="rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+              className="cursor-pointer rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
             >
               구독 취소
             </button>
