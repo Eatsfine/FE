@@ -3,7 +3,7 @@ import { LoginDialog } from "../auth/LoginDialog";
 import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-// import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 type NavItem = {
   label: string;
@@ -12,7 +12,7 @@ type NavItem = {
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
-  // const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
@@ -30,10 +30,6 @@ export default function Header() {
   );
 
   useEffect(() => {
-    // const onScroll = () => setScrolled(window.scrollY > 16);
-    // onScroll();
-    // window.addEventListener("scroll", onScroll, { passive: true });
-    // return () => window.removeEventListener("scroll", onScroll);
     const heroEI = document.getElementById("intro");
     if (!heroEI) return;
 
@@ -49,6 +45,21 @@ export default function Header() {
     observer.observe(heroEI);
     return () => observer.disconnect();
   }, []);
+
+  // 햄버거 메뉴 열려있을때 스크롤방지용
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
+  const go = (to: string) => {
+    setMobileOpen(false);
+    nav(to);
+  };
 
   const headerClass = scrolled
     ? "bg-white/90 backdrop-blur border-b border-border"
@@ -67,16 +78,24 @@ export default function Header() {
   const signupBtnClass = scrolled
     ? "cursor-pointer rounded-3xl bg-[#2196F3] text-white hover:bg-[#1E88E5] px-6 pr-6 font-semibold"
     : "cursor-pointer rounded-3xl bg-white text-[#2196F3] hover:bg-white/70 px-6 pr-6 font-semibold";
+
+  const mobilePanelText = "text-[#191919]";
+  const mobileItemClass =
+    "w-full  px-4 py-3 text-left text-lg transition-colors hover:text-[#2196F3] cursor-pointer rounded-xl";
   return (
     <header
       className={`fixed z-50 top-0 left-0 right-0 transition-all ${headerClass}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <span className={`text-[24px] tracking-tight ${brandClass}`}>
+          <button
+            type="button"
+            onClick={() => go("/")}
+            className={`text-[24px] tracking-tight ${brandClass}`}
+          >
             잇츠파인
-          </span>
-          <nav className="hidden min-[420px]:flex items-center gap-8">
+          </button>
+          <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <a
                 key={item.label}
@@ -87,7 +106,7 @@ export default function Header() {
               </a>
             ))}
           </nav>
-          <div className="hidden min-[420px]:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Button
               variant="ghost"
               onClick={() => nav("/mypage")}
@@ -109,38 +128,76 @@ export default function Header() {
               회원가입
             </Button>
           </div>
-          {/* <button
-            className={`min-[420px]:hidden p-2 ${brandClass}`}
+          <button
+            type="button"
+            className={`md:hidden p-2 rounded-lg ${brandClass}`}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="메뉴열기"
           >
-            <Menu className="h-9 w-9" />
-          </button> */}
+            {mobileOpen ? (
+              <X className="h-7 w-7 cursor-pointer hover:text-black/60 hover:scale-110 transition" />
+            ) : (
+              <Menu className="h-7 w-7 cursor-pointer hover:text-black/60 hover:scale-110 transition" />
+            )}
+          </button>
         </div>
       </div>
-      {/*  화면 구현후, mobile 구현하기 */}
-      {/* {mobileOpen && (
-        <div>
-          <div>
-            <div>
-              {navItems.map((item) => (
-                <a
+      <div
+        className={[
+          "md:hidden overflow-hidden",
+          "transition-[max-height,opacity] duration-300 ease-out",
+          mobileOpen ? "max-h-130 opacity-100" : "max-h-0 opacity-0",
+        ].join(" ")}
+      >
+        <div className="mx-4 mb-4 rounded-2xl bg-white/95 backdrop-blur border border-black/5 shadow-lg">
+          <div className={`p-3 ${mobilePanelText}`}>
+            <div className="flex flex-col gap-1">
+              {navItems.map((item, idx) => (
+                <button
+                  type="button"
                   key={item.label}
-                  href={item.href}
-                  className="text-white px-3 py-2 rounded-md hover:bg-white/10 transition-colors"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => go(item.href)}
+                  className={mobileItemClass}
+                  style={{
+                    transitionDelay: mobileOpen ? `${idx * 60}ms` : "0ms",
+                  }}
                 >
                   {item.label}
-                </a>
+                </button>
               ))}
             </div>
-            <div>
-              <Button>로그인</Button>
-              <Button>회원가입</Button>
+
+            <Button
+              variant="ghost"
+              className="mt-2 w-full cursor-pointer rounded-xl"
+              onClick={() => go("/mypage")}
+            >
+              마이페이지
+            </Button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                className="w-full cursor-pointer rounded-xl"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setLoginOpen(true);
+                }}
+              >
+                로그인
+              </Button>
+              <Button
+                className="w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5]"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setSignupOpen(true);
+                }}
+              >
+                회원가입
+              </Button>
             </div>
           </div>
         </div>
-      )} */}
+      </div>
 
       <LoginDialog
         isOpen={loginOpen}
