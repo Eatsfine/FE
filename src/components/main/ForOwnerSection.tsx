@@ -1,3 +1,4 @@
+import { useInView } from "@/hooks/useInView";
 import { CircleCheck } from "lucide-react";
 
 export default function ForOwnerSection() {
@@ -8,16 +9,34 @@ export default function ForOwnerSection() {
     "노쇼 방지 및 예약 확정 시스템",
     "효율적인 테이블 회전율 관리",
   ];
+  const { ref: sectionRef, inView } = useInView<HTMLElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -10% 0px",
+    once: true,
+  });
   return (
-    <section id="forowner" className="py-32 px-4 bg-white">
+    <section ref={sectionRef} id="forowner" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 gap-16 items-center">
-          <div className="relative">
+          <div
+            className={[
+              "relative",
+              "transition-all duration-900 ease-out",
+              inView
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-20",
+            ].join(" ")}
+          >
             <p className="bg-linear-to-br from-[#E3F2FD] to-[#BBDEFB] rounded-3xl aspect-square flex items-center justify-center text-[#191919]/20">
               사장님 대시보드 이미지
             </p>
           </div>
-          <div>
+          <div
+            className={[
+              "transition-all duration-900 ease-out",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
+            ].join(" ")}
+          >
             <span className="inline-block bg-[#E3F2FD] px-4 py-2 rounded-full mb-6 text-sm tracking-wide font-normal">
               FOR OWNERS
             </span>
@@ -32,8 +51,20 @@ export default function ForOwnerSection() {
               매장 운영의 모든 것을 한눈에.
             </p>
             <div className="space-y-4">
-              {items.map((t) => (
-                <div key={t} className="flex gap-4">
+              {items.map((t, idx) => (
+                <div
+                  key={t}
+                  className={[
+                    "flex gap-4",
+                    "transition-all duration-900 ease-out",
+                    inView
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-20",
+                  ].join(" ")}
+                  style={{
+                    transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",
+                  }}
+                >
                   <CircleCheck className="w-6 h-6 text-[#191919]" />
                   <span className="text-lg">{t}</span>
                 </div>

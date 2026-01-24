@@ -1,10 +1,22 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
+import { useInView } from "@/hooks/useInView";
 
 export default function CtaSection() {
+  const { ref: sectionRef, inView } = useInView<HTMLElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -10% 0px",
+    once: true,
+  });
   return (
-    <section id="cta" className="py-32 px-4 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section ref={sectionRef} id="cta" className="py-32 px-4 bg-white">
+      <div
+        className={[
+          "max-w-7xl mx-auto",
+          "transition-all duration-900 ease-out",
+          inView ? "opacity-100 translate-x-0" : "opacity-0 translate-y-20",
+        ].join(" ")}
+      >
         <div className="flex flex-col items-center space-y-7 tracking-tighter mb-16">
           <h2 className="text-5xl">지금 바로 시작하세요</h2>
           <p className="text-center text-muted-foreground text-xl leading-relaxed">

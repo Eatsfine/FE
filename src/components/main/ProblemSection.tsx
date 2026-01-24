@@ -1,8 +1,15 @@
+import { useInView } from "@/hooks/useInView";
 import { Check, X } from "lucide-react";
 
 export default function ProblemSection() {
+  const { ref: sectionRef, inView } = useInView<HTMLElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -10% 0px",
+    once: true,
+  });
+
   return (
-    <section id="problem" className="py-32 px-4 bg-white">
+    <section ref={sectionRef} id="problem" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-5xl leading-[1.3] tracking-tight mb-20 text-center">
           기존 방식의 불편함, <br /> 이제 해결하세요
@@ -10,7 +17,15 @@ export default function ProblemSection() {
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* 기존방식 section */}
-          <div className="bg-[#F8F9FA] rounded-3xl p-12">
+          <div
+            className={[
+              "bg-[#F8F9FA] rounded-3xl p-12",
+              "transition-all duration-900 ease-out",
+              inView
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-20",
+            ].join(" ")}
+          >
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
                 <X className="w-6 h-6 text-red-600" />
@@ -32,7 +47,13 @@ export default function ProblemSection() {
             </div>
           </div>
           {/* 잇츠파인 section */}
-          <div className="bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl p-12">
+          <div
+            className={[
+              "bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl p-12",
+              "transition-all duration-900 ease-out",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
+            ].join(" ")}
+          >
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
                 <Check className="w-6 h-6 text-[#2196F3]" />

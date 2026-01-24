@@ -1,3 +1,4 @@
+import { useInView } from "@/hooks/useInView";
 import { MapPin, Search, Star, Store } from "lucide-react";
 
 export default function FeatureSection() {
@@ -28,8 +29,14 @@ export default function FeatureSection() {
     },
   ];
 
+  const { ref: sectionRef, inView } = useInView<HTMLElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -10% 0px",
+    once: true,
+  });
+
   return (
-    <section id="feature" className="py-32 px-4 bg-white">
+    <section ref={sectionRef} id="feature" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-5xl leading-[1.3] tracking-tight mb-6">
@@ -40,8 +47,17 @@ export default function FeatureSection() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-8">
-          {cards.map((c) => (
-            <div key={c.title} className="group">
+          {cards.map((c, idx) => (
+            <div
+              key={c.title}
+              className={[
+                "transition-all duration-900 ease-out",
+                inView
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-20",
+              ].join(" ")}
+              style={{ transitionDelay: inView ? `${idx * 120}ms` : "0ms" }}
+            >
               <div className="border border-black rounded-3xl p-12 h-full items-center bg-white hover:shadow-2xl transition-shadow duration-300">
                 <div
                   className={`w-16 h-16 ${c.iconBg} flex items-center justify-center rounded-2xl mb-8`}
@@ -62,5 +78,3 @@ export default function FeatureSection() {
     </section>
   );
 }
-
-// ing...tailwindcss 디자인만 수정하면될듯

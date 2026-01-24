@@ -1,3 +1,4 @@
+import { useInView } from "@/hooks/useInView";
 import { CircleCheck } from "lucide-react";
 
 export default function ForUserSection() {
@@ -8,11 +9,24 @@ export default function ForUserSection() {
     "간편한 예약 관리 및 알림",
     "특별한 날을 위한 프라이빗 공간 예약",
   ];
+
+  const { ref: sectionRef, inView } = useInView<HTMLElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -10% 0px",
+    once: true,
+  });
   return (
-    <section id="foruser" className="py-32 px-4 bg-white">
+    <section ref={sectionRef} id="foruser" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
+          <div
+            className={[
+              "transition-all duration-900 ease-out",
+              inView
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 -translate-x-20",
+            ].join(" ")}
+          >
             <span className="inline-block bg-[#E3F2FD] px-4 py-2 rounded-full mb-6 text-sm tracking-wide font-normal">
               FOR CUSTOMERS
             </span>
@@ -27,15 +41,33 @@ export default function ForUserSection() {
               원하는 자리를 직접 선택하고 예약하세요.
             </p>
             <div className="space-y-4">
-              {items.map((t) => (
-                <div key={t} className="flex gap-4">
+              {items.map((t, idx) => (
+                <div
+                  key={t}
+                  className={[
+                    "flex gap-4",
+                    "transition-all duration-900 ease-out",
+                    inView
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-20",
+                  ].join(" ")}
+                  style={{
+                    transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",
+                  }}
+                >
                   <CircleCheck className="w-6 h-6 text-[#191919]" />
                   <span className="text-lg">{t}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="relative">
+          <div
+            className={[
+              "relative",
+              "transition-all duration-900 ease-out",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
+            ].join(" ")}
+          >
             <div className="bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl aspect-square flex items-center justify-center">
               <p className="text-white/20">고객 앱 화면 이미지</p>
             </div>
