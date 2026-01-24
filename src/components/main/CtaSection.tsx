@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { useInView } from "@/hooks/useInView";
+import { useNavigate } from "react-router-dom";
 
 export default function CtaSection() {
   const { ref: sectionRef, inView } = useInView<HTMLElement>({
@@ -8,6 +9,8 @@ export default function CtaSection() {
     rootMargin: "0px 0px -10% 0px",
     once: true,
   });
+
+  const nav = useNavigate();
   return (
     <section ref={sectionRef} id="cta" className="py-32 px-4 bg-white">
       <div
@@ -26,10 +29,14 @@ export default function CtaSection() {
           </p>
         </div>
         <div className="flex justify-center gap-5">
-          <Button className="py-6 rounded-xl cursor-pointer transition-colors font-bold">
+          <Button
+            onClick={() => nav("/search")}
+            className="py-6 rounded-xl cursor-pointer transition-colors font-bold"
+          >
             고객으로 시작하기 <ArrowRight className="w-5 h-5" />
           </Button>
           <Button
+            onClick={() => nav("/owner")} //임시
             variant="outline"
             className="px-10 py-6 bg-white text-black font-bold border-black rounded-xl hover:text-white hover:bg-black transition-colors cursor-pointer"
           >
