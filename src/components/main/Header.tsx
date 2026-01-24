@@ -30,10 +30,24 @@ export default function Header() {
   );
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // const onScroll = () => setScrolled(window.scrollY > 16);
+    // onScroll();
+    // window.addEventListener("scroll", onScroll, { passive: true });
+    // return () => window.removeEventListener("scroll", onScroll);
+    const heroEI = document.getElementById("intro");
+    if (!heroEI) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setScrolled(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.01,
+      },
+    );
+    observer.observe(heroEI);
+    return () => observer.disconnect();
   }, []);
 
   const headerClass = scrolled
