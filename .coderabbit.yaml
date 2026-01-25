@@ -1,7 +1,7 @@
 language: "ko-KR"
 tone_instructions: "한국어로, 팀원에게 말하듯 친절하게. 버그/안정성/접근성/성능/구조 위주로 리뷰해줘. 문제는 근거+대안(예시 코드)이 있으면 함께."
 reviews:
-  profile: "assertive"
+  profile: "chill"
   high_level_summary: true
   poem: true
   auto_review:
