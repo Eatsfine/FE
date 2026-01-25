@@ -6,9 +6,10 @@ reviews:
   poem: true
   auto_review:
     enabled: true
-    draft: false
+    drafts: false
   path_filters:
     - "src/**"
+    - ".coderabbit.yaml"
     - "!dist/**"
     - "!build/**"
     - "!coverage/**"
