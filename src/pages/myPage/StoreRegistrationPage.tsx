@@ -1,11 +1,13 @@
+import type { MenuFormValues } from "@/components/store-registration/Menu.schema";
 import RegistrationNavigation from "@/components/store-registration/RegistrationNavigation";
 import RegistrationStepper from "@/components/store-registration/RegistrationStepper";
 import StepBusinessAuth from "@/components/store-registration/StepBusinessAuth";
+import StepMenuRegistration from "@/components/store-registration/StepMenuRegistration";
 import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
 import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type Step1Data = {
   businessNumber: string;
@@ -13,6 +15,8 @@ type Step1Data = {
 };
 
 export default function StoreRegistrationPage() {
+  const navigate = useNavigate();
+
   //현재 진행 중인 단계 상태 관리
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
@@ -24,10 +28,12 @@ export default function StoreRegistrationPage() {
 
   const [step2Data, setStep2Data] = useState<Partial<StoreInfoFormValues>>({});
 
+  const [step3Data, setStep3Data] = useState<MenuFormValues>({ menus: [] });
+
   //각 단계별 유효성(완료) 상태 관리
   const [isStep1Valid, setIsStep1Valid] = useState(false);
   const [isStep2Valid, setIsStep2Valid] = useState(false);
-  const [isStep3Valid, setIsStep3Valid] = useState(false);
+  const [isStep3Valid, setIsStep3Valid] = useState(true);
 
   const TOTAL_STEPS = 3;
 
@@ -39,11 +45,33 @@ export default function StoreRegistrationPage() {
     [],
   );
 
+  const handleStep3Change = useCallback(
+    (isValid: boolean, data: MenuFormValues) => {
+      setStep3Data(data);
+      setIsStep3Valid(isValid);
+    },
+    [],
+  );
+
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
-      console.log("최종 등록 요청 API 호출");
+      const finalPayload = {
+        ...step1Data,
+        ...step2Data,
+        menus: (step3Data.menus || []).map((menu) => ({
+          ...menu,
+          price: Number(menu.price), //문자열 가격을 숫자로 변환
+        })),
+      };
+
+      console.log("최종 데이터:", finalPayload);
+      //API 호출
+
+      alert("가게 등록이 완료되었습니다!");
+
+      navigate("/mypage/store", { replace: true });
     }
   };
 
@@ -98,7 +126,12 @@ export default function StoreRegistrationPage() {
             onChange={handleStep2Change}
           />
         )}
-        {currentStep === 3 && <div>메뉴 등록 폼</div>}
+        {currentStep === 3 && (
+          <StepMenuRegistration
+            defaultValues={step3Data}
+            onChange={handleStep3Change}
+          />
+        )}
       </main>
 
       <RegistrationNavigation
