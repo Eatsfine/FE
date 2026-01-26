@@ -11,7 +11,7 @@ import SearchPage from "./pages/SearchPage";
 import MyPage from "./pages/myPage/myPage";
 import CustomerSupportPage from "./pages/CustomerSupportPage";
 import PublicLayout from "./layouts/PublicLayout";
-import StoreRegistrationPage from "./pages/StoreRegistrationPage";
+import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
 
 export const queryClient = new QueryClient();
 

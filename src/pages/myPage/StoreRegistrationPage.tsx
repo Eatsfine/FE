@@ -1,8 +1,10 @@
 import RegistrationNavigation from "@/components/store-registration/RegistrationNavigation";
 import RegistrationStepper from "@/components/store-registration/RegistrationStepper";
 import StepBusinessAuth from "@/components/store-registration/StepBusinessAuth";
+import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
+import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 
 type Step1Data = {
@@ -20,12 +22,22 @@ export default function StoreRegistrationPage() {
     isVerified: false,
   });
 
+  const [step2Data, setStep2Data] = useState<Partial<StoreInfoFormValues>>({});
+
   //각 단계별 유효성(완료) 상태 관리
   const [isStep1Valid, setIsStep1Valid] = useState(false);
   const [isStep2Valid, setIsStep2Valid] = useState(false);
   const [isStep3Valid, setIsStep3Valid] = useState(false);
 
   const TOTAL_STEPS = 3;
+
+  const handleStep2Change = useCallback(
+    (isValid: boolean, data: StoreInfoFormValues) => {
+      setStep2Data(data);
+      setIsStep2Valid(isValid);
+    },
+    [],
+  );
 
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS) {
@@ -80,7 +92,12 @@ export default function StoreRegistrationPage() {
             }}
           />
         )}
-        {currentStep === 2 && <div>가게 정보 입력 폼</div>}
+        {currentStep === 2 && (
+          <StepStoreInfo
+            defaultValues={step2Data}
+            onChange={handleStep2Change}
+          />
+        )}
         {currentStep === 3 && <div>메뉴 등록 폼</div>}
       </main>
 
