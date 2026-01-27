@@ -83,7 +83,6 @@ export default function Header() {
   const mobileItemClass =
     "w-full  px-4 py-3 text-left text-lg transition-colors hover:text-[#2196F3] cursor-pointer rounded-xl";
 
-  const mobileActionBtnBase = "h-12 px-4 text-lg rounded-xl font-medium";
   return (
     <header
       className={`fixed z-50 top-0 left-0 right-0 transition-all ${headerClass}`}
