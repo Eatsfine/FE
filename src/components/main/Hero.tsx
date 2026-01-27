@@ -33,7 +33,7 @@ export default function Hero() {
         <h1 className="text-white text-6xl font-bold mb-6 tracking-tight whitespace-nowrap">
           원하는 자리를 <br /> 원하는 분위기에서
         </h1>
-        <p className="text-2xl text-white/90 mb-12 leading-relaxed whitespace-nowrap">
+        <p className="text-2xl text-white/90 mb-12 leading-relaxed">
           잇츠파인과 함께 새로운 식당 예약 경험을 시작하세요
         </p>
         <div className="relative z-10 flex gap-4 justify-center">

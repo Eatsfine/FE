@@ -22,7 +22,9 @@ export default function CtaSection() {
         )}
       >
         <div className="flex flex-col items-center space-y-7 tracking-tighter mb-16">
-          <h2 className="text-5xl">지금 바로 시작하세요</h2>
+          <h2 className="text-4xl text-center sm:text-5xl">
+            지금 바로 시작하세요
+          </h2>
           <p className="text-center text-muted-foreground text-xl leading-relaxed">
             원하는 자리를 선택하는 새로운 예약 경험,
             <br />
