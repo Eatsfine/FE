@@ -19,7 +19,6 @@ export default function StateSection() {
         <div
           className={[
             "flex flex-col items-center space-y-10 tracking-tight mb-20",
-            "relative",
             "transition-all duration-900 ease-out",
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
           ].join(" ")}

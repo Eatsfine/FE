@@ -17,7 +17,7 @@ export default function CtaSection() {
         className={[
           "max-w-7xl mx-auto",
           "transition-all duration-900 ease-out",
-          inView ? "opacity-100 translate-x-0" : "opacity-0 translate-y-20",
+          inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
         ].join(" ")}
       >
         <div className="flex flex-col items-center space-y-7 tracking-tighter mb-16">

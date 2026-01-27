@@ -39,14 +39,14 @@ export default function Hero() {
         <div className="relative z-10 flex gap-4 justify-center">
           <Button
             onClick={() => nav("/search")}
-            className="bg-[#2196F3] hover:bg-[#1E88E5] text-white font-semibold  rounded-full px-8 py-6 text-lg transition-colors cursor-pointer"
+            className="bg-[#2196F3] hover:bg-[#1E88E5] text-white font-semibold rounded-full px-8 py-6 text-lg transition-colors cursor-pointer"
           >
             식당 예약
           </Button>
           <Button
             onClick={() => nav("/owner")} //임시
             variant="outline"
-            className="border-white border-2 bg-white/10 text-white font-semibold  hover:bg-white hover:text-[#2196F3] rounded-full px-8 py-6 text-lg backdrop-blur-sm transition-colors cursor-pointer"
+            className="border-white border-2 bg-white/10 text-white font-semibold hover:bg-white hover:text-[#2196F3] rounded-full px-8 py-6 text-lg backdrop-blur-sm transition-colors cursor-pointer"
           >
             내 가게 관리
           </Button>
