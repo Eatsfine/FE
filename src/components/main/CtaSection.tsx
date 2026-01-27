@@ -39,7 +39,7 @@ export default function CtaSection() {
             고객으로 시작하기 <ArrowRight className="w-5 h-5" />
           </Button>
           <Button
-            onClick={() => nav("/owner")} //임시
+            onClick={() => nav("/owner")} //TODO: 실제 사장님 등록 페이지 경로로 변경 필요
             variant="outline"
             className="px-10 py-6 bg-white text-black font-bold border-black rounded-xl hover:text-white hover:bg-black transition-colors cursor-pointer"
           >
