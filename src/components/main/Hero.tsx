@@ -30,10 +30,10 @@ export default function Hero() {
       </div>
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto ">
-        <h1 className="text-white text-6xl font-bold mb-6 tracking-tight">
+        <h1 className="text-white text-6xl font-bold mb-6 tracking-tight whitespace-nowrap">
           원하는 자리를 <br /> 원하는 분위기에서
         </h1>
-        <p className="text-2xl text-white/90 mb-12 leading-relaxed">
+        <p className="text-2xl text-white/90 mb-12 leading-relaxed whitespace-nowrap">
           잇츠파인과 함께 새로운 식당 예약 경험을 시작하세요
         </p>
         <div className="relative z-10 flex gap-4 justify-center">

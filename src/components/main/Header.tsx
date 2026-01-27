@@ -96,18 +96,18 @@ export default function Header() {
           >
             잇츠파인
           </button>
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className={`transition-colors ${navLinkClass}`}
+                className={`transition-colors whitespace-nowrap ${navLinkClass}`}
               >
                 {item.label}
               </a>
             ))}
           </nav>
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 whitespace-nowrap">
             <Button
               variant="ghost"
               onClick={() => nav("/mypage")}
@@ -131,7 +131,7 @@ export default function Header() {
           </div>
           <button
             type="button"
-            className={`md:hidden p-2 rounded-lg ${brandClass}`}
+            className={`lg:hidden p-2 rounded-lg ${brandClass}`}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="메뉴열기"
           >
@@ -143,58 +143,66 @@ export default function Header() {
           </button>
         </div>
       </div>
+      {/* "transition-[max-height,opacity] duration-300 ease-out",
+          mobileOpen ? "max-h-130 opacity-100" : "max-h-0 opacity-0", */}
       <div
         className={[
-          "md:hidden overflow-hidden",
-          "transition-[max-height,opacity] duration-300 ease-out",
-          mobileOpen ? "max-h-130 opacity-100" : "max-h-0 opacity-0",
+          "lg:hidden overflow-hidden",
+          mobileOpen ? "block" : "hidden",
         ].join(" ")}
       >
-        <div className="mx-4 mb-4 rounded-2xl bg-white/95 backdrop-blur border border-black/5 shadow-lg">
-          <div className={`p-3 ${mobilePanelText}`}>
-            <div className="flex flex-col gap-1">
-              {navItems.map((item, idx) => (
-                <button
-                  type="button"
-                  key={item.label}
-                  onClick={() => go(item.href)}
-                  className={mobileItemClass}
-                  style={{
-                    transitionDelay: mobileOpen ? `${idx * 60}ms` : "0ms",
+        <button
+          type="button"
+          aria-label="메뉴 닫기"
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 top-20 bg-black/20"
+        />
+        <div className="absolute left-0 right-0 top-full">
+          <div className="mx-4 mb-4 rounded-2xl bg-white/95 backdrop-blur border border-black/5 shadow-lg">
+            <div className={`p-3 ${mobilePanelText}`}>
+              <div className="flex flex-col gap-1">
+                {navItems.map((item, idx) => (
+                  <button
+                    type="button"
+                    key={item.label}
+                    onClick={() => go(item.href)}
+                    className={mobileItemClass}
+                    style={{
+                      transitionDelay: mobileOpen ? `${idx * 60}ms` : "0ms",
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <Button
+                variant="ghost"
+                className="text-lg h-12 mt-2 w-full cursor-pointer rounded-xl bg-black/5 hover:bg-black/10 transition-colors"
+                onClick={() => go("/mypage")}
+              >
+                마이페이지
+              </Button>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="text-lg h-12 w-full cursor-pointer rounded-xl border-black/15 transition-colors"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setLoginOpen(true);
                   }}
                 >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            <Button
-              variant="ghost"
-              className="text-lg h-12 mt-2 w-full cursor-pointer rounded-xl bg-black/5 hover:bg-black/10 transition-colors"
-              onClick={() => go("/mypage")}
-            >
-              마이페이지
-            </Button>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="text-lg h-12 w-full cursor-pointer rounded-xl border-black/15 transition-colors"
-                onClick={() => {
-                  setMobileOpen(false);
-                  setLoginOpen(true);
-                }}
-              >
-                로그인
-              </Button>
-              <Button
-                className="text-lg h-12 w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5] transition-colors"
-                onClick={() => {
-                  setMobileOpen(false);
-                  setSignupOpen(true);
-                }}
-              >
-                회원가입
-              </Button>
+                  로그인
+                </Button>
+                <Button
+                  className="text-lg h-12 w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5] transition-colors"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setSignupOpen(true);
+                  }}
+                >
+                  회원가입
+                </Button>
+              </div>
             </div>
           </div>
         </div>
