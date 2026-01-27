@@ -1,5 +1,6 @@
 import { useInView } from "@/hooks/useInView";
 import { MapPin, Search, Star, Store } from "lucide-react";
+import FeatureCard from "./FeatureCard";
 
 export default function FeatureSection() {
   const cards = [
@@ -35,6 +36,11 @@ export default function FeatureSection() {
     once: true,
   });
 
+  const animBase = "transition-all duration-900 ease-out";
+  const animState = inView
+    ? "opacity-100 translate-y-0"
+    : "opacity-0 translate-y-20";
+
   return (
     <section ref={sectionRef} id="feature" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -48,30 +54,15 @@ export default function FeatureSection() {
         </div>
         <div className="grid md:grid-cols-2 gap-8">
           {cards.map((c, idx) => (
-            <div
+            <FeatureCard
               key={c.title}
-              className={[
-                "transition-all duration-900 ease-out",
-                inView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-20",
-              ].join(" ")}
+              title={c.title}
+              desc={c.desc}
+              icon={c.icon}
+              iconBg={c.iconBg}
+              className={`${animBase} ${animState}`}
               style={{ transitionDelay: inView ? `${idx * 120}ms` : "0ms" }}
-            >
-              <div className="border border-black rounded-3xl p-12 h-full items-center bg-white hover:shadow-2xl transition-shadow duration-300">
-                <div
-                  className={`w-16 h-16 ${c.iconBg} flex items-center justify-center rounded-2xl mb-8`}
-                >
-                  {c.icon}
-                </div>
-                <h3 className="font-semibold text-3xl mb-4 tracking-tight">
-                  {c.title}
-                </h3>
-                <p className=" font-extralight text-lg text-muted-foreground leading-relaxed">
-                  {c.desc}
-                </p>
-              </div>
-            </div>
+            />
           ))}
         </div>
       </div>
