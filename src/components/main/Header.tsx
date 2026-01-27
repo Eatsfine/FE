@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LoginDialog } from "../auth/LoginDialog";
 import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -99,13 +99,13 @@ export default function Header() {
           </button>
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className={`transition-colors whitespace-nowrap ${navLinkClass}`}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="hidden lg:flex items-center gap-3 whitespace-nowrap">
@@ -213,6 +213,7 @@ export default function Header() {
         isOpen={loginOpen}
         onClose={() => setLoginOpen(false)}
         onSwitchToSignup={() => {
+          setLoginOpen(false);
           setSignupOpen(true);
         }}
       />
@@ -220,6 +221,7 @@ export default function Header() {
         isOpen={signupOpen}
         onClose={() => setSignupOpen(false)}
         onSwitchToLogin={() => {
+          setSignupOpen(false);
           setLoginOpen(true);
         }}
       />
