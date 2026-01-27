@@ -16,11 +16,18 @@ export function useInView<T extends HTMLElement = HTMLElement>({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      ([entry], obs) => {
         if (once) {
-          if (entry.isIntersecting) setInView(true);
+          if (entry.isIntersecting) {
+            setInView(true);
+            obs.disconnect();
+          }
         } else {
           setInView(entry.isIntersecting);
         }
