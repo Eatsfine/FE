@@ -82,6 +82,8 @@ export default function Header() {
   const mobilePanelText = "text-[#191919]";
   const mobileItemClass =
     "w-full  px-4 py-3 text-left text-lg transition-colors hover:text-[#2196F3] cursor-pointer rounded-xl";
+
+  const mobileActionBtnBase = "h-12 px-4 text-lg rounded-xl font-medium";
   return (
     <header
       className={`fixed z-50 top-0 left-0 right-0 transition-all ${headerClass}`}
@@ -169,15 +171,15 @@ export default function Header() {
 
             <Button
               variant="ghost"
-              className="mt-2 w-full cursor-pointer rounded-xl"
+              className="text-lg h-12 mt-2 w-full cursor-pointer rounded-xl bg-black/5 hover:bg-black/10 transition-colors"
               onClick={() => go("/mypage")}
             >
               마이페이지
             </Button>
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-3 grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="w-full cursor-pointer rounded-xl"
+                className="text-lg h-12 w-full cursor-pointer rounded-xl border-black/15 transition-colors"
                 onClick={() => {
                   setMobileOpen(false);
                   setLoginOpen(true);
@@ -186,7 +188,7 @@ export default function Header() {
                 로그인
               </Button>
               <Button
-                className="w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5]"
+                className="text-lg h-12 w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5] transition-colors"
                 onClick={() => {
                   setMobileOpen(false);
                   setSignupOpen(true);
