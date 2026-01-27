@@ -1,4 +1,5 @@
 import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 
 export default function StateSection() {
   const stats = [
@@ -17,11 +18,11 @@ export default function StateSection() {
     <section ref={sectionRef} id="state" className="py-32 px-4 bg-black/95">
       <div className="max-w-7xl mx-auto">
         <div
-          className={[
+          className={cn(
             "flex flex-col items-center space-y-10 tracking-tight mb-20",
             "transition-all duration-900 ease-out",
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
-          ].join(" ")}
+          )}
         >
           <h2 className="text-white text-5xl">숫자로 보는 잇츠파인</h2>
           <p className="text-white/90 text-xl">
@@ -32,13 +33,13 @@ export default function StateSection() {
           {stats.map((s, idx) => (
             <div
               key={s.label}
-              className={[
+              className={cn(
                 "text-center",
                 "transition-all duration-900 ease-out",
                 inView
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-20",
-              ].join(" ")}
+              )}
               style={{ transitionDelay: inView ? `${idx * 120}ms` : "0ms" }}
             >
               <div className="text-[#2196F3] text-5xl mb-4">{s.value}</div>

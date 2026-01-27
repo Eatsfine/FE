@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { useInView } from "@/hooks/useInView";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export default function CtaSection() {
   const { ref: sectionRef, inView } = useInView<HTMLElement>({
@@ -14,11 +15,11 @@ export default function CtaSection() {
   return (
     <section ref={sectionRef} id="cta" className="py-32 px-4 bg-white">
       <div
-        className={[
+        className={cn(
           "max-w-7xl mx-auto",
           "transition-all duration-900 ease-out",
           inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
-        ].join(" ")}
+        )}
       >
         <div className="flex flex-col items-center space-y-7 tracking-tighter mb-16">
           <h2 className="text-5xl">지금 바로 시작하세요</h2>

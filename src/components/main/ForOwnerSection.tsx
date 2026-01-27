@@ -1,4 +1,5 @@
 import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 import { CircleCheck } from "lucide-react";
 
 export default function ForOwnerSection() {
@@ -19,23 +20,23 @@ export default function ForOwnerSection() {
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div
-            className={[
+            className={cn(
               "relative",
               "transition-all duration-900 ease-out",
               inView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-20",
-            ].join(" ")}
+            )}
           >
             <p className="bg-linear-to-br from-[#E3F2FD] to-[#BBDEFB] rounded-3xl aspect-square flex items-center justify-center text-[#191919]/20">
               사장님 대시보드 이미지
             </p>
           </div>
           <div
-            className={[
+            className={cn(
               "transition-all duration-900 ease-out",
               inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
-            ].join(" ")}
+            )}
           >
             <span className="inline-block bg-[#E3F2FD] px-4 py-2 rounded-full mb-6 text-sm tracking-wide font-normal">
               FOR OWNERS
@@ -54,13 +55,13 @@ export default function ForOwnerSection() {
               {items.map((t, idx) => (
                 <div
                   key={t}
-                  className={[
+                  className={cn(
                     "flex gap-4",
                     "transition-all duration-900 ease-out",
                     inView
                       ? "opacity-100 translate-x-0"
                       : "opacity-0 translate-x-20",
-                  ].join(" ")}
+                  )}
                   style={{
                     transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",
                   }}

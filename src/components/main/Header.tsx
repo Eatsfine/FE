@@ -4,6 +4,7 @@ import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   label: string;
@@ -146,10 +147,10 @@ export default function Header() {
       {/* "transition-[max-height,opacity] duration-300 ease-out",
           mobileOpen ? "max-h-130 opacity-100" : "max-h-0 opacity-0", */}
       <div
-        className={[
+        className={cn(
           "lg:hidden overflow-hidden",
           mobileOpen ? "block" : "hidden",
-        ].join(" ")}
+        )}
       >
         <button
           type="button"

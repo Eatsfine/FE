@@ -1,4 +1,5 @@
 import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 import { CircleCheck } from "lucide-react";
 
 export default function ForUserSection() {
@@ -20,12 +21,12 @@ export default function ForUserSection() {
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div
-            className={[
+            className={cn(
               "transition-all duration-900 ease-out",
               inView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-20",
-            ].join(" ")}
+            )}
           >
             <span className="inline-block bg-[#E3F2FD] px-4 py-2 rounded-full mb-6 text-sm tracking-wide font-normal">
               FOR CUSTOMERS
@@ -44,13 +45,13 @@ export default function ForUserSection() {
               {items.map((t, idx) => (
                 <div
                   key={t}
-                  className={[
+                  className={cn(
                     "flex gap-4",
                     "transition-all duration-900 ease-out",
                     inView
                       ? "opacity-100 translate-x-0"
                       : "opacity-0 -translate-x-20",
-                  ].join(" ")}
+                  )}
                   style={{
                     transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",
                   }}
@@ -62,11 +63,11 @@ export default function ForUserSection() {
             </div>
           </div>
           <div
-            className={[
+            className={cn(
               "relative",
               "transition-all duration-900 ease-out",
               inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
-            ].join(" ")}
+            )}
           >
             <div className="bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl aspect-square flex items-center justify-center">
               <p className="text-white/20">고객 앱 화면 이미지</p>

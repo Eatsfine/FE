@@ -1,4 +1,5 @@
 import { useInView } from "@/hooks/useInView";
+import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 
 export default function ProblemSection() {
@@ -18,13 +19,13 @@ export default function ProblemSection() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* 기존방식 section */}
           <div
-            className={[
+            className={cn(
               "bg-[#F8F9FA] rounded-3xl p-12",
               "transition-all duration-900 ease-out",
               inView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-20",
-            ].join(" ")}
+            )}
           >
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
@@ -48,11 +49,11 @@ export default function ProblemSection() {
           </div>
           {/* 잇츠파인 section */}
           <div
-            className={[
+            className={cn(
               "bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl p-12",
               "transition-all duration-900 ease-out",
               inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
-            ].join(" ")}
+            )}
           >
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
