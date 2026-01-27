@@ -51,9 +51,9 @@ export default function ForOwnerSection() {
               <br />
               매장 운영의 모든 것을 한눈에.
             </p>
-            <div className="space-y-4">
+            <ul className="space-y-4">
               {items.map((t, idx) => (
-                <div
+                <li
                   key={t}
                   className={cn(
                     "flex gap-4",
@@ -68,9 +68,9 @@ export default function ForOwnerSection() {
                 >
                   <CircleCheck className="w-6 h-6 text-[#191919]" />
                   <span className="text-lg">{t}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       </div>

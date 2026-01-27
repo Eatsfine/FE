@@ -2,20 +2,16 @@ import { useInView } from "@/hooks/useInView";
 import { cn } from "@/lib/utils";
 import { CircleCheck } from "lucide-react";
 
-export default function ForUserSection() {
-  const items = [
-    "원하는 자리를 미리 선택하고 예약",
-    "실시간 테이블 예약 현황 확인",
-    "신뢰할 수 있는 방문 후기와 평점",
-    "간편한 예약 관리 및 알림",
-    "특별한 날을 위한 프라이빗 공간 예약",
-  ];
+const items = [
+  "원하는 자리를 미리 선택하고 예약",
+  "실시간 테이블 예약 현황 확인",
+  "신뢰할 수 있는 방문 후기와 평점",
+  "간편한 예약 관리 및 알림",
+  "특별한 날을 위한 프라이빗 공간 예약",
+] as const;
 
-  const { ref: sectionRef, inView } = useInView<HTMLElement>({
-    threshold: 0.3,
-    rootMargin: "0px 0px -10% 0px",
-    once: true,
-  });
+export default function ForUserSection() {
+  const { ref: sectionRef, inView } = useInView<HTMLElement>();
   return (
     <section ref={sectionRef} id="foruser" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -41,9 +37,9 @@ export default function ForUserSection() {
               <br />
               원하는 자리를 직접 선택하고 예약하세요.
             </p>
-            <div className="space-y-4">
+            <ul className="space-y-4 list-none">
               {items.map((t, idx) => (
-                <div
+                <li
                   key={t}
                   className={cn(
                     "flex gap-4",
@@ -58,9 +54,9 @@ export default function ForUserSection() {
                 >
                   <CircleCheck className="w-6 h-6 text-[#191919]" />
                   <span className="text-lg">{t}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
           <div
             className={cn(
