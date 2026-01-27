@@ -3,7 +3,7 @@ import { Facebook, Instagram } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="py-16 px-6 text-white bg-black/95">
-      <div className="mx-auto">
+      <div className="mx-auto max-w-7xl">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="space-y-10">
             <h3 className="text-2xl font-semibold">잇츠파인</h3>
