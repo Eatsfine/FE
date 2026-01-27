@@ -5,11 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 export default function CtaSection() {
-  const { ref: sectionRef, inView } = useInView<HTMLElement>({
-    threshold: 0.3,
-    rootMargin: "0px 0px -10% 0px",
-    once: true,
-  });
+  const { ref: sectionRef, inView } = useInView<HTMLElement>();
 
   const nav = useNavigate();
   return (
@@ -17,7 +13,7 @@ export default function CtaSection() {
       <div
         className={cn(
           "max-w-7xl mx-auto",
-          "transition-all duration-900 ease-out",
+          "transition-all duration-700 ease-out",
           inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
         )}
       >
