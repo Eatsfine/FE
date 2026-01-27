@@ -10,9 +10,11 @@ export default function Hero() {
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
         <iframe
-          className="w-full h-full object-cover aria-hidden:true"
+          className="w-full h-full object-cover"
           src="https://www.youtube.com/embed/PrLJka0FtrY?autoplay=1&mute=1&loop=1&playlist=PrLJka0FtrY&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1&fs=0"
           title="Hero Video"
+          aria-hidden="true"
+          tabIndex={-1}
           frameBorder={0}
           allow="autoplay; encrypted-media"
           style={{
