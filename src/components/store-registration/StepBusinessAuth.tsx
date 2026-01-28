@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@radix-ui/react-label";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,8 +47,6 @@ export default function StepBusinessAuth({
     // (가상 API 호출) 1.5초 뒤에 성공 처리
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    console.log("인증번호:", data.businessNumber);
-
     setIsLoading(false);
 
     onComplete({
@@ -68,11 +67,12 @@ export default function StepBusinessAuth({
         </p>
       </div>
       <div>
-        <label className="block text-sm text-gray-700 mb-2">
+        <Label htmlFor="businessNumber" className="block text-gray-700 mb-2">
           사업자등록번호 <span className="text-red-500">*</span>
-        </label>
+        </Label>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
+            id="businessNumber"
             {...register("businessNumber", {
               onChange: (e) => {
                 if (defaultValues.isVerified) {
@@ -86,6 +86,7 @@ export default function StepBusinessAuth({
             type="text"
             placeholder="0000000000"
             maxLength={10}
+            aria-invalid={!!errors.businessNumber}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
