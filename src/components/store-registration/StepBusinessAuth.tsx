@@ -75,12 +75,12 @@ export default function StepBusinessAuth({
           <input
             {...register("businessNumber", {
               onChange: (e) => {
-                if (!defaultValues.isVerified) return;
-
-                onComplete({
-                  businessNumber: e.target.value,
-                  isVerified: false,
-                });
+                if (defaultValues.isVerified) {
+                  onComplete({
+                    businessNumber: e.target.value,
+                    isVerified: false,
+                  });
+                }
               },
             })}
             type="text"
@@ -90,11 +90,13 @@ export default function StepBusinessAuth({
           />
           <button
             type="submit"
-            disabled={isLoading || !isValid}
+            disabled={isLoading || !isValid || defaultValues.isVerified}
             className="flex justify-center items-center w-full sm:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">확인 중...</span>
+            ) : defaultValues.isVerified ? (
+              "인증 완료"
             ) : (
               "인증하기"
             )}

@@ -1,3 +1,5 @@
+import CompleteModal from "@/components/store-registration/CompleteModal";
+import ConfirmModal from "@/components/store-registration/ConfirmModal";
 import type { MenuFormValues } from "@/components/store-registration/Menu.schema";
 import RegistrationNavigation from "@/components/store-registration/RegistrationNavigation";
 import RegistrationStepper from "@/components/store-registration/RegistrationStepper";
@@ -7,7 +9,7 @@ import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
 import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type Step1Data = {
   businessNumber: string;
@@ -16,6 +18,10 @@ type Step1Data = {
 
 export default function StoreRegistrationPage() {
   const navigate = useNavigate();
+
+  //모달 상태 관리
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   //현재 진행 중인 단계 상태 관리
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -69,10 +75,13 @@ export default function StoreRegistrationPage() {
       console.log("최종 데이터:", finalPayload);
       //API 호출
 
-      alert("가게 등록이 완료되었습니다!");
-
-      navigate("/mypage/store", { replace: true });
+      setIsCompleteModalOpen(true);
     }
+  };
+
+  const handleExit = () => {
+    setIsCompleteModalOpen(false);
+    navigate("/mypage/store", { replace: true });
   };
 
   const handlePrev = () => {
@@ -89,6 +98,17 @@ export default function StoreRegistrationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ConfirmModal
+        isOpen={isExitModalOpen}
+        onClose={() => setIsExitModalOpen(false)}
+        onConfirm={handleExit}
+      />
+      <CompleteModal
+        isOpen={isCompleteModalOpen}
+        onClose={handleExit}
+        autoCloseMs={5000}
+        data={step2Data}
+      />
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -99,12 +119,13 @@ export default function StoreRegistrationPage() {
                 등록하고 예약을 받아보세요
               </p>
             </div>
-            <Link
-              to="/mypage/store"
-              className="text-gray-500 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            <button
+              type="button"
+              onClick={() => setIsExitModalOpen(true)}
+              className="text-gray-500 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X className="size-6" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
