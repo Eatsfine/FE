@@ -48,14 +48,15 @@ export default function StepStoreInfo({
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label htmlFor="storeName" className="block text-gray-700 mb-2">
               가게 이름
               <span className="text-red-500">*</span>
             </Label>
             <input
+              id="storeName"
               {...register("storeName")}
               type="text"
               placeholder="예: 더 플레이스 강남점"
@@ -68,11 +69,12 @@ export default function StepStoreInfo({
             )}
           </div>
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label htmlFor="category" className="block text-gray-700 mb-2">
               음식 종류
               <span className="text-red-500">*</span>
             </Label>
             <select
+              id="category"
               {...register("category")}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
@@ -94,13 +96,14 @@ export default function StepStoreInfo({
         </div>
 
         <div>
-          <Label className="block text-gray-700 mb-2">
+          <Label htmlFor="address" className="block text-gray-700 mb-2">
             주소
             <span className="text-red-500">*</span>
           </Label>
           <div className="space-y-2">
             <div className="flex gap-2">
               <input
+                id="address"
                 {...register("address")}
                 type="text"
                 placeholder="주소 검색"
@@ -119,6 +122,8 @@ export default function StepStoreInfo({
               </p>
             )}
             <input
+              id="detailAddress"
+              aria-label="상세주소"
               {...register("detailAddress")}
               type="text"
               placeholder="상세주소 (선택)"
@@ -128,11 +133,12 @@ export default function StepStoreInfo({
         </div>
 
         <div>
-          <Label className="block text-gray-700 mb-2">
+          <Label htmlFor="phone" className="block text-gray-700 mb-2">
             전화번호
             <span className="text-red-500">*</span>
           </Label>
           <input
+            id="phone"
             {...register("phone")}
             type="tel"
             placeholder="02-1234-5678"
@@ -144,11 +150,12 @@ export default function StepStoreInfo({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label htmlFor="openTime" className="block text-gray-700 mb-2">
               영업 시작 시간
               <span className="text-red-500">*</span>
             </Label>
             <input
+              id="openTime"
               {...register("openTime")}
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -160,10 +167,11 @@ export default function StepStoreInfo({
             )}
           </div>
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label htmlFor="closeTime" className="block text-gray-700 mb-2">
               영업 종료 시간 <span className="text-red-500">*</span>
             </Label>
             <input
+              id="closeTime"
               {...register("closeTime")}
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -177,8 +185,11 @@ export default function StepStoreInfo({
         </div>
 
         <div>
-          <Label className="block text-gray-700 mb-2">가게 소개 (선택)</Label>
+          <Label htmlFor="description" className="block text-gray-700 mb-2">
+            가게 소개 (선택)
+          </Label>
           <textarea
+            id="description"
             {...register("description")}
             placeholder="가게에 대한 간단한 소개를 작성해주세요."
             rows={4}

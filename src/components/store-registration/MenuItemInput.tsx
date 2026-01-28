@@ -4,7 +4,13 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 import type { MenuFormValues } from "./Menu.schema";
-import { useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type MouseEvent,
+} from "react";
 import { Trash2, Upload, X } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
 
@@ -28,10 +34,23 @@ export default function MenuItemInput({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // previewUrl이 바뀔 때나 컴포넌트가 사라질 때 Cleanup
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   //파일을 브라우저용 임시 주소로 변환
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      //메모리 누수 방지를 위해 사용하지 않는 이미지 URL을 해제
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
       //URL.createObjectURL: 파일 객체를 임시 URL 문자열로 만들어주는 브라우저 기능
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -41,6 +60,9 @@ export default function MenuItemInput({
 
   const handleRemoveImage = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setPreviewUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";

@@ -62,7 +62,7 @@ export default function StoreRegistrationPage() {
         ...step2Data,
         menus: (step3Data.menus || []).map((menu) => ({
           ...menu,
-          price: Number(menu.price), //문자열 가격을 숫자로 변환
+          price: Number(menu.price) || 0, //문자열 가격을 숫자로 변환, 실패 시 0
         })),
       };
 
