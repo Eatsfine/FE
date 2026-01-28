@@ -1,56 +1,27 @@
-import { LoginDialog } from "@/components/auth/LoginDialog";
-import { SignupDialog } from "@/components/auth/SignupDialog";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import CtaSection from "@/components/main/CtaSection";
+import FeatureSection from "@/components/main/FeatureSection";
+import Footer from "@/components/main/Footer";
+import ForOwnerSection from "@/components/main/ForOwnerSection";
+import ForUserSection from "@/components/main/ForUserSection";
+import Header from "@/components/main/Header";
+import Hero from "@/components/main/Hero";
+import ProblemSection from "@/components/main/ProblemSection";
+import StateSection from "@/components/main/StateSection";
 
 const Intro = () => {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
-
   return (
     <>
-      <div className="p-4">
-        소개 페이지
-        <br />
-        <Button>버튼</Button>
-      </div>
-
-      <div className="flex p-4 gap-4">
-        <Button
-          className="cursor-pointer"
-          onClick={() => {
-            setIsLoginOpen(true);
-          }}
-        >
-          로그인
-        </Button>
-        <Button
-          className="cursor-pointer"
-          onClick={() => {
-            setIsSignupOpen(true);
-          }}
-        >
-          회원가입
-        </Button>
-      </div>
-
-      <SignupDialog
-        isOpen={isSignupOpen}
-        onClose={() => setIsSignupOpen(false)}
-        onSwitchToLogin={() => {
-          setIsSignupOpen(false);
-          setIsLoginOpen(true);
-        }}
-      />
-
-      <LoginDialog
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToSignup={() => {
-          setIsLoginOpen(false);
-          setIsSignupOpen(true);
-        }}
-      />
+      <Header />
+      <main>
+        <Hero />
+        <ProblemSection />
+        <FeatureSection />
+        <ForUserSection />
+        <ForOwnerSection />
+        <StateSection />
+        <CtaSection />
+      </main>
+      <Footer />
     </>
   );
 };
