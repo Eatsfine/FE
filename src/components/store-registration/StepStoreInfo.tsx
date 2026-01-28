@@ -1,8 +1,9 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { StoreInfoSchema, type StoreInfoFormValues } from "./StoreInfo.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
+import { phoneNumber } from "@/utils/phoneNumber";
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>; // 부모로부터 받을 초기값
@@ -15,6 +16,7 @@ export default function StepStoreInfo({
 }: StepStoreInfoProps) {
   const {
     register,
+    control,
     watch,
     formState: { errors, isValid, touchedFields },
   } = useForm<StoreInfoFormValues>({
@@ -137,12 +139,23 @@ export default function StepStoreInfo({
             전화번호
             <span className="text-red-500">*</span>
           </Label>
-          <input
-            id="phone"
-            {...register("phone")}
-            type="tel"
-            placeholder="02-1234-5678"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <input
+                id="phone"
+                type="tel"
+                placeholder="02-1234-5678"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={value || ""}
+                onChange={(e) => {
+                  const formatted = phoneNumber(e.target.value);
+                  onChange(formatted);
+                }}
+                maxLength={13}
+              />
+            )}
           />
           {errors.phone && touchedFields.phone && (
             <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
