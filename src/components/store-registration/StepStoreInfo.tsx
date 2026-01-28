@@ -19,7 +19,7 @@ export default function StepStoreInfo({
     control,
     watch,
     formState: { errors, isValid, touchedFields },
-  } = useForm<StoreInfoFormValues>({
+  } = useForm({
     resolver: zodResolver(StoreInfoSchema),
     mode: "onChange",
     defaultValues: {
@@ -30,6 +30,11 @@ export default function StepStoreInfo({
       openTime: "",
       closeTime: "",
       holidays: [],
+      reservationDeadline: "",
+      minPeople: 1,
+      maxPeople: 1,
+      acceptSameDay: false,
+      noShowPolicy: false,
       ...defaultValues,
     },
   });
@@ -47,7 +52,7 @@ export default function StepStoreInfo({
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h3 className="text-gray-900 mb-2">가게 정보 입력</h3>
+        <h3 className="text-gray-900 mb-2 font-bold">가게 정보 입력</h3>
         <p className="text-gray-600 text-sm">
           고객에게 보여질 가게 정보를 입력해주세요.
         </p>
@@ -245,6 +250,92 @@ export default function StepStoreInfo({
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
+        </div>
+
+        <h3 className="text-gray-900 mb-4 font-bold">예약 정책</h3>
+        <div>
+          <Label className="block text-gray-700 mb-2">
+            예약 가능 기간 <span className="text-red-500">*</span>
+          </Label>
+          <select
+            {...register("reservationDeadline")}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          >
+            <option value="">선택해주세요</option>
+            <option value="1주일 전까지">1주일 전까지</option>
+            <option value="2주일 전까지">2주일 전까지</option>
+            <option value="1개월 전까지">1개월 전까지</option>
+            <option value="3개월 전까지">3개월 전까지</option>
+          </select>
+          {errors.reservationDeadline && touchedFields.reservationDeadline && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.reservationDeadline.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <Label className="block text-gray-700 mb-2">
+            최소 예약 인원 <span className="text-red-500">*</span>
+          </Label>
+          <input
+            type="number"
+            {...register("minPeople")}
+            onFocus={(e) => e.target.select()}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.minPeople && touchedFields.minPeople && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.minPeople.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <Label className="block text-gray-700 mb-2">
+            최대 예약 인원 <span className="text-red-500">*</span>
+          </Label>
+          <input
+            type="number"
+            {...register("maxPeople")}
+            onFocus={(e) => e.target.select()}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.maxPeople && touchedFields.maxPeople && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.maxPeople.message}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <p className="font-medium text-gray-900">당일 예약 허용</p>
+            <p className="text-gray-600 mt-1 text-sm">
+              당일 예약을 받을 수 있습니다
+            </p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              {...register("acceptSameDay")}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <p className="font-medium text-gray-900">노쇼 방지 정책</p>
+            <p className="text-gray-600 mt-1 text-sm">
+              예약 시 결제 정보를 받습니다
+            </p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              {...register("noShowPolicy")}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
         </div>
       </form>
     </div>

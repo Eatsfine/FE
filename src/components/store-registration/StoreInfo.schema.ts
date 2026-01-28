@@ -15,6 +15,18 @@ export const StoreInfoSchema = z.object({
   closeTime: z.string().min(1, { message: "종료 시간을 선택하세요." }),
   holidays: z.array(z.string()).optional(),
   description: z.string().optional(),
+
+  reservationDeadline: z
+    .string()
+    .min(1, { message: "예약 가능 기간을 선택하세요." }),
+  minPeople: z.coerce
+    .number()
+    .min(1, { message: "최소 1명 이상이어야 합니다." }),
+  maxPeople: z.coerce
+    .number()
+    .min(1, { message: "최소 1명 이상이어야 합니다." }),
+  acceptSameDay: z.boolean(),
+  noShowPolicy: z.boolean(),
 });
 
 export type StoreInfoFormValues = z.infer<typeof StoreInfoSchema>;
