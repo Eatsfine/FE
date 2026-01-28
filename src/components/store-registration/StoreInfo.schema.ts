@@ -13,6 +13,7 @@ export const StoreInfoSchema = z.object({
     }),
   openTime: z.string().min(1, { message: "시작 시간을 선택하세요." }),
   closeTime: z.string().min(1, { message: "종료 시간을 선택하세요." }),
+  holidays: z.array(z.string()).optional(),
   description: z.string().optional(),
 });
 

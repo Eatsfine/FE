@@ -29,6 +29,7 @@ export default function StepStoreInfo({
       phone: "",
       openTime: "",
       closeTime: "",
+      holidays: [],
       ...defaultValues,
     },
   });
@@ -40,6 +41,8 @@ export default function StepStoreInfo({
     onChange(isValid, values as StoreInfoFormValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isValid, JSON.stringify(values), onChange]);
+
+  const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -196,7 +199,41 @@ export default function StepStoreInfo({
             )}
           </div>
         </div>
-
+        <div>
+          <Label htmlFor="" className="block text-gray-700 mb-2">
+            정기 휴무일(선택)
+          </Label>
+          <Controller
+            name="holidays"
+            control={control}
+            render={({ field: { value = [], onChange } }) => (
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((day) => {
+                  const isSelected = value.includes(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => {
+                        const newHolidays = isSelected
+                          ? value.filter((d: string) => d !== day)
+                          : [...value, day];
+                        onChange(newHolidays);
+                      }}
+                      className={`px-4 py-2 border rounded-lg transition-colors cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+                          : "bg-white text-black border-gray-300 hover:bg-gray-100"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          />
+        </div>
         <div>
           <Label htmlFor="description" className="block text-gray-700 mb-2">
             가게 소개 (선택)
