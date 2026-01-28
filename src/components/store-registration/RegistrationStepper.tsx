@@ -15,9 +15,9 @@ export default function RegistrationStepper({
   return (
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between max-w-2xl mx-auto">
+        <div className="flex items-start justify-between max-w-2xl mx-auto">
           {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center">
+            <div key={step.number} className={`flex items-start ${index !== steps.length - 1 ? "flex-1" : ""}`}>
               <div className="flex flex-col items-center">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
@@ -36,7 +36,7 @@ export default function RegistrationStepper({
               </div>
               {index !== steps.length - 1 && (
                 <div
-                  className={`hidden sm:block flex-1 h-1 mx-4 transition-colors ${
+                  className={`hidden sm:block flex-1 h-1 mx-8 mt-[24px] transition-colors ${
                     currentStep > step.number ? "bg-blue-500" : "bg-gray-200"
                   }`}
                   style={{ minWidth: "80px" }}

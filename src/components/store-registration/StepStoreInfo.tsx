@@ -74,7 +74,7 @@ export default function StepStoreInfo({
             </Label>
             <select
               {...register("category")}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
               <option value="">선택해주세요</option>
               <option value="한식">한식</option>

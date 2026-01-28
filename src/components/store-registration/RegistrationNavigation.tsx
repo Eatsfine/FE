@@ -18,7 +18,7 @@ export default function RegistrationNavigation({
   const isLastStep = currentStep === totalSteps;
 
   return (
-    <div className="max-w-2xl mx-auto mt-3 px-2 sm:px-0 flex items-center justify-between">
+    <div className="max-w-2xl mx-auto mb-5 px-2 sm:px-0 flex items-center justify-between">
       <button
         onClick={onPrev}
         disabled={currentStep === 1}
