@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@radix-ui/react-label";
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
@@ -28,6 +28,14 @@ export default function StepBusinessAuth({
 }: StepBusinessAuthProps) {
   //API 요청 중 로딩 관리
   const [isLoading, setIsLoading] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const {
     register,
@@ -44,15 +52,17 @@ export default function StepBusinessAuth({
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
 
-    // (가상 API 호출) 1.5초 뒤에 성공 처리
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-
-    onComplete({
-      businessNumber: data.businessNumber,
-      isVerified: true,
-    });
+    try {
+      // (가상 API 호출) 1.5초 뒤에 성공 처리
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!isMountedRef.current) return;
+      onComplete({
+        businessNumber: data.businessNumber,
+        isVerified: true,
+      });
+    } finally {
+      if (isMountedRef.current) setIsLoading(false);
+    }
   };
 
   return (
@@ -73,6 +83,8 @@ export default function StepBusinessAuth({
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             id="businessNumber"
+            inputMode="numeric"
+            aria-describedby="businessNumber-error"
             {...register("businessNumber", {
               onChange: (e) => {
                 if (defaultValues.isVerified) {
@@ -104,6 +116,7 @@ export default function StepBusinessAuth({
           </button>
         </div>
         <p
+          id="businessNumber-error"
           className={`text-xs mt-2 ${errors.businessNumber && touchedFields.businessNumber ? "text-red-500" : "text-gray-500"}`}
         >
           10자리 숫자를 입력해주세요 (예: 1234567890)
