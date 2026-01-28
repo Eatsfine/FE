@@ -1,6 +1,6 @@
-import { Plus, Trash2, CreditCard } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/utils";
 import PaymentAddModal from "@/components/modals/paymentAddModal";
 
 interface PaymentMethod {
@@ -34,7 +34,7 @@ export default function PaymentPage() {
       methods.map((m) => ({
         ...m,
         isDefault: m.id === id,
-      }))
+      })),
     );
   };
 
@@ -46,10 +46,14 @@ export default function PaymentPage() {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h2 className="text-lg text-gray-900">결제수단 관리</h2>
-          <p className="mt-1 text-sm text-gray-900">예약 시 사용할 결제수단을 관리하세요</p>
+          <p className="mt-1 text-sm text-gray-900">
+            예약 시 사용할 결제수단을 관리하세요
+          </p>
         </div>
-        <button className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-        onClick={()=>setIsModalOpen(true)}>
+        <button
+          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          onClick={() => setIsModalOpen(true)}
+        >
           <Plus size={18} />
           결제수단 추가
         </button>
@@ -62,16 +66,15 @@ export default function PaymentPage() {
             key={method.id}
             className={cn(
               "group relative flex items-center justify-between rounded-lg border border-2 p-3 transition-all",
-              method.isDefault 
-                ? "border-blue-500 bg-blue-50" 
-                : "border-gray-100 bg-white hover:border-gray-200"
+              method.isDefault
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-100 bg-white hover:border-gray-200",
             )}
           >
             <div className="flex items-center gap-4">
               {/* 아이콘 영역 */}
               <div className="flex h-12 w-12 items-center justify-center rounded-lg">
-                  <span className="text-xl">💛</span>
-
+                <span className="text-xl">💛</span>
               </div>
 
               {/* 정보 영역 */}
@@ -85,23 +88,21 @@ export default function PaymentPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-600">
-                  간편결제
-                </p>
+                <p className="text-xs text-gray-600">간편결제</p>
               </div>
             </div>
 
             {/* 액션 버튼 영역 */}
             <div className="flex items-center gap-3">
               {!method.isDefault && (
-                <button 
+                <button
                   onClick={() => handleSetDefault(method.id)}
                   className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   기본으로 설정
                 </button>
               )}
-              <button 
+              <button
                 onClick={() => handleDelete(method.id)}
                 className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
               >
@@ -112,9 +113,9 @@ export default function PaymentPage() {
         ))}
       </div>
 
-      <PaymentAddModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <PaymentAddModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
 
       {methods.length === 0 && (
