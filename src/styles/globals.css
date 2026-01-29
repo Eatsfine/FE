@@ -118,7 +118,7 @@
   * {
     @apply border-border outline-ring/50;
   }
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+  :where(:not(:has([class*=" text-"]), ::has([class^="text-"]))) {
     h1 {
       font-size: 1.5rem;
       font-weight: 700;
