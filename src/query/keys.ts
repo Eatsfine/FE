@@ -52,11 +52,16 @@ export const queryKeys = {
     restaurants: () => ["owner", "restaurants"] as const,
     restaurant: (restaurantId: string | number) =>
       ["owner", "restaurant", restaurantId] as const,
-    menus: (restaurantId: string | number) =>
+
+    menus: () => ["owner", "menus"] as const,
+    menuList: (restaurantId: string | number) =>
       ["owner", "menus", restaurantId] as const,
+
+    reservations: () => ["owner", "reservations"] as const,
+    reservationList: (restaurantId: string | number, params?: Params) =>
+      ["owner", "reservations", restaurantId, params ?? {}] as const,
+
     seats: (restaurantId: string | number) =>
       ["owner", "seats", restaurantId] as const,
-    reservations: (restaurantId: string | number, params?: Params) =>
-      ["owner", "reservations", restaurantId, params ?? {}] as const,
   },
 } as const;
