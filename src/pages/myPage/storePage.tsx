@@ -1,12 +1,8 @@
-import {
-  Store,
-  Calendar,
-  Star,
-  Plus,
-  ChevronRight,
-  BarChart3,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+
+import { Store, Calendar, Star, Plus, ChevronRight, BarChart3 } from "lucide-react";
+import { cn } from "../../lib/cn";
+import { Link } from "react-router-dom";
+
 
 export default function StorePage() {
   const stats = [
@@ -77,9 +73,11 @@ export default function StorePage() {
             등록한 식당을 관리하고 대시보드로 이동하세요
           </p>
         </div>
-        <button className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors">
+        <Link 
+          to="/mypage/store/register" 
+          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors">
           <Plus size={18} /> 새 가게 등록
-        </button>
+        </Link>
       </div>
 
       {/* 요약 통계 카드 */}
