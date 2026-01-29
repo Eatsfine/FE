@@ -65,7 +65,7 @@ export default function PaymentPage() {
           <div
             key={method.id}
             className={cn(
-              "group relative flex items-center justify-between rounded-lg border border-2 p-3 transition-all",
+              "group relative flex items-center justify-between rounded-lg border-2 p-3 transition-all",
               method.isDefault
                 ? "border-blue-500 bg-blue-50"
                 : "border-gray-100 bg-white hover:border-gray-200",
