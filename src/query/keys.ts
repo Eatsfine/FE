@@ -1,6 +1,7 @@
 // api 연동 시작할때 queryKey 규칙을 통일하기 위한 파일
 
-type Params = Record<string, unknown>;
+type QueryParamsValue = string | number | boolean | null;
+type Params = Readonly<Record<string, QueryParamsValue>>;
 
 export const queryKeys = {
   auth: {
