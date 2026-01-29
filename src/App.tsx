@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createBrowserRouter,
@@ -12,8 +11,6 @@ import MyPage from "./pages/myPage/myPage";
 import CustomerSupportPage from "./pages/CustomerSupportPage";
 import PublicLayout from "./layouts/PublicLayout";
 import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
-
-export const queryClient = new QueryClient();
 
 const routes: RouteObject[] = [
   {
@@ -53,9 +50,9 @@ const router = createBrowserRouter(routes);
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    </>
   );
 }

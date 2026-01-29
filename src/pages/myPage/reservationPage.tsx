@@ -1,6 +1,6 @@
 import { Calendar, Clock, User, CreditCard, Pencil, X } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/utils";
 
 type ReservationStatus = "전체" | "예정된 예약" | "방문 완료" | "취소된 예약";
 
@@ -71,7 +71,9 @@ export default function ReservationPage() {
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="mb-6">
         <h2 className="text-lg text-gray-900">예약 현황</h2>
-        <p className="mt-1 text-sm text-gray-800">내 예약 내역을 확인하고 관리하세요</p>
+        <p className="mt-1 text-sm text-gray-800">
+          내 예약 내역을 확인하고 관리하세요
+        </p>
       </div>
 
       {/* 탭 메뉴 */}
@@ -82,7 +84,9 @@ export default function ReservationPage() {
             onClick={() => setActiveTab(tab as ReservationStatus)}
             className={cn(
               "cursor-pointer pb-4 text-sm font-medium transition-all relative",
-              activeTab === tab ? "text-blue-600" : "text-gray-800 hover:text-gray-600"
+              activeTab === tab
+                ? "text-blue-600"
+                : "text-gray-800 hover:text-gray-600",
             )}
           >
             {tab}
@@ -97,17 +101,25 @@ export default function ReservationPage() {
       <div className="space-y-6">
         {filteredReservations.length > 0 ? (
           filteredReservations.map((res) => (
-            <div key={res.id} className="rounded-2xl border border-gray-200 p-6 transition-hover hover:shadow-md">
+            <div
+              key={res.id}
+              className="rounded-2xl border border-gray-200 p-6 transition-hover hover:shadow-md"
+            >
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-md text-gray-900">{res.shopName}</h3>
-                    <span className={cn(
-                      "px-2 py-0.5 rounded-full text-[11px]",
-                      res.status === "예약 확정" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600",
-                      res.status === "방문 완료" && "bg-green-50 text-green-600",
-                      res.status === "취소됨" && "bg-gray-100 text-gray-500"
-                    )}>
+                    <span
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-[11px]",
+                        res.status === "예약 확정"
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-green-50 text-green-600",
+                        res.status === "방문 완료" &&
+                          "bg-green-50 text-green-600",
+                        res.status === "취소됨" && "bg-gray-100 text-gray-500",
+                      )}
+                    >
                       {res.status}
                     </span>
                   </div>
@@ -117,18 +129,41 @@ export default function ReservationPage() {
 
               {/* 상세 정보 그리드 */}
               <div className="grid grid-cols-2 gap-y-4 gap-x-8 pb-6 border-b border-gray-200 mb-4">
-                <InfoItem icon={<Calendar size={18} />} label="예약 날짜" value={res.date} />
-                <InfoItem icon={<Clock size={18} />} label="예약 시간" value={res.time} />
-                <InfoItem icon={<User size={18} />} label="인원" value={res.people} />
-                <InfoItem icon={<CreditCard size={18} />} label="결제 정보" value={`${res.payment}\n${res.method}`} isMultiLine />
+                <InfoItem
+                  icon={<Calendar size={18} />}
+                  label="예약 날짜"
+                  value={res.date}
+                />
+                <InfoItem
+                  icon={<Clock size={18} />}
+                  label="예약 시간"
+                  value={res.time}
+                />
+                <InfoItem
+                  icon={<User size={18} />}
+                  label="인원"
+                  value={res.people}
+                />
+                <InfoItem
+                  icon={<CreditCard size={18} />}
+                  label="결제 정보"
+                  value={`${res.payment}\n${res.method}`}
+                  isMultiLine
+                />
               </div>
 
               {/* 하단 버튼 영역 */}
               <div className="flex items-center justify-between">
-                <span className={cn(
-                  "text-sm font-medium",
-                  res.status === "취소됨" ? "text-gray-400" : "text-green-600"
-                )}>{res.step}</span>
+                <span
+                  className={cn(
+                    "text-sm font-medium",
+                    res.status === "취소됨"
+                      ? "text-gray-400"
+                      : "text-green-600",
+                  )}
+                >
+                  {res.step}
+                </span>
                 <div className="flex gap-2">
                   {res.status === "예약 확정" && (
                     <>
@@ -160,15 +195,28 @@ export default function ReservationPage() {
 }
 
 // 정보 아이템 컴포넌트
-function InfoItem({ icon, label, value, isMultiLine = false }: { icon: React.ReactNode, label: string, value: string, isMultiLine?: boolean }) {
+function InfoItem({
+  icon,
+  label,
+  value,
+  isMultiLine = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  isMultiLine?: boolean;
+}) {
   return (
     <div className="flex items-start gap-3">
-      <div className="p-2 rounded-full bg-blue-100 text-blue-500">
-        {icon}
-      </div>
+      <div className="p-2 rounded-full bg-blue-100 text-blue-500">{icon}</div>
       <div>
         <p className="text-[11px] text-gray-400 mb-0.5">{label}</p>
-        <p className={cn("text-sm text-gray-900", isMultiLine ? "whitespace-pre-line" : "")}>
+        <p
+          className={cn(
+            "text-sm text-gray-900",
+            isMultiLine ? "whitespace-pre-line" : "",
+          )}
+        >
           {value}
         </p>
       </div>

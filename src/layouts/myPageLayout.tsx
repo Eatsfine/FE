@@ -7,7 +7,7 @@ import {
   Store,
   User,
 } from "lucide-react";
-import { cn } from "../lib/cn";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   { to: "/mypage/info", label: "내 정보", icon: User },
@@ -56,7 +56,7 @@ export default function MyPageLayout() {
                       "relative flex h-12 items-center gap-3 px-5 py-7 text-md font-medium transition",
                       isActive
                         ? "bg-blue-50 text-blue-600"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-700 hover:bg-gray-100",
                     )
                   }
                 >
