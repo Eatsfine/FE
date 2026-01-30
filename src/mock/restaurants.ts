@@ -38,7 +38,6 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     markerPosition: { leftPct: 30, topPct: 40 },
     paymentPolicy: {
       depositRate: 0.2, // 20%로 가정
-      depositAmount: 10000, //고정예약금 만원(임시)
       notice:
         "예약 확정을 위해 예약금 결제가 필요합니다. 노쇼 방지를 위한 정책입니다.",
     },
@@ -79,7 +78,6 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     markerPosition: { leftPct: 50, topPct: 20 },
     paymentPolicy: {
       depositRate: 0.4, //40%로 가정
-      depositAmount: 20000, //고정예약금 2만원(임시)
       notice:
         "예약 확정을 위해 예약금 결제가 필요합니다. 노쇼 방지를 위한 정책입니다.",
     },
@@ -120,7 +118,6 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     markerPosition: { leftPct: 90, topPct: 90 },
     paymentPolicy: {
       depositRate: 0.5, // 50%로 가정
-      depositAmount: 25000, //고정예약금 2만오천원(임시)
       notice:
         "예약 확정을 위해 예약금 결제가 필요합니다. 노쇼 방지를 위한 정책입니다.",
     },

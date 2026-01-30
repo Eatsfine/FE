@@ -1,3 +1,6 @@
+import type { SelectedMenu } from "@/types/menus";
+import type { DepositRate } from "@/types/payment";
+
 export type Restaurant = {
   id: string;
   name: string;
@@ -48,13 +51,12 @@ export type ReservationDraft = {
   time: string;
   seatType: SeatType;
   tablePref: TablePref;
-  payment: PaymentPolicy;
   tableId: string;
+  selectedMenus: SelectedMenu[];
 };
 
 export type PaymentPolicy = {
-  depositRate: 0.1 | 0.2 | 0.3 | 0.4 | 0.5;
-  depositAmount: number;
+  depositRate: DepositRate;
   notice?: string;
 };
 
