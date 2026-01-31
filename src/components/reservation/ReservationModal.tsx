@@ -1,6 +1,5 @@
 import {
   SEATS,
-  type PaymentPolicy,
   type ReservationDraft,
   type Restaurant,
   type SeatLayout,
@@ -14,7 +13,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
-import { formatKrw } from "@/utils/money";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "./TableMap";
@@ -63,7 +61,10 @@ export default function ReservationModal({
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
-  const policy = restaurant.paymentPolicy;
+  const depositRate = restaurant.paymentPolicy?.depositRate ?? 0.1;
+  const paymentNotice =
+    restaurant.paymentPolicy?.notice ??
+    "예약 확정을 위해 예약금 결제가 필요합니다.";
 
   useEffect(() => {
     if (!open) return;
@@ -90,14 +91,6 @@ export default function ReservationModal({
   }, [people, date, time]);
 
   const todayKst = startOfTodayInKst();
-
-  const paymentDraft: PaymentPolicy = {
-    depositRate: policy?.depositRate ?? 0.1,
-    depositAmount: policy?.depositAmount ?? 0,
-    notice:
-      policy?.notice ??
-      "예약 확정을 위해 예약금 결제가 필요합니다. (노쇼 방지 목적)",
-  };
 
   // 레이아웃 mock 넣음. (나중에 API로 교체예정)
   const layout: SeatLayout | null = useMemo(() => {
@@ -219,7 +212,7 @@ export default function ReservationModal({
                   mode="single"
                   selected={date}
                   onSelect={setDate}
-                  disabled={(d) => d < todayKst} //오늘포함 허용함. 오늘 제외하려면 <=로 변경하기.
+                  disabled={(d) => d <= todayKst} //오늘미포함.
                 />
               </PopoverContent>
             </Popover>
@@ -372,18 +365,14 @@ export default function ReservationModal({
               <div className="flex items-center justify-between">
                 <span>사전결제</span>
                 <span className="font-semibold">
-                  예약금: {formatKrw(paymentDraft.depositAmount)}원
+                  {Math.round(depositRate * 100)}% 정책
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                예약 확정을 위해 예약금 결제가 필요합니다.{" "}
-                {paymentDraft.depositRate
-                  ? `(${Math.round(paymentDraft.depositRate * 100)}% 정책 적용)`
-                  : null}
+                예약금은 <b>메뉴 선택 후</b> 메뉴 총액의{" "}
+                <b>{Math.round(depositRate * 100)}%</b>로 계산됩니다.
               </p>
-              <p className="text-xs text-muted-foreground">
-                {paymentDraft.notice}
-              </p>
+              <p className="text-xs text-muted-foreground">{paymentNotice}</p>
             </div>
           </div>
 
@@ -399,8 +388,8 @@ export default function ReservationModal({
                 time,
                 seatType,
                 tablePref,
-                payment: paymentDraft,
                 tableId: selectedTableId,
+                selectedMenus: initialDraft?.selectedMenus ?? [],
               });
             }}
           >
