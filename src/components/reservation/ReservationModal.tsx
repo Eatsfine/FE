@@ -98,7 +98,7 @@ export default function ReservationModal({
     // 레스토랑 id가 있다고 가정함.
     //   return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
     // }, [restaurant]);
-    return getMockLayoutByRestaurantId("r-1"); //UI테스트 용으로 고정시켜 놓음.
+    return getMockLayoutByRestaurantId("1"); //UI테스트 용으로 고정시켜 놓음.
   }, []);
 
   const dateYmd = date ? toYmd(date) : "";
@@ -378,6 +378,7 @@ export default function ReservationModal({
 
           {/* 예약 확인 모달 이동 */}
           <Button
+            type="button"
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {

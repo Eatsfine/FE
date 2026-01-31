@@ -9,6 +9,7 @@ import ReservationModal from "@/components/reservation/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/ReservationConfirmModal";
 import ReservationCompleteModal from "@/components/reservation/ReservationCompleteModal";
 import PaymentModal from "@/components/reservation/PaymentModal";
+import ReservationMenuModal from "@/components/reservation/ReservationMenuModal";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -16,6 +17,7 @@ export default function SearchPage() {
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
+  const [reserveMenuOpen, setReserveMenuOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [completeOpen, setCompleteOpen] = useState(false);
@@ -40,16 +42,24 @@ export default function SearchPage() {
     setDetailOpen(true);
   };
 
-  const goConfirm = (d: ReservationDraft) => {
+  const goReserveMenu = (d: ReservationDraft) => {
     setDraft(d);
     setReserveOpen(false);
-    setConfirmOpen(true);
-    setPaymentOpen(false);
+    setReserveMenuOpen(true);
   };
 
   const backToReserve = () => {
+    setReserveMenuOpen(false);
     setReserveOpen(true);
+  };
+  const goConfirm = (d: ReservationDraft) => {
+    setDraft(d);
+    setReserveMenuOpen(false);
+    setConfirmOpen(true);
+  };
+  const backToReserveMenu = () => {
     setConfirmOpen(false);
+    setReserveMenuOpen(true);
   };
 
   const goPayment = () => {
@@ -61,6 +71,7 @@ export default function SearchPage() {
     setDraft(null);
     setDetailOpen(false);
     setReserveOpen(false);
+    setReserveMenuOpen(false);
     setConfirmOpen(false);
     setSelected(null);
     setCompleteOpen(false);
@@ -153,8 +164,21 @@ export default function SearchPage() {
           }}
           restaurant={selected}
           initialDraft={draft ?? undefined}
-          onClickConfirm={goConfirm}
+          onClickConfirm={goReserveMenu}
           onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
+        />
+      )}
+      {selected && draft && (
+        <ReservationMenuModal
+          open={reserveMenuOpen}
+          onOpenChange={(o: boolean) => {
+            setReserveMenuOpen(o);
+            if (!o) closeAll();
+          }}
+          restaurant={selected}
+          onConfirm={goConfirm}
+          onBack={backToReserve}
+          draft={draft}
         />
       )}
       {/* 예약확인 페이지 모달 */}
@@ -162,7 +186,7 @@ export default function SearchPage() {
         <ReservationConfirmMoodal
           open={confirmOpen}
           onClose={closeAll}
-          onBack={backToReserve} //X표시 누르면 예약페이지 모달로 이동
+          onBack={backToReserveMenu}
           onConfirm={goPayment}
           restaurant={selected}
           draft={draft}
@@ -170,7 +194,7 @@ export default function SearchPage() {
       )}
 
       {/* 결제 모달 */}
-      {selected && draft && (
+      {selected && draft && paymentOpen && (
         <PaymentModal
           open={paymentOpen}
           onClose={closeAll}

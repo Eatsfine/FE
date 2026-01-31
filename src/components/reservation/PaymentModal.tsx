@@ -4,6 +4,10 @@ import { formatKrw } from "@/utils/money";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
+import { useMenus } from "@/hooks/useMenus";
+import { useDepositRate } from "@/hooks/useDepositRate";
+import { calcMenuTotal } from "@/utils/menu";
+import { calcDeposit } from "@/utils/payment";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
@@ -36,7 +40,16 @@ export default function PaymentModal({
   const [method, setMethod] = useState<PayMethod | undefined>();
   const [loading, setLoading] = useState(false);
 
-  const amount = useMemo(() => draft.payment.depositAmount, [draft.payment]);
+  const { menus } = useMenus(restaurant.id);
+  const { rate } = useDepositRate(restaurant.id);
+
+  const menuTotal = useMemo(() => {
+    return calcMenuTotal(menus, draft.selectedMenus);
+  }, [menus, draft.selectedMenus]);
+
+  const amount = useMemo(() => {
+    return calcDeposit(menuTotal, rate);
+  }, [menuTotal, rate]);
 
   const onClickPay = async () => {
     if (loading) return;
@@ -96,13 +109,18 @@ export default function PaymentModal({
             <div className="text-sm text-muted-foreground">매장</div>
             <div className="mt-1 text-base truncate">{restaurant.name}</div>
           </div>
-          <div className="border rounded-xl p-4 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm text-muted-foreground">결제 금액</div>
-              <div className="mt-1 text-xl font-semibold">
-                {formatKrw(amount)}원
+          <div className="border rounded-xl p-4 space-y-1">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm text-muted-foreground">결제 금액</div>
+                <div className="mt-1 text-xl font-semibold">
+                  {formatKrw(amount)}원
+                </div>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              메뉴 총액 {formatKrw(menuTotal)}원 * {Math.round(rate * 100)}%
+            </p>
           </div>
           {/* 본문 */}
           <div className="space-y-2">
