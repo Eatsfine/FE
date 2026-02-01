@@ -1,3 +1,4 @@
+import { useConfirmClose } from "@/hooks/useConfirmClose";
 import { useDepositRate } from "@/hooks/useDepositRate";
 import { useMenus } from "@/hooks/useMenus";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
@@ -34,12 +35,7 @@ export default function ReservationConfirmMoodal({
 
   const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
 
-  const handleRequestClose = () => {
-    const ok = window.confirm(
-      "예약이 확정되지 않았습니다.\n예약화면을 벗어나시겠습니까?",
-    );
-    if (ok) onClose();
-  };
+  const handleRequestClose = useConfirmClose(onClose);
 
   const { menus } = useMenus(restaurant.id);
   const { rate } = useDepositRate(restaurant.id);

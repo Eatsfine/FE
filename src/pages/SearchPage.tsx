@@ -37,11 +37,6 @@ export default function SearchPage() {
     setReserveOpen(true);
   };
 
-  const backToDetail = () => {
-    setReserveOpen(false);
-    setDetailOpen(true);
-  };
-
   const goReserveMenu = (d: ReservationDraft) => {
     setDraft(d);
     setReserveOpen(false);
@@ -165,7 +160,7 @@ export default function SearchPage() {
           restaurant={selected}
           initialDraft={draft ?? undefined}
           onClickConfirm={goReserveMenu}
-          onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
+          onClose={closeAll}
         />
       )}
       {/* 메뉴선택 모달 */}
@@ -179,6 +174,7 @@ export default function SearchPage() {
           restaurant={selected}
           onConfirm={goConfirm}
           onBack={backToReserve}
+          onClose={closeAll}
           draft={draft}
         />
       )}
@@ -205,7 +201,6 @@ export default function SearchPage() {
           onSuccess={() => {
             setCompleteOpen(true); //결제 성공 완료모달
           }}
-          onBack={() => setConfirmOpen(true)}
         />
       )}
       {/* 예약완료 페이지 모달 */}

@@ -8,6 +8,7 @@ import { useMenus } from "@/hooks/useMenus";
 import { useDepositRate } from "@/hooks/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
 import { calcDeposit } from "@/utils/payment";
+import { useConfirmClose } from "@/hooks/useConfirmClose";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
@@ -18,7 +19,6 @@ type Props = {
   restaurant: Restaurant;
   draft: ReservationDraft;
   onSuccess: () => void;
-  onBack: () => void;
 };
 
 function mockPay(method: PayMethod, amount: number) {
@@ -35,7 +35,6 @@ export default function PaymentModal({
   restaurant,
   draft,
   onSuccess,
-  onBack,
 }: Props) {
   const [method, setMethod] = useState<PayMethod | undefined>();
   const [loading, setLoading] = useState(false);
@@ -63,18 +62,7 @@ export default function PaymentModal({
     }
   };
 
-  const handleBack = () => {
-    onOpenChange(false);
-    onBack();
-  };
-
-  const handleRequestClose = () => {
-    const ok = window.confirm(
-      "예약금이 결제되지 않았습니다. \n 예약화면을 벗어나시겠습니까?",
-    );
-    if (ok) onClose();
-  };
-
+  const handleRequestClose = useConfirmClose(onClose);
   if (!open) return null;
 
   return (
@@ -96,7 +84,7 @@ export default function PaymentModal({
           <h3 className="text-lg">예약금 결제</h3>
           <button
             type="button"
-            onClick={handleBack}
+            onClick={handleRequestClose}
             aria-label="닫기"
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           >

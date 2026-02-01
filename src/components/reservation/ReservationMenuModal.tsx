@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { formatKrw } from "@/utils/money";
 import { useDepositRate } from "@/hooks/useDepositRate";
 import { calcDeposit } from "@/utils/payment";
+import { useConfirmClose } from "@/hooks/useConfirmClose";
 
 type Props = {
   open: boolean;
@@ -16,6 +17,7 @@ type Props = {
   restaurant: Restaurant;
   onConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
+  onClose: () => void;
   draft: ReservationDraft;
 };
 
@@ -31,6 +33,7 @@ export default function ReservationMenuModal({
   restaurant,
   onConfirm,
   onBack,
+  onClose,
   draft,
 }: Props) {
   const { activeMenus } = useMenus(restaurant.id);
@@ -98,6 +101,8 @@ export default function ReservationMenuModal({
     [totalPrice, rate],
   );
 
+  const handleRequestClose = useConfirmClose(onClose);
+
   if (!open) return;
 
   return (
@@ -125,7 +130,7 @@ export default function ReservationMenuModal({
           <button
             type="button"
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            onClick={() => onOpenChange(false)}
+            onClick={handleRequestClose}
             aria-label="모달 닫기"
           >
             <X />

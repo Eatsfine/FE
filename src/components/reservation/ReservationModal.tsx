@@ -16,6 +16,7 @@ import { startOfTodayInKst, toYmd } from "@/utils/date";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "./TableMap";
+import { useConfirmClose } from "@/hooks/useConfirmClose";
 
 type Props = {
   open: boolean;
@@ -23,7 +24,7 @@ type Props = {
   restaurant: Restaurant;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
-  onBack: () => void;
+  onClose: () => void;
 };
 
 const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -52,7 +53,7 @@ export default function ReservationModal({
   restaurant,
   initialDraft,
   onClickConfirm,
-  onBack,
+  onClose,
 }: Props) {
   const [people, setPeople] = useState<number>(2);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -124,6 +125,8 @@ export default function ReservationModal({
     return SEATS.filter((s) => seatTypeExists.has(s));
   }, [layout, seatTypeExists]);
 
+  const handleRequestClose = useConfirmClose(onClose);
+
   if (!open) return null;
 
   return (
@@ -149,7 +152,7 @@ export default function ReservationModal({
           </div>
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
+            onClick={handleRequestClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             aria-label="모달 닫기"
           >
