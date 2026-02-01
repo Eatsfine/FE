@@ -253,11 +253,14 @@ export default function ReservationMenuModal({
         <div className="border-t px-6 py-3 bg-white space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-muted-foreground">메뉴 총액</div>
-              <div className="text-lg font-semibold">
-                {formatKrw(totalPrice)}
+              <div className="text-muted-foreground">
+                메뉴 총액: {""}
+                <span className="text-lg font-semibold">
+                  {formatKrw(totalPrice)}
+                </span>
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">
+
+              <div className="mt-1 text-xl text-blue-600 font-semibold">
                 예약금 ({Math.round(rate * 100)}%): {""}
                 <span>{formatKrw(depositAmount)}</span>
               </div>
