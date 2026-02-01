@@ -41,7 +41,7 @@ api.interceptors.response.use(
     if (import.meta.env.DEV) {
       console.error("[api error]", {
         status: apiError.status,
-        data: apiError.code,
+        code: apiError.code,
         message: apiError.message,
         url: err.config?.url,
         method: err.config?.method,
