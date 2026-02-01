@@ -17,6 +17,7 @@ import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "./TableMap";
 import { useConfirmClose } from "@/hooks/useConfirmClose";
+import { useDepositRate } from "@/hooks/useDepositRate";
 
 type Props = {
   open: boolean;
@@ -62,7 +63,7 @@ export default function ReservationModal({
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
-  const depositRate = restaurant.paymentPolicy?.depositRate ?? 0.1;
+  const { rate: depositRate } = useDepositRate(restaurant.id);
   const paymentNotice =
     restaurant.paymentPolicy?.notice ??
     "예약 확정을 위해 예약금 결제가 필요합니다.";
