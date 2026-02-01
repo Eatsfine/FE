@@ -32,7 +32,7 @@ export default function ReservationConfirmMoodal({
 
   //UI테스트를 위해서 r-1로 고정함. 나중에 백엔드 연결시 주석으로 변경필요. ReservationModal또한 변경필요.
   // const layout = getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
-  const layout = getMockLayoutByRestaurantId("r-1");
+  const layout = getMockLayoutByRestaurantId("1");
 
   const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
 
@@ -110,10 +110,10 @@ export default function ReservationConfirmMoodal({
           <div className="border rounded-lg p-3 bg-blue-50 border-blue-200">
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
-            <div className="text-sm text-gray-800 mt-1">
-              예약금: {formatKrw(menuTotal)}원 ({Math.round(rate * 100)}% 적용)
+            <div className="text-gray-800 mt-1 font-semibold">
+              예약금: {formatKrw(depositAmount)}원
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-2">
               {restaurant.paymentPolicy?.notice ??
                 "예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)"}
             </p>

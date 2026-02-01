@@ -168,6 +168,7 @@ export default function SearchPage() {
           onBack={backToDetail} //X표시 누르면 상세페이지 모달로 이동
         />
       )}
+      {/* 메뉴선택 모달 */}
       {selected && draft && (
         <ReservationMenuModal
           open={reserveMenuOpen}
