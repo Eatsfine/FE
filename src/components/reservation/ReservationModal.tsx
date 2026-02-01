@@ -287,22 +287,23 @@ export default function ReservationModal({
               </p>
             )}
             {layout && canQueryTables && (
-              <>
-                <TableMap
-                  layout={layout}
-                  availableIds={availableIds}
-                  selectedTableId={selectedTableId}
-                  seatType={seatType}
-                  onSelectTable={setSelectedTableId}
-                  onSelectSeatType={setSeatType}
-                />
-
+              <div className="overflow-x-auto">
+                <div className="min-w-[500px]">
+                  <TableMap
+                    layout={layout}
+                    availableIds={availableIds}
+                    selectedTableId={selectedTableId}
+                    seatType={seatType}
+                    onSelectTable={setSelectedTableId}
+                    onSelectSeatType={setSeatType}
+                  />
+                </div>
                 {!selectedTableId && (
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     배치도에서 테이블을 선택해주세요
                   </p>
                 )}
-              </>
+              </div>
             )}
           </div>
 
