@@ -1,0 +1,54 @@
+import React, { useState } from 'react';
+import { X } from 'lucide-react';
+
+interface Props { 
+  onClose: () => void; 
+  onConfirm: (cols: number, rows: number) => void; 
+}
+
+const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
+  const [cols, setCols] = useState(4);
+  const [rows, setRows] = useState(3);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white w-[400px] rounded-3xl p-8 relative">
+        <button onClick={onClose} className="absolute right-6 top-6 text-gray-400"><X /></button>
+        <h3 className="text-xl font-bold mb-6">테이블 생성하기</h3>
+        
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">가로 줄 수 (Columns)</label>
+            <input 
+              type="number" 
+              value={cols} 
+              onChange={(e) => setCols(Number(e.target.value))} 
+              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">세로 줄 수 (Rows)</label>
+            <input 
+              type="number" 
+              value={rows} 
+              onChange={(e) => setRows(Number(e.target.value))} 
+              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" 
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 border rounded-xl font-bold text-gray-500">취소</button>
+          <button 
+            onClick={() => onConfirm(cols, rows)} 
+            className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold"
+          >
+            생성하기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TableCreateModal;

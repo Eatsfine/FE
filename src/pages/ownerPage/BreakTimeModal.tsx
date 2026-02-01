@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { X, Clock } from 'lucide-react';
+
+export interface BreakTime {
+  start: string; // "14:00"
+  end: string;   // "15:00"
+}
+
+interface Props {
+  openTime: string;
+  closeTime: string;
+  onClose: () => void;
+  onConfirm: (breakTime: BreakTime) => void;
+}
+
+const BreakTimeModal: React.FC<Props> = ({
+  openTime,
+  closeTime,
+  onClose,
+  onConfirm,
+}) => {
+  const [start, setStart] = useState('14:00');
+  const [end, setEnd] = useState('15:00');
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white w-[420px] rounded-2xl p-6 relative">
+        <button onClick={onClose} className="absolute right-4 top-4">
+          <X />
+        </button>
+
+        <div className="flex items-center gap-2 font-bold text-lg mb-4">
+          <Clock className="text-orange-500" /> 브레이크 타임 설정
+        </div>
+
+        <div className="bg-orange-50 border border-orange-200 text-orange-700 text-sm p-3 rounded-lg mb-5">
+          브레이크 타임 동안 모든 테이블의 예약이 자동으로 차단됩니다.
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-bold text-gray-600">시작 시간</label>
+            <input
+              type="time"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="w-full mt-1 border rounded-lg p-2"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-600">종료 시간</label>
+            <input
+              type="time"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="w-full mt-1 border rounded-lg p-2"
+            />
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
+            영업 시간: {openTime} ~ {closeTime}
+            <br />
+            설정할 브레이크 타임: {start} ~ {end}
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 border rounded-lg py-2 font-bold"
+          >
+            취소
+          </button>
+          <button
+            onClick={() => {
+              onConfirm({ start, end });
+              onClose();
+            }}
+            className="flex-1 bg-orange-500 text-white rounded-lg py-2 font-bold"
+          >
+            브레이크 타임 추가
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BreakTimeModal;
