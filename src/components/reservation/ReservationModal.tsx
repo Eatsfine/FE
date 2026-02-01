@@ -149,9 +149,9 @@ export default function ReservationModal({
           </div>
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => onOpenChange(false)}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            aria-label="상세로 돌아가기"
+            aria-label="모달 닫기"
           >
             <X />
           </button>
