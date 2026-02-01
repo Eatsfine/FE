@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { normalizeApiError } from "./api.error";
-import type { ApiError, ApiResponse } from "@/types/api";
+import { isApiResponse, normalizeApiError } from "./api.error";
+import type { ApiError } from "@/types/api";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
@@ -21,9 +21,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 api.interceptors.response.use(
   (res) => {
-    const data = res.data as ApiResponse<unknown>;
+    const data = res.data;
 
-    if (data.success === false) {
+    if (isApiResponse(data) && data.success === false) {
       const apiError: ApiError = {
         status: res.status,
         code: data.code,
