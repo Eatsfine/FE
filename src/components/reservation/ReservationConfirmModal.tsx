@@ -29,9 +29,7 @@ export default function ReservationConfirmMoodal({
 }: Props) {
   const { people, date, time, seatType, tablePref } = draft;
 
-  //UI테스트를 위해서 r-1로 고정함. 나중에 백엔드 연결시 주석으로 변경필요. ReservationModal또한 변경필요.
-  // const layout = getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
-  const layout = getMockLayoutByRestaurantId("1");
+  const layout = getMockLayoutByRestaurantId(restaurant.id ?? "1");
 
   const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
 
