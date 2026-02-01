@@ -1,4 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { normalizeApiError } from "./api.error";
+import type { ApiError, ApiResponse } from "@/types/api";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
@@ -18,21 +20,38 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const data = res.data as ApiResponse<unknown>;
+
+    if (data.success === false) {
+      const apiError: ApiError = {
+        status: res.status,
+        code: data.code,
+        message: data.message,
+      };
+
+      return Promise.reject(apiError);
+    }
+    return res;
+  },
+
   (err: AxiosError) => {
-    const status = err.response?.status;
-    const data = err.response?.data;
+    const apiError: ApiError = normalizeApiError(err);
 
     if (import.meta.env.DEV) {
       console.error("[api error]", {
-        status,
-        data,
-        message: err.message,
+        status: apiError.status,
+        data: apiError.code,
+        message: apiError.message,
         url: err.config?.url,
         method: err.config?.method,
       });
     }
-    //Todo: 401 처리(로그아웃.리다이렉트,refresh)는 스펙 확정후
-    return Promise.reject(err);
+
+    if (apiError.status === 401) {
+      // TODO: refresh or logout 정책 확정 후 구현
+    }
+
+    return Promise.reject(apiError);
   },
 );
