@@ -116,7 +116,7 @@ export default function ReservationMenuModal({
         type="button"
         className="absolute inset-0 bg-black/50"
         aria-label="모달 닫기"
-        onClick={() => onOpenChange(false)}
+        onClick={handleRequestClose}
       />
       <div className="flex flex-col relative z-10 w-[92vw] max-w-4xl max-h-[calc(100vh-96px)] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b">
