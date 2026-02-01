@@ -114,8 +114,8 @@ export default function ReservationMenuModal({
         onClick={() => onOpenChange(false)}
       />
       <div className="flex flex-col relative z-10 w-[92vw] max-w-4xl max-h-[calc(100vh-96px)] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <div>
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <div className="min-w-0">
             <h2 className="text-xl truncate">{restaurant.name} 메뉴선택</h2>
             <p className="text-sm text-muted-foreground truncate">
               원하시는 메뉴를 미리 선택할 수 있어요. 메뉴당 최대수량은
