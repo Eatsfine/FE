@@ -227,11 +227,11 @@ export default function ReservationMenuModal({
                                     type="button"
                                     className={cn(
                                       "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
-                                      menu.isSoldOut &&
+                                      (menu.isSoldOut || qty >= 20) &&
                                         "opacity-40 cursor-not-allowed",
                                     )}
                                     onClick={() => inc(menu)}
-                                    disabled={menu.isSoldOut}
+                                    disabled={menu.isSoldOut || qty >= 20}
                                     aria-label={`${menu.name} 수량증가`}
                                   >
                                     <Plus className="h-4 w-4" />
