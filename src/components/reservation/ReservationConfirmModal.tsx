@@ -26,8 +26,6 @@ export default function ReservationConfirmMoodal({
   restaurant,
   draft,
 }: Props) {
-  if (!open) return null;
-
   const { people, date, time, seatType, tablePref } = draft;
 
   //UI테스트를 위해서 r-1로 고정함. 나중에 백엔드 연결시 주석으로 변경필요. ReservationModal또한 변경필요.
@@ -48,6 +46,8 @@ export default function ReservationConfirmMoodal({
   const { selectedMenus } = draft;
   const menuTotal = calcMenuTotal(menus, selectedMenus);
   const depositAmount = calcDeposit(menuTotal, rate);
+
+  if (!open) return null;
 
   return (
     <div

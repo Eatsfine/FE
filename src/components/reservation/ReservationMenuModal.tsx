@@ -3,7 +3,7 @@ import { Minus, Plus, X } from "lucide-react";
 import { Button } from "../ui/button";
 import type { SelectedMenu, MenuCategory, MenuItem } from "@/types/menus";
 import { useMenus } from "@/hooks/useMenus";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { calcMenuTotal } from "@/utils/menu";
 import { cn } from "@/lib/utils";
 import { formatKrw } from "@/utils/money";
@@ -33,13 +33,17 @@ export default function ReservationMenuModal({
   onBack,
   draft,
 }: Props) {
-  if (!open) return null;
-
   const { activeMenus } = useMenus(restaurant.id);
 
   const [selectedMenus, setSelectedMenus] = useState<SelectedMenu[]>(
     draft.selectedMenus ?? [],
   );
+
+  useEffect(() => {
+    if (!open) return;
+    setSelectedMenus(draft.selectedMenus ?? []);
+  }, [open, draft.selectedMenus]);
+
   const qtyMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const s of selectedMenus) map.set(s.menuId, s.quantity);
@@ -100,7 +104,7 @@ export default function ReservationMenuModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       aria-modal="true"
       role="dialog"
-      aria-label="식당 예약 모달"
+      aria-label="메뉴 선택 모달"
     >
       <button
         type="button"
