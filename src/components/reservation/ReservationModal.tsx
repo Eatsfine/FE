@@ -94,12 +94,8 @@ export default function ReservationModal({
 
   // 레이아웃 mock 넣음. (나중에 API로 교체예정)
   const layout: SeatLayout | null = useMemo(() => {
-    // 레스토랑 id없으면 name등 다른걸로 매핑하지말고 실제로 식당id가 있어야함.
-    // 레스토랑 id가 있다고 가정함.
-    //   return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
-    // }, [restaurant]);
-    return getMockLayoutByRestaurantId("1"); //UI테스트 용으로 고정시켜 놓음.
-  }, []);
+    return getMockLayoutByRestaurantId(restaurant.id ?? "1");
+  }, [restaurant.id]);
 
   const dateYmd = date ? toYmd(date) : "";
   const canQueryTables = !!layout && !!date && !!time;

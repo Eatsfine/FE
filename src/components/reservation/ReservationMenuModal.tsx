@@ -125,8 +125,8 @@ export default function ReservationMenuModal({
           <button
             type="button"
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            onClick={onBack}
-            aria-label="예약모달로 돌아가기"
+            onClick={() => onOpenChange(false)}
+            aria-label="모달 닫기"
           >
             <X />
           </button>
@@ -265,13 +265,23 @@ export default function ReservationMenuModal({
                 <span>{formatKrw(depositAmount)}</span>
               </div>
             </div>
-            <Button
-              type="button"
-              className="h-12 px-6 rounded-lg cursor-pointer bg-blue-500  hover:bg-blue-600"
-              onClick={() => onConfirm({ ...draft, selectedMenus })}
-            >
-              다음
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                className="h-12 px-6 rounded-lg cursor-pointer"
+                variant="outline"
+                onClick={onBack}
+              >
+                이전
+              </Button>
+              <Button
+                type="button"
+                className="h-12 px-6 rounded-lg cursor-pointer bg-blue-500  hover:bg-blue-600"
+                onClick={() => onConfirm({ ...draft, selectedMenus })}
+              >
+                다음
+              </Button>
+            </div>
           </div>
           <p className="text-xs text-muted-foreground">
             실제 결제는 다음 단계에서 진행됩니다
