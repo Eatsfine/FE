@@ -128,7 +128,7 @@ export default function RestaurantDetailModal({
                 type="button"
                 className="flex-1 bg-gray-100 text-black py-4 rounded-xl hover:bg-gray-200 transition-colors cursor-pointer"
                 onClick={() => {
-                  // Todo: 리뷰페이지로 이동
+                  window.alert("리뷰 기능은 추후 개발 예정입니다!");
                 }}
               >
                 테이블 리뷰 보기

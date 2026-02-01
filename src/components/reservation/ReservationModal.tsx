@@ -1,6 +1,5 @@
 import {
   SEATS,
-  type PaymentPolicy,
   type ReservationDraft,
   type Restaurant,
   type SeatLayout,
@@ -14,10 +13,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Button } from "../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
-import { formatKrw } from "@/utils/money";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "./TableMap";
+import { useConfirmClose } from "@/hooks/useConfirmClose";
+import { useDepositRate } from "@/hooks/useDepositRate";
 
 type Props = {
   open: boolean;
@@ -25,7 +25,7 @@ type Props = {
   restaurant: Restaurant;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
-  onBack: () => void;
+  onClose: () => void;
 };
 
 const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -54,7 +54,7 @@ export default function ReservationModal({
   restaurant,
   initialDraft,
   onClickConfirm,
-  onBack,
+  onClose,
 }: Props) {
   const [people, setPeople] = useState<number>(2);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -63,7 +63,10 @@ export default function ReservationModal({
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
-  const policy = restaurant.paymentPolicy;
+  const { rate: depositRate } = useDepositRate(restaurant.id);
+  const paymentNotice =
+    restaurant.paymentPolicy?.notice ??
+    "예약 확정을 위해 예약금 결제가 필요합니다.";
 
   useEffect(() => {
     if (!open) return;
@@ -91,22 +94,10 @@ export default function ReservationModal({
 
   const todayKst = startOfTodayInKst();
 
-  const paymentDraft: PaymentPolicy = {
-    depositRate: policy?.depositRate ?? 0.1,
-    depositAmount: policy?.depositAmount ?? 0,
-    notice:
-      policy?.notice ??
-      "예약 확정을 위해 예약금 결제가 필요합니다. (노쇼 방지 목적)",
-  };
-
   // 레이아웃 mock 넣음. (나중에 API로 교체예정)
   const layout: SeatLayout | null = useMemo(() => {
-    // 레스토랑 id없으면 name등 다른걸로 매핑하지말고 실제로 식당id가 있어야함.
-    // 레스토랑 id가 있다고 가정함.
-    //   return getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
-    // }, [restaurant]);
-    return getMockLayoutByRestaurantId("r-1"); //UI테스트 용으로 고정시켜 놓음.
-  }, []);
+    return getMockLayoutByRestaurantId(restaurant.id ?? "1");
+  }, [restaurant.id]);
 
   const dateYmd = date ? toYmd(date) : "";
   const canQueryTables = !!layout && !!date && !!time;
@@ -135,6 +126,8 @@ export default function ReservationModal({
     return SEATS.filter((s) => seatTypeExists.has(s));
   }, [layout, seatTypeExists]);
 
+  const handleRequestClose = useConfirmClose(onClose);
+
   if (!open) return null;
 
   return (
@@ -160,9 +153,9 @@ export default function ReservationModal({
           </div>
           <button
             type="button"
-            onClick={onBack}
+            onClick={handleRequestClose}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            aria-label="상세로 돌아가기"
+            aria-label="모달 닫기"
           >
             <X />
           </button>
@@ -219,7 +212,7 @@ export default function ReservationModal({
                   mode="single"
                   selected={date}
                   onSelect={setDate}
-                  disabled={(d) => d < todayKst} //오늘포함 허용함. 오늘 제외하려면 <=로 변경하기.
+                  disabled={(d) => d <= todayKst} //오늘미포함.
                 />
               </PopoverContent>
             </Popover>
@@ -294,22 +287,23 @@ export default function ReservationModal({
               </p>
             )}
             {layout && canQueryTables && (
-              <>
-                <TableMap
-                  layout={layout}
-                  availableIds={availableIds}
-                  selectedTableId={selectedTableId}
-                  seatType={seatType}
-                  onSelectTable={setSelectedTableId}
-                  onSelectSeatType={setSeatType}
-                />
-
+              <div className="overflow-x-auto">
+                <div className="min-w-[500px]">
+                  <TableMap
+                    layout={layout}
+                    availableIds={availableIds}
+                    selectedTableId={selectedTableId}
+                    seatType={seatType}
+                    onSelectTable={setSelectedTableId}
+                    onSelectSeatType={setSeatType}
+                  />
+                </div>
                 {!selectedTableId && (
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     배치도에서 테이블을 선택해주세요
                   </p>
                 )}
-              </>
+              </div>
             )}
           </div>
 
@@ -372,23 +366,20 @@ export default function ReservationModal({
               <div className="flex items-center justify-between">
                 <span>사전결제</span>
                 <span className="font-semibold">
-                  예약금: {formatKrw(paymentDraft.depositAmount)}원
+                  {Math.round(depositRate * 100)}% 정책
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                예약 확정을 위해 예약금 결제가 필요합니다.{" "}
-                {paymentDraft.depositRate
-                  ? `(${Math.round(paymentDraft.depositRate * 100)}% 정책 적용)`
-                  : null}
+                예약금은 <b>메뉴 선택 후</b> 메뉴 총액의{" "}
+                <b>{Math.round(depositRate * 100)}%</b>로 계산됩니다.
               </p>
-              <p className="text-xs text-muted-foreground">
-                {paymentDraft.notice}
-              </p>
+              <p className="text-xs text-muted-foreground">{paymentNotice}</p>
             </div>
           </div>
 
           {/* 예약 확인 모달 이동 */}
           <Button
+            type="button"
             className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {
@@ -399,8 +390,8 @@ export default function ReservationModal({
                 time,
                 seatType,
                 tablePref,
-                payment: paymentDraft,
                 tableId: selectedTableId,
+                selectedMenus: initialDraft?.selectedMenus ?? [],
               });
             }}
           >
