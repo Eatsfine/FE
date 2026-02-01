@@ -19,7 +19,7 @@ type Props = {
   draft: ReservationDraft;
 };
 
-const CategotyLabel: Record<MenuCategory, string> = {
+const CategoryLabel: Record<MenuCategory, string> = {
   MAIN: "메인 메뉴",
   SIDE: "사이드 메뉴",
   DRINK: "음료",
@@ -40,7 +40,6 @@ export default function ReservationMenuModal({
   );
 
   useEffect(() => {
-    if (!open) return;
     setSelectedMenus(draft.selectedMenus ?? []);
   }, [open, draft.selectedMenus]);
 
@@ -99,6 +98,8 @@ export default function ReservationMenuModal({
     [totalPrice, rate],
   );
 
+  if (!open) return;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -143,7 +144,7 @@ export default function ReservationMenuModal({
 
               return (
                 <section key={cat} className="space-y-3">
-                  <div className="font-semibold">{CategotyLabel[cat]}</div>
+                  <div className="font-semibold">{CategoryLabel[cat]}</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {list.map((menu) => {
                       const qty = qtyMap.get(menu.id) ?? 0;
