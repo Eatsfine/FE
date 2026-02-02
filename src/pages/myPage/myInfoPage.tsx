@@ -80,17 +80,16 @@ export default function MyInfoPage() {
     setDraftImageFile(originalImageFile);
     setIsEditing(false);
   };
-
   return (
-    <section className="rounded-xl bg-white p-8 shadow-sm">
+    <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       {/* title */}
-      <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-gray-800">내 정보</h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-medium">내 정보</h2>
 
         {!isEditing ? (
           <button
             onClick={handleEditStart}
-            className="cursor-pointer transition rounded-lg px-3 py-2 font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+            className="cursor-pointer transition rounded-lg px-3 py-2 text-lg font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           >
             수정하기
           </button>
