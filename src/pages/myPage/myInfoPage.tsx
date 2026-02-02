@@ -2,19 +2,30 @@ import { phoneNumber } from "@/utils/phoneNumber";
 import { Camera, Save } from "lucide-react";
 import { useRef, useState } from "react";
 
+type Form = {
+  email: string;
+  nickname: string;
+  phone: string;
+};
+
 export default function MyInfoPage() {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-
-  const [form, setForm] = useState({
+  const [original, setOriginal] = useState<Form>({
     email: "user@example.com",
     nickname: "맛있는유저",
     phone: "010-1234-5678",
   });
+  const [draft, setDraft] = useState<Form>(original);
 
-  const handleChange = (key: keyof typeof form, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const handleEditStart = () => {
+    setDraft(original);
+    setIsEditing(true);
+  };
+
+  const handleChange = (key: keyof Form, value: string) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleImageClick = () => {
@@ -38,15 +49,17 @@ export default function MyInfoPage() {
 
   const handleSave = () => {
     // TODO: API 호출
-    if (!isValidPhone(form.phone)) {
+    if (!isValidPhone(draft.phone)) {
       alert("전화번호를 올바르게 입력해주세요.");
       return;
     }
+    // TODO: API 성공후
+    setOriginal(draft);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    // TODO: 원래 값으로 롤백하고 싶으면 여기서 처리
+    setDraft(original);
     setIsEditing(false);
   };
 
@@ -58,7 +71,7 @@ export default function MyInfoPage() {
 
         {!isEditing ? (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={handleEditStart}
             className="cursor-pointer transition rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           >
             수정하기
@@ -137,7 +150,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-md text-gray-600">이메일</label>
             <input
               disabled={!isEditing}
-              value={form.email}
+              value={draft.email}
               onChange={(e) => handleChange("email", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 text-md ${
                 isEditing
@@ -152,7 +165,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-md text-gray-600">닉네임</label>
             <input
               disabled={!isEditing}
-              value={form.nickname}
+              value={draft.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 text-md ${
                 isEditing
@@ -167,7 +180,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-md text-gray-600">전화번호</label>
             <input
               disabled={!isEditing}
-              value={form.phone}
+              value={draft.phone}
               onChange={(e) =>
                 handleChange("phone", phoneNumber(e.target.value))
               }
