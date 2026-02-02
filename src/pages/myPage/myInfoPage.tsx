@@ -1,6 +1,6 @@
 import { phoneNumber } from "@/utils/phoneNumber";
 import { Camera, Save } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -11,7 +11,25 @@ type Form = {
 export default function MyInfoPage() {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
+  const [draftImageFile, setDraftImageFile] = useState<File | null>(null);
+  // const objectUrlRef = useRef<string | null>(null);
+
+  const shownFile = isEditing ? draftImageFile : originalImageFile;
+  const [shownUrl, setShownUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!shownFile) {
+      setShownUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(shownFile);
+    setShownUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [shownFile]);
+
   const [original, setOriginal] = useState<Form>({
     email: "user@example.com",
     nickname: "맛있는유저",
@@ -21,6 +39,7 @@ export default function MyInfoPage() {
 
   const handleEditStart = () => {
     setDraft(original);
+    setDraftImageFile(originalImageFile);
     setIsEditing(true);
   };
 
@@ -32,14 +51,11 @@ export default function MyInfoPage() {
     fileInputRef.current?.click();
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const previewUrl = URL.createObjectURL(file);
-    setProfileImage(previewUrl);
-
-    // TODO: 서버 업로드용 file은 따로 저장해도 됨
+    setDraftImageFile(file); //TODO: 서버 업로드에 사용
+    e.target.value = ""; //같은 파일 재선택 가능하도록 설정
   };
 
   const isValidPhone = (value: string) => {
@@ -55,11 +71,13 @@ export default function MyInfoPage() {
     }
     // TODO: API 성공후
     setOriginal(draft);
+    setOriginalImageFile(draftImageFile);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setDraft(original);
+    setDraftImageFile(originalImageFile);
     setIsEditing(false);
   };
 
@@ -100,9 +118,9 @@ export default function MyInfoPage() {
         {/* avatar */}
         <div className="relative">
           <div className="flex h-30 w-30 items-center justify-center overflow-hidden rounded-full bg-gray-200">
-            {profileImage ? (
+            {shownUrl ? (
               <img
-                src={profileImage}
+                src={shownUrl}
                 alt="프로필 이미지"
                 className="h-full w-full object-cover"
               />
