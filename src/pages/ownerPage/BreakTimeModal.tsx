@@ -23,9 +23,13 @@ const BreakTimeModal: React.FC<Props> = ({
   const [end, setEnd] = useState('15:00');
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-[420px] rounded-2xl p-6 relative">
-        <button onClick={onClose} className="absolute right-4 top-4">
+    <div
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div className="bg-white w-[420px] rounded-2xl p-6 relative"
+      onClick={(e)=>e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-4 top-4 hover:text-gray-500 cursor-pointer">
           <X />
         </button>
 
@@ -68,7 +72,7 @@ const BreakTimeModal: React.FC<Props> = ({
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 border rounded-lg py-2 font-bold"
+            className="flex-1 border rounded-lg py-2 font-bold hover:bg-gray-200 transition-all cursor-pointer"
           >
             취소
           </button>
@@ -77,7 +81,7 @@ const BreakTimeModal: React.FC<Props> = ({
               onConfirm({ start, end });
               onClose();
             }}
-            className="flex-1 bg-orange-500 text-white rounded-lg py-2 font-bold"
+            className="flex-1 bg-orange-500 hover:bg-orange-300 transition-all text-white rounded-lg py-2 font-bold cursor-pointer"
           >
             브레이크 타임 추가
           </button>

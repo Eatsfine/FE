@@ -15,7 +15,7 @@ interface TableInfo {
 const TableDashboard: React.FC = () => {
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [config, setConfig] = useState({ columns: 4, rows: 3 });
+  const [config, setConfig] = useState({ columns: 0, rows: 0 });
   const [isBreakModalOpen, setIsBreakModalOpen] = useState(false);
 const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
   const [tableData, setTableData] = useState<Record<number, TableInfo>>({});
@@ -31,11 +31,25 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
   };
 
   const updateTable = (id: number, updates: Partial<TableInfo>) => {
-    setTableData(prev => ({
-      ...prev,
-      [id]: { ...getTableData(id), ...updates }
-    }));
-  };
+  setTableData(prev => {
+    const current = getTableData(id);
+    const next = { ...current, ...updates };
+
+    if (updates.minCapacity !== undefined) {
+      if (next.minCapacity >= next.maxCapacity) {
+        next.minCapacity = next.maxCapacity - 1;
+      }
+    }
+
+    if (updates.maxCapacity !== undefined) {
+      if (next.maxCapacity <= next.minCapacity) {
+        next.maxCapacity = next.minCapacity + 1;
+      }
+    }
+
+    return { ...prev, [id]: next };
+  });
+};
 
   const getTableStyle = (capacity: number) => {
     if (capacity <= 4)
@@ -67,7 +81,7 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
       <main className="max-w-7xl mx-auto px-8 py-10">
         
         {/* 1. 상단 헤더 섹션 */}
-        <div className="flex justify-between items-end mb-10">
+        <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리</h2>
             <p className="text-gray-500 text-md">총 {config.columns * config.rows}개의 테이블이 관리되고 있습니다</p>
@@ -75,14 +89,14 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
           <div className="flex gap-3">
             <button
               onClick={() => setIsBreakModalOpen(true)}
-              className="flex items-center gap-2 border border-gray-200 px-5 py-2.5 rounded-lg bg-white text-gray-700 text-md hover:bg-gray-50 transition-all"
+              className="cursor-pointer flex items-center gap-2 border border-gray-200 px-5 py-2.5 rounded-lg bg-white text-gray-700 text-md hover:bg-gray-50 transition-all"
             >
               <Clock size={18} className="text-gray-400" />
               브레이크 타임 설정
             </button>
             <button 
               onClick={() => setCreateModalOpen(true)}
-              className="bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-md hover:bg-blue-700 transition-all"
+              className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-md hover:bg-blue-700 transition-all"
             >
               <Plus size={18} /> 테이블 재생성
             </button>
@@ -152,91 +166,105 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
             <h3 className="text-xl text-gray-900">테이블 배치도</h3>
             <span className="text-gray-900 text-sm tracking-widest uppercase">{config.columns} X {config.rows} 그리드</span>
           </div>
+          <div className="flex justify-center w-full mb-12">
+            <div 
+              className="grid gap-6 w-full max-w-fit mx-auto" 
+              style={{ 
+                gridTemplateColumns: `repeat(${config.columns}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: config.columns * config.rows }).map((_, i) => {
+                const id = i + 1;
+                const table = getTableData(id);
+                const style = getTableStyle(table.maxCapacity);
 
-          <div className="grid gap-8 mb-12" style={{ gridTemplateColumns: `repeat(${config.columns}, minmax(0, 1fr))` }}>
-            {Array.from({ length: config.columns * config.rows }).map((_, i) => {
-              const id = i + 1;
-              const table = getTableData(id);
-              const style = getTableStyle(table.maxCapacity);
+                return (
+                  <div 
+                    key={id} 
+                    onClick={() => !table.isEditingCapacity && setSelectedTable(id)}
+                    // w-32~40 사이로 조절하여 크기를 줄이고 aspect-square로 정사각 느낌을 줌
+                    className={`border-2 ${style.border} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
+                      {table.isEditingCapacity ? (
+                        <span className="text-[#4A5568]">인원 설정</span>
+                      ) : table.isEditingNum ? (
+                        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            autoFocus
+                            type="number"
+                            className="bg-white/60 border-b border-orange-400 outline-none text-center w-8 font-bold"
+                            value={table.numValue}
+                            onChange={(e) => updateTable(id, { numValue: Number(e.target.value) })}
+                            onBlur={() => updateTable(id, { isEditingNum: false })}
+                            onKeyDown={(e) => e.key === 'Enter' && updateTable(id, { isEditingNum: false })}
+                          />
+                          <span className="ml-1">번</span>
+                        </div>
+                      ) : (
+                        <>
+                          {table.numValue}번 테이블
+                          <Pencil 
+                            size={12} 
+                            className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" 
+                            onClick={(e) => { e.stopPropagation(); updateTable(id, { isEditingNum: true }); }}
+                          />
+                        </>
+                      )}
+                    </div>
 
-              return (
-                <div 
-                  key={id} 
-                  onClick={() => !table.isEditingCapacity && setSelectedTable(id)}
-                  className={`border-2 ${style.border} rounded-lg p-5 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-[4/5] justify-center`}
-                >
-                  <div className="flex items-center gap-1.5 mb-5 text-gray-800 text-md h-8">
-                    {table.isEditingCapacity ? (
-                      <span className="text-[#4A5568]">인원 설정</span>
-                    ) : table.isEditingNum ? (
-                      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          autoFocus
-                          type="number"
-                          className="bg-white/60 border-b border-orange-400 outline-none text-center w-10 font-bold"
-                          value={table.numValue}
-                          onChange={(e) => updateTable(id, { numValue: Number(e.target.value) })}
-                          onBlur={() => updateTable(id, { isEditingNum: false })}
-                          onKeyDown={(e) => e.key === 'Enter' && updateTable(id, { isEditingNum: false })}
-                        />
-                        <span className="ml-1">번 테이블</span>
-                      </div>
-                    ) : (
-                      <>
-                        {table.numValue}번 테이블 
-                        <Pencil 
-                          size={14} 
-                          className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" 
-                          onClick={(e) => { e.stopPropagation(); updateTable(id, { isEditingNum: true }); }}
-                        />
-                      </>
-                    )}
-                  </div>
-
-                  {/* 인원 설정 버튼 및 컨트롤러 */}
-                  <div className="relative w-full flex flex-col items-center">
-                    {table.isEditingCapacity ? (
-                      <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <div className="bg-white rounded-lg border border-blue-200 p-1 flex items-center shadow-sm">
-                            <span className="text-base px-1.5">{table.minCapacity}</span>
-                            <div className="flex flex-col border-l pl-0.5 text-[8px]">
-                                <button onClick={() => updateTable(id, { minCapacity: table.minCapacity + 1 })} className="hover:text-blue-500">▲</button>
-                                <button onClick={() => updateTable(id, { minCapacity: Math.max(1, table.minCapacity - 1) })} className="hover:text-blue-500">▼</button>
+                    {/* 인원 설정 버튼 및 컨트롤러 */}
+                    <div className="relative w-full flex flex-col items-center">
+                      {table.isEditingCapacity ? (
+                        <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 mb-2">
+                            <div className="bg-white rounded-md border border-blue-200 p-1 flex items-center shadow-sm">
+                              <span className="text-xs px-1">{table.minCapacity}</span>
+                              <div className="flex flex-col border-l pl-0.5 text-[6px]">
+                                  <button onClick={() => updateTable(id, { minCapacity: table.minCapacity + 1 })} className="hover:text-blue-500">▲</button>
+                                  <button onClick={() => updateTable(id, { minCapacity: Math.max(1, table.minCapacity - 1) })} className="hover:text-blue-500">▼</button>
+                              </div>
+                            </div>
+                            <span className="text-xs text-gray-400">~</span>
+                            <div className="bg-white rounded-md border border-blue-200 p-1 w-8 text-center shadow-sm">
+                               <input 
+                                  type="number"
+                                  className="w-full text-xs outline-none text-center bg-transparent"
+                                  value={table.maxCapacity}
+                                  onChange={(e) => updateTable(id, { maxCapacity: Number(e.target.value) })}
+                                  onBlur={(e) => {
+                                    const val = Number(e.target.value);
+                                    // 입력한 값이 최소값보다 작거나 같으면 최소값 + 1로 강제 고정
+                                    if (val <= table.minCapacity) {
+                                      updateTable(id, { maxCapacity: table.minCapacity + 1 });
+                                    }
+                                  }}
+                                />
                             </div>
                           </div>
-                          <span className="text-sm text-gray-400">~</span>
-                          <div className="bg-white rounded-lg border border-blue-200 p-1 w-9 text-center shadow-sm">
-                             <input 
-                                type="number"
-                                className="w-full text-base outline-none text-center bg-transparent"
-                                value={table.maxCapacity}
-                                onChange={(e) => updateTable(id, { maxCapacity: Number(e.target.value) })}
-                             />
+                          <div className="flex gap-1">
+                            <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#6BCB77] p-1 rounded-sm text-white active:scale-90 shadow-sm"><Check size={12}/></button>
+                            <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#FF6B6B] p-1 rounded-sm text-white active:scale-90 shadow-sm"><X size={12}/></button>
                           </div>
                         </div>
-                        <div className="flex gap-1.5">
-                          <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#6BCB77] p-1.5 rounded-lg text-white active:scale-90 shadow-sm"><Check size={14}/></button>
-                          <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#FF6B6B] p-1.5 rounded-lg text-white active:scale-90 shadow-sm"><X size={14}/></button>
+                      ) : (
+                        <div 
+                          onClick={(e) => { e.stopPropagation(); updateTable(id, { isEditingCapacity: true }); }}
+                          className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-[60px] text-center transition-transform active:scale-95`}
+                        >
+                          {table.minCapacity}~{table.maxCapacity}인
                         </div>
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={(e) => { e.stopPropagation(); updateTable(id, { isEditingCapacity: true }); }}
-                        className={`${style.badge} text-white px-3 py-1 rounded-md text-md shadow-md min-w-[80px] text-center transition-transform active:scale-95`}
-                      >
-                        {table.minCapacity}~{table.maxCapacity}인
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* 4. 하단 팁 및 범례 섹션 */}
           <div className="bg-gray-50 border border-gray-100 rounded-[28px] p-7 mt-8">
-            <div className="flex items-center gap-3 text-sm text-gray-600 mb-5">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-5">
               <Lightbulb size={20} className="text-yellow-400 fill-yellow-400" />
               <span>Tip: 테이블을 클릭하면 상세 정보를 확인하고 예약 시간대를 관리할 수 있습니다.</span>
             </div>
@@ -251,7 +279,13 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
 
       {/* 모달 컴포넌트들 */}
       {isCreateModalOpen && <TableCreateModal onClose={() => setCreateModalOpen(false)} onConfirm={(c, r) => { setConfig({ columns: c, rows: r }); setCreateModalOpen(false); }} />}
-      {selectedTable && <TableDetailModal tableNumber={selectedTable} onClose={() => setSelectedTable(null)} breakTimes={breakTimes} />}
+      {selectedTable && (
+        <TableDetailModal 
+          tableNumber={getTableData(selectedTable).numValue} 
+          onClose={() => setSelectedTable(null)} 
+          breakTimes={breakTimes} 
+        />
+      )}      
       {isBreakModalOpen && (
         <BreakTimeModal
           openTime="11:00"

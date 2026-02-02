@@ -31,7 +31,7 @@ const StoreSettings: React.FC = () => {
   const sectionStyle = "bg-white border border-gray-200 rounded-lg p-8 mb-6";
 
   return (
-    <div className="max-w-4xl mx-auto px-8 py-10">
+    <div className="max-w-7xl mx-auto px-8 py-10">
       {/* 기본 정보 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8 text-gray-900">기본 정보</h3>
@@ -59,7 +59,7 @@ const StoreSettings: React.FC = () => {
           <div>
             <label className={labelStyle}>전화번호</label>
             <div className="relative">
-              <Phone size={18} className="absolute left-4 top-[22px] text-gray-400" />
+              <Phone size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
                 type="text" 
                 value={phone} 
@@ -72,7 +72,7 @@ const StoreSettings: React.FC = () => {
           <div>
             <label className={labelStyle}>이메일</label>
             <div className="relative">
-              <Mail size={18} className="absolute left-4 top-[22px] text-gray-400" />
+              <Mail size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
                 type="email" 
                 value={email} 
@@ -85,7 +85,7 @@ const StoreSettings: React.FC = () => {
           <div>
             <label className={labelStyle}>주소</label>
             <div className="relative">
-              <MapPin size={18} className="absolute left-4 top-[22px] text-gray-400" />
+              <MapPin size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
                 type="text" 
                 value={address} 
@@ -105,24 +105,24 @@ const StoreSettings: React.FC = () => {
           <div>
             <label className={labelStyle}>오픈 시간</label>
             <div className="relative">
-              <Clock size={18} className="absolute left-4 top-[22px] text-gray-400" />
+              <Clock size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
                 type="time" 
                 value={openTime} 
                 onChange={(e) => setOpenTime(e.target.value)} 
-                className={`${inputStyle} pl-12`} 
+                className={`${inputStyle} pl-12 cursor-pointer`} 
               />
             </div>
           </div>
           <div>
             <label className={labelStyle}>마감 시간</label>
             <div className="relative">
-              <Clock size={18} className="absolute left-4 top-[22px] text-gray-400" />
+              <Clock size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
                 type="time" 
                 value={closeTime} 
                 onChange={(e) => setCloseTime(e.target.value)} 
-                className={`${inputStyle} pl-12`} 
+                className={`${inputStyle} pl-12 cursor-pointer`} 
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ const StoreSettings: React.FC = () => {
               <button
                 key={day}
                 onClick={() => toggleDay(day)}
-                className={`w-12 h-12 rounded-xl border transition-all ${
+                className={`w-12 h-12 rounded-xl border transition-all cursor-pointer ${
                   closedDays.includes(day) 
                   ? 'bg-blue-600 border-blue-600 text-white' 
                   : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 shadow-sm'
@@ -157,7 +157,7 @@ const StoreSettings: React.FC = () => {
               <select 
                 value={reservationPeriod} 
                 onChange={(e) => setReservationPeriod(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg p-4 text-sm appearance-none outline-none focus:ring-2 focus:ring-indigo-500"
+                className="cursor-pointer w-full border border-gray-200 rounded-lg p-4 text-sm appearance-none outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option>당일만</option>
                 <option>1주일 전까지</option>
@@ -198,7 +198,7 @@ const StoreSettings: React.FC = () => {
               </div>
               <button 
                 onClick={() => setSameDayBooking(!sameDayBooking)}
-                className={`w-14 h-7 rounded-full transition-colors relative ${sameDayBooking ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${sameDayBooking ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${sameDayBooking ? 'left-8' : 'left-1'}`} />
               </button>
@@ -210,7 +210,7 @@ const StoreSettings: React.FC = () => {
               </div>
               <button 
                 onClick={() => setNoShowPolicy(!noShowPolicy)}
-                className={`w-14 h-7 rounded-full transition-colors relative ${noShowPolicy ? 'bg-blue-600' : 'bg-gray-200'}`}
+                className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${noShowPolicy ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${noShowPolicy ? 'left-8' : 'left-1'}`} />
               </button>
@@ -221,7 +221,7 @@ const StoreSettings: React.FC = () => {
 
       {/* 하단 저장 버튼 */}
       <div className="flex justify-end mb-20">
-        <button className="bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg">
+        <button className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg">
           설정 저장
         </button>
       </div>

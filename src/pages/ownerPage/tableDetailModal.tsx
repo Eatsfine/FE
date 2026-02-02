@@ -51,9 +51,17 @@ const TableDetailModal: React.FC<Props> = ({
   type TableType = '소형' | '중형' | '단체석';
 
   const getTableType = (capacity: string): TableType => {
-    const max = Number(capacity.split('~')[1]?.replace('인', ''));
-    if (max <= 4) return '소형';
-    if (max <= 8) return '중형';
+    const numbers = capacity.match(/\d+/g);
+    
+    if (!numbers) return '소형'; // 숫자가 없을 경우 기본값
+
+    const targetCapacity = numbers.length > 1 
+      ? Number(numbers[1]) 
+      : Number(numbers[0]);
+
+
+    if (targetCapacity <= 4) return '소형';
+    if (targetCapacity <= 8) return '중형';
     return '단체석';
   };
 
@@ -80,12 +88,14 @@ const TableDetailModal: React.FC<Props> = ({
     },
   };
 
-
+  const [tableImageUrl, setTableImageUrl] = useState<string | null>(null);
 
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
-      <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
+    onClick={onClose}>
+      <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+      onClick={(e)=>e.stopPropagation()}>
         
         {/* 헤더 */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
@@ -99,17 +109,30 @@ const TableDetailModal: React.FC<Props> = ({
               {step === 'DETAIL' ? `${tableNumber}번 테이블` : step === 'CALENDAR' ? `${tableNumber}번 테이블 예약 시간대` : '시간대 설정'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors"><X size={24} /></button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><X size={24} /></button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
           {/* [Step 1] 상세 정보 */}
           {step === 'DETAIL' && (
             <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="w-full h-70 bg-gray-200 rounded-lg flex flex-col items-center justify-center border border-gray-100 border-dashed">
-                <span className="text-5xl">🪑</span>
-                <p className="text-gray-400 text-md mt-2">등록된 이미지가 없습니다</p>
+              <div className="w-full h-70 rounded-lg border border-gray-100 overflow-hidden">
+                {tableImageUrl ? (
+                  <img
+                    src={tableImageUrl}
+                    alt={`${tableNumber}번 테이블 이미지`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center border-dashed">
+                    <span className="text-5xl">🪑</span>
+                    <p className="text-gray-400 text-md mt-2">
+                      등록된 이미지가 없습니다
+                    </p>
+                  </div>
+                )}
               </div>
+
 
               <div className="grid grid-col-1">
                 <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-[95px] flex flex-col justify-center transition-all">
@@ -128,7 +151,7 @@ const TableDetailModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              <button onClick={() => setStep('CALENDAR')} className="w-full bg-blue-600 text-white py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-blue-700 transition-all active:scale-[0.98]">
+              <button onClick={() => setStep('CALENDAR')} className="cursor-pointer w-full bg-blue-600 text-white py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-blue-700 transition-all active:scale-[0.98]">
                 <Calendar size={18} /> 예약 정보 및 시간대 관리
               </button>
 
@@ -171,9 +194,9 @@ const TableDetailModal: React.FC<Props> = ({
               </div>
 
               <div className="flex justify-between items-center bg-blue-50 border border-blue-100 p-4 rounded-lg text-blue-900">
-                <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-white rounded-full transition-colors"><ChevronLeft /></button>
+                <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"><ChevronLeft /></button>
                 <span className="text-lg">{year}년 {month + 1}월</span>
-                <button onClick={() => changeMonth(1)} className="p-1 hover:bg-white rounded-full transition-colors"><ChevronRight /></button>
+                <button onClick={() => changeMonth(1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"><ChevronRight /></button>
               </div>
               <div className="grid grid-cols-7 gap-2">
                 {['일','월','화','수','목','금','토'].map(d => <span key={d} className="text-center text-sm text-gray-400 mb-1">{d}</span>)}
@@ -184,7 +207,7 @@ const TableDetailModal: React.FC<Props> = ({
                   const isPast = dateObj < today;
                   const isTodayFlag = dateObj.getTime() === today.getTime();
                   return (
-                    <button key={day} disabled={isPast} onClick={() => { setSelectedFullDate(dateObj); setStep('SLOTS'); }} className={`h-14 rounded-xl border-2 flex flex-col items-center justify-center font-bold transition-all ${isPast ? 'bg-gray-50 border-gray-50 text-gray-300 cursor-not-allowed' : isTodayFlag ? 'bg-blue-50 border-gray-200 text-black shadow-lg hover:border-blue-300' : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300 hover:bg-blue-50'}`}>
+                    <button key={day} disabled={isPast} onClick={() => { setSelectedFullDate(dateObj); setStep('SLOTS'); }} className={`cursor-pointer h-14 rounded-xl border-2 flex flex-col items-center justify-center font-bold transition-all ${isPast ? 'bg-gray-50 border-gray-50 text-gray-300 cursor-not-allowed' : isTodayFlag ? 'bg-blue-50 border-gray-200 text-black shadow-lg hover:border-blue-300' : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300 hover:bg-blue-50'}`}>
                       <span className="text-sm">{day}</span>
                       {isTodayFlag && <span className="text-[9px] mt-0.5 opacity-90">오늘</span>}
                     </button>
@@ -205,7 +228,7 @@ const TableDetailModal: React.FC<Props> = ({
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center text-blue-900">
                 <div className="flex items-center gap-2"><Calendar size={18} /> <span>{selectedFullDate?.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}</span></div>
-                <button onClick={() => setStep('CALENDAR')} className="text-xs underline text-blue-500">날짜 변경</button>
+                <button onClick={() => setStep('CALENDAR')} className="text-sm underline text-blue-500 cursor-pointer">날짜 변경</button>
               </div>
               <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
                 {slots.map(slot => {

@@ -27,7 +27,7 @@ const OwnerPage: React.FC = () => {
                 activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="cursor-pointer flex items-center gap-2">
                 대시보드
               </div>
               {activeTab === 'dashboard' && (
@@ -41,7 +41,7 @@ const OwnerPage: React.FC = () => {
                 activeTab === 'settings' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="cursor-pointer flex items-center gap-2">
                 가게 설정
               </div>
               {activeTab === 'settings' && (
@@ -55,7 +55,7 @@ const OwnerPage: React.FC = () => {
                 activeTab === 'menu' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="cursor-pointer flex items-center gap-2">
                 메뉴 관리
               </div>
               {activeTab === 'menu' && (
