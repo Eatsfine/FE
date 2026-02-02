@@ -1,3 +1,4 @@
+import { phoneNumber } from "@/utils/phoneNumber";
 import { Camera, Save } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -30,8 +31,17 @@ export default function MyInfoPage() {
     // TODO: 서버 업로드용 file은 따로 저장해도 됨
   };
 
+  const isValidPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    return digits.length === 10 || digits.length === 11;
+  };
+
   const handleSave = () => {
     // TODO: API 호출
+    if (!isValidPhone(form.phone)) {
+      alert("전화번호를 올바르게 입력해주세요.");
+      return;
+    }
     setIsEditing(false);
   };
 
@@ -158,7 +168,11 @@ export default function MyInfoPage() {
             <input
               disabled={!isEditing}
               value={form.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
+              onChange={(e) =>
+                handleChange("phone", phoneNumber(e.target.value))
+              }
+              inputMode="numeric"
+              autoComplete="tel"
               className={`w-full rounded-lg border px-4 py-3 text-md ${
                 isEditing
                   ? "border-gray-300 bg-white"
