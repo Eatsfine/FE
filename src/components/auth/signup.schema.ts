@@ -2,6 +2,8 @@ import z from "zod";
 
 export const signupSchema = z
   .object({
+    role: z.enum(["customer", "owner"]).default("customer"),
+
     name: z.string().min(1, "이름을 입력하세요."),
 
     email: z
@@ -12,7 +14,7 @@ export const signupSchema = z
     phone: z
       .string()
       .min(1, { message: "휴대폰 번호를 입력해주세요." })
-      .regex(/^010\d{8}$/, {
+      .regex(/^\d{2,3}-\d{3,4}-\d{4}$/, {
         message: "올바른 휴대폰 번호 형식이 아닙니다.",
       }),
 

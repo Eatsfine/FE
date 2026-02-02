@@ -14,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
+import { phoneNumber } from "@/utils/phoneNumber";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -21,7 +22,8 @@ interface SignupDialogProps {
   onSwitchToLogin: () => void;
 }
 
-const defaultValues = {
+const defaultValues: SignupFormValues = {
+  role: "customer",
   name: "",
   email: "",
   phone: "",
@@ -88,7 +90,38 @@ export function SignupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 mt-2">
+          <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <div className="flex justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => field.onChange("customer")}
+                  className={
+                    field.value === "customer"
+                      ? "bg-blue-600 text-white h-12 w-full rounded-lg transition-colors"
+                      : "bg-gray-200 text-gray-600  h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+                  }
+                >
+                  고객
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange("owner")}
+                  className={
+                    field.value === "owner"
+                      ? "bg-blue-600 text-white h-12 w-full rounded-lg transition-colors"
+                      : "bg-gray-200 text-gray-600 h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+                  }
+                >
+                  점주
+                </button>
+              </div>
+            )}
+          />
+
           {/* 소셜 회원가입 */}
           <div className="flex flex-col gap-4 py-4">
             <Button
@@ -158,12 +191,23 @@ export function SignupDialog({
 
             <div className="space-y-2">
               <Label htmlFor="signup-phone">휴대폰 번호</Label>
-              <Input
-                id="signup-phone"
-                type="tel"
-                placeholder="01012345678"
-                className="h-12"
-                {...register("phone")}
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="010-1234-5678"
+                    className="h-12"
+                    {...register("phone")}
+                    onChange={(e) => {
+                      const formatted = phoneNumber(e.target.value);
+                      field.onChange(formatted);
+                    }}
+                  />
+                )}
               />
               {errors.phone && (
                 <p className="text-sm text-red-500">{errors.phone.message}</p>
