@@ -21,14 +21,14 @@ export default function MyInfoPage() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const previewUrl = URL.createObjectURL(file);
-  setProfileImage(previewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    setProfileImage(previewUrl);
 
-  // TODO: 서버 업로드용 file은 따로 저장해도 됨
-};
+    // TODO: 서버 업로드용 file은 따로 저장해도 됨
+  };
 
   const handleSave = () => {
     // TODO: API 호출
@@ -49,26 +49,24 @@ export default function MyInfoPage() {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="cursor-pointer rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50"
+            className="cursor-pointer transition rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           >
             수정하기
           </button>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className="cursor-pointer rounded-lg px-3 py-2 text-md text-gray-600 hover:bg-gray-100"
+              className="cursor-pointer transition border rounded-lg px-4 py-2 text-md text-gray-600 hover:bg-gray-100 tracking-wide"
             >
               취소
             </button>
             <button
               onClick={handleSave}
-              className="cursor-pointer flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="cursor-pointer transition flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600 tracking-wide"
             >
               <Save size={16} />
-              <p className="px-2">
-                저장
-              </p>
+              <p className="px-1 ml-1">저장</p>
             </button>
           </div>
         )}
@@ -78,45 +76,42 @@ export default function MyInfoPage() {
       <div className="flex flex-col items-center gap-10">
         {/* avatar */}
         <div className="relative">
-        <div className="flex h-30 w-30 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+          <div className="flex h-30 w-30 items-center justify-center overflow-hidden rounded-full bg-gray-200">
             {profileImage ? (
-            <img
+              <img
                 src={profileImage}
                 alt="프로필 이미지"
                 className="h-full w-full object-cover"
-            />
+              />
             ) : (
-            <span className="text-3xl text-gray-500">맛</span>
+              <span className="text-3xl text-gray-500">맛</span>
             )}
-        </div>
+          </div>
 
-        {isEditing && (
+          {isEditing && (
             <>
-            <button
+              <button
                 onClick={handleImageClick}
-                className="cursor-pointer absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-700"
-            >
+                className="cursor-pointer transition absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-700"
+              >
                 <Camera size={20} />
-            </button>
-            <input
+              </button>
+              <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
-            />
+              />
             </>
-        )}
+          )}
         </div>
-
 
         {/* form */}
         <div className="w-full space-y-5">
           {/* 아이디 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">
-              아이디
-            </label>
+            <label className="mb-1 block text-md text-gray-600">아이디</label>
             <input
               disabled
               value="user1234"
@@ -129,9 +124,7 @@ export default function MyInfoPage() {
 
           {/* 이메일 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">
-              이메일
-            </label>
+            <label className="mb-1 block text-md text-gray-600">이메일</label>
             <input
               disabled={!isEditing}
               value={form.email}
@@ -146,9 +139,7 @@ export default function MyInfoPage() {
 
           {/* 닉네임 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">
-              닉네임
-            </label>
+            <label className="mb-1 block text-md text-gray-600">닉네임</label>
             <input
               disabled={!isEditing}
               value={form.nickname}
@@ -163,9 +154,7 @@ export default function MyInfoPage() {
 
           {/* 전화번호 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">
-              전화번호
-            </label>
+            <label className="mb-1 block text-md text-gray-600">전화번호</label>
             <input
               disabled={!isEditing}
               value={form.phone}
