@@ -11,7 +11,7 @@ export default function MyPage() {
   return (
     <Routes>
       <Route element={<MyPageLayout />}>
-        <Route index element={<Navigate to="info" />} />
+        <Route index element={<Navigate to="info" replace />} />
         <Route path="info" element={<MyInfoPage />} />
         <Route path="settings" element={<SettingPage />} />
         <Route path="payment" element={<PaymentPage />} />
