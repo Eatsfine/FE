@@ -85,12 +85,12 @@ export default function MyInfoPage() {
     <section className="rounded-xl bg-white p-8 shadow-sm">
       {/* title */}
       <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-md text-gray-800">내 정보</h2>
+        <h2 className="text-gray-800">내 정보</h2>
 
         {!isEditing ? (
           <button
             onClick={handleEditStart}
-            className="cursor-pointer transition rounded-lg px-3 py-2 text-md font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+            className="cursor-pointer transition rounded-lg px-3 py-2 font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           >
             수정하기
           </button>
@@ -98,7 +98,7 @@ export default function MyInfoPage() {
           <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className="cursor-pointer transition border rounded-lg px-4 py-2 text-md text-gray-600 hover:bg-gray-100 tracking-wide"
+              className="cursor-pointer transition border rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100 tracking-wide"
             >
               취소
             </button>
@@ -152,11 +152,11 @@ export default function MyInfoPage() {
         <div className="w-full space-y-5">
           {/* 아이디 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">아이디</label>
+            <label className="mb-1 block text-gray-600">아이디</label>
             <input
               disabled
               value="user1234"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-md text-gray-500"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-500"
             />
             <p className="mt-1 text-sm text-gray-400">
               아이디는 변경할 수 없습니다
@@ -165,12 +165,12 @@ export default function MyInfoPage() {
 
           {/* 이메일 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">이메일</label>
+            <label className="mb-1 block text-gray-600">이메일</label>
             <input
               disabled={!isEditing}
               value={draft.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className={`w-full rounded-lg border px-4 py-3 text-md ${
+              className={`w-full rounded-lg border px-4 py-3 ${
                 isEditing
                   ? "border-gray-300 bg-white"
                   : "border-gray-200 bg-gray-50 text-gray-500"
@@ -180,12 +180,12 @@ export default function MyInfoPage() {
 
           {/* 닉네임 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">닉네임</label>
+            <label className="mb-1 block text-gray-600">닉네임</label>
             <input
               disabled={!isEditing}
               value={draft.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
-              className={`w-full rounded-lg border px-4 py-3 text-md ${
+              className={`w-full rounded-lg border px-4 py-3 ${
                 isEditing
                   ? "border-gray-300 bg-white"
                   : "border-gray-200 bg-gray-50 text-gray-500"
@@ -195,7 +195,7 @@ export default function MyInfoPage() {
 
           {/* 전화번호 */}
           <div>
-            <label className="mb-1 block text-md text-gray-600">전화번호</label>
+            <label className="mb-1 block text-gray-600">전화번호</label>
             <input
               disabled={!isEditing}
               value={draft.phone}
@@ -204,7 +204,7 @@ export default function MyInfoPage() {
               }
               inputMode="numeric"
               autoComplete="tel"
-              className={`w-full rounded-lg border px-4 py-3 text-md ${
+              className={`w-full rounded-lg border px-4 py-3 ${
                 isEditing
                   ? "border-gray-300 bg-white"
                   : "border-gray-200 bg-gray-50 text-gray-500"
