@@ -93,8 +93,8 @@ export default function SubscriptionPage() {
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="mb-8">
-        <h2 className="text-lg text-gray-900">구독 관리</h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <h2 className="text-xl font-medium">구독 관리</h2>
+        <p className="mt-0.5 text-sm text-gray-600">
           나에게 맞는 플랜을 선택하세요
         </p>
       </div>

@@ -73,14 +73,14 @@ export default function StorePage() {
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg text-gray-900">내 가게 관리</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="text-xl font-medium">내 가게 관리</h2>
+          <p className="mt-0.5 text-sm text-gray-600">
             등록한 식당을 관리하고 대시보드로 이동하세요
           </p>
         </div>
         <Link
           to="/mypage/store/register"
-          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors"
+          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-700 transition"
         >
           <Plus size={18} /> 새 가게 등록
         </Link>
@@ -119,10 +119,10 @@ export default function StorePage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-md text-gray-900">{shop.name}</h3>
+                    <h3 className="text-xl font-medium">{shop.name}</h3>
                     <span
                       className={cn(
-                        "px-2 py-0.5 rounded-full text-sm",
+                        "px-3 py-1 rounded-full text-sm font-medium",
                         shop.status === "운영중"
                           ? "bg-green-50 text-green-600"
                           : "bg-yellow-50 text-yellow-600",
@@ -131,15 +131,15 @@ export default function StorePage() {
                       {shop.status}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400 mb-2">{shop.address}</p>
-                  <span className="text-[11px] px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded border border-gray-100">
+                  <p className="text-sm text-gray-400 mb-2">{shop.address}</p>
+                  <span className="text-xs px-2 py-1 bg-gray-50 text-gray-600 font-medium rounded border border-none">
                     {shop.category}
                   </span>
                 </div>
               </div>
               <ChevronRight
                 size={20}
-                className="text-gray-300 group-hover:text-gray-500 transition-colors"
+                className="text-gray-300 group-hover:text-gray-500 transition"
               />
             </div>
 
@@ -147,18 +147,14 @@ export default function StorePage() {
             {shop.status !== "승인 대기" && (
               <div className="grid grid-cols-3 py-4 border-t border-gray-100 text-center">
                 <div>
-                  <p className="text-[11px] text-gray-400 mb-1 font-medium">
+                  <p className="text-sm text-gray-500 mb-2 font-medium">
                     총 예약
                   </p>
-                  <p className="text-sm text-gray-700">
-                    {shop.totalReservations}
-                  </p>
+                  <p className="text-lg">{shop.totalReservations}</p>
                 </div>
                 <div className="border-x border-gray-100">
-                  <p className="text-[11px] text-gray-400 mb-1 font-medium">
-                    평점
-                  </p>
-                  <p className="text-sm text-gray-700 flex items-center justify-center gap-1">
+                  <p className="text-sm text-gray-500 mb-2 font-medium">평점</p>
+                  <p className="text-lg flex items-center justify-center gap-1">
                     <Star
                       size={14}
                       className="fill-yellow-400 text-yellow-400"
@@ -167,10 +163,8 @@ export default function StorePage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-gray-400 mb-1 font-medium">
-                    리뷰
-                  </p>
-                  <p className="text-sm text-gray-700">{shop.reviews}</p>
+                  <p className="text-sm text-gray-500 mb-2 font-medium">리뷰</p>
+                  <p className="text-lg">{shop.reviews}</p>
                 </div>
               </div>
             )}
@@ -178,7 +172,7 @@ export default function StorePage() {
             {/* 승인 대기 알림창: 승인 대기일 때만 표시 */}
             {shop.status === "승인 대기" && shop.notice && (
               <div className="mt-4 p-4 bg-yellow-50/50 rounded-xl border border-yellow-100/50">
-                <p className="text-sm text-yellow-700 leading-relaxed font-medium">
+                <p className="text-yellow-700 leading-relaxed font-medium">
                   {shop.notice}
                 </p>
               </div>
@@ -194,16 +188,14 @@ export default function StorePage() {
             <BarChart3 size={24} />
           </div>
           <div>
-            <h4 className="text-sm text-gray-900">
-              더 많은 데이터가 필요하신가요?
-            </h4>
-            <p className="text-xs text-gray-500 mt-1 ">
+            <h4>더 많은 데이터가 필요하신가요?</h4>
+            <p className="text-sm text-gray-500 mt-1 ">
               프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트, 상세 분석
               리포트를 받아보세요.
             </p>
           </div>
         </div>
-        <button className="cursor-pointer mt-6 w-full sm:w-auto px-10 py-3 rounded-lg bg-blue-500 text-xs font-bold text-white hover:bg-blue-600 shadow-sm transition-all">
+        <button className="cursor-pointer mt-6 w-full sm:w-auto px-8 py-4 rounded-lg bg-blue-500 font-bold text-white hover:bg-blue-600 shadow-sm transition">
           프리미엄 플랜 알아보기
         </button>
       </div>
