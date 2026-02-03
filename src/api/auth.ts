@@ -2,6 +2,7 @@ import type { ApiResponse } from "@/types/api";
 import type {
   RequestLoginDto,
   RequestSignupDto,
+  RequestSocialLoginDto,
   ResponseLoginDto,
   ResponseLogoutDto,
   ResponseRefreshDto,
@@ -24,6 +25,17 @@ export const postLogin = async (
 ): Promise<ApiResponse<ResponseLoginDto>> => {
   const { data } = await api.post<ApiResponse<ResponseLoginDto>>(
     "/auth/login",
+    body,
+  );
+  return data;
+};
+
+export const postSocialLogin = async (
+  provider: "kakao" | "google",
+  body: RequestSocialLoginDto,
+): Promise<ApiResponse<ResponseLoginDto>> => {
+  const { data } = await api.post<ApiResponse<ResponseLoginDto>>(
+    `/auth/social/${provider}`,
     body,
   );
   return data;

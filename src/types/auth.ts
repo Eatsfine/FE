@@ -28,6 +28,10 @@ export type ResponseLoginDto = {
   };
 };
 
+export type RequestSocialLoginDto = {
+  accessToken: string;
+};
+
 export type ResponseLogoutDto = null;
 
 export type ResponseRefreshDto = {

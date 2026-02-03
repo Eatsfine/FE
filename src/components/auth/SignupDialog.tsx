@@ -60,9 +60,9 @@ export function SignupDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialSignup = (provider: string) => {
-    console.log(`Signup with ${provider}`);
-    alert("가입 완료되었습니다.");
+  const handleSocialLogin = async (provider: "google" | "kakao") => {
+    // TODO: postSocialLogin(provider, { accessToken })
+    alert(`${provider} 로그인은 백엔드 배포 후 연동 예정입니다`);
     onClose();
   };
 
@@ -142,7 +142,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base cursor-pointer"
-              onClick={() => handleSocialSignup("google")}
+              onClick={() => handleSocialLogin("google")}
             >
               <img
                 src="/icons/google.svg"
@@ -156,7 +156,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
-              onClick={() => handleSocialSignup("kakao")}
+              onClick={() => handleSocialLogin("kakao")}
             >
               <img
                 src="/icons/kakao.svg"

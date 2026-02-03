@@ -50,9 +50,9 @@ export function LoginDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    alert("로그인 완료되었습니다.");
+  const handleSocialLogin = async (provider: "google" | "kakao") => {
+    // TODO: postSocialLogin(provider, { accessToken })
+    alert(`${provider} 로그인은 백엔드 배포 후 연동 예정입니다`);
     onClose();
   };
 
