@@ -14,7 +14,7 @@ const NotFound: React.FC = () => {
             <div className="w-32 h-32 bg-blue-100 rounded-full"></div>
           </div>
           <div className="relative flex justify-center">
-            <Search size={80} className="text-blue-600" />
+            <Search size={60} className="text-blue-600" />
           </div>
         </div>
 
@@ -32,14 +32,14 @@ const NotFound: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition-all active:scale-95"
+            className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition-all active:scale-95"
           >
             <ArrowLeft size={18} />
             이전으로
           </button>
           <button
             onClick={() => navigate('/')}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
+            className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
           >
             <Home size={18} />
             홈으로 이동
