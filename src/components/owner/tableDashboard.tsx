@@ -22,6 +22,8 @@ const TableDashboard: React.FC = () => {
 const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
   const [tableData, setTableData] = useState<Record<number, TableInfo>>({});
 
+  const hasTables = config.columns > 0 && config.rows > 0;
+
   const getDefaultTableData = (id: number): TableInfo => ({
       numValue: id,
       minCapacity: 2,
@@ -96,21 +98,28 @@ const startEditingCapacity = (id: number) => {
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리</h2>
-            <p className="text-gray-500 text-md">총 {config.columns * config.rows}개의 테이블이 관리되고 있습니다</p>
+            <p className="text-gray-500 text-md">
+              {hasTables 
+                ? `총 ${config.columns * config.rows}개의 테이블이 관리되고 있습니다`
+                : '등록된 식당을 관리하고 대시보드로 이동하세요'
+              }
+            </p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={() => setIsBreakModalOpen(true)}
-              className="cursor-pointer flex items-center gap-2 border border-gray-200 px-5 py-2.5 rounded-lg bg-white text-gray-700 text-md hover:bg-gray-50 transition-all"
-            >
-              <Clock size={18} className="text-gray-400" />
-              브레이크 타임 설정
-            </button>
+            {hasTables && (
+              <button
+                onClick={() => setIsBreakModalOpen(true)}
+                className="cursor-pointer flex items-center gap-2 border border-gray-200 px-5 py-2.5 rounded-lg bg-white text-gray-700 text-md hover:bg-gray-50 transition-all"
+              >
+                <Clock size={18} className="text-gray-400" />
+                브레이크 타임 설정
+              </button>
+            )}
             <button 
               onClick={() => setCreateModalOpen(true)}
               className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-md hover:bg-blue-700 transition-all"
             >
-              <Plus size={18} /> 테이블 재생성
+              <Plus size={18} /> 테이블 {hasTables ? '재생성' : '생성'}
             </button>
           </div>
         </div>
@@ -152,35 +161,39 @@ const startEditingCapacity = (id: number) => {
 
 
         {/* 2. 3개 요약 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
-            <div className="flex items-center gap-2 mb-2 text-md">
-              <Store size={20} color='blue' /> 총 가게 수
+        {hasTables && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-in fade-in duration-500">
+            <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
+              <div className="flex items-center gap-2 mb-2 text-md">
+                <Store size={20} color='blue' /> 총 가게 수
+              </div>
+              <p className="text-md">1개</p>
             </div>
-            <p className="text-md">1개</p>
-          </div>
 
-          <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
-            <div className="flex items-center gap-2 mb-2 text-md">
-              📅 총 테이블 수
+            <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
+              <div className="flex items-center gap-2 mb-2 text-md">
+                📅 총 테이블 수
+              </div>
+              <p className="text-2md">
+                {config.columns * config.rows}개
+              </p>
             </div>
-            <p className="text-2md">
-              {config.columns * config.rows}개
-            </p>
           </div>
-        </div>
+        )}
 
 
 
         {/* 3. 메인 영역 (배치도) */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm relative overflow-hidden">
+          {hasTables ? (
+            <div className="p-6">
           <div className="flex justify-between items-center mb-12">
             <h3 className="text-xl text-gray-900">테이블 배치도</h3>
             <span className="text-gray-900 text-sm tracking-widest uppercase">{config.columns} X {config.rows} 그리드</span>
           </div>
-          <div className="overflow-x-auto pb-4"> 
+          <div className="overflow-x-auto pb-4 flex justify-center"> 
             <div 
-              className="grid gap-6 w-full mx-auto" 
+              className="grid gap-6 mx-auto" 
               style={{ 
                 gridTemplateColumns: `repeat(${config.columns}, minmax(150px, 1fr))`,
               }}
@@ -289,8 +302,24 @@ const startEditingCapacity = (id: number) => {
               <div className="flex items-center gap-1"><div className="w-5 h-5 rounded-sm bg-blue-500" /> 중형 (5~8인)</div>
               <div className="flex items-center gap-1"><div className="w-5 h-5 rounded-sm bg-purple-500" /> 단체석 (9인 이상)</div>
             </div>
+            </div>
           </div>
-        </div>
+          ):(
+            <div className="flex flex-col items-center justify-center py-15 px-6 text-center">
+              <div className="p-6 rounded-2xl mb-6">
+                <Store size={64} className="text-gray-300" />
+              </div>
+              <h3 className="text-xl text-gray-900 mb-2">등록된 테이블이 없습니다</h3>
+              <p className="text-gray-500 mb-8">테이블을 생성하여 가게 관리를 시작하세요</p>
+              <button 
+                onClick={() => setCreateModalOpen(true)}
+                className="bg-blue-600 text-white px-8 py-3 rounded-xl flex items-center gap-2 text-lg font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+              >
+                <Plus size={20} /> 테이블 생성하기
+              </button>
+            </div>
+          )}
+          </div>
       </main>
 
       {/* 모달 컴포넌트들 */}
