@@ -9,6 +9,8 @@ const MenuManagement: React.FC = () => {
 
   const restaurantId = "1";
   const [menus, setMenus] = useState(mockMenusByRestaurantId[restaurantId] || []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
 
   
@@ -87,8 +89,9 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
     }
   };
 
+  if (isLoading) return <div className="px-8 py-10">로딩 중...</div>;
+  if (error) return <div className="px-8 py-10 text-red-500">{error}</div>;
   return (
-
     <div className="max-w-7xl mx-auto px-8 py-10">
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-start mb-10">
@@ -147,10 +150,20 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
                 </p>
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="cursor-pointer p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                onClick={()=>handleEditClick(menu)}><Pencil size={16} /></button>
-                <button className="cursor-pointer p-2 text-gray-400 hover:text-red-500 transition-colors"
-                onClick={()=>deleteMenu(menu.id)}><Trash2 size={16} /></button>
+                <button
+                  className="cursor-pointer p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                  onClick={() => handleEditClick(menu)}
+                  aria-label={`${menu.name} 수정`}
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  className="cursor-pointer p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  onClick={() => deleteMenu(menu.id)}
+                  aria-label={`${menu.name} 삭제`}
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
             </div>
 

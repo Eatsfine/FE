@@ -37,8 +37,9 @@ const StoreSettings: React.FC = () => {
         <h3 className="text-lg mb-8 text-gray-900">기본 정보</h3>
         <div className="space-y-6">
           <div>
-            <label className={labelStyle}>가게 이름</label>
+            <label htmlFor="store-name" className={labelStyle}>가게 이름</label>
             <input 
+              id='store-name'
               type="text" 
               value={storeName} 
               onChange={(e) => setStoreName(e.target.value)} 
@@ -47,8 +48,9 @@ const StoreSettings: React.FC = () => {
             />
           </div>
           <div>
-            <label className={labelStyle}>가게 설명</label>
+            <label htmlFor='store-description' className={labelStyle}>가게 설명</label>
             <textarea 
+            id='store-description'
               rows={4} 
               value={description} 
               onChange={(e) => setDescription(e.target.value)} 
@@ -57,10 +59,11 @@ const StoreSettings: React.FC = () => {
             />
           </div>
           <div>
-            <label className={labelStyle}>전화번호</label>
+            <label htmlFor='store-phone' className={labelStyle}>전화번호</label>
             <div className="relative">
               <Phone size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
+              id='store-phone'
                 type="text" 
                 value={phone} 
                 onChange={(e) => setPhone(e.target.value)} 
@@ -70,10 +73,11 @@ const StoreSettings: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className={labelStyle}>이메일</label>
+            <label htmlFor='store-email' className={labelStyle}>이메일</label>
             <div className="relative">
               <Mail size={18} className="absolute left-4 top-[26px] text-gray-400" />
               <input 
+              id='store-email'
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
@@ -134,6 +138,8 @@ const StoreSettings: React.FC = () => {
               <button
                 key={day}
                 onClick={() => toggleDay(day)}
+                aria-pressed={closedDays.includes(day)}
+                aria-label={`${day}요일 휴무`}
                 className={`w-12 h-12 rounded-xl border transition-all cursor-pointer ${
                   closedDays.includes(day) 
                   ? 'bg-blue-600 border-blue-600 text-white' 
@@ -172,7 +178,12 @@ const StoreSettings: React.FC = () => {
             <input 
               type="number" 
               value={minGuests} 
-              onChange={(e) => setMinGuests(Number(e.target.value))} 
+              min={1}
+              max={maxGuests}
+              onChange={(e) => {
+                const value = Math.max(1, Number(e.target.value));
+                setMinGuests(value);
+              }} 
               placeholder="최소 인원을 입력하세요"
               className={inputStyle} 
             />
@@ -183,7 +194,11 @@ const StoreSettings: React.FC = () => {
             <input 
               type="number" 
               value={maxGuests} 
-              onChange={(e) => setMaxGuests(Number(e.target.value))} 
+              min={minGuests}
+              onChange={(e) => {
+                const value = Math.max(minGuests, Number(e.target.value));
+                setMaxGuests(value);
+              }}
               placeholder="최대 인원을 입력하세요"
               className={inputStyle} 
             />
@@ -230,7 +245,21 @@ const StoreSettings: React.FC = () => {
         <button 
           onClick={() => {
             // TODO: API 연동 시 실제 저장 로직으로 교체
-            console.log('Settings saved:', { storeName, phone, email, openTime, closeTime, closedDays });
+            console.log('Settings saved:', { 
+            storeName, 
+            description, 
+            phone, 
+            email, 
+            address,
+            openTime, 
+            closeTime, 
+            closedDays,
+            reservationPeriod,
+            minGuests,
+            maxGuests,
+            sameDayBooking,
+            noShowPolicy
+          });
             alert('설정이 저장되었습니다.');
           }}
           className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"
