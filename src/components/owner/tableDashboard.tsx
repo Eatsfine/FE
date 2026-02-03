@@ -10,6 +10,8 @@ interface TableInfo {
   maxCapacity: number;
   isEditingCapacity: boolean;
   isEditingNum: boolean;
+  originalMinCapacity?: number;
+  originalMaxCapacity?: number;
 }
 
 const TableDashboard: React.FC = () => {
@@ -20,19 +22,20 @@ const TableDashboard: React.FC = () => {
 const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
   const [tableData, setTableData] = useState<Record<number, TableInfo>>({});
 
-  const getTableData = (id: number): TableInfo => {
-    return tableData[id] || {
+  const getDefaultTableData = (id: number): TableInfo => ({
       numValue: id,
       minCapacity: 2,
       maxCapacity: 4,
       isEditingCapacity: false,
       isEditingNum: false,
-    };
-  };
+  });
+
+  const getTableData = (id: number): TableInfo =>
+    tableData[id] ?? getDefaultTableData(id);
 
   const updateTable = (id: number, updates: Partial<TableInfo>) => {
   setTableData(prev => {
-    const current = getTableData(id);
+    const current = prev[id] ?? getDefaultTableData(id);
     const next = { ...current, ...updates };
 
     if (updates.minCapacity !== undefined) {
@@ -76,6 +79,15 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
   };
 };
 
+const startEditingCapacity = (id: number) => {
+    const table = getTableData(id);
+    updateTable(id, { 
+      isEditingCapacity: true,
+      originalMinCapacity: table.minCapacity,
+      originalMaxCapacity: table.maxCapacity
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
@@ -106,7 +118,7 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
         {/* 브레이크 타임 목록 */}
         {breakTimes.length > 0 && (
           <div className="mb-8">
-            <div className="bg-white border border rounded-lg p-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-4">
                 브레이크 타임 목록
               </div>
@@ -166,11 +178,11 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
             <h3 className="text-xl text-gray-900">테이블 배치도</h3>
             <span className="text-gray-900 text-sm tracking-widest uppercase">{config.columns} X {config.rows} 그리드</span>
           </div>
-          <div className="flex justify-center w-full mb-12">
+          <div className="overflow-x-auto pb-4"> 
             <div 
-              className="grid gap-6 w-full max-w-fit mx-auto" 
+              className="grid gap-6 w-full mx-auto" 
               style={{ 
-                gridTemplateColumns: `repeat(${config.columns}, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(${config.columns}, minmax(150px, 1fr))`,
               }}
             >
               {Array.from({ length: config.columns * config.rows }).map((_, i) => {
@@ -244,7 +256,11 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
                           </div>
                           <div className="flex gap-1">
                             <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#6BCB77] p-1 rounded-sm text-white active:scale-90 shadow-sm"><Check size={12}/></button>
-                            <button onClick={() => updateTable(id, { isEditingCapacity: false })} className="bg-[#FF6B6B] p-1 rounded-sm text-white active:scale-90 shadow-sm"><X size={12}/></button>
+                            <button onClick={() => updateTable(id, { 
+                            isEditingCapacity: false,
+                            minCapacity: tableData[id]?.originalMinCapacity ?? table.minCapacity,
+                            maxCapacity: tableData[id]?.originalMaxCapacity ?? table.maxCapacity
+                          })} className="bg-[`#FF6B6B`] ..."><X size={14}/></button>
                           </div>
                         </div>
                       ) : (
@@ -264,11 +280,11 @@ const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
 
           {/* 4. 하단 팁 및 범례 섹션 */}
           <div className="bg-gray-50 border border-gray-100 rounded-[28px] p-7 mt-8">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-5">
+            <div className="flex items-center gap-3 text-sm text-gray-600 mb-5">
               <Lightbulb size={20} className="text-yellow-400 fill-yellow-400" />
               <span>Tip: 테이블을 클릭하면 상세 정보를 확인하고 예약 시간대를 관리할 수 있습니다.</span>
             </div>
-            <div className="flex gap-10 text-sm text-gray-600 pl-8 uppercase tracking-wider">
+            <div className="flex flex-wrap gap-10 text-sm text-gray-600 pl-8 uppercase tracking-wider">
               <div className="flex items-center gap-1"><div className="w-5 h-5 rounded-sm bg-[#D4A017]" /> 소형 (4인 이하)</div>
               <div className="flex items-center gap-1"><div className="w-5 h-5 rounded-sm bg-blue-500" /> 중형 (5~8인)</div>
               <div className="flex items-center gap-1"><div className="w-5 h-5 rounded-sm bg-purple-500" /> 단체석 (9인 이상)</div>

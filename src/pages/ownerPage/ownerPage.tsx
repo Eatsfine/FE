@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import TableDashboard from './tableDashboard';
+import TableDashboard from '../../components/owner/tableDashboard';
 import {Store} from 'lucide-react';
-import StoreSettings from './storeSettings';
-import MenuManagement from './menuManagement';
+import StoreSettings from '../../components/owner/storeSettings';
+import MenuManagement from '../../components/owner/menuManagement';
 
 type TabType = 'dashboard' | 'settings' | 'menu';
 

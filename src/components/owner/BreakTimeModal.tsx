@@ -78,6 +78,14 @@ const BreakTimeModal: React.FC<Props> = ({
           </button>
           <button
             onClick={() => {
+              if (start >= end) {
+                alert('시작 시간이 종료 시간보다 빨라야 합니다.');
+                return;
+              }
+              if (start < openTime || end > closeTime) {
+                alert('브레이크 타임은 영업 시간 내에 설정해야 합니다.');
+                return;
+              }
               onConfirm({ start, end });
               onClose();
             }}

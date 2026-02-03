@@ -10,6 +10,7 @@ const MenuManagement: React.FC = () => {
   const [menus, setMenus] = useState(mockMenusByRestaurantId[restaurantId] || []);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
 
+  
   const categories = [
     { id: 'ALL', label: '전체' },
     { id: 'MAIN', label: '메인 메뉴' },
@@ -28,6 +29,7 @@ const MenuManagement: React.FC = () => {
   };
 
   return (
+
     <div className="max-w-7xl mx-auto px-8 py-10">
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-start mb-10">
@@ -96,6 +98,9 @@ const MenuManagement: React.FC = () => {
               {/* 활성 토글 스위치 */}
               <button 
                 onClick={() => toggleActive(menu.id)}
+                 role="switch"
+                 aria-checked={menu.isActive}
+                 aria-label={`${menu.name} 활성화 상태`}
                 className={`cursor-pointer w-12 h-6 rounded-full transition-colors relative ${menu.isActive ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${menu.isActive ? 'left-7' : 'left-1'}`} />

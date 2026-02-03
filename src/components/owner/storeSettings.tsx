@@ -198,6 +198,9 @@ const StoreSettings: React.FC = () => {
               </div>
               <button 
                 onClick={() => setSameDayBooking(!sameDayBooking)}
+                role='switch'
+                aria-checked={sameDayBooking}
+                aria-label='당일 예약 허용'
                 className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${sameDayBooking ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${sameDayBooking ? 'left-8' : 'left-1'}`} />
@@ -210,6 +213,9 @@ const StoreSettings: React.FC = () => {
               </div>
               <button 
                 onClick={() => setNoShowPolicy(!noShowPolicy)}
+                role='switch'
+                aria-checked={sameDayBooking}
+                aria-label='노쇼 방지 정책'
                 className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${noShowPolicy ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
                 <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${noShowPolicy ? 'left-8' : 'left-1'}`} />
@@ -221,7 +227,14 @@ const StoreSettings: React.FC = () => {
 
       {/* 하단 저장 버튼 */}
       <div className="flex justify-end mb-20">
-        <button className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg">
+        <button 
+          onClick={() => {
+            // TODO: API 연동 시 실제 저장 로직으로 교체
+            console.log('Settings saved:', { storeName, phone, email, openTime, closeTime, closedDays });
+            alert('설정이 저장되었습니다.');
+          }}
+          className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"
+        >
           설정 저장
         </button>
       </div>

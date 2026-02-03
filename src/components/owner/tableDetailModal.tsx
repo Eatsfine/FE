@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Calendar, Clock, Pencil, Check, ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
-import type { BreakTime } from './BreakTimeModal';
+import type { BreakTime } from '../../components/owner/BreakTimeModal';
 
 interface Props {
   tableNumber: number;

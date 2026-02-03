@@ -1,6 +1,12 @@
-
-import { Store, Calendar, Star, Plus, ChevronRight, BarChart3 } from "lucide-react";
-import { cn } from "../../lib/utils";
+import {
+  Store,
+  Calendar,
+  Star,
+  Plus,
+  ChevronRight,
+  BarChart3,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 
