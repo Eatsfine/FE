@@ -5,6 +5,14 @@ import { Search, Home, ArrowLeft } from 'lucide-react';
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full text-center">
@@ -31,7 +39,7 @@ const NotFound: React.FC = () => {
         {/* 버튼 섹션 */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleGoBack}
             className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition-all active:scale-95"
           >
             <ArrowLeft size={18} />
