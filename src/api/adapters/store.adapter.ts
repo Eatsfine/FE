@@ -1,0 +1,54 @@
+import type {
+  BreakTime,
+  RestaurantDetail,
+  RestaurantSummary,
+} from "@/types/store";
+import type {
+  StoreDetailDataDTO,
+  StoreSearchItemDTO,
+} from "@/api/dto/store.dto";
+
+export function toRestaurantSummary(
+  dto: StoreSearchItemDTO,
+): RestaurantSummary {
+  return {
+    id: dto.storeId,
+    name: dto.name,
+    address: dto.address,
+    category: dto.category,
+    rating: dto.rating,
+    reviewCount: dto.reviewCount,
+    distanceKm: dto.distance,
+    thumbnailUrl: dto.mainImageUrl,
+    isOpenNow: dto.isOpenNow,
+  };
+}
+
+export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
+  const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);
+
+  return {
+    id: dto.storeId,
+    name: dto.storeName,
+    description: dto.description,
+    address: dto.address,
+    phone: dto.phone,
+    category: dto.category,
+    rating: dto.rating,
+    reviewCount: dto.reviewCount,
+    depositAmount: dto.depositAmount,
+    mainImageUrl: dto.mainImageUrl,
+    tableImageUrls: dto.tableImageUrls ?? [],
+    businessHours: dto.businessHours ?? [],
+    breakTime,
+    isOpenNow: dto.isOpenNow,
+  };
+}
+
+function toBreakTime(
+  start?: string | null,
+  end?: string | null,
+): BreakTime | undefined {
+  if (!start || !end) return undefined;
+  return { start, end };
+}
