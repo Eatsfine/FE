@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { isApiResponse, normalizeApiError } from "./api.error";
 import type { ApiError } from "@/types/api";
+import { clearAuth, postRefresh } from "./auth";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
@@ -35,7 +36,10 @@ api.interceptors.response.use(
     return res;
   },
 
-  (err: AxiosError) => {
+  async (err: AxiosError) => {
+    const originalRequest = err.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
     const apiError: ApiError = normalizeApiError(err);
 
     if (import.meta.env.DEV) {
@@ -48,8 +52,40 @@ api.interceptors.response.use(
       });
     }
 
-    if (apiError.status === 401) {
-      // TODO: refresh or logout 정책 확정 후 구현
+    if (apiError.status === 401 && originalRequest) {
+      // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
+      if (
+        originalRequest._retry ||
+        originalRequest.url?.includes("/auth/refresh")
+      ) {
+        clearAuth();
+        return Promise.reject(apiError);
+      }
+
+      originalRequest._retry = true; // 재시도 플래그 설정
+
+      try {
+        //토큰 재발급 요청
+        const response = await postRefresh();
+
+        if (response.success) {
+          const newAccessToken = response.data.accessToken;
+
+          // 새 토큰 저장
+          localStorage.setItem("accessToken", newAccessToken);
+
+          // 실패했던 요청의 헤더를 새 토큰으로 교체
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+          // 재시도
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        // 재발급 실패 시 로그아웃 처리
+        console.error("토큰 재발급 실패:", refreshError);
+        clearAuth();
+        return Promise.reject(refreshError);
+      }
     }
 
     return Promise.reject(apiError);

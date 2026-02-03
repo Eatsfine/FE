@@ -15,6 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
+import { postSignup } from "@/api/auth";
+import type { ApiError } from "@/types/api";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -64,16 +66,28 @@ export function SignupDialog({
     onClose();
   };
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (formData: SignupFormValues) => {
     try {
-      console.log("Signup data:", data);
-      //await API
+      const requestBody = {
+        role: formData.role!,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      };
 
-      alert("가입 완료되었습니다.");
+      const response = await postSignup(requestBody);
 
-      onClose();
-    } catch (e) {
-      console.error("Signup error:", e);
+      if (response.success) {
+        alert("가입 완료되었습니다.");
+        onSwitchToLogin();
+      }
+    } catch (error: unknown) {
+      console.error("Signup error:", error);
+      const apiError = error as ApiError;
+      const errorMessage =
+        apiError.message || "회원가입 중 문제가 발생했습니다.";
+      alert(errorMessage);
     }
   };
 
@@ -201,7 +215,6 @@ export function SignupDialog({
                     type="tel"
                     placeholder="010-1234-5678"
                     className="h-12"
-                    {...register("phone")}
                     onChange={(e) => {
                       const formatted = phoneNumber(e.target.value);
                       field.onChange(formatted);

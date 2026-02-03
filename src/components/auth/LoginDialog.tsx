@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { type LoginFormValues, loginSchema } from "./login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { postLogin } from "@/api/auth";
+import type { ApiError } from "@/types/api";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -56,14 +58,18 @@ export function LoginDialog({
 
   const handleEmailLogin = async (data: LoginFormValues) => {
     try {
-      console.log("Email login:", data);
-      //await API
+      const response = await postLogin(data);
 
-      alert("로그인 완료되었습니다.");
-
-      onClose();
-    } catch (e) {
-      console.error("Login error:", e);
+      if (response.success) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        onClose();
+        window.location.reload();
+      }
+    } catch (error: unknown) {
+      console.error("Login error:", error);
+      const apiError = error as ApiError;
+      const errorMessage = apiError.message || "로그인 중 문제가 발생했습니다.";
+      alert(errorMessage);
     }
   };
 
