@@ -214,7 +214,7 @@ const StoreSettings: React.FC = () => {
               <button 
                 onClick={() => setNoShowPolicy(!noShowPolicy)}
                 role='switch'
-                aria-checked={sameDayBooking}
+                aria-checked={noShowPolicy}
                 aria-label='노쇼 방지 정책'
                 className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${noShowPolicy ? 'bg-blue-600' : 'bg-gray-200'}`}
               >

@@ -134,7 +134,7 @@ const TableDetailModal: React.FC<Props> = ({
               </div>
 
 
-              <div className="grid grid-col-1">
+              <div className="grid grid-cols-1">
                 <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-[95px] flex flex-col justify-center transition-all">
                   <div className="flex items-center gap-1.5 text-gray-600 mb-1.5 text-md"><User size={14} color='purple' /> 인원</div>
                   {isEditing ? (

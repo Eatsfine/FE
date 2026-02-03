@@ -273,7 +273,7 @@ const startEditingCapacity = (id: number) => {
                             isEditingCapacity: false,
                             minCapacity: tableData[id]?.originalMinCapacity ?? table.minCapacity,
                             maxCapacity: tableData[id]?.originalMaxCapacity ?? table.maxCapacity
-                          })} className="bg-[`#FF6B6B`] ..."><X size={14}/></button>
+                          })}><X size={14}/></button>
                           </div>
                         </div>
                       ) : (

@@ -34,7 +34,7 @@ const [editingMenu, setEditingMenu] = useState<any>(null);
 const handleFormSubmit = (menuData: any) => {
   if (editingMenu) {
     // 수정 로직
-    setMenus(prev => prev.map(m => m.id === menuData.id ? menuData : m));
+    setMenus(prev => prev.map(m => m.id === menuData.id ? { ...m, ...menuData } : m));
   } else {
     // 추가 로직
     setMenus(prev => [menuData, ...prev]);
