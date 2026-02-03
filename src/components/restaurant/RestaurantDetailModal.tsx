@@ -1,19 +1,49 @@
-import type { Restaurant } from "@/types/restaurant";
-import { Clock, Star, Users, X } from "lucide-react";
+import type { Day, RestaurantDetail } from "@/types/store";
+import { Clock, Star, X } from "lucide-react";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   onClickReserve: () => void;
 };
 
-function formatHours(r: Restaurant) {
-  const { open, close, breakTime } = r.operatingHours;
-  if (!breakTime) {
-    return `${open} - ${close}`;
-  }
-  return `${open} - ${close} (브레이크타임 ${breakTime.start} - ${breakTime.end})`;
+const DAY_LABEL: Record<Day, string> = {
+  MONDAY: "월",
+  TUESDAY: "화",
+  WEDNESDAY: "수",
+  THURSDAY: "목",
+  FRIDAY: "금",
+  SATURDAY: "토",
+  SUNDAY: "일",
+};
+
+function formatBusinessHours(r: RestaurantDetail) {
+  const order: Day[] = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ];
+
+  const byDay = new Map(r.businessHours.map((b) => [b.day, b]));
+  const lines = order.map((day) => {
+    const item = byDay.get(day);
+    if (!item) return `${DAY_LABEL[day]}: 정보 없음`;
+    if (item.isClosed) return `${DAY_LABEL[day]}: 휴무`;
+    const open = item.openTime ?? "-";
+    const close = item.closeTime ?? "-";
+    return `${DAY_LABEL[day]}: ${open} - ${close}`;
+  });
+
+  const breakLine = r.breakTime
+    ? `브레이크타임: ${r.breakTime.start} - ${r.breakTime.end}`
+    : null;
+
+  return { lines, breakLine };
 }
 
 export default function RestaurantDetailModal({
@@ -23,6 +53,7 @@ export default function RestaurantDetailModal({
   onClickReserve,
 }: Props) {
   if (!open) return null;
+  const { lines: hourLines, breakLine } = formatBusinessHours(restaurant);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -50,10 +81,10 @@ export default function RestaurantDetailModal({
           </button>
         </div>
         <div className="overflow-y-auto">
-          {restaurant.thumbnailUrl ? (
+          {restaurant.mainImageUrl ? (
             <div className="w-full">
               <img
-                src={restaurant.thumbnailUrl}
+                src={restaurant.mainImageUrl}
                 alt={`${restaurant.name} 대표 이미지`}
                 className="w-full h-80 object-cover"
                 loading="lazy"
@@ -70,19 +101,18 @@ export default function RestaurantDetailModal({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <Clock className="size-5 text-gray-600" />
+              <div className="flex items-center gap-5">
+                <Clock className="size-5 text-gray-600 mt-1" />
                 <div>
-                  <p className="text-gray-600">운영시간</p>
-                  <p>{formatHours(restaurant)}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Users className="size-5 text-gray-600" />
-                <div>
-                  <p className="text-gray-600">총 좌석수</p>
-                  <p>{restaurant.totalSeats}석</p>
+                  <p className="text-gray-600 mb-2">운영시간</p>
+                  <div className="text-sm text-gray-800 space-y-1">
+                    {hourLines.map((t) => (
+                      <p key={t}>{t}</p>
+                    ))}
+                    {breakLine ? (
+                      <p className="text-sm text-gray-500 mt-2">{breakLine}</p>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
@@ -94,20 +124,20 @@ export default function RestaurantDetailModal({
 
             <div className="mb-6">
               <p className="text-gray-600 mb-2">설명</p>
-              <p className="text-gray-700">{restaurant.description}</p>
+              <p>{restaurant.description}</p>
             </div>
 
             <div className="mb-6">
-              <p className="text-gray-600 mb-3">좌석 사진</p>
+              <p className="text-gray-600 mb-2">테이블 사진</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {restaurant.seatImages.map((img, idx) => (
+                {restaurant.tableImageUrls.map((url, idx) => (
                   <div
-                    key={`${img.url}-${idx}`}
+                    key={`${url}-${idx}`}
                     className="aspect-square rounded-lg overflow-hidden"
                   >
                     <img
-                      src={img.url}
-                      alt={img.alt}
+                      src={url}
+                      alt={`테이블 ${idx + 1}`}
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
