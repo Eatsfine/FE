@@ -14,12 +14,8 @@ import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
 
 const routes: RouteObject[] = [
   {
-    element: (
-      <PublicLayout
-        title="잇츠파인"
-        subtitle="원하는 자리를 직접 선택하는 스마트 식당 예약"
-      />
-    ),
+    //TODO: 로그아웃처리 필요
+    element: <PublicLayout onLogOut={() => {}} />,
     errorElement: <NotFound />,
     children: [{ path: "/search", element: <SearchPage /> }],
   },
@@ -39,11 +35,11 @@ const routes: RouteObject[] = [
     element: <MyPage />,
     errorElement: <NotFound />,
   },
-   {
+  {
     path: "/mypage/store/register", //가게 등록 경로
-    element:<StoreRegistrationPage />,
-    errorElement: <NotFound />,  
-  }
+    element: <StoreRegistrationPage />,
+    errorElement: <NotFound />,
+  },
 ];
 
 const router = createBrowserRouter(routes);

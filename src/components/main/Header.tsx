@@ -90,13 +90,24 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <button
-            type="button"
-            onClick={() => go("/")}
-            className={`text-[24px] tracking-tight ${brandClass}`}
+          <Link
+            to="/"
+            className="flex items-center gap-2"
+            onClick={() => setMobileOpen(false)}
+            aria-label="홈으로 이동"
           >
-            잇츠파인
-          </button>
+            <img
+              src="/eatsfineLogo.svg"
+              alt="잇츠파인 로고"
+              className="h-7 w-7 shrink-0"
+            />
+            <span
+              className={`text-[24px] tracking-tight ${brandClass} hover:text-white/70 transition`}
+            >
+              잇츠파인
+            </span>
+          </Link>
+
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
               <Link
