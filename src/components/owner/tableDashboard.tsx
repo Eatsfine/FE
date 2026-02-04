@@ -22,6 +22,10 @@ interface TableInfo {
 
 const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => {
 
+  const SETTINGS_STORAGE_KEY = storeId 
+    ? `store-settings-${storeId}` 
+    : 'store-settings-temp';
+
   const STORAGE_KEY = storeId
   ? `table-dashboard-state-${storeId}`
   : 'table-dashboard-state-temp';
@@ -53,6 +57,21 @@ const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => 
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [isBreakModalOpen, setIsBreakModalOpen] = useState(false);
   
+  
+  useEffect(() => {
+    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (savedSettings) {
+      try {
+        const settingsData = JSON.parse(savedSettings);
+        // StoreSettingsData의 closedDays를 상태에 저장
+        if (settingsData.closedDays) {
+          setClosedDays(settingsData.closedDays);
+        }
+      } catch (e) {
+        console.error('설정 데이터를 불러오는데 실패했습니다.', e);
+      }
+    }
+  }, [storeId, SETTINGS_STORAGE_KEY]);
 
   useEffect(() => {
     const data = {

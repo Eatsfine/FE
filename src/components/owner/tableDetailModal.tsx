@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, User, Calendar, Clock, Pencil, Check, ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import type { BreakTime } from '../../components/owner/BreakTimeModal';
 
@@ -31,13 +31,20 @@ const TableDetailModal: React.FC<Props> = ({
   onUpdateCapacity,
   onClose,
   breakTimes,
-  closedDays: closedDaysProp,
+  closedDays: closedDaysProp = [],
 }) => {
   const [step, setStep] = useState<Step>('DETAIL');
   const [isEditing, setIsEditing] = useState(false);
   const [tempMin, setTempMin] = useState(tableInfo.minCapacity);
   const [tempMax, setTempMax] = useState(tableInfo.maxCapacity);
-  const closedDays = closedDaysProp ?? ['일']; // 예시: 일요일 휴무
+  const [closedDays, setClosedDays] = useState<string[]>(closedDaysProp);
+
+  useEffect(() => {
+    if(closedDaysProp){
+      setClosedDays(closedDaysProp);
+    }
+  },[closedDaysProp]);
+
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedFullDate, setSelectedFullDate] = useState<Date | null>(null);
   const generateSlots = (startHour = 11, endHour = 22):Slot[] => {
@@ -81,10 +88,17 @@ const [slots, setSlots] = useState<Slot[]>(generateSlots());
   };
 
 
-  const confirmCapacity = () => {
-    onUpdateCapacity(Number(tempMin), Number(tempMax));
-    setIsEditing(false);
-  };
+  const isCapacityValid =
+     Number.isFinite(tempMin) &&
+     Number.isFinite(tempMax) &&
+     tempMin > 0 &&
+     tempMax >= tempMin;
+ 
+   const confirmCapacity = () => {
+     if (!isCapacityValid) return;
+     onUpdateCapacity(Number(tempMin), Number(tempMax));
+     setIsEditing(false);
+   };
 
   type TableType = '소형' | '중형' | '단체석';
 
@@ -150,12 +164,22 @@ const tableType = getTableType(tableInfo.maxCapacity);
                   {isEditing ? (
                     <div className="flex items-center gap-2">
                       <div className="flex items-center bg-white border border-purple-300 rounded px-2">
-                        <input type="number" value={tempMin} onChange={(e) => setTempMin(Number(e.target.value))} className="w-10 outline-none text-sm font-bold text-center" />
+                        <input type="number" min={1} value={tempMin} 
+                        onChange={(e) => {
+                          const newMin = Number(e.target.value);
+                        setTempMin(Math.min(newMin, tempMax));
+                        }}
+                      className="w-10 outline-none text-sm font-bold text-center" />
                         <span className="mx-1">~</span>
-                        <input type="number" value={tempMax} onChange={(e) => setTempMax(Number(e.target.value))} className="w-10 outline-none text-sm font-bold text-center" />
+                        <input type="number" min={tempMin} value={tempMax} 
+                        onChange={(e) => {
+                          const newMax = Number(e.target.value);
+                        setTempMax(Math.max(newMax, tempMin));
+                        }} 
+                        className="w-10 outline-none text-sm font-bold text-center" />
                         <span className="ml-1 text-xs">인</span>
                       </div>
-                      <button onClick={confirmCapacity} className="text-green-600"><Check size={18} strokeWidth={3}/></button>
+                      <button onClick={confirmCapacity} disabled={!isCapacityValid} aria-disabled={!isCapacityValid} className="text-green-600 disabled:opacity-40 disabled:cursor-not-allowed"><Check size={18} strokeWidth={3}/></button>
                       <button onClick={() => setIsEditing(false)} className="text-red-400"><X size={18} /></button>
                     </div>
                   ) : (
@@ -202,9 +226,11 @@ const tableType = getTableType(tableInfo.maxCapacity);
                 <p className="text-md text-gray-900">날짜를 먼저 선택하세요</p>
               </div>
               <div className="flex justify-between items-center bg-blue-50 border border-blue-100 p-4 rounded-lg text-blue-900">
-                <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"><ChevronLeft /></button>
+                <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"
+                  aria-label='이전 달'><ChevronLeft /></button>
                 <span className="text-lg">{year}년 {month + 1}월</span>
-                <button onClick={() => changeMonth(1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"><ChevronRight /></button>
+                <button onClick={() => changeMonth(1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"
+                  aria-label='다음 달'><ChevronRight /></button>
               </div>
               <div className="grid grid-cols-7 gap-2">
                 {['일','월','화','수','목','금','토'].map(d => <span key={d} className="text-center text-sm text-gray-400 mb-1">{d}</span>)}
@@ -219,7 +245,7 @@ const tableType = getTableType(tableInfo.maxCapacity);
                   const weekDayKorean = ['일','월','화','수','목','금','토'][weekDay];
 
                   // 휴무일 체크
-                  const isClosedDay = closedDays?.includes(weekDayKorean);
+                  const isClosedDay = closedDays.includes(weekDayKorean);
                   
                   return (
                     <button 
@@ -264,7 +290,12 @@ const tableType = getTableType(tableInfo.maxCapacity);
                   const isBreak = isBreakTime(slot.time, breakTimes);
                   const isAvailable = !isBreak && slot.isAvailable;
                   return (
-                    <div key={slot.id} onClick={() => { if (isBreak) return;
+                    <button
+                       type="button"
+                       key={slot.id}
+                       disabled={isBreak}
+                       aria-pressed={isAvailable}
+                       onClick={() => { if (isBreak) return;
                     setSlots(prev =>
                       prev.map(s =>
                         s.id === slot.id
@@ -273,7 +304,7 @@ const tableType = getTableType(tableInfo.maxCapacity);
                       )
                     );
                     }} 
-                    className={`flex justify-between items-center p-4 rounded-lg border-2 transition-all ${isBreak ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed' : isAvailable ? 'border-green-300 bg-green-50 cursor-pointer' : 'border-red-300 bg-red-50 cursor-pointer'}`}>
+                    className={`w-full flex justify-between items-center p-4 rounded-lg border-2 transition-all ${isBreak ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed' : isAvailable ? 'border-green-300 bg-green-50 cursor-pointer' : 'border-red-300 bg-red-50 cursor-pointer'}`}>
                       <div className="flex items-center gap-3 text-gray-700">
                         {isBreak ? <AlertCircle size={25} className="text-gray-400" /> : isAvailable ? <CheckCircle2 size={25} className="text-green-500" /> : <XCircle size={25} className="text-red-400" />}
                         <span className="text-sm">{slot.time}</span>
@@ -281,7 +312,7 @@ const tableType = getTableType(tableInfo.maxCapacity);
                       <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${isBreak ? 'bg-gray-300 text-gray-600' : isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {isBreak ? '미운영' : isAvailable ? '예약 가능' : '미운영'}
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
