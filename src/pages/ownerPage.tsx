@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
-import TableDashboard from '../../components/owner/tableDashboard';
-import {Store} from 'lucide-react';
-import StoreSettings from '../../components/owner/storeSettings';
-import MenuManagement from '../../components/owner/menuManagement';
-import { useParams } from 'react-router-dom';
+import React, { useState } from "react";
+import TableDashboard from "../components/owner/tableDashboard";
+import { Store } from "lucide-react";
+import StoreSettings from "../components/owner/storeSettings";
+import MenuManagement from "../components/owner/menuManagement";
+import { useParams } from "react-router-dom";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 
-
-type TabType = 'dashboard' | 'settings' | 'menu';
+type TabType = "dashboard" | "settings" | "menu";
 
 const OwnerPage: React.FC = () => {
   const { storeId } = useParams<{ storeId: string }>();
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
-  const selectedStore = MOCK_RESTAURANTS.find(
-  (store) => store.id === storeId
-);
-
+  const selectedStore = MOCK_RESTAURANTS.find((store) => store.id === storeId);
 
   return (
     <div className="w-full min-h-screen bg-gray-50">
@@ -24,50 +20,55 @@ const OwnerPage: React.FC = () => {
       <header className="bg-white border-b border-gray-200 pt-3">
         <div className="max-w-7xl mx-auto">
           <div className="text-lg text-gray-900 flex items-center gap-2 pb-4 border-b px-5">
-            <Store className="text-blue-600" size={24} />
-            내 가게 관리
+            <Store className="text-blue-600" size={24} />내 가게 관리
           </div>
 
           {/* 탭 메뉴 */}
           <nav className="flex gap-5 pt-4 px-5">
             <button
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => setActiveTab("dashboard")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
+                activeTab === "dashboard"
+                  ? "text-blue-600"
+                  : "text-gray-900 hover:text-gray-900"
               }`}
             >
               <div className="cursor-pointer flex items-center gap-2">
                 대시보드
               </div>
-              {activeTab === 'dashboard' && (
+              {activeTab === "dashboard" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}
             </button>
 
             <button
-              onClick={() => setActiveTab('settings')}
+              onClick={() => setActiveTab("settings")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === 'settings' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
+                activeTab === "settings"
+                  ? "text-blue-600"
+                  : "text-gray-900 hover:text-gray-900"
               }`}
             >
               <div className="cursor-pointer flex items-center gap-2">
                 가게 설정
               </div>
-              {activeTab === 'settings' && (
+              {activeTab === "settings" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}
             </button>
 
             <button
-              onClick={() => setActiveTab('menu')}
+              onClick={() => setActiveTab("menu")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === 'menu' ? 'text-blue-600' : 'text-gray-900 hover:text-gray-900'
+                activeTab === "menu"
+                  ? "text-blue-600"
+                  : "text-gray-900 hover:text-gray-900"
               }`}
             >
               <div className="cursor-pointer flex items-center gap-2">
                 메뉴 관리
               </div>
-              {activeTab === 'menu' && (
+              {activeTab === "menu" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}
             </button>
@@ -77,15 +78,20 @@ const OwnerPage: React.FC = () => {
 
       {/* 탭 콘텐츠 영역 */}
       <main>
-        {activeTab === 'dashboard' && <TableDashboard storeId={selectedStore?.id} storeName={selectedStore?.name} />}
-        {activeTab === 'settings' && (
+        {activeTab === "dashboard" && (
+          <TableDashboard
+            storeId={selectedStore?.id}
+            storeName={selectedStore?.name}
+          />
+        )}
+        {activeTab === "settings" && (
           <div className="max-w-7xl mx-auto text-gray-500">
-            {activeTab === 'settings' && <StoreSettings storeId={storeId} />}
+            {activeTab === "settings" && <StoreSettings storeId={storeId} />}
           </div>
         )}
-        {activeTab === 'menu' && (
+        {activeTab === "menu" && (
           <div className="max-w-7xl mx-auto text-gray-500">
-            {activeTab === 'menu' && <MenuManagement storeId={storeId} />}
+            {activeTab === "menu" && <MenuManagement storeId={storeId} />}
           </div>
         )}
       </main>

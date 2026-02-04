@@ -1,4 +1,4 @@
-import { useInView } from "@/hooks/useInView";
+import { useInView } from "@/hooks/common/useInView";
 import { MapPin, Search, Star, Store } from "lucide-react";
 import FeatureCard from "./FeatureCard";
 

@@ -1,7 +1,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import PaymentAddModal from "@/components/modals/paymentAddModal";
+import PaymentAddModal from "@/components/modals/PaymentAddModal";
 
 interface PaymentMethod {
   id: string;
