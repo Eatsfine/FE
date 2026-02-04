@@ -57,12 +57,6 @@ export default function SearchPage() {
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
-    if (restaurant.location) {
-      setMapCenter({
-        lat: restaurant.location.lat,
-        lng: restaurant.location.lng,
-      });
-    }
 
     setSelectedStoreId(storeId);
     setDetailOpen(true);
@@ -183,6 +177,8 @@ export default function SearchPage() {
 
   const runSearch = async () => {
     setHasSearched(true);
+
+    setSelectedStoreId(null);
     const keyword = query.trim();
     setSearchError(null);
 
@@ -206,19 +202,8 @@ export default function SearchPage() {
       });
       setResults(items);
 
-      if (items.length === 1 && items[0].location) {
-        setMapCenter({
-          lat: items[0].location.lat,
-          lng: items[0].location.lng,
-        });
+      if (items.length === 1) {
         setSelectedStoreId(items[0].id);
-      } else if (items.length > 0) {
-        const first = items.find((x) => x.location);
-        if (first?.location) {
-          setMapCenter({ lat: first.location.lat, lng: first.location.lng });
-        }
-      } else {
-        setMapCenter({ lat: c.lat, lng: c.lng });
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "검색에 실패했어요";

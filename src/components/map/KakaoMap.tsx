@@ -65,22 +65,22 @@ export default function KakaoMap({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [center.lat, center.lng, defaultLevel]);
 
   //2. 센터바뀌면 지도 중심 이동
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps) return;
-    if (!mapRef.current) return;
+    if (!kakao?.maps || !mapRef.current) return;
+
+    if (selectedId) return;
 
     const next = new kakao.maps.LatLng(center.lat, center.lng);
     mapRef.current.panTo(next);
-  }, [center.lat, center.lng]);
+  }, [center.lat, center.lng, selectedId]);
 
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps) return;
-    if (!mapRef.current) return;
+    if (!kakao?.maps || !mapRef.current) return;
 
     if (!selectedId) return;
     if (!selectedLevel) return;
@@ -91,8 +91,7 @@ export default function KakaoMap({
   //3. 마커 바뀌면 마커 재생성
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps) return;
-    if (!mapRef.current) return;
+    if (!kakao?.maps || !mapRef.current) return;
 
     markersRef.current.forEach((mk) => mk.setMap(null));
     markersRef.current = [];
@@ -121,15 +120,36 @@ export default function KakaoMap({
       });
       markersRef.current.push(marker);
     });
-
-    if (!selectedId && safeMarkers.length >= 2) {
-      const bounds = new kakao.maps.LatLngBounds();
-      safeMarkers.forEach((s) => {
-        bounds.extend(new kakao.maps.LatLng(s.location.lat, s.location.lng));
-      });
-      mapRef.current.setBounds(bounds);
-    }
   }, [safeMarkers, selectedId, onSelectMarker]);
+
+  //4. 마커 목록 바뀌면 bounds 맞추기
+  useEffect(() => {
+    const kakao = window.kakao;
+    if (!kakao?.maps || !mapRef.current) return;
+    if (selectedId) return;
+    if (safeMarkers.length === 0) return;
+    const bounds = new kakao.maps.LatLngBounds();
+
+    safeMarkers.forEach((store) => {
+      bounds.extend(
+        new kakao.maps.LatLng(store.location.lat, store.location.lng),
+      );
+    });
+    mapRef.current.setBounds(bounds);
+    if (safeMarkers.length === 1) {
+      mapRef.current.setLevel(defaultLevel ?? 4);
+    }
+  }, [safeMarkers, selectedId, defaultLevel]);
+
+  //5.선택된 가게 있으면 그 위치로 자연스럽게 이동하기 + 줌도추가
+  useEffect(() => {
+    const kakao = window.kakao;
+    if (!kakao?.maps || !mapRef.current) return;
+    if (!selectedId) return;
+    if (!selectedLevel) return;
+
+    mapRef.current.setLevel(selectedLevel ?? 3);
+  }, [selectedId, selectedLevel]);
 
   return (
     <div
