@@ -138,22 +138,28 @@ export default function SearchPage() {
     setPaymentOpen(true);
   };
 
-  const closeAll = () => {
-    setDraft(null);
+  const closeModalsOnly = () => {
     setDetailOpen(false);
     setReserveOpen(false);
     setReserveMenuOpen(false);
     setConfirmOpen(false);
-    setSelectedStoreId(null);
-    setCompleteOpen(false);
     setPaymentOpen(false);
+    setCompleteOpen(false);
     setDetailStatus("idle");
     setDetailData(null);
     setDetailError(null);
+    setDraft(null);
+  };
+
+  const resetAll = () => {
+    closeModalsOnly();
+    setSelectedStoreId(null);
     setResults([]);
     setSearchError(null);
     setHasSearched(false);
     setMapCenter(FALLBACK_COORDS);
+    setCoords(null);
+    setQuery("");
   };
 
   function getCoords(): Promise<{ lat: number; lng: number }> {
@@ -195,7 +201,7 @@ export default function SearchPage() {
         lat: c.lat,
         lng: c.lng,
         keyword,
-        radiusKm: 3,
+        radiusKm: 50,
         sort: "distance",
       });
       setResults(items);
@@ -232,23 +238,14 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* 지도는 API연동을 위해 지금 비워둠 */}
-      {/* <div className="relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-gray-200 to-gray-300">
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p>카카오맵 API 연동 영역</p>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       {/* 카카오맵 */}
       <KakaoMap
         center={mapCenter}
         markers={results}
         selectedId={selectedStoreId}
         onSelectMarker={handleSelectStore}
+        defaultLevel={4}
+        selectedLevel={3}
       />
 
       <div className="mt-6 w-full max-w-2xl mx-auto">
@@ -266,7 +263,7 @@ export default function SearchPage() {
           onOpenChange={(o: boolean) => {
             setDetailOpen(o);
             if (!o) {
-              closeAll();
+              closeModalsOnly();
             }
           }}
           status={detailStatus}
@@ -282,12 +279,12 @@ export default function SearchPage() {
           open={reserveOpen}
           onOpenChange={(o: boolean) => {
             setReserveOpen(o);
-            if (!o) closeAll();
+            if (!o) closeModalsOnly();
           }}
           restaurant={selectedLegacy}
           initialDraft={draft ?? undefined}
           onClickConfirm={goReserveMenu}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
         />
       )}
       {/* 메뉴선택 모달 */}
@@ -296,12 +293,12 @@ export default function SearchPage() {
           open={reserveMenuOpen}
           onOpenChange={(o: boolean) => {
             setReserveMenuOpen(o);
-            if (!o) closeAll();
+            if (!o) closeModalsOnly();
           }}
           restaurant={selectedLegacy}
           onConfirm={goConfirm}
           onBack={backToReserve}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           draft={draft}
         />
       )}
@@ -309,7 +306,7 @@ export default function SearchPage() {
       {selectedLegacy && draft && (
         <ReservationConfirmMoodal
           open={confirmOpen}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           onBack={backToReserveMenu}
           onConfirm={goPayment}
           restaurant={selectedLegacy}
@@ -321,7 +318,7 @@ export default function SearchPage() {
       {selectedLegacy && draft && paymentOpen && (
         <PaymentModal
           open={paymentOpen}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           onOpenChange={setPaymentOpen}
           restaurant={selectedLegacy}
           draft={draft}
@@ -337,7 +334,7 @@ export default function SearchPage() {
           open={completeOpen}
           restaurant={selectedLegacy}
           draft={draft}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           autoCloseMs={5000}
         />
       )}

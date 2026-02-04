@@ -10,6 +10,8 @@ type Props = {
   selectedId?: string | null;
   onSelectMarker?: (store: RestaurantSummary) => void;
   className?: string;
+  defaultLevel?: number;
+  selectedLevel?: number;
 };
 declare global {
   interface Window {
@@ -23,6 +25,8 @@ export default function KakaoMap({
   selectedId,
   onSelectMarker,
   className,
+  defaultLevel,
+  selectedLevel,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -49,7 +53,7 @@ export default function KakaoMap({
 
         const options = {
           center: new kakao.maps.LatLng(center.lat, center.lng),
-          level: 4,
+          level: defaultLevel ?? 4,
         };
         mapRef.current = new kakao.maps.Map(containerRef.current, options);
         infoRef.current = new kakao.maps.InfoWindow({ zIndex: 2 });
@@ -70,8 +74,19 @@ export default function KakaoMap({
     if (!mapRef.current) return;
 
     const next = new kakao.maps.LatLng(center.lat, center.lng);
-    mapRef.current.setCenter(next);
+    mapRef.current.panTo(next);
   }, [center.lat, center.lng]);
+
+  useEffect(() => {
+    const kakao = window.kakao;
+    if (!kakao?.maps) return;
+    if (!mapRef.current) return;
+
+    if (!selectedId) return;
+    if (!selectedLevel) return;
+
+    mapRef.current.setLevel(selectedLevel);
+  }, [selectedId, selectedLevel]);
 
   //3. 마커 바뀌면 마커 재생성
   useEffect(() => {
@@ -106,6 +121,14 @@ export default function KakaoMap({
       });
       markersRef.current.push(marker);
     });
+
+    if (!selectedId && safeMarkers.length >= 2) {
+      const bounds = new kakao.maps.LatLngBounds();
+      safeMarkers.forEach((s) => {
+        bounds.extend(new kakao.maps.LatLng(s.location.lat, s.location.lng));
+      });
+      mapRef.current.setBounds(bounds);
+    }
   }, [safeMarkers, selectedId, onSelectMarker]);
 
   return (
