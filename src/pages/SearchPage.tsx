@@ -1,19 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
 import { type ReservationDraft, type Restaurant } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
-import RestaurantMarker from "@/components/restaurant/RestaurantMarker";
 import ReservationModal from "@/components/reservation/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/ReservationConfirmModal";
 import ReservationCompleteModal from "@/components/reservation/ReservationCompleteModal";
 import PaymentModal from "@/components/reservation/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/ReservationMenuModal";
+import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
+import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
+import { searchMockStores } from "@/mock/store.api.mock";
+import KakaoMap from "@/components/map/KakaoMap";
+
+type DetailStatus = "idle" | "loading" | "success" | "error";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<Restaurant | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -23,17 +28,88 @@ export default function SearchPage() {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
-  const openDetail = (restaurant: Restaurant) => {
-    setSelected(restaurant);
+  const [detailStatus, setDetailStatus] = useState<DetailStatus>("idle");
+  const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  const detailRequestIdRef = useRef(0);
+
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [results, setResults] = useState<RestaurantSummary[]>([]);
+
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const FALLBACK_COORDS = { lat: 37.5665, lng: 126.978 };
+
+  const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
+
+  const selectedLegacy: Restaurant | null = useMemo(() => {
+    if (!selectedStoreId) return null;
+    return MOCK_RESTAURANTS.find((r) => r.id === selectedStoreId) ?? null;
+  }, [selectedStoreId]);
+
+  async function fetchStoreDetailMock(storeId: string) {
+    const detail = MOCK_STORE_DETAIL_BY_ID[storeId];
+    if (!detail) throw new Error("상세 정보 mock데이터가 없습니다");
+    return detail;
+  }
+
+  const openDetail = async (restaurant: RestaurantSummary) => {
+    const storeId = restaurant.id;
+    const requestId = ++detailRequestIdRef.current;
+
+    setSelectedStoreId(storeId);
+    setDetailOpen(true);
+    setDetailStatus("loading");
+    setDetailData(null);
+    setDetailError(null);
     setDraft(null);
     setConfirmOpen(false);
     setReserveOpen(false);
-    setDetailOpen(true);
+    try {
+      const detail = await fetchStoreDetailMock(storeId);
+      if (requestId !== detailRequestIdRef.current) return;
+      setDetailData(detail);
+      setDetailStatus("success");
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
+      setDetailError(msg);
+      setDetailStatus("error");
+    }
+  };
+
+  const retryDetail = async () => {
+    if (!selectedStoreId) return;
+    const requestId = ++detailRequestIdRef.current;
+    setDetailStatus("loading");
+    setDetailError(null);
+    try {
+      const detail = await fetchStoreDetailMock(selectedStoreId);
+      if (requestId !== detailRequestIdRef.current) return;
+      setDetailData(detail);
+      setDetailStatus("success");
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
+      setDetailError(msg);
+      setDetailStatus("error");
+    }
+  };
+
+  const handleSelectStore = (store: RestaurantSummary) => {
+    openDetail(store);
   };
 
   const goReserve = () => {
     setDraft(null);
     setDetailOpen(false);
+    setDetailStatus("idle");
+    setDetailData(null);
+    setDetailError(null);
     setReserveOpen(true);
   };
 
@@ -62,31 +138,84 @@ export default function SearchPage() {
     setPaymentOpen(true);
   };
 
-  const closeAll = () => {
-    setDraft(null);
+  const closeModalsOnly = () => {
     setDetailOpen(false);
     setReserveOpen(false);
     setReserveMenuOpen(false);
     setConfirmOpen(false);
-    setSelected(null);
-    setCompleteOpen(false);
     setPaymentOpen(false);
+    setCompleteOpen(false);
   };
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const resetAll = () => {
+    closeModalsOnly();
+    setDraft(null);
+    setSelectedStoreId(null);
+    setDetailStatus("idle");
+    setDetailData(null);
+    setDetailError(null);
+    setResults([]);
+    setSearchError(null);
+    setHasSearched(false);
+    setMapCenter(FALLBACK_COORDS);
+    setCoords(null);
+    setQuery("");
+  };
 
-    if (!q) return [];
-    return MOCK_RESTAURANTS.filter((r) => {
-      const name = r.name.toLowerCase();
-      const category = (r.category ?? "").toLowerCase();
-      const address = r.address.toLowerCase();
-      return name.includes(q) || category.includes(q) || address.includes(q);
+  function getCoords(): Promise<{ lat: number; lng: number }> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(FALLBACK_COORDS);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        () => resolve(FALLBACK_COORDS),
+        { enableHighAccuracy: false, timeout: 5000 },
+      );
     });
-  }, [query]);
+  }
 
-  const handleSelect = (restaurant: Restaurant) => {
-    openDetail(restaurant);
+  const runSearch = async () => {
+    setHasSearched(true);
+
+    setSelectedStoreId(null);
+    const keyword = query.trim();
+    setSearchError(null);
+
+    if (!keyword) {
+      setResults([]);
+      return;
+    }
+
+    const c = coords ?? (await getCoords());
+    setCoords(c);
+
+    setMapCenter({ lat: c.lat, lng: c.lng });
+
+    try {
+      const items = await searchMockStores({
+        lat: c.lat,
+        lng: c.lng,
+        keyword,
+        radiusKm: 50,
+        sort: "distance",
+      });
+      setResults(items);
+
+      if (items.length === 1) {
+        setSelectedStoreId(items[0].id);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "검색에 실패했어요";
+      setSearchError(msg);
+      setResults([]);
+    }
   };
 
   return (
@@ -100,116 +229,118 @@ export default function SearchPage() {
             className="w-full px-5 py-4 pr-14 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") runSearch();
+            }}
           />
           <button
             type="button"
             className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
             aria-label="검색"
-            onClick={() => {}} //버튼은 지금 UI용으로
+            onClick={runSearch}
           >
             <Search className="size-5" />
           </button>
         </div>
       </div>
 
-      {/* 지도는 API연동을 위해 지금 비워둠 */}
-      <div className="relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-gray-200 to-gray-300">
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p>카카오맵 API 연동 영역</p>
-            </div>
-          </div>
-        </div>
-        <div className="absolute inset-0 z-10">
-          {results.map((r) => (
-            <RestaurantMarker
-              key={r.id}
-              restaurant={r}
-              onSelect={handleSelect}
-            />
-          ))}
-        </div>
-      </div>
+      {/* 카카오맵 */}
+      <KakaoMap
+        center={mapCenter}
+        markers={results}
+        selectedId={selectedStoreId}
+        onSelectMarker={handleSelectStore}
+        defaultLevel={4}
+        selectedLevel={3}
+      />
 
       <div className="mt-6 w-full max-w-2xl mx-auto">
-        {query.trim() ? (
-          <RestaurantList restaurants={results} onSelect={handleSelect} />
+        {searchError ? (
+          <p className="mt-2 text-sm text-red-500">{searchError}</p>
+        ) : null}
+        {hasSearched ? (
+          <RestaurantList restaurants={results} onSelect={handleSelectStore} />
         ) : null}
       </div>
       {/* 상세 페이지 모달 */}
-      {selected && (
+      {detailOpen && (
         <RestaurantDetailModal
           open={detailOpen}
           onOpenChange={(o: boolean) => {
             setDetailOpen(o);
-            if (!o) closeAll();
+            if (!o) {
+              closeModalsOnly();
+            }
           }}
-          restaurant={selected}
+          status={detailStatus}
+          restaurant={detailData}
+          errorMessage={detailError ?? undefined}
+          onRetry={retryDetail}
           onClickReserve={goReserve}
         />
       )}
       {/* 예약 페이지 모달 */}
-      {selected && (
+      {selectedLegacy && (
         <ReservationModal
           open={reserveOpen}
           onOpenChange={(o: boolean) => {
             setReserveOpen(o);
-            if (!o) closeAll();
+            if (!o) closeModalsOnly();
           }}
-          restaurant={selected}
+          restaurant={selectedLegacy}
           initialDraft={draft ?? undefined}
           onClickConfirm={goReserveMenu}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
         />
       )}
       {/* 메뉴선택 모달 */}
-      {selected && draft && (
+      {selectedLegacy && draft && (
         <ReservationMenuModal
           open={reserveMenuOpen}
           onOpenChange={(o: boolean) => {
             setReserveMenuOpen(o);
-            if (!o) closeAll();
+            if (!o) closeModalsOnly();
           }}
-          restaurant={selected}
+          restaurant={selectedLegacy}
           onConfirm={goConfirm}
           onBack={backToReserve}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           draft={draft}
         />
       )}
       {/* 예약확인 페이지 모달 */}
-      {selected && draft && (
+      {selectedLegacy && draft && (
         <ReservationConfirmMoodal
           open={confirmOpen}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           onBack={backToReserveMenu}
           onConfirm={goPayment}
-          restaurant={selected}
+          restaurant={selectedLegacy}
           draft={draft}
         />
       )}
 
       {/* 결제 모달 */}
-      {selected && draft && paymentOpen && (
+      {selectedLegacy && draft && paymentOpen && (
         <PaymentModal
           open={paymentOpen}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           onOpenChange={setPaymentOpen}
-          restaurant={selected}
+          restaurant={selectedLegacy}
           draft={draft}
           onSuccess={() => {
+            setPaymentOpen(false);
             setCompleteOpen(true); //결제 성공 완료모달
           }}
         />
       )}
       {/* 예약완료 페이지 모달 */}
-      {selected && draft && (
+      {selectedLegacy && draft && (
         <ReservationCompleteModal
           open={completeOpen}
-          restaurant={selected}
+          restaurant={selectedLegacy}
           draft={draft}
-          onClose={closeAll}
+          onClose={closeModalsOnly}
           autoCloseMs={5000}
         />
       )}

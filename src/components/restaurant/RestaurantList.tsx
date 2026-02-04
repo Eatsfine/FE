@@ -1,9 +1,9 @@
+import type { RestaurantSummary } from "@/types/store";
 import RestaurantCard from "./RestaurantCard";
-import type { Restaurant } from "@/types/restaurant";
 
 type Props = {
-  restaurants: Restaurant[];
-  onSelect: (restaurant: Restaurant) => void;
+  restaurants: RestaurantSummary[];
+  onSelect: (restaurant: RestaurantSummary) => void;
 };
 
 export default function RestaurantList({ restaurants, onSelect }: Props) {
