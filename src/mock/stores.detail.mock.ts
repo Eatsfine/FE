@@ -90,7 +90,7 @@ export const MOCK_STORE_DETAIL_BY_ID: Record<string, RestaurantDetail> = {
       { day: "SUNDAY", openTime: "12:00", closeTime: "22:00", isClosed: false },
     ],
     isOpenNow: false,
-    location: { lat: 37.574, lng: 126.985 },
+    location: { lat: 37.574, lng: 126.984 },
   },
   "3": {
     id: "3",

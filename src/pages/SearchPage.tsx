@@ -145,15 +145,15 @@ export default function SearchPage() {
     setConfirmOpen(false);
     setPaymentOpen(false);
     setCompleteOpen(false);
-    setDetailStatus("idle");
-    setDetailData(null);
-    setDetailError(null);
-    setDraft(null);
   };
 
   const resetAll = () => {
     closeModalsOnly();
+    setDraft(null);
     setSelectedStoreId(null);
+    setDetailStatus("idle");
+    setDetailData(null);
+    setDetailError(null);
     setResults([]);
     setSearchError(null);
     setHasSearched(false);
@@ -205,6 +205,21 @@ export default function SearchPage() {
         sort: "distance",
       });
       setResults(items);
+
+      if (items.length === 1 && items[0].location) {
+        setMapCenter({
+          lat: items[0].location.lat,
+          lng: items[0].location.lng,
+        });
+        setSelectedStoreId(items[0].id);
+      } else if (items.length > 0) {
+        const first = items.find((x) => x.location);
+        if (first?.location) {
+          setMapCenter({ lat: first.location.lat, lng: first.location.lng });
+        }
+      } else {
+        setMapCenter({ lat: c.lat, lng: c.lng });
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "검색에 실패했어요";
       setSearchError(msg);
