@@ -1,31 +1,32 @@
 import { Link, Outlet } from "react-router-dom";
 
 type PublicLayoutProps = {
-  title?: string;
-  subtitle?: string;
+  onLogOut?: () => void;
 };
 
-export default function PublicLayout({
-  title = "잇츠파인",
-  subtitle,
-}: PublicLayoutProps) {
+export default function PublicLayout({ onLogOut }: PublicLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b sticky p-1 top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/">
+      <header className="w-full border-b bg-white sticky top-0 z-40 py-2">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
+          <Link to="/" className="flex items-center gap-3">
             <img
-              src="/EatsfineLogo.png"
+              src="/eatsfineLogo.svg"
               alt="잇츠파인 로고"
-              className="h-14 w-14 rounded hover:scale-110 transition"
+              className="h-10 w-10 object-contain"
             />
+            <div>
+              <h1 className="text-blue-600 text-xl font-semibold">잇츠파인</h1>
+              <p className="text-xs">원하는 자리를 선택하는 스마트 식당 예약</p>
+            </div>
           </Link>
-          <div className="p-1">
-            <h1 className="text-blue-600 text-xl font-semibold">{title}</h1>
-            {subtitle ? (
-              <p className="text-gray-600 text-sm">{subtitle}</p>
-            ) : null}
-          </div>
+          <button
+            type="button"
+            onClick={onLogOut}
+            className="flex items-center gap-2 px-4 py-2 text-black hover:text-gray-600 transition cursor-pointer"
+          >
+            로그아웃
+          </button>
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-8">
