@@ -11,7 +11,9 @@ import PaymentModal from "@/components/reservation/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/ReservationMenuModal";
 import { MOCK_STORE_SEARCH } from "@/mock/stores.search.mock";
 import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
-import type { RestaurantSummary } from "@/types/store";
+import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
+
+type DetailStatus = "idle" | "loading" | "success" | "error";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -25,6 +27,10 @@ export default function SearchPage() {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  const [detailStatus, setDetailStatus] = useState<DetailStatus>("idle");
+  const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
 
@@ -35,28 +41,56 @@ export default function SearchPage() {
       const address = r.address.toLowerCase();
       return name.includes(q) || category.includes(q) || address.includes(q);
     });
-  }, [query, MOCK_STORE_SEARCH]);
-
-  const selectedDetail = selectedStoreId
-    ? MOCK_STORE_DETAIL_BY_ID[selectedStoreId]
-    : undefined;
+  }, [query]);
 
   const selectedLegacy: Restaurant | null = useMemo(() => {
     if (!selectedStoreId) return null;
     return MOCK_RESTAURANTS.find((r) => r.id === selectedStoreId) ?? null;
   }, [selectedStoreId]);
 
-  const openDetail = (restaurant: RestaurantSummary) => {
-    const detail = MOCK_STORE_DETAIL_BY_ID[restaurant.id];
-    if (!detail) {
-      window.alert("상세 정보 mock이 없습니다");
-      return;
-    }
-    setSelectedStoreId(restaurant.id);
+  async function fetchStoreDetailMock(storeId: string) {
+    const detail = MOCK_STORE_DETAIL_BY_ID[storeId];
+    if (!detail) throw new Error("상세 정보 mock데이터가 없습니다");
+    return detail;
+  }
+
+  const openDetail = async (restaurant: RestaurantSummary) => {
+    const storeId = restaurant.id;
+
+    setSelectedStoreId(storeId);
+    setDetailOpen(true);
+    setDetailStatus("loading");
+    setDetailData(null);
+    setDetailError(null);
     setDraft(null);
     setConfirmOpen(false);
     setReserveOpen(false);
-    setDetailOpen(true);
+    try {
+      const detail = await fetchStoreDetailMock(storeId);
+      setDetailData(detail);
+      setDetailStatus("success");
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
+      setDetailError(msg);
+      setDetailStatus("error");
+    }
+  };
+
+  const retryDetail = async () => {
+    if (!selectedStoreId) return;
+    setDetailStatus("loading");
+    setDetailError(null);
+    try {
+      const detail = await fetchStoreDetailMock(selectedStoreId);
+      setDetailData(detail);
+      setDetailStatus("success");
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
+      setDetailError(msg);
+      setDetailStatus("error");
+    }
   };
 
   const handleSelect = (restaurant: RestaurantSummary) => {
@@ -66,6 +100,9 @@ export default function SearchPage() {
   const goReserve = () => {
     setDraft(null);
     setDetailOpen(false);
+    setDetailStatus("idle");
+    setDetailData(null);
+    setDetailError(null);
     setReserveOpen(true);
   };
 
@@ -103,6 +140,9 @@ export default function SearchPage() {
     setSelectedStoreId(null);
     setCompleteOpen(false);
     setPaymentOpen(false);
+    setDetailStatus("idle");
+    setDetailData(null);
+    setDetailError(null);
   };
 
   return (
@@ -146,14 +186,22 @@ export default function SearchPage() {
         ) : null}
       </div>
       {/* 상세 페이지 모달 */}
-      {selectedDetail && (
+      {detailOpen && (
         <RestaurantDetailModal
           open={detailOpen}
           onOpenChange={(o: boolean) => {
             setDetailOpen(o);
-            if (!o) closeAll();
+            if (!o) {
+              closeAll();
+              setDetailStatus("idle");
+              setDetailData(null);
+              setDetailError(null);
+            }
           }}
-          restaurant={selectedDetail}
+          status={detailStatus}
+          restaurant={detailData}
+          errorMessage={detailError ?? undefined}
+          onRetry={retryDetail}
           onClickReserve={goReserve}
         />
       )}

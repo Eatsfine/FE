@@ -4,7 +4,10 @@ import { Clock, Star, X } from "lucide-react";
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  restaurant: RestaurantDetail;
+  status: "idle" | "loading" | "success" | "error";
+  restaurant?: RestaurantDetail | null;
+  errorMessage?: string;
+  onRetry?: () => void;
   onClickReserve: () => void;
 };
 
@@ -49,10 +52,96 @@ function formatBusinessHours(r: RestaurantDetail) {
 export default function RestaurantDetailModal({
   open,
   onOpenChange,
+  status,
   restaurant,
+  errorMessage,
+  onRetry,
   onClickReserve,
 }: Props) {
   if (!open) return null;
+
+  if (status === "idle" || status === "loading") {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="식당 상세 로딩"
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
+        <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
+          <div className="flex items-center justify-between">
+            <p className="text-lg">상세 정보 불러오는 중..</p>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="p-2 rounded-lg hover:bg-gray-100"
+            >
+              <X />
+            </button>
+          </div>
+          <div className="mt-6 text-sm text-gray-500">
+            잠시만 기다려 주세요..
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (status === "error") {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="식당 상세 로딩"
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-black/40"
+          onClick={() => onOpenChange(false)}
+        />
+        <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
+          <div className="flex items-center justify-between">
+            <p className="text-lg">상세 정보를 불러오지 못했어요</p>
+            <button
+              type="button"
+              className="p-2 rounded-lg hover:bg-gray-100"
+              onClick={() => onOpenChange(false)}
+            >
+              <X />
+            </button>
+          </div>
+          <p className="mt-4 text-sm text-gray-600">
+            {errorMessage ?? "잠시 후 다시 시도해주세요"}
+          </p>
+          <div className="mt-6 flex gap-3">
+            <button
+              type="button"
+              className="flex-1 bg-gray-100 py-3 rounded-xl"
+              onClick={() => onOpenChange(false)}
+            >
+              닫기
+            </button>
+            {onRetry ? (
+              <button
+                type="button"
+                className="flex-1 bg-blue-500 text-white py-3 rounded-xl"
+                onClick={onRetry}
+              >
+                다시 시도
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (status !== "success") return null;
+  if (!restaurant) return null;
   const { lines: hourLines, breakLine } = formatBusinessHours(restaurant);
   return (
     <div
