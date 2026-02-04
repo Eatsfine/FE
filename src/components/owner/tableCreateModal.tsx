@@ -23,6 +23,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             <label className="block text-sm font-medium mb-1">가로 줄 수 (Columns)</label>
             <input 
               type="number" 
+              min={1}
               value={cols} 
               onChange={(e) => setCols(Number(e.target.value))} 
               className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" 
@@ -32,6 +33,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             <label className="block text-sm font-medium mb-1">세로 줄 수 (Rows)</label>
             <input 
               type="number" 
+              min={1}
               value={rows} 
               onChange={(e) => setRows(Number(e.target.value))} 
               className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" 

@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
 import TableCreateModal from './tableCreateModal';
 import TableDetailModal from './tableDetailModal';
 import BreakTimeModal, { type BreakTime } from './BreakTimeModal';
+
+interface TableDashboardProps {
+  storeId?: string;
+  storeName?: string;
+}
+
 
 interface TableInfo {
   numValue: number;
@@ -14,13 +20,50 @@ interface TableInfo {
   originalMaxCapacity?: number;
 }
 
-const TableDashboard: React.FC = () => {
+const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => {
+
+  const STORAGE_KEY = storeId
+  ? `table-dashboard-state-${storeId}`
+  : 'table-dashboard-state-temp';
+
+
+  const getSavedData = () => {
+    if (!storeId) return null;
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse storage', e);
+      }
+    }
+    return null;
+  };
+
+  const initialData = useMemo(()=>getSavedData(),[]);
+
+  const [config, setConfig] = useState(initialData?.config ?? { columns: 0, rows: 0 });
+  const [tableData, setTableData] = useState<Record<number, TableInfo>>(initialData?.tableData ?? {});
+  const [breakTimes, setBreakTimes] = useState<BreakTime[]>(initialData?.breakTimes ?? []);
+  const [closedDays, setClosedDays] = useState<string[]>([]);
+
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [config, setConfig] = useState({ columns: 0, rows: 0 });
   const [isBreakModalOpen, setIsBreakModalOpen] = useState(false);
-const [breakTimes, setBreakTimes] = useState<BreakTime[]>([]);
-  const [tableData, setTableData] = useState<Record<number, TableInfo>>({});
+  
+
+  useEffect(() => {
+    const data = {
+      config,
+      tableData,
+      breakTimes,
+      closedDays,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    console.log("저장됨:", data); // 디버깅용
+  }, [config, tableData, breakTimes, closedDays]);
 
   const hasTables = config.columns > 0 && config.rows > 0;
 
@@ -90,6 +133,7 @@ const startEditingCapacity = (id: number) => {
     });
   };
 
+
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
@@ -97,7 +141,13 @@ const startEditingCapacity = (id: number) => {
         {/* 1. 상단 헤더 섹션 */}
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
-            <h2 className="text-xl text-gray-900 mb-1">테이블 관리</h2>
+            <h2 className="text-xl text-gray-900 mb-1">테이블 관리
+              {storeName && (
+                <span className="text-sm text-gray-500 font-normal">
+                  · {storeName}
+                </span>
+              )}
+               </h2>
             <p className="text-gray-500 text-base">
               {hasTables 
                 ? `총 ${config.columns * config.rows}개의 테이블이 관리되고 있습니다`
@@ -115,12 +165,14 @@ const startEditingCapacity = (id: number) => {
                 브레이크 타임 설정
               </button>
             )}
-            <button 
-              onClick={() => setCreateModalOpen(true)}
-              className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-base hover:bg-blue-700 transition-all"
-            >
-              <Plus size={18} /> 테이블 {hasTables ? '재생성' : '생성'}
-            </button>
+            {hasTables && (
+              <button 
+                onClick={() => setCreateModalOpen(true)}
+                className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-base hover:bg-blue-700 transition-all"
+              >
+                <Plus size={18} /> 테이블 재생성
+              </button>
+            )}
           </div>
         </div>
 
@@ -191,9 +243,9 @@ const startEditingCapacity = (id: number) => {
             <h3 className="text-xl text-gray-900">테이블 배치도</h3>
             <span className="text-gray-900 text-sm tracking-widest uppercase">{config.columns} X {config.rows} 그리드</span>
           </div>
-          <div className="overflow-x-auto pb-4 flex justify-center"> 
+          <div className="overflow-x-auto pb-4"> 
             <div 
-              className="grid gap-6 mx-auto" 
+              className="grid gap-6 mx-auto w-fit" 
               style={{ 
                 gridTemplateColumns: `repeat(${config.columns}, minmax(150px, 1fr))`,
               }}
@@ -232,7 +284,7 @@ const startEditingCapacity = (id: number) => {
                           <Pencil 
                             size={12} 
                             className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" 
-                            onClick={(e) => { e.stopPropagation(); startEditingCapacity; }}
+                            onClick={(e) => { e.stopPropagation(); updateTable(id,{isEditingNum:true}); }}
                             aria-label="테이블 번호 수정"
                             role="button"
                             tabIndex={0}
@@ -289,7 +341,7 @@ const startEditingCapacity = (id: number) => {
                         </div>
                       ) : (
                         <div 
-                          onClick={(e) => { e.stopPropagation(); startEditingCapacity; }}
+                          onClick={(e) => { e.stopPropagation(); startEditingCapacity(id); }}
                           className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-[60px] text-center transition-transform active:scale-95`}
                         >
                           {table.minCapacity}~{table.maxCapacity}인
@@ -338,10 +390,15 @@ const startEditingCapacity = (id: number) => {
       {selectedTable && (
         <TableDetailModal 
           tableNumber={getTableData(selectedTable).numValue} 
+          // [추가] 테이블 상세 정보 전달
+          tableInfo={getTableData(selectedTable)}
+          // [추가] 인원 정보 업데이트 함수 전달
+          onUpdateCapacity={(min, max) => updateTable(selectedTable, { minCapacity: min, maxCapacity: max })}
           onClose={() => setSelectedTable(null)} 
           breakTimes={breakTimes} 
+          closedDays={closedDays}
         />
-      )}      
+      )}
       {isBreakModalOpen && (
         <BreakTimeModal
           openTime="11:00"

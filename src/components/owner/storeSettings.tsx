@@ -1,7 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Clock, ChevronDown } from 'lucide-react';
 
-const StoreSettings: React.FC = () => {
+interface StoreSettingsProps {
+  storeId?: string;
+}
+
+interface StoreSettingsData {
+  storeName: string;
+  description: string;
+  phone: string;
+  email: string;
+  address: string;
+  openTime: string;
+  closeTime: string;
+  closedDays: string[];
+  reservationPeriod: string;
+  minGuests: number;
+  maxGuests: number;
+  sameDayBooking: boolean;
+  noShowPolicy: boolean;
+}
+
+
+const days = ['월', '화', '수', '목', '금', '토', '일'];
+
+const StoreSettings: React.FC<StoreSettingsProps> = ({storeId}) => {
   const [storeName, setStoreName] = useState('맛있는 레스토랑');
   const [description, setDescription] = useState('신선한 재료로 만드는 정성 가득한 음식을 제공합니다.');
   const [phone, setPhone] = useState('02-1234-5678');
@@ -13,12 +36,40 @@ const StoreSettings: React.FC = () => {
   const [closedDays, setClosedDays] = useState<string[]>([]);
   
   const [reservationPeriod, setReservationPeriod] = useState('1주일 전까지');
-  const [minGuests, setMinGuests] = useState(1);
-  const [maxGuests, setMaxGuests] = useState(20);
+const [minGuests, setMinGuests] = useState<number | string>(1);
+  const [maxGuests, setMaxGuests] = useState<number | string>(20);
   const [sameDayBooking, setSameDayBooking] = useState(false);
   const [noShowPolicy, setNoShowPolicy] = useState(true);
 
-  const days = ['월', '화', '수', '목', '금', '토', '일'];
+  const STORAGE_KEY = storeId
+  ? `store-settings-${storeId}`
+  : 'store-settings-temp';
+
+  useEffect(() => {
+  if (!storeId) return;
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+
+  if (saved) {
+    const data: StoreSettingsData = JSON.parse(saved);
+
+    setStoreName(data.storeName);
+    setDescription(data.description);
+    setPhone(data.phone);
+    setEmail(data.email);
+    setAddress(data.address);
+    setOpenTime(data.openTime);
+    setCloseTime(data.closeTime);
+    setClosedDays(data.closedDays);
+    setReservationPeriod(data.reservationPeriod);
+    setMinGuests(data.minGuests);
+    setMaxGuests(data.maxGuests);
+    setSameDayBooking(data.sameDayBooking);
+    setNoShowPolicy(data.noShowPolicy);
+  }
+}, [storeId]);
+
+
 
   const toggleDay = (day: string) => {
     setClosedDays(prev => 
@@ -30,11 +81,21 @@ const StoreSettings: React.FC = () => {
   const labelStyle = "block text-md text-gray-700";
   const sectionStyle = "bg-white border border-gray-200 rounded-lg p-8 mb-6";
 
+  const isValid = () => {
+  return (
+    storeName.trim() &&
+    description.trim() &&
+    phone.trim() &&
+    email.trim() &&
+    address.trim()
+  );
+};
+
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
       {/* 기본 정보 섹션 */}
       <section className={sectionStyle}>
-        <h3 className="text-lg mb-8 text-gray-900">기본 정보</h3>
+        <h3 className="text-lg mb-8">기본 정보</h3>
         <div className="space-y-6">
           <div>
             <label htmlFor="store-name" className={labelStyle}>가게 이름</label>
@@ -104,7 +165,7 @@ const StoreSettings: React.FC = () => {
 
       {/* 영업 시간 섹션 */}
       <section className={sectionStyle}>
-        <h3 className="text-xl mb-8">영업 시간</h3>
+        <h3 className="text-lg mb-8">영업 시간</h3>
         <div className="space-y-6 mb-8">
           <div>
             <label className={labelStyle}>오픈 시간</label>
@@ -143,7 +204,7 @@ const StoreSettings: React.FC = () => {
                 className={`w-12 h-12 rounded-xl border transition-all cursor-pointer ${
                   closedDays.includes(day) 
                   ? 'bg-blue-600 border-blue-600 text-white' 
-                  : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 shadow-sm'
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-200 shadow-sm'
                 }`}
               >
                 {day}
@@ -155,7 +216,7 @@ const StoreSettings: React.FC = () => {
 
       {/* 예약 정책 섹션 */}
       <section className={sectionStyle}>
-        <h3 className="text-xl mb-8">예약 정책</h3>
+        <h3 className="text-lg mb-8">예약 정책</h3>
         <div className="space-y-8">
           <div>
             <label className={labelStyle}>예약 가능 기간</label>
@@ -181,9 +242,18 @@ const StoreSettings: React.FC = () => {
               min={1}
               max={maxGuests}
               onChange={(e) => {
-                const value = Math.max(1, Number(e.target.value));
-                setMinGuests(value);
-              }} 
+                const value = e.target.value;
+                if (value === '') {
+                  setMinGuests('');
+                  return;
+                }
+                setMinGuests(Number(value));
+              }}
+              onBlur={() => {
+                if (minGuests === '' || Number(minGuests) < 1) {
+                  setMinGuests(1);
+                }
+              }}
               placeholder="최소 인원을 입력하세요"
               className={inputStyle} 
             />
@@ -196,8 +266,18 @@ const StoreSettings: React.FC = () => {
               value={maxGuests} 
               min={minGuests}
               onChange={(e) => {
-                const value = Math.max(minGuests, Number(e.target.value));
-                setMaxGuests(value);
+                const value = e.target.value;
+                if (value === '') {
+                  setMaxGuests('');
+                  return;
+                }
+                setMaxGuests(Number(value));
+              }}
+              onBlur={() => {
+                const minVal = Number(minGuests) || 1;
+                if (maxGuests === '' || Number(maxGuests) < minVal) {
+                  setMaxGuests(minVal);
+                }
               }}
               placeholder="최대 인원을 입력하세요"
               className={inputStyle} 
@@ -244,22 +324,31 @@ const StoreSettings: React.FC = () => {
       <div className="flex justify-end mb-20">
         <button 
           onClick={() => {
-            // TODO: API 연동 시 실제 저장 로직으로 교체
-            console.log('Settings saved:', { 
-            storeName, 
-            description, 
-            phone, 
-            email, 
-            address,
-            openTime, 
-            closeTime, 
-            closedDays,
-            reservationPeriod,
-            minGuests,
-            maxGuests,
-            sameDayBooking,
-            noShowPolicy
-          });
+            if (!isValid) {
+              alert('가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.');
+              return;
+            }
+
+            if (!storeId) return;
+
+            const data: StoreSettingsData = {
+              storeName,
+              description,
+              phone,
+              email,
+              address,
+              openTime,
+              closeTime,
+              closedDays,
+              reservationPeriod,
+              minGuests: Number(minGuests),
+              maxGuests: Number(maxGuests),
+              sameDayBooking,
+              noShowPolicy,
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
             alert('설정이 저장되었습니다.');
           }}
           className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"

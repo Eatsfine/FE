@@ -2,37 +2,59 @@ import React, { useState } from 'react';
 import { X, User, Calendar, Clock, Pencil, Check, ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import type { BreakTime } from '../../components/owner/BreakTimeModal';
 
+interface TableInfo {
+  minCapacity: number;
+  maxCapacity: number;
+}
+
 interface Props {
   tableNumber: number;
+  tableInfo: TableInfo;
+  onUpdateCapacity: (min: number, max: number) => void;
   onClose: () => void;
   breakTimes: BreakTime[];
-  onManageReservation?: () => void; 
+  closedDays?: string[];
+  onManageReservation?: () => void;
+}
+
+interface Slot {
+  id: number;
+  time: string;
+  isAvailable: boolean;
 }
 
 type Step = 'DETAIL' | 'CALENDAR' | 'SLOTS';
+
 const TableDetailModal: React.FC<Props> = ({
   tableNumber,
+  tableInfo,
+  onUpdateCapacity,
   onClose,
   breakTimes,
 }) => {
   const [step, setStep] = useState<Step>('DETAIL');
-  
   const [isEditing, setIsEditing] = useState(false);
-  const [capacity, setCapacity] = useState('2~4인');
-  const [tempCapacity, setTempCapacity] = useState('2~4인');
-
-  const [viewDate, setViewDate] = useState(new Date()); 
+  const [tempMin, setTempMin] = useState(tableInfo.minCapacity);
+  const [tempMax, setTempMax] = useState(tableInfo.maxCapacity);
+  const [closedDays, setClosedDays] = useState<string[]>(['일']); // 예시: 일요일 휴무
+  const [viewDate, setViewDate] = useState(new Date());
   const [selectedFullDate, setSelectedFullDate] = useState<Date | null>(null);
-  const [slots, setSlots] = useState(
-    Array.from({ length: 22 }, (_, i) => ({
-      id: i,
-      time: `${String(Math.floor(i / 2) + 11).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`,
-      isAvailable: true,
-    }))
-  );
+  const generateSlots = (startHour = 11, endHour = 22):Slot[] => {
+  const result = [];
+  let id = 0;
+
+  for (let h = startHour; h < endHour; h++) {
+    result.push({ id: id++, time: `${String(h).padStart(2, '0')}:00`, isAvailable: true });
+    result.push({ id: id++, time: `${String(h).padStart(2, '0')}:30`, isAvailable: true });
+  }
+
+  return result;
+};
+
+const [slots, setSlots] = useState<Slot[]>(generateSlots());
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0); 
+  today.setHours(0, 0, 0, 0);
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -40,62 +62,54 @@ const TableDetailModal: React.FC<Props> = ({
 
   const changeMonth = (offset: number) => setViewDate(new Date(year, month + offset, 1));
   const handleBack = () => step === 'SLOTS' ? setStep('CALENDAR') : setStep('DETAIL');
-  const confirmCapacity = () => { setCapacity(tempCapacity); setIsEditing(false); };
+  
+  const toMinutes = (time: string) => {
+    const [hour, minute] = time.split(':').map(Number);
+    return hour * 60 + minute;
+  };
 
   const isBreakTime = (time: string, breakTimes: BreakTime[]) => {
-    return breakTimes.some(
-      (bt) => time >= bt.start && time < bt.end
-    );
+    const target = toMinutes(time);
+
+    return breakTimes.some(bt => {
+      return (
+        target >= toMinutes(bt.start) &&
+        target < toMinutes(bt.end)
+      );
+    });
+  };
+
+
+  const confirmCapacity = () => {
+    onUpdateCapacity(Number(tempMin), Number(tempMax));
+    setIsEditing(false);
   };
 
   type TableType = '소형' | '중형' | '단체석';
 
-  const getTableType = (capacity: string): TableType => {
-    const numbers = capacity.match(/\d+/g);
-    
-    if (!numbers) return '소형'; // 숫자가 없을 경우 기본값
+  const getTableType = (maxCapacity: number): TableType => {
+  if (maxCapacity <= 4) return '소형';
+  if (maxCapacity <= 8) return '중형';
+  return '단체석';
+};
 
-    const targetCapacity = numbers.length > 1 
-      ? Number(numbers[1]) 
-      : Number(numbers[0]);
+const capacityText = `${tableInfo.minCapacity}~${tableInfo.maxCapacity}인`;
 
 
-    if (targetCapacity <= 4) return '소형';
-    if (targetCapacity <= 8) return '중형';
-    return '단체석';
-  };
+const tableType = getTableType(tableInfo.maxCapacity);
 
-  const tableType = getTableType(capacity);
 
   const tableTypeStyle = {
-    소형: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-300',
-      text: 'text-yellow-700',
-      label: '소형 테이블',
-    },
-    중형: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-300',
-      text: 'text-blue-700',
-      label: '중형 테이블',
-    },
-    단체석: {
-      bg: 'bg-purple-50',
-      border: 'border-purple-300',
-      text: 'text-purple-700',
-      label: '단체석',
-    },
+    소형: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', label: '소형 테이블' },
+    중형: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', label: '중형 테이블' },
+    단체석: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-700', label: '단체석' },
   };
 
   const [tableImageUrl, setTableImageUrl] = useState<string | null>(null);
 
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
-    onClick={onClose}>
-      <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
-      onClick={(e)=>e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
+      <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
         
         {/* 헤더 */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
@@ -118,34 +132,35 @@ const TableDetailModal: React.FC<Props> = ({
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="w-full h-70 rounded-lg border border-gray-100 overflow-hidden">
                 {tableImageUrl ? (
-                  <img
-                    src={tableImageUrl}
-                    alt={`${tableNumber}번 테이블 이미지`}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={tableImageUrl} alt={`${tableNumber}번 테이블 이미지`} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center border-dashed">
                     <span className="text-5xl">🪑</span>
-                    <p className="text-gray-400 text-md mt-2">
-                      등록된 이미지가 없습니다
-                    </p>
+                    <p className="text-gray-400 text-md mt-2">등록된 이미지가 없습니다</p>
                   </div>
                 )}
               </div>
-
 
               <div className="grid grid-cols-1">
                 <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-[95px] flex flex-col justify-center transition-all">
                   <div className="flex items-center gap-1.5 text-gray-600 mb-1.5 text-md"><User size={14} color='purple' /> 인원</div>
                   {isEditing ? (
-                    <div className="flex items-center gap-1">
-                      <input autoFocus type="text" value={tempCapacity} onChange={(e) => setTempCapacity(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && confirmCapacity()} className="w-full text-sm font-bold bg-white border border-yellow-300 rounded px-1 outline-none" />
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center bg-white border border-purple-300 rounded px-2">
+                        <input type="number" value={tempMin} onChange={(e) => setTempMin(Number(e.target.value))} className="w-10 outline-none text-sm font-bold text-center" />
+                        <span className="mx-1">~</span>
+                        <input type="number" value={tempMax} onChange={(e) => setTempMax(Number(e.target.value))} className="w-10 outline-none text-sm font-bold text-center" />
+                        <span className="ml-1 text-xs">인</span>
+                      </div>
                       <button onClick={confirmCapacity} className="text-green-600"><Check size={18} strokeWidth={3}/></button>
+                      <button onClick={() => setIsEditing(false)} className="text-red-400"><X size={18} /></button>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between text-gray-800">
-                      <span className="text-sm">{capacity}</span>
-                      <button onClick={() => { setTempCapacity(capacity); setIsEditing(true); }} className="text-gray-300 hover:text-purple-600"><Pencil size={14} /></button>
+                      <span className="text-sm font-bold">{capacityText}</span>
+                      <button onClick={() => { setTempMin(tableInfo.minCapacity); setTempMax(tableInfo.maxCapacity); setIsEditing(true); }} className="text-gray-300 hover:text-purple-600">
+                        <Pencil size={14} />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -162,37 +177,27 @@ const TableDetailModal: React.FC<Props> = ({
                   <p className="text-lg text-green-900 leading-tight">{slots.filter(s => s.isAvailable).length}개 예약 가능</p>
                 </div>
               </div>
-            <div className="bg-gray-50/50 border border-gray-100 p-4 rounded-lg gap-4">
+
+              <div className="bg-gray-50/50 border border-gray-100 p-4 rounded-lg gap-4">
                 <div>
                   <p className="text-lg text-gray-900 mb-1">테이블 타입 및 좌석 정보</p>
                 </div>
                 <div className='w-40'>
-                  <div className={`
-                    flex items-center gap-1.5 px-2 py-2 rounded-lg border
-                    ${tableTypeStyle[tableType].bg} 
-                    ${tableTypeStyle[tableType].border}
-                  `}>
-                    <span className="text-lg">🎉</span> {/* 아이콘/이모지 */}
-                    <span className={`text-sm ${tableTypeStyle[tableType].text}`}>
-                      {tableTypeStyle[tableType].label}
-                    </span>
+                  <div className={`flex items-center gap-1.5 px-2 py-2 rounded-lg border ${tableTypeStyle[tableType].bg} ${tableTypeStyle[tableType].border}`}>
+                    <span className="text-lg">🎉</span>
+                    <span className={`text-sm ${tableTypeStyle[tableType].text}`}>{tableTypeStyle[tableType].label}</span>
                   </div>
                 </div>
               </div>
-
-          </div>
+            </div>
           )}
 
           {/* [Step 2] 달력 */}
           {step === 'CALENDAR' && (
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-5">
               <div className="px-1 space-y-1">
-
-                <p className="text-md text-gray-900">
-                  날짜를 먼저 선택하세요
-                </p>
+                <p className="text-md text-gray-900">날짜를 먼저 선택하세요</p>
               </div>
-
               <div className="flex justify-between items-center bg-blue-50 border border-blue-100 p-4 rounded-lg text-blue-900">
                 <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-white rounded-full transition-colors cursor-pointer"><ChevronLeft /></button>
                 <span className="text-lg">{year}년 {month + 1}월</span>
@@ -206,10 +211,31 @@ const TableDetailModal: React.FC<Props> = ({
                   const dateObj = new Date(year, month, day);
                   const isPast = dateObj < today;
                   const isTodayFlag = dateObj.getTime() === today.getTime();
+                  
+                  const weekDay = dateObj.getDay(); 
+                  const weekDayKorean = ['일','월','화','수','목','금','토'][weekDay];
+
+                  // 휴무일 체크
+                  const isClosedDay = closedDays?.includes(weekDayKorean);
+                  
                   return (
-                    <button key={day} disabled={isPast} onClick={() => { setSelectedFullDate(dateObj); setStep('SLOTS'); }} className={`cursor-pointer h-14 rounded-xl border-2 flex flex-col items-center justify-center font-bold transition-all ${isPast ? 'bg-gray-50 border-gray-50 text-gray-300 cursor-not-allowed' : isTodayFlag ? 'bg-blue-50 border-gray-200 text-black shadow-lg hover:border-blue-300' : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300 hover:bg-blue-50'}`}>
+                    <button 
+                      key={day} 
+                      disabled={isPast || isClosedDay} 
+                      onClick={() => { 
+                        if (isPast || isClosedDay) return;
+                        setSelectedFullDate(dateObj); 
+                        setStep('SLOTS'); 
+                      }} 
+                      className={`cursor-pointer h-14 rounded-xl border-2 flex flex-col items-center justify-center font-bold transition-all ${
+                        isPast || isClosedDay ? 'bg-gray-50 border-gray-50 text-gray-300 cursor-not-allowed' 
+                        : isTodayFlag ? 'bg-blue-50 border-gray-200 text-black shadow-lg hover:border-blue-300' 
+                        : 'bg-white border-gray-100 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                      }`}
+                    >
                       <span className="text-sm">{day}</span>
                       {isTodayFlag && <span className="text-[9px] mt-0.5 opacity-90">오늘</span>}
+                      {isClosedDay && <span className="text-[10px] text-red-500 mt-0.5">휴무</span>}
                     </button>
                   );
                 })}
@@ -219,7 +245,7 @@ const TableDetailModal: React.FC<Props> = ({
                   <p className="flex text-md text-gray-900 mb-1"> <Calendar className='mr-2' />날짜를 선택하여 예약 시간대를 관리하세요</p>
                   <p className="text-sm text-gray-900 mb-1 ml-8">과거 날짜는 선택할 수 없습니다</p>
                 </div>
-                </div>
+              </div>
             </div>
           )}
 
@@ -233,60 +259,28 @@ const TableDetailModal: React.FC<Props> = ({
               <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
                 {slots.map(slot => {
                   const isBreak = isBreakTime(slot.time, breakTimes);
-
-                  const isDisabled = isBreak;
                   const isAvailable = !isBreak && slot.isAvailable;
-
                   return (
-                    <div
-                      key={slot.id}
-                      onClick={() => {
-                        if (isDisabled) return;
-                        setSlots(slots.map(s =>
-                          s.id === slot.id
-                            ? { ...s, isAvailable: !s.isAvailable }
-                            : s
-                        ));
-                      }}
-                      className={`flex justify-between items-center p-4 rounded-lg border-2 transition-all
-                        ${
-                          isBreak
-                            ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
-                            : isAvailable
-                              ? 'border-green-300 bg-green-50 cursor-pointer'
-                              : 'border-red-300 bg-red-50 cursor-pointer'
-                        }
-                      `}
-                    >
+                    <div key={slot.id} onClick={() => { if (isBreak) return;
+                    setSlots(prev =>
+                      prev.map(s =>
+                        s.id === slot.id
+                          ? { ...s, isAvailable: !s.isAvailable }
+                          : s
+                      )
+                    );
+                    }} 
+                    className={`flex justify-between items-center p-4 rounded-lg border-2 transition-all ${isBreak ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed' : isAvailable ? 'border-green-300 bg-green-50 cursor-pointer' : 'border-red-300 bg-red-50 cursor-pointer'}`}>
                       <div className="flex items-center gap-3 text-gray-700">
-                        {isBreak ? (
-                          <AlertCircle size={25} className="text-gray-400" />
-                        ) : isAvailable ? (
-                          <CheckCircle2 size={25} className="text-green-500" />
-                        ) : (
-                          <XCircle size={25} className="text-red-400" />
-                        )}
-
+                        {isBreak ? <AlertCircle size={25} className="text-gray-400" /> : isAvailable ? <CheckCircle2 size={25} className="text-green-500" /> : <XCircle size={25} className="text-red-400" />}
                         <span className="text-sm">{slot.time}</span>
                       </div>
-
-                      <span
-                        className={`text-[10px] font-black px-2 py-1 rounded-lg
-                          ${
-                            isBreak
-                              ? 'bg-gray-300 text-gray-600'
-                              : isAvailable
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                          }
-                        `}
-                      >
+                      <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${isBreak ? 'bg-gray-300 text-gray-600' : isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {isBreak ? '미운영' : isAvailable ? '예약 가능' : '미운영'}
                       </span>
                     </div>
                   );
                 })}
-
               </div>
             </div>
           )}

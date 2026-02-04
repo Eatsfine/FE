@@ -1,25 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
 import { mockMenusByRestaurantId } from '../../mock/menus';
 import MenuFormModal from './menuFormModal';
+import type { MenuCategory } from '@/types/menus';
 
-type CategoryType = 'ALL' | 'MAIN' | 'SIDE' | 'DRINK';
+interface MenuManagementProps {
+  storeId?: string;
+}
 
-const MenuManagement: React.FC = () => {
+interface Category {
+  id: string;
+  label: string;
+}
 
-  const restaurantId = "1";
-  const [menus, setMenus] = useState(mockMenusByRestaurantId[restaurantId] || []);
+type CategoryType = string;
+
+const MenuManagement: React.FC<MenuManagementProps> = ({storeId}) => {
+
+  const restaurantId = storeId;
+
+ const STORAGE_KEY_CAT = restaurantId
+  ? `menu-categories-order-${restaurantId}`
+  : 'menu-categories-order-temp';
+
+
+  const [menus, setMenus] = useState<any[]>([]);
+
+  useEffect(() => {
+  if (!restaurantId) return;
+
+  setMenus(mockMenusByRestaurantId[restaurantId] || []);
+}, [restaurantId]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
 
   
-const [categories, setCategories] = useState([
-    { id: 'ALL', label: '전체' },
-    { id: 'MAIN', label: '메인 메뉴' },
-    { id: 'SIDE', label: '사이드 메뉴' },
-    { id: 'DRINK', label: '음료' },
-  ]);
+const [categories, setCategories] = useState<Category[]>([]);
+
+useEffect(() => {
+  if (!restaurantId) return;
+
+  const saved = localStorage.getItem(STORAGE_KEY_CAT);
+  setCategories(
+    saved
+      ? JSON.parse(saved)
+      : [
+          { id: 'ALL', label: '전체' },
+          { id: 'MAIN', label: '메인 메뉴' },
+          { id: 'SIDE', label: '사이드 메뉴' },
+          { id: 'DRINK', label: '음료' },
+        ]
+  );
+}, [restaurantId]);
+
+
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CAT, JSON.stringify(categories));
+  }, [categories, restaurantId]);
+
+  const handleDragStart = (idx: number) => {
+    if (categories[idx].id === 'ALL') return;
+    setDraggedIdx(idx);
+  };
+
+const handleDragOver = (e: React.DragEvent) => {
+  e.preventDefault(); // drop 이벤트를 허용하기 위해 반드시 필요
+};
+
+const handleDrop = (targetIdx: number) => {
+  if (draggedIdx === null || draggedIdx === targetIdx) return;
+
+  const newCategories = [...categories];
+  const draggedItem = newCategories[draggedIdx];
+
+  newCategories.splice(draggedIdx, 1); // 원래 위치에서 삭제
+  newCategories.splice(targetIdx, 0, draggedItem); // 새 위치에 삽입
+
+  setCategories(newCategories);
+  setDraggedIdx(null);
+};
+
   const filteredMenus = activeCategory === 'ALL' 
     ? menus 
     : menus.filter(menu => menu.category === activeCategory);
@@ -83,11 +147,28 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
   };
 
   const deleteCategory = (id: string) => {
+    const fallbackCategory = categories.find(c => c.id !== id && c.id !== 'ALL')?.id as MenuCategory;
     if (window.confirm('카테고리를 삭제하면 해당 카테고리의 메뉴 분류가 사라집니다. 삭제하시겠습니까?')) {
+      if (!fallbackCategory) {
+    alert('최소 하나의 카테고리는 필요합니다.');
+    return;
+  }
+
+  // 1. 메뉴들의 카테고리 변경
+  setMenus(prev =>
+    prev.map(m =>
+      m.category === id
+        ? { ...m, category: fallbackCategory }
+        : m
+    )
+  )
       setCategories(prev => prev.filter(c => c.id !== id));
       if (activeCategory === id) setActiveCategory('ALL');
     }
   };
+
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
 
   if (isLoading) return <div className="px-8 py-10">로딩 중...</div>;
   if (error) return <div className="px-8 py-10 text-red-500">{error}</div>;
@@ -99,7 +180,7 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
           <h2 className="text-2xl text-gray-900 mb-1">메뉴 관리</h2>
           <p className="text-gray-500 text-sm font-medium">총 {menus.length}개의 메뉴가 등록되어 있습니다</p>
         </div>
-        <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all"
+        <button className="cursor-pointer bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all"
         onClick={handleAddClick}>
           <Plus size={18} /> 메뉴 추가
         </button>
@@ -187,44 +268,87 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
 
       {/* 카테고리 관리 섹션*/}
       <section className="bg-white border border-gray-100 rounded-lg p-8 shadow-sm">
-        <h3 className="text-lg text-gray-700 font-semibold uppercase tracking-widest mb-6">카테고리 관리</h3>
-        <div className="space-y-1">
-          {categories.filter(c => c.id !== 'ALL').map(cat => (
-            <div key={cat.id} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition-all group">
-              {editingCatId === cat.id ? (
-                <div className="flex items-center gap-2 flex-1">
-                  <input 
-                    autoFocus
-                    className="border-b-2 border-blue-500 outline-none bg-transparent px-1 py-1 text-gray-700 w-full max-w-[200px]"
-                    value={tempCatLabel}
-                    onChange={(e) => setTempCatLabel(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && saveCategory(cat.id)}
-                  />
-                  <button onClick={() => saveCategory(cat.id)} className="p-1 text-blue-600"><Check size={18}/></button>
-                  <button onClick={() => setEditingCatId(null)} className="p-1 text-gray-400"><X size={18}/></button>
-                </div>
-              ) : (
-                <>
-                  <span className="text-gray-700">{cat.label}</span>
-                  <div className="flex gap-4 text-sm">
-                    <button 
-                      onClick={() => startEditCategory(cat.id, cat.label)}
-                      className="text-blue-600 hover:text-blue-700 cursor-pointer"
-                    >
-                      수정
-                    </button>
-                    <button 
-                      onClick={() => deleteCategory(cat.id)}
-                      className="text-red-500 hover:text-red-600 cursor-pointer"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </>
-              )}
+  <div className="flex justify-between items-center mb-6">
+    <h3 className="text-lg text-gray-700 font-semibold uppercase tracking-widest">카테고리 관리</h3>
+    <p className="text-xs text-gray-400">드래그하여 순서를 변경할 수 있습니다</p>
+  </div>
+  
+  <div className="space-y-2">
+    {categories.filter(c => c.id !== 'ALL').map((cat) => {
+      // 'ALL'을 제외했으므로 실제 원본 배열에서의 인덱스를 구함
+      const realIdx = categories.findIndex(c => c.id === cat.id);
+      
+      return (
+        <div 
+          key={cat.id} 
+          draggable // 드래그 가능하게 설정
+          onDragStart={() => handleDragStart(realIdx)}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setHoverIdx(realIdx);
+          }}
+          onDrop={() => {
+            handleDrop(realIdx);
+            setHoverIdx(null);
+          }}
+          className={`flex items-center justify-between p-4 border-2 border-transparent hover:border-blue-100 hover:bg-blue-50/50 rounded-2xl transition-all group cursor-move ${
+            draggedIdx === realIdx ? 'opacity-40 bg-gray-100 border-blue-400 bg-blue-50' : 'bg-white'
+          }`}
+        >
+          <div className="flex items-center gap-4 flex-1">
+            {/* 드래그 핸들 아이콘 (점 6개) */}
+            <div className="flex flex-col gap-0.5 opacity-30 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-0.5">
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+              </div>
+              <div className="flex gap-0.5">
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+              </div>
+              <div className="flex gap-0.5">
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                <div className="w-1 h-1 bg-gray-400 rounded-full" />
+              </div>
             </div>
-          ))}
+
+            {editingCatId === cat.id ? (
+              <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+                <input 
+                  autoFocus
+                  className="border-b-2 border-blue-500 outline-none bg-transparent px-1 py-1 text-gray-700 w-full max-w-[200px]"
+                  value={tempCatLabel}
+                  onChange={(e) => setTempCatLabel(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && saveCategory(cat.id)}
+                />
+                <button onClick={() => saveCategory(cat.id)} className="p-1 text-blue-600"><Check size={18}/></button>
+                <button onClick={() => setEditingCatId(null)} className="p-1 text-gray-400"><X size={18}/></button>
+              </div>
+            ) : (
+              <span className="text-gray-700">{cat.label}</span>
+            )}
+          </div>
+
+          {!editingCatId && (
+            <div className="flex gap-4 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={(e) => { e.stopPropagation(); startEditCategory(cat.id, cat.label); }}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                수정
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); deleteCategory(cat.id); }}
+                className="text-red-500 hover:text-red-600"
+              >
+                삭제
+              </button>
+            </div>
+          )}
         </div>
+      );
+    })}
+  </div>
         <button 
           onClick={handleAddCategory}
           className="cursor-pointer w-full mt-4 py-4 border-2 border-dashed border-gray-100 rounded-2xl text-gray-700 text-sm font-bold hover:bg-gray-50 hover:border-blue-200 transition-all flex items-center justify-center gap-2"

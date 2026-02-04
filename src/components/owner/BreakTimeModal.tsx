@@ -13,6 +13,7 @@ interface Props {
   onConfirm: (breakTime: BreakTime) => void;
 }
 
+
 const BreakTimeModal: React.FC<Props> = ({
   openTime,
   closeTime,
@@ -21,6 +22,12 @@ const BreakTimeModal: React.FC<Props> = ({
 }) => {
   const [start, setStart] = useState('14:00');
   const [end, setEnd] = useState('15:00');
+
+  const isInvalid =
+  start >= end ||
+  start < openTime ||
+  end > closeTime;
+
 
   return (
     <div
@@ -46,9 +53,11 @@ const BreakTimeModal: React.FC<Props> = ({
             <label className="text-sm font-bold text-gray-600">시작 시간</label>
             <input
               type="time"
+              min={openTime}
+              max={closeTime}
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              className="w-full mt-1 border rounded-lg p-2"
+              className="w-full mt-1 border rounded-lg p-2 cursor-pointer"
             />
           </div>
 
@@ -56,9 +65,11 @@ const BreakTimeModal: React.FC<Props> = ({
             <label className="text-sm font-bold text-gray-600">종료 시간</label>
             <input
               type="time"
+              min={openTime}
+              max={closeTime}
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              className="w-full mt-1 border rounded-lg p-2"
+              className="w-full mt-1 border rounded-lg p-2 cursor-pointer"
             />
           </div>
 
@@ -77,19 +88,17 @@ const BreakTimeModal: React.FC<Props> = ({
             취소
           </button>
           <button
+            disabled={isInvalid}
+            aria-disabled={isInvalid}
             onClick={() => {
-              if (start >= end) {
-                alert('시작 시간이 종료 시간보다 빨라야 합니다.');
-                return;
-              }
-              if (start < openTime || end > closeTime) {
-                alert('브레이크 타임은 영업 시간 내에 설정해야 합니다.');
-                return;
-              }
               onConfirm({ start, end });
               onClose();
             }}
-            className="flex-1 bg-orange-500 hover:bg-orange-300 transition-all text-white rounded-lg py-2 font-bold cursor-pointer"
+            className={`flex-1 rounded-lg py-2 font-bold ${
+              isInvalid
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-orange-500 hover:bg-orange-300 text-white'
+            }`}
           >
             브레이크 타임 추가
           </button>
