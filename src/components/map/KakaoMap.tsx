@@ -39,7 +39,7 @@ export default function KakaoMap({
     [markers],
   );
 
-  const [sdkReady, setSdkReady] = useState(!!window.kakao?.map);
+  const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
 
   //1. 지도 최초 1회 생성
   useEffect(() => {
@@ -185,7 +185,7 @@ export default function KakaoMap({
         "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
       }
     >
-      {!setSdkReady ? (
+      {!sdkReady ? (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
           카카오맵 로딩 중..
         </div>
