@@ -21,6 +21,7 @@ export function toRestaurantSummary(
     distanceKm: dto.distance,
     thumbnailUrl: dto.mainImageUrl,
     isOpenNow: dto.isOpenNow,
+    location: { lat: dto.latitude, lng: dto.longitude },
   };
 }
 

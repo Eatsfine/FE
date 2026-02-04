@@ -71,6 +71,7 @@ export default function RestaurantDetailModal({
         <button
           type="button"
           className="absolute inset-0 bg-black/40"
+          aria-label="모달 닫기"
           onClick={() => onOpenChange(false)}
         />
         <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
@@ -78,6 +79,7 @@ export default function RestaurantDetailModal({
             <p className="text-lg">상세 정보 불러오는 중..</p>
             <button
               type="button"
+              aria-label="모달 닫기"
               onClick={() => onOpenChange(false)}
               className="p-2 rounded-lg hover:bg-gray-100"
             >
@@ -97,7 +99,7 @@ export default function RestaurantDetailModal({
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         role="dialog"
         aria-modal="true"
-        aria-label="식당 상세 로딩"
+        aria-label="식당 상세 오류"
       >
         <button
           type="button"

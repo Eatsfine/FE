@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
 import { type ReservationDraft, type Restaurant } from "@/types/restaurant";
@@ -32,6 +32,8 @@ export default function SearchPage() {
   const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const detailRequestIdRef = useRef(0);
+
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     null,
   );
@@ -57,6 +59,7 @@ export default function SearchPage() {
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
+    const requestId = ++detailRequestIdRef.current;
 
     setSelectedStoreId(storeId);
     setDetailOpen(true);
@@ -68,6 +71,7 @@ export default function SearchPage() {
     setReserveOpen(false);
     try {
       const detail = await fetchStoreDetailMock(storeId);
+      if (requestId !== detailRequestIdRef.current) return;
       setDetailData(detail);
       setDetailStatus("success");
     } catch (e) {
@@ -80,10 +84,12 @@ export default function SearchPage() {
 
   const retryDetail = async () => {
     if (!selectedStoreId) return;
+    const requestId = ++detailRequestIdRef.current;
     setDetailStatus("loading");
     setDetailError(null);
     try {
       const detail = await fetchStoreDetailMock(selectedStoreId);
+      if (requestId !== detailRequestIdRef.current) return;
       setDetailData(detail);
       setDetailStatus("success");
     } catch (e) {

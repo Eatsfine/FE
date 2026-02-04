@@ -1,7 +1,7 @@
 export type ApiResponseDTO<T> = {
   success: boolean;
   code: string;
-  date: T;
+  data: T;
   message: string;
 };
 
@@ -22,6 +22,8 @@ export type StoreSearchItemDTO = {
   distance: number;
   mainImageUrl: string;
   isOpenNow: boolean;
+  latitude: number;
+  longitude: number;
 };
 
 export type PaginationDTO = {

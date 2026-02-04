@@ -49,7 +49,7 @@ export async function searchMockStores(
     return a.distanceKm - b.distanceKm;
   });
 
-  return withDistance.map(({ r }) => r);
+  return withDistance.map(({ r, distanceKm }) => ({ ...r, distanceKm }));
 }
 
 export function toRad(deg: number) {

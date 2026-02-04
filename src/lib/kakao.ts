@@ -25,16 +25,20 @@ export function loadKakaoMapSdk(): Promise<void> {
     script.type = "text/javascript";
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${key}&autoload=false&libraries=services`;
 
+    const fail = (err: Error) => {
+      loadingPromise = null;
+      reject(err);
+    };
+
     script.onload = () => {
       if (!window.kakao?.maps?.load) {
-        reject(new Error("Kakao Maps SDK 로드에 실패했습니다."));
+        fail(new Error("Kakao Maps SDK 로드에 실패했습니다."));
         return;
       }
       window.kakao.maps.load(() => resolve());
     };
 
-    script.onerror = () =>
-      reject(new Error("Kakao Maps SDK 스크립트 로드 실패"));
+    script.onerror = () => fail(new Error("Kakao Maps SDK 스크립트 로드 실패"));
     document.head.appendChild(script);
   });
 

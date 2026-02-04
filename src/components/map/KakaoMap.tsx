@@ -30,8 +30,9 @@ export default function KakaoMap({
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const markersRef = useRef<Map<string, any>>(new Map());
   const infoRef = useRef<any>(null);
+  const prevSelectedIdRef = useRef<string | null>(null);
 
   const safeMarkers = useMemo(
     () => markers.filter((m) => !!m.location),
@@ -83,10 +84,17 @@ export default function KakaoMap({
     if (!kakao?.maps || !mapRef.current) return;
 
     if (!selectedId) return;
-    if (!selectedLevel) return;
+    const target = safeMarkers.find((m) => m.id === selectedId);
+    if (!target) return;
 
-    mapRef.current.setLevel(selectedLevel);
-  }, [selectedId, selectedLevel]);
+    const next = new kakao.maps.LatLng(
+      target.location.lat,
+      target.location.lng,
+    );
+
+    mapRef.current.panTo(next);
+    if (selectedLevel) mapRef.current.setLevel(selectedLevel);
+  }, [selectedId, selectedLevel, safeMarkers]);
 
   //3. 마커 바뀌면 마커 재생성
   useEffect(() => {
@@ -94,33 +102,58 @@ export default function KakaoMap({
     if (!kakao?.maps || !mapRef.current) return;
 
     markersRef.current.forEach((mk) => mk.setMap(null));
-    markersRef.current = [];
+    markersRef.current.clear();
 
     safeMarkers.forEach((store) => {
-      const loc = store.location;
-      const pos = new kakao.maps.LatLng(loc.lat, loc.lng);
-
-      const isSelected = selectedId && store.id === selectedId;
+      const pos = new kakao.maps.LatLng(store.location.lat, store.location.lng);
 
       const marker = new kakao.maps.Marker({
         map: mapRef.current,
         position: pos,
         clickable: true,
-        zIndex: isSelected ? 10 : 1,
+        zIndex: 1,
       });
 
       kakao.maps.event.addListener(marker, "click", () => {
         if (infoRef.current) {
-          infoRef.current.setContent(
-            `<div style="padding:6px 8px;font-size:12px;line-height:1.2;">${store.name}</div>`,
-          );
+          const el = document.createElement("div");
+          el.style.cssText =
+            "padding: 6px 8px; font-size:12px;line-height:1.2;";
+          el.textContent = store.name;
+          infoRef.current.setContent(el);
           infoRef.current.open(mapRef.current, marker);
         }
         onSelectMarker?.(store);
       });
-      markersRef.current.push(marker);
+      markersRef.current.set(store.id, marker);
     });
-  }, [safeMarkers, selectedId, onSelectMarker]);
+  }, [safeMarkers, onSelectMarker]);
+
+  // 선택변경 useeffect. selectedId가 바뀔때만
+  useEffect(() => {
+    const kakao = window.kakao;
+    if (!kakao?.maps || !mapRef.current) return;
+
+    const prevId = prevSelectedIdRef.current;
+    if (prevId) {
+      const prevMarker = markersRef.current.get(prevId);
+      prevMarker?.setZIndex(1);
+    }
+    if (selectedId) {
+      const nextMarker = markersRef.current.get(selectedId);
+      nextMarker?.setZIndex(10);
+      const target = safeMarkers.find((m) => m.id === selectedId);
+      if (target) {
+        const next = new kakao.maps.LatLng(
+          target.location.lat,
+          target.location.lng,
+        );
+        mapRef.current.panTo(next);
+        if (selectedLevel) mapRef.current.setLevel(selectedLevel);
+      }
+    }
+    prevSelectedIdRef.current = selectedId ?? null;
+  }, [selectedId, selectedLevel, safeMarkers]);
 
   //4. 마커 목록 바뀌면 bounds 맞추기
   useEffect(() => {
@@ -140,16 +173,6 @@ export default function KakaoMap({
       mapRef.current.setLevel(defaultLevel ?? 4);
     }
   }, [safeMarkers, selectedId, defaultLevel]);
-
-  //5.선택된 가게 있으면 그 위치로 자연스럽게 이동하기 + 줌도추가
-  useEffect(() => {
-    const kakao = window.kakao;
-    if (!kakao?.maps || !mapRef.current) return;
-    if (!selectedId) return;
-    if (!selectedLevel) return;
-
-    mapRef.current.setLevel(selectedLevel ?? 3);
-  }, [selectedId, selectedLevel]);
 
   return (
     <div
