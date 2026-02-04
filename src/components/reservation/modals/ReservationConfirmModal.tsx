@@ -1,6 +1,6 @@
-import { useConfirmClose } from "@/hooks/useConfirmClose";
-import { useDepositRate } from "@/hooks/useDepositRate";
-import { useMenus } from "@/hooks/useMenus";
+import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { useMenus } from "@/hooks/reservation/useMenus";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { toYmd } from "@/utils/date";

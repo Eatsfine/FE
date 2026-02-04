@@ -18,7 +18,7 @@ import PaymentPage from "./pages/myPage/paymentPage";
 import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
-import OwnerPage from "./pages/ownerPage/ownerPage";
+import OwnerPage from "./pages/ownerPage";
 
 const routes: RouteObject[] = [
   {
@@ -65,7 +65,7 @@ const routes: RouteObject[] = [
   },
   {
     path: "*",
-    element : <NotFound />
+    element: <NotFound />,
   },
 ];
 

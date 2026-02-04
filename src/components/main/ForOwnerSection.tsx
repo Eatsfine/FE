@@ -1,4 +1,4 @@
-import { useInView } from "@/hooks/useInView";
+import { useInView } from "@/hooks/common/useInView";
 import { cn } from "@/lib/utils";
 import { CircleCheck } from "lucide-react";
 

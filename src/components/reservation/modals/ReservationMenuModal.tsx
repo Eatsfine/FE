@@ -1,15 +1,15 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { Minus, Plus, X } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import type { SelectedMenu, MenuCategory, MenuItem } from "@/types/menus";
-import { useMenus } from "@/hooks/useMenus";
+import { useMenus } from "@/hooks/reservation/useMenus";
 import { useEffect, useMemo, useState } from "react";
 import { calcMenuTotal } from "@/utils/menu";
 import { cn } from "@/lib/utils";
 import { formatKrw } from "@/utils/money";
-import { useDepositRate } from "@/hooks/useDepositRate";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcDeposit } from "@/utils/payment";
-import { useConfirmClose } from "@/hooks/useConfirmClose";
+import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 
 type Props = {
   open: boolean;

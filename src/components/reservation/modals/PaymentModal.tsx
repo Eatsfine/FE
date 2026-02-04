@@ -1,14 +1,14 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { useMemo, useState } from "react";
 import { formatKrw } from "@/utils/money";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { useMenus } from "@/hooks/useMenus";
-import { useDepositRate } from "@/hooks/useDepositRate";
+import { useMenus } from "@/hooks/reservation/useMenus";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
 import { calcDeposit } from "@/utils/payment";
-import { useConfirmClose } from "@/hooks/useConfirmClose";
+import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 

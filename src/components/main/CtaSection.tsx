@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
-import { useInView } from "@/hooks/useInView";
+import { useInView } from "@/hooks/common/useInView";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
