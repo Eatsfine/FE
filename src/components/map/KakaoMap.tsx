@@ -40,6 +40,7 @@ export default function KakaoMap({
   );
 
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
+  const [sdkError, setSdkError] = useState<string | null>(null);
 
   //1. 지도 최초 1회 생성
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function KakaoMap({
         infoRef.current = new kakao.maps.InfoWindow({ zIndex: 2 });
       } catch (e) {
         console.error(e);
+        setSdkError("카카오맵 로딩에 실패했습니다.");
       }
     };
     init();
