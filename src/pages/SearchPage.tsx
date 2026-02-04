@@ -9,9 +9,10 @@ import ReservationConfirmMoodal from "@/components/reservation/ReservationConfir
 import ReservationCompleteModal from "@/components/reservation/ReservationCompleteModal";
 import PaymentModal from "@/components/reservation/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/ReservationMenuModal";
-import { MOCK_STORE_SEARCH } from "@/mock/stores.search.mock";
 import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
 import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
+import { searchMockStores } from "@/mock/store.api.mock";
+import KakaoMap from "@/components/map/KakaoMap";
 
 type DetailStatus = "idle" | "loading" | "success" | "error";
 
@@ -31,17 +32,17 @@ export default function SearchPage() {
   const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [results, setResults] = useState<RestaurantSummary[]>([]);
 
-    if (!q) return [];
-    return MOCK_STORE_SEARCH.filter((r) => {
-      const name = r.name.toLowerCase();
-      const category = r.category.toLowerCase();
-      const address = r.address.toLowerCase();
-      return name.includes(q) || category.includes(q) || address.includes(q);
-    });
-  }, [query]);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const FALLBACK_COORDS = { lat: 37.5665, lng: 126.978 };
+
+  const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
 
   const selectedLegacy: Restaurant | null = useMemo(() => {
     if (!selectedStoreId) return null;
@@ -56,6 +57,12 @@ export default function SearchPage() {
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
+    if (restaurant.location) {
+      setMapCenter({
+        lat: restaurant.location.lat,
+        lng: restaurant.location.lng,
+      });
+    }
 
     setSelectedStoreId(storeId);
     setDetailOpen(true);
@@ -93,8 +100,8 @@ export default function SearchPage() {
     }
   };
 
-  const handleSelect = (restaurant: RestaurantSummary) => {
-    openDetail(restaurant);
+  const handleSelectStore = (store: RestaurantSummary) => {
+    openDetail(store);
   };
 
   const goReserve = () => {
@@ -143,6 +150,60 @@ export default function SearchPage() {
     setDetailStatus("idle");
     setDetailData(null);
     setDetailError(null);
+    setResults([]);
+    setSearchError(null);
+    setHasSearched(false);
+    setMapCenter(FALLBACK_COORDS);
+  };
+
+  function getCoords(): Promise<{ lat: number; lng: number }> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(FALLBACK_COORDS);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        () => resolve(FALLBACK_COORDS),
+        { enableHighAccuracy: false, timeout: 5000 },
+      );
+    });
+  }
+
+  const runSearch = async () => {
+    setHasSearched(true);
+    const keyword = query.trim();
+    setSearchError(null);
+
+    if (!keyword) {
+      setResults([]);
+      return;
+    }
+
+    const c = coords ?? (await getCoords());
+    setCoords(c);
+
+    setMapCenter({ lat: c.lat, lng: c.lng });
+
+    try {
+      const items = await searchMockStores({
+        lat: c.lat,
+        lng: c.lng,
+        keyword,
+        radiusKm: 3,
+        sort: "distance",
+      });
+      setResults(items);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "검색에 실패했어요";
+      setSearchError(msg);
+      setResults([]);
+    }
   };
 
   return (
@@ -156,12 +217,15 @@ export default function SearchPage() {
             className="w-full px-5 py-4 pr-14 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") runSearch();
+            }}
           />
           <button
             type="button"
             className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
             aria-label="검색"
-            onClick={() => {}} //버튼은 지금 UI용으로
+            onClick={runSearch}
           >
             <Search className="size-5" />
           </button>
@@ -169,7 +233,7 @@ export default function SearchPage() {
       </div>
 
       {/* 지도는 API연동을 위해 지금 비워둠 */}
-      <div className="relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden">
+      {/* <div className="relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-gray-200 to-gray-300">
           <div className="absolute inset-0 flex items-center justify-center text-gray-400">
             <div className="text-center">
@@ -177,12 +241,22 @@ export default function SearchPage() {
             </div>
           </div>
         </div>
-        {/* 마커일단 빼둠 */}
-      </div>
+      </div> */}
+
+      {/* 카카오맵 */}
+      <KakaoMap
+        center={mapCenter}
+        markers={results}
+        selectedId={selectedStoreId}
+        onSelectMarker={handleSelectStore}
+      />
 
       <div className="mt-6 w-full max-w-2xl mx-auto">
-        {query.trim() ? (
-          <RestaurantList restaurants={results} onSelect={handleSelect} />
+        {searchError ? (
+          <p className="mt-2 text-sm text-red-500">{searchError}</p>
+        ) : null}
+        {hasSearched ? (
+          <RestaurantList restaurants={results} onSelect={handleSelectStore} />
         ) : null}
       </div>
       {/* 상세 페이지 모달 */}
@@ -193,9 +267,6 @@ export default function SearchPage() {
             setDetailOpen(o);
             if (!o) {
               closeAll();
-              setDetailStatus("idle");
-              setDetailData(null);
-              setDetailError(null);
             }
           }}
           status={detailStatus}
@@ -255,6 +326,7 @@ export default function SearchPage() {
           restaurant={selectedLegacy}
           draft={draft}
           onSuccess={() => {
+            setPaymentOpen(false);
             setCompleteOpen(true); //결제 성공 완료모달
           }}
         />

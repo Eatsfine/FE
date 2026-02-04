@@ -24,7 +24,7 @@ export type RestaurantSummary = {
   distanceKm?: number;
   thumbnailUrl?: string;
   isOpenNow?: boolean;
-  location?: Location;
+  location: Location;
 };
 
 export type BusinessHour = {
