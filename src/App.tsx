@@ -19,6 +19,7 @@ import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
+import { useEffect } from "react";
 
 const routes: RouteObject[] = [
   {
@@ -72,6 +73,13 @@ const routes: RouteObject[] = [
 const router = createBrowserRouter(routes);
 
 export default function App() {
+  // 카카오 sdk 초기화
+  useEffect(() => {
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
+    }
+  }, []);
+
   return (
     <>
       <RouterProvider router={router} />

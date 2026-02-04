@@ -15,14 +15,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
-import { postSignup } from "@/api/auth";
+import { postSignup, postSocialLogin } from "@/api/auth";
 import type { ApiError } from "@/types/api";
+import { useGoogleLogin } from "@react-oauth/google";
 
 interface SignupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToLogin: () => void;
 }
+
+type KakaoAuthSuccessResponse = {
+  access_token: string;
+};
 
 const defaultValues: SignupFormValues = {
   role: "customer",
@@ -60,10 +65,51 @@ export function SignupDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = async (provider: "google" | "kakao") => {
-    // TODO: postSocialLogin(provider, { accessToken })
-    alert(`${provider} 로그인은 백엔드 배포 후 연동 예정입니다`);
-    onClose();
+  const handleSocialLogin = async (
+    provider: "google" | "kakao",
+    token: string,
+  ) => {
+    try {
+      const response = await postSocialLogin(provider, { accessToken: token });
+
+      if (response.success) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        onClose();
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("SocialLogin error:", error);
+      const apiError = error as ApiError;
+      const errorMessage =
+        apiError.message || `${provider} 로그인 중 문제가 발생했습니다.`;
+      alert(errorMessage);
+    }
+  };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: (response) => {
+      handleSocialLogin("google", response.access_token);
+    },
+    onError: (errorResponse) => {
+      console.error("구글 로그인 실패:", errorResponse);
+    },
+  });
+
+  const handleKakaoLogin = () => {
+    if (!window.Kakao) {
+      return alert("카카오 스크립트가 아직 로드되지 않았습니다.");
+    }
+    if (!window.Kakao.isInitialized()) {
+      window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
+    }
+    window.Kakao.Auth.login({
+      success: (authObj: KakaoAuthSuccessResponse) => {
+        handleSocialLogin("kakao", authObj.access_token);
+      },
+      fail: (error: unknown) => {
+        console.error("카카오 로그인 실패:", error);
+      },
+    });
   };
 
   const onSubmit = async (formData: SignupFormValues) => {
@@ -142,7 +188,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base cursor-pointer"
-              onClick={() => handleSocialLogin("google")}
+              onClick={() => handleGoogleLogin()}
             >
               <img
                 src="/icons/google.svg"
@@ -156,7 +202,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
-              onClick={() => handleSocialLogin("kakao")}
+              onClick={handleKakaoLogin}
             >
               <img
                 src="/icons/kakao.svg"
