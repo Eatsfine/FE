@@ -186,7 +186,11 @@ export default function KakaoMap({
       }
     >
       {!sdkReady ? (
-        <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
+        <div
+          className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm"
+          role="status"
+          aria-live="polite"
+        >
           카카오맵 로딩 중..
         </div>
       ) : null}
