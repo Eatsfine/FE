@@ -70,8 +70,8 @@ export default function ReservationPage() {
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="mb-6">
-        <h2 className="text-lg text-gray-900">예약 현황</h2>
-        <p className="mt-1 text-sm text-gray-800">
+        <h2 className="text-xl font-medium">예약 현황</h2>
+        <p className="mt-0.5 text-sm text-gray-600">
           내 예약 내역을 확인하고 관리하세요
         </p>
       </div>
@@ -83,10 +83,8 @@ export default function ReservationPage() {
             key={tab}
             onClick={() => setActiveTab(tab as ReservationStatus)}
             className={cn(
-              "cursor-pointer pb-4 text-sm font-medium transition-all relative",
-              activeTab === tab
-                ? "text-blue-600"
-                : "text-gray-800 hover:text-gray-600",
+              "cursor-pointer pb-4 font-medium transition-all relative",
+              activeTab === tab ? "text-blue-600" : "hover:text-gray-700",
             )}
           >
             {tab}
@@ -107,11 +105,11 @@ export default function ReservationPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-md text-gray-900">{res.shopName}</h3>
+                  <div className="flex items-center gap-3 mb-0.5">
+                    <h3 className="text-xl font-medium">{res.shopName}</h3>
                     <span
                       className={cn(
-                        "px-2 py-0.5 rounded-full text-[11px]",
+                        "px-3 py-1 rounded-full text-xs font-medium",
                         res.status === "예약 확정"
                           ? "bg-blue-50 text-blue-600"
                           : "bg-green-50 text-green-600",
@@ -123,7 +121,7 @@ export default function ReservationPage() {
                       {res.status}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400">{res.address}</p>
+                  <p className="text-sm text-gray-400">{res.address}</p>
                 </div>
               </div>
 
@@ -156,7 +154,7 @@ export default function ReservationPage() {
               <div className="flex items-center justify-between">
                 <span
                   className={cn(
-                    "text-sm font-medium",
+                    "font-medium",
                     res.status === "취소됨"
                       ? "text-gray-400"
                       : "text-green-600",
@@ -164,19 +162,19 @@ export default function ReservationPage() {
                 >
                   {res.step}
                 </span>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {res.status === "예약 확정" && (
                     <>
-                      <button className="cursor-pointer flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                        <Pencil size={14} /> 수정
+                      <button className="cursor-pointer flex items-center gap-1 px-5 py-3 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-200 transition tracking-wide">
+                        <Pencil size={16} /> 수정
                       </button>
-                      <button className="cursor-pointer flex items-center gap-1 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
-                        <X size={14} /> 취소
+                      <button className="cursor-pointer flex items-center gap-1 px-5 py-3 rounded-lg border border-red-500 text-sm font-medium text-red-500 hover:bg-red-100 transition tracking-wide">
+                        <X size={16} /> 취소
                       </button>
                     </>
                   )}
                   {res.status === "방문 완료" && (
-                    <button className="cursor-pointer px-6 py-2 rounded-lg bg-blue-500 text-sm font-bold text-white hover:bg-blue-600 transition-colors">
+                    <button className="cursor-pointer px-7 py-3 rounded-lg bg-blue-500 text-sm font-bold text-white hover:bg-blue-600 transition">
                       리뷰 작성
                     </button>
                   )}
@@ -210,13 +208,8 @@ function InfoItem({
     <div className="flex items-start gap-3">
       <div className="p-2 rounded-full bg-blue-100 text-blue-500">{icon}</div>
       <div>
-        <p className="text-[11px] text-gray-400 mb-0.5">{label}</p>
-        <p
-          className={cn(
-            "text-sm text-gray-900",
-            isMultiLine ? "whitespace-pre-line" : "",
-          )}
-        >
+        <p className="text-sm text-gray-400 mb-0.5">{label}</p>
+        <p className={cn("", isMultiLine ? "whitespace-pre-line" : "")}>
           {value}
         </p>
       </div>

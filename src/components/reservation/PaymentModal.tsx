@@ -4,6 +4,11 @@ import { formatKrw } from "@/utils/money";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
+import { useMenus } from "@/hooks/useMenus";
+import { useDepositRate } from "@/hooks/useDepositRate";
+import { calcMenuTotal } from "@/utils/menu";
+import { calcDeposit } from "@/utils/payment";
+import { useConfirmClose } from "@/hooks/useConfirmClose";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
@@ -14,7 +19,6 @@ type Props = {
   restaurant: Restaurant;
   draft: ReservationDraft;
   onSuccess: () => void;
-  onBack: () => void;
 };
 
 function mockPay(method: PayMethod, amount: number) {
@@ -31,12 +35,20 @@ export default function PaymentModal({
   restaurant,
   draft,
   onSuccess,
-  onBack,
 }: Props) {
   const [method, setMethod] = useState<PayMethod | undefined>();
   const [loading, setLoading] = useState(false);
 
-  const amount = useMemo(() => draft.payment.depositAmount, [draft.payment]);
+  const { menus } = useMenus(restaurant.id);
+  const { rate } = useDepositRate(restaurant.id);
+
+  const menuTotal = useMemo(() => {
+    return calcMenuTotal(menus, draft.selectedMenus);
+  }, [menus, draft.selectedMenus]);
+
+  const amount = useMemo(() => {
+    return calcDeposit(menuTotal, rate);
+  }, [menuTotal, rate]);
 
   const onClickPay = async () => {
     if (loading) return;
@@ -50,18 +62,7 @@ export default function PaymentModal({
     }
   };
 
-  const handleBack = () => {
-    onOpenChange(false);
-    onBack();
-  };
-
-  const handleRequestClose = () => {
-    const ok = window.confirm(
-      "예약금이 결제되지 않았습니다. \n 예약화면을 벗어나시겠습니까?",
-    );
-    if (ok) onClose();
-  };
-
+  const handleRequestClose = useConfirmClose(onClose);
   if (!open) return null;
 
   return (
@@ -83,7 +84,7 @@ export default function PaymentModal({
           <h3 className="text-lg">예약금 결제</h3>
           <button
             type="button"
-            onClick={handleBack}
+            onClick={handleRequestClose}
             aria-label="닫기"
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           >
@@ -96,13 +97,18 @@ export default function PaymentModal({
             <div className="text-sm text-muted-foreground">매장</div>
             <div className="mt-1 text-base truncate">{restaurant.name}</div>
           </div>
-          <div className="border rounded-xl p-4 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm text-muted-foreground">결제 금액</div>
-              <div className="mt-1 text-xl font-semibold">
-                {formatKrw(amount)}원
+          <div className="border rounded-xl p-4 space-y-1">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm text-muted-foreground">결제 금액</div>
+                <div className="mt-1 text-xl font-semibold">
+                  {formatKrw(amount)}원
+                </div>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              메뉴 총액 {formatKrw(menuTotal)}원 * {Math.round(rate * 100)}%
+            </p>
           </div>
           {/* 본문 */}
           <div className="space-y-2">

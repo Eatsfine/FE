@@ -8,7 +8,7 @@ export const mockMenusByRestaurantId: Record<string, MenuItem[]> = {
       name: "김치찌개",
       category: "MAIN",
       description: "국내산 돼지고기와 숙성 김치로 만든 김치찌개",
-      imageUrl: undefined,
+      imageUrl: "/seatImg1.jpg",
       price: 9000,
       isSoldOut: false,
       isActive: true,

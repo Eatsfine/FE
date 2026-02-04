@@ -3,7 +3,7 @@
 import type { SeatLayout } from "@/types/restaurant";
 
 export const MOCK_SEAT_LAYOUT_BY_RESTAURANT: Record<string, SeatLayout> = {
-  "r-1": {
+  "1": {
     gridCols: 8,
     gridRows: 6,
     tables: [

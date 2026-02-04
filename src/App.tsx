@@ -46,7 +46,7 @@ const routes: RouteObject[] = [
     errorElement: <NotFound />,  
   },
   {
-    path: "/ownerPage/*",
+    path: "/mypage/store/:storeId",
     element: <OwnerPage />,
     errorElement: <NotFound />,
   },

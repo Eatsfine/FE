@@ -25,6 +25,8 @@ const OwnerHeader: React.FC<Props> = ({ activeTab, onChangeTab }) => {
         <nav className="flex gap-5 pt-4 px-5">
           {tabs.map(tab => (
             <button
+             type='button'
+             aria-current={activeTab === tab.key ? 'page' : undefined}
               key={tab.key}
               onClick={() => onChangeTab(tab.key)}
               className={`pb-4 px-2 text-md transition-all relative ${

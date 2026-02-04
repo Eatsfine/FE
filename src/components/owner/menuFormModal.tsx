@@ -41,6 +41,12 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (Number(formData.price) < 0) {
+    alert('가격은 0원 이상이어야 합니다.');
+    return;
+   }
+
     onSubmit({
       ...formData,
       id: editingMenu?.id || Date.now().toString(), // 수정이면 기존 ID, 추가면 새 ID
@@ -52,8 +58,10 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+    onClick={onClose}>
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100"
+      onClick={(e)=>e.stopPropagation()}>
         <div className="flex justify-between items-center px-8 py-6 border-b border-gray-50">
           <h3 className="text-xl text-gray-900">
             {editingMenu ? '메뉴 수정' : '새 메뉴 등록'}
@@ -70,7 +78,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
               required
               type="text"
               placeholder="메뉴명을 입력하세요"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700"
+              className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
@@ -80,7 +88,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
             <div className="space-y-2">
               <label className="text-sm text-gray-500 ml-1">카테고리</label>
               <select
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 bg-white"
+                className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 bg-white"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
@@ -94,9 +102,22 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
               <input
                 required
                 type="number"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700"
+                min={0}
+                className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                onChange={(e)=>{
+                  const value = e.target.value;
+
+                  if (value === '') {
+                    setFormData({ ...formData, price: '' });
+                    return;
+                  }
+
+                  const num = Number(value);
+                  if (num < 0) return;
+
+                  setFormData({ ...formData, price: value });
+                }}
               />
             </div>
           </div>
@@ -106,7 +127,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
             <textarea
               rows={3}
               placeholder="메뉴에 대한 설명을 입력하세요"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 resize-none"
+              className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 resize-none"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
@@ -116,13 +137,13 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3.5 rounded-xl text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all text-sm font-medium"
+              className="cursor-pointer flex-1 py-3.5 rounded-xl text-gray-500 bg-gray-100 hover:bg-gray-200 transition-all text-sm font-medium"
             >
               취소
             </button>
             <button
               type="submit"
-              className="flex-1 py-3.5 rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all text-sm font-medium"
+              className="cursor-pointer flex-1 py-3.5 rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all text-sm font-medium"
             >
               {editingMenu ? '수정 완료' : '메뉴 등록하기'}
             </button>
