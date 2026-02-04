@@ -24,7 +24,7 @@ export default function Header() {
     () => [
       { label: "소개", href: "/" },
       { label: "식당 예약", href: "/search" },
-      { label: "내 가게 관리", href: "/ownerPage" }, //임시 위치.
+      { label: "내 가게 관리", href: "/mypage/store" },
       { label: "고객센터", href: "/customer-support" },
     ],
     [],
