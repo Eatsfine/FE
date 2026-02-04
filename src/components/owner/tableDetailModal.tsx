@@ -31,12 +31,13 @@ const TableDetailModal: React.FC<Props> = ({
   onUpdateCapacity,
   onClose,
   breakTimes,
+  closedDays: closedDaysProp,
 }) => {
   const [step, setStep] = useState<Step>('DETAIL');
   const [isEditing, setIsEditing] = useState(false);
   const [tempMin, setTempMin] = useState(tableInfo.minCapacity);
   const [tempMax, setTempMax] = useState(tableInfo.maxCapacity);
-  const [closedDays, setClosedDays] = useState<string[]>(['일']); // 예시: 일요일 휴무
+  const closedDays = closedDaysProp ?? ['일']; // 예시: 일요일 휴무
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedFullDate, setSelectedFullDate] = useState<Date | null>(null);
   const generateSlots = (startHour = 11, endHour = 22):Slot[] => {
@@ -115,7 +116,8 @@ const tableType = getTableType(tableInfo.maxCapacity);
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             {step !== 'DETAIL' && (
-              <button onClick={handleBack} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+              <button onClick={handleBack} className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label='뒤로 가기'>
                 <ArrowLeft size={20} className="text-gray-600" />
               </button>
             )}
@@ -123,7 +125,8 @@ const tableType = getTableType(tableInfo.maxCapacity);
               {step === 'DETAIL' ? `${tableNumber}번 테이블` : step === 'CALENDAR' ? `${tableNumber}번 테이블 예약 시간대` : '시간대 설정'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><X size={24} /></button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          aria-label='모달 닫기'><X size={24} /></button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">

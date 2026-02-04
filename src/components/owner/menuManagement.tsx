@@ -147,7 +147,7 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
   };
 
   const deleteCategory = (id: string) => {
-    const fallbackCategory = categories.find(c => c.id !== id && c.id !== 'ALL')?.id as MenuCategory;
+    const fallbackCategory = categories.find(c => c.id !== id && c.id !== 'ALL')?.id;
     if (window.confirm('카테고리를 삭제하면 해당 카테고리의 메뉴 분류가 사라집니다. 삭제하시겠습니까?')) {
       if (!fallbackCategory) {
     alert('최소 하나의 카테고리는 필요합니다.');
@@ -161,7 +161,7 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
         ? { ...m, category: fallbackCategory }
         : m
     )
-  )
+  );
       setCategories(prev => prev.filter(c => c.id !== id));
       if (activeCategory === id) setActiveCategory('ALL');
     }
