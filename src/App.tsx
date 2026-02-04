@@ -49,7 +49,11 @@ const routes: RouteObject[] = [
     path: "/ownerPage/*",
     element: <OwnerPage />,
     errorElement: <NotFound />,
-  }
+  },
+  {
+    path: "*",
+    element : <NotFound />
+  },
 ];
 
 const router = createBrowserRouter(routes);

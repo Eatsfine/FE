@@ -7,9 +7,9 @@ const NotFound: React.FC = () => {
 
   const handleGoBack = () => {
     if (window.history.length > 1) {
-      navigate(-1);
+      window.history.back();
     } else {
-      navigate('/');
+      navigate('/', {replace: true});
     }
   };
 
@@ -46,7 +46,7 @@ const NotFound: React.FC = () => {
             이전으로
           </button>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/', {replace: true})}
             className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
           >
             <Home size={18} />
