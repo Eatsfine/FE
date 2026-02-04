@@ -18,6 +18,7 @@ import PaymentPage from "./pages/myPage/paymentPage";
 import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
+import OwnerPage from "./pages/ownerPage/ownerPage";
 
 const routes: RouteObject[] = [
   {
@@ -57,6 +58,11 @@ const routes: RouteObject[] = [
     element: <StoreRegistrationPage />,
     errorElement: <NotFound />,
   },
+  {
+    path: "/mypage/store/:storeId",
+    element: <OwnerPage />,
+    errorElement: <NotFound />,
+  }
 ];
 
 const router = createBrowserRouter(routes);

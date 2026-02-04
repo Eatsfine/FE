@@ -46,7 +46,7 @@ export default function Hero() {
             식당 예약
           </Button>
           <Button
-            onClick={() => nav("/owner")} //임시
+            onClick={() => nav("/mypage/store")}
             variant="outline"
             className="border-white border-2 bg-white/10 text-white font-semibold hover:bg-white hover:text-[#2196F3] rounded-full px-8 py-6 text-lg backdrop-blur-sm transition-colors cursor-pointer"
           >

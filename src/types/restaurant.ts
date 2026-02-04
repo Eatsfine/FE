@@ -7,6 +7,7 @@ export type Restaurant = {
   category: string;
   rating: number;
   reviewCount: number;
+  isApproved: boolean;
   operatingHours: {
     open: string;
     close: string;
