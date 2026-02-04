@@ -15,9 +15,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
-import { postSignup, postSocialLogin } from "@/api/auth";
 import type { ApiError } from "@/types/api";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useEmailSignup, useSocialLogin } from "@/hooks/queries/useAuth";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -46,12 +46,15 @@ export function SignupDialog({
   onClose,
   onSwitchToLogin,
 }: SignupDialogProps) {
+  const signupMutation = useEmailSignup();
+  const socialLoginMutation = useSocialLogin();
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignupFormValues>({
     defaultValues,
     resolver: zodResolver(signupSchema),
@@ -65,25 +68,17 @@ export function SignupDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = async (
-    provider: "google" | "kakao",
-    token: string,
-  ) => {
-    try {
-      const response = await postSocialLogin(provider, { accessToken: token });
-
-      if (response.success) {
-        localStorage.setItem("accessToken", response.data.accessToken);
-        onClose();
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("SocialLogin error:", error);
-      const apiError = error as ApiError;
-      const errorMessage =
-        apiError.message || `${provider} 로그인 중 문제가 발생했습니다.`;
-      alert(errorMessage);
-    }
+  const handleSocialLogin = (provider: "google" | "kakao", token: string) => {
+    socialLoginMutation.mutate(
+      { provider, token },
+      {
+        onSuccess: () => onClose(),
+        onError: (error) =>
+          alert(
+            (error as ApiError).message || "회원가입 중 문제가 발생했습니다.",
+          ),
+      },
+    );
   };
 
   const handleGoogleLogin = useGoogleLogin({
@@ -112,29 +107,17 @@ export function SignupDialog({
     });
   };
 
-  const onSubmit = async (formData: SignupFormValues) => {
-    try {
-      const requestBody = {
-        role: formData.role!,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-      };
-
-      const response = await postSignup(requestBody);
-
-      if (response.success) {
+  const onSubmit = (formData: SignupFormValues) => {
+    signupMutation.mutate(formData, {
+      onSuccess: () => {
         alert("가입 완료되었습니다.");
         onSwitchToLogin();
-      }
-    } catch (error: unknown) {
-      console.error("Signup error:", error);
-      const apiError = error as ApiError;
-      const errorMessage =
-        apiError.message || "회원가입 중 문제가 발생했습니다.";
-      alert(errorMessage);
-    }
+      },
+      onError: (error) =>
+        alert(
+          (error as ApiError).message || "회원가입 중 문제가 발생했습니다.",
+        ),
+    });
   };
 
   return (
@@ -162,7 +145,7 @@ export function SignupDialog({
                   className={
                     field.value === "customer"
                       ? "bg-blue-600 text-white h-12 w-full rounded-lg transition-colors"
-                      : "bg-gray-200 text-gray-600  h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+                      : "bg-gray-200 text-gray-600 h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
                   }
                 >
                   고객
@@ -211,6 +194,12 @@ export function SignupDialog({
               />
               카카오톡으로 가입하기
             </Button>
+
+            <p className="text-xs text-center text-gray-500 px-2 break-keep">
+              소셜 계정으로 가입 시 <span className="underline">이용약관</span>,{" "}
+              <span className="underline">개인정보처리방침</span> 에 동의하는
+              것으로 간주합니다.
+            </p>
           </div>
 
           <div className="relative">
@@ -374,10 +363,10 @@ export function SignupDialog({
             </div>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={signupMutation.isPending}
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
             >
-              {isSubmitting ? "가입 중..." : "가입하기"}
+              {signupMutation.isPending ? "가입 중..." : "가입하기"}
             </Button>
           </form>
 

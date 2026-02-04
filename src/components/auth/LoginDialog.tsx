@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { type LoginFormValues, loginSchema } from "./login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { postLogin, postSocialLogin } from "@/api/auth";
-import type { ApiError } from "@/types/api";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useEmailLogin, useSocialLogin } from "@/hooks/queries/useAuth";
+import type { ApiError } from "@/types/api";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -32,13 +32,16 @@ export function LoginDialog({
   onClose,
   onSwitchToSignup,
 }: LoginDialogProps) {
+  const emailLoginMutation = useEmailLogin();
+  const socialLoginMutation = useSocialLogin();
+
   const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -55,25 +58,17 @@ export function LoginDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = async (
-    provider: "google" | "kakao",
-    token: string,
-  ) => {
-    try {
-      const response = await postSocialLogin(provider, { accessToken: token });
-
-      if (response.success) {
-        localStorage.setItem("accessToken", response.data.accessToken);
-        onClose();
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("SocialLogin error:", error);
-      const apiError = error as ApiError;
-      const errorMessage =
-        apiError.message || `${provider} 로그인 중 문제가 발생했습니다.`;
-      alert(errorMessage);
-    }
+  const handleSocialLogin = (provider: "google" | "kakao", token: string) => {
+    socialLoginMutation.mutate(
+      { provider, token },
+      {
+        onSuccess: () => onClose(),
+        onError: (error) =>
+          alert(
+            (error as ApiError).message || "로그인 중 문제가 발생했습니다.",
+          ),
+      },
+    );
   };
 
   const handleGoogleLogin = useGoogleLogin({
@@ -102,21 +97,12 @@ export function LoginDialog({
     });
   };
 
-  const handleEmailLogin = async (data: LoginFormValues) => {
-    try {
-      const response = await postLogin(data);
-
-      if (response.success) {
-        localStorage.setItem("accessToken", response.data.accessToken);
-        onClose();
-        window.location.reload();
-      }
-    } catch (error: unknown) {
-      console.error("Login error:", error);
-      const apiError = error as ApiError;
-      const errorMessage = apiError.message || "로그인 중 문제가 발생했습니다.";
-      alert(errorMessage);
-    }
+  const handleEmailLogin = (data: LoginFormValues) => {
+    emailLoginMutation.mutate(data, {
+      onSuccess: () => onClose(),
+      onError: (error) =>
+        alert((error as ApiError).message || "로그인 중 문제가 발생했습니다."),
+    });
   };
 
   return (
@@ -239,10 +225,10 @@ export function LoginDialog({
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={emailLoginMutation.isPending}
                   className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                 >
-                  {isSubmitting ? "로그인 중..." : "로그인"}
+                  {emailLoginMutation.isPending ? "로그인 중..." : "로그인"}
                 </Button>
 
                 <Button
