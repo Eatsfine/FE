@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthActions, useIsAuthenticated } from "@/stores/useAuthStore";
 
 type NavItem = {
   label: string;
@@ -17,6 +18,10 @@ export default function Header() {
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
+
+  const isAuthenticated = useIsAuthenticated();
+
+  const { logout } = useAuthActions();
 
   const nav = useNavigate();
 
@@ -57,6 +62,16 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
+  const handleLogout = () => {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+
+    logout();
+    setMobileOpen(false);
+
+    alert("로그아웃 되었습니다.");
+    nav("/", { replace: true });
+  };
+
   const go = (to: string) => {
     setMobileOpen(false);
     nav(to);
@@ -90,24 +105,13 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link
-            to="/"
-            className="flex items-center gap-2"
-            onClick={() => setMobileOpen(false)}
-            aria-label="홈으로 이동"
+          <button
+            type="button"
+            onClick={() => go("/")}
+            className={`text-[24px] tracking-tight ${brandClass}`}
           >
-            <img
-              src="/eatsfineLogo.svg"
-              alt="잇츠파인 로고"
-              className="h-7 w-7 shrink-0"
-            />
-            <span
-              className={`text-[24px] tracking-tight ${brandClass} hover:text-white/70 transition`}
-            >
-              잇츠파인
-            </span>
-          </Link>
-
+            잇츠파인
+          </button>
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
               <Link
@@ -120,26 +124,40 @@ export default function Header() {
             ))}
           </nav>
           <div className="hidden lg:flex items-center gap-3 whitespace-nowrap">
-            <Button
-              variant="ghost"
-              onClick={() => nav("/mypage")}
-              className={ghostBtnClass}
-            >
-              마이페이지
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setLoginOpen(true)}
-              className={ghostBtnClass}
-            >
-              로그인
-            </Button>
-            <Button
-              onClick={() => setSignupOpen(true)}
-              className={signupBtnClass}
-            >
-              회원가입
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => nav("/mypage")}
+                  className={ghostBtnClass}
+                >
+                  마이페이지
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className={ghostBtnClass}
+                >
+                  로그아웃
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => setLoginOpen(true)}
+                  className={ghostBtnClass}
+                >
+                  로그인
+                </Button>
+                <Button
+                  onClick={() => setSignupOpen(true)}
+                  className={signupBtnClass}
+                >
+                  회원가입
+                </Button>
+              </>
+            )}
           </div>
           <button
             type="button"
@@ -187,34 +205,46 @@ export default function Header() {
                   </button>
                 ))}
               </div>
-              <Button
-                variant="ghost"
-                className="text-lg h-12 mt-2 w-full cursor-pointer rounded-xl bg-black/5 hover:bg-black/10 transition-colors"
-                onClick={() => go("/mypage")}
-              >
-                마이페이지
-              </Button>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  className="text-lg h-12 w-full cursor-pointer rounded-xl border-black/15 transition-colors"
-                  onClick={() => {
-                    setMobileOpen(false);
-                    setLoginOpen(true);
-                  }}
-                >
-                  로그인
-                </Button>
-                <Button
-                  className="text-lg h-12 w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5] transition-colors"
-                  onClick={() => {
-                    setMobileOpen(false);
-                    setSignupOpen(true);
-                  }}
-                >
-                  회원가입
-                </Button>
-              </div>
+              {isAuthenticated ? (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Button
+                    variant="ghost"
+                    className="text-lg h-12 w-full cursor-pointer rounded-xl bg-black/5 hover:bg-black/10 transition-colors"
+                    onClick={() => go("/mypage")}
+                  >
+                    마이페이지
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-lg text-white h-12 w-full cursor-pointer rounded-xl bg-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                    onClick={handleLogout}
+                  >
+                    로그아웃
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="text-lg h-12 w-full cursor-pointer rounded-xl border-black/15 transition-colors"
+                    onClick={() => {
+                      setMobileOpen(false);
+                      setLoginOpen(true);
+                    }}
+                  >
+                    로그인
+                  </Button>
+                  <Button
+                    className="text-lg h-12 w-full cursor-pointer rounded-xl bg-[#2196F3] hover:bg-[#1E88E5] transition-colors"
+                    onClick={() => {
+                      setMobileOpen(false);
+                      setSignupOpen(true);
+                    }}
+                  >
+                    회원가입
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

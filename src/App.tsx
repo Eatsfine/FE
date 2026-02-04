@@ -23,8 +23,7 @@ import { useEffect } from "react";
 
 const routes: RouteObject[] = [
   {
-    //TODO: 로그아웃처리 필요
-    element: <PublicLayout onLogOut={() => {}} />,
+    element: <PublicLayout />,
     errorElement: <NotFound />,
     children: [
       { path: "/search", element: <SearchPage /> },
