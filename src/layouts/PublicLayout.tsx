@@ -7,8 +7,8 @@ type PublicLayoutProps = {
 export default function PublicLayout({ onLogOut }: PublicLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="w-full border-b bg-white sticky top-0 z-40">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="w-full border-b bg-white sticky top-0 z-40 py-2">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
           <Link to="/" className="flex items-center gap-3">
             <img
               src="/eatsfineLogo.svg"
@@ -17,9 +17,7 @@ export default function PublicLayout({ onLogOut }: PublicLayoutProps) {
             />
             <div>
               <h1 className="text-blue-600 text-xl font-semibold">잇츠파인</h1>
-              <p className="text-gray-600 text-sm leading-light">
-                원하는 자리를 선택하는 스마트 식당 예약
-              </p>
+              <p className="text-xs">원하는 자리를 선택하는 스마트 식당 예약</p>
             </div>
           </Link>
           <button
