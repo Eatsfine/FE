@@ -19,48 +19,65 @@ const MenuManagement: React.FC<MenuManagementProps> = ({storeId}) => {
 
   const restaurantId = storeId;
 
- const STORAGE_KEY_CAT = restaurantId
-  ? `menu-categories-order-${restaurantId}`
-  : 'menu-categories-order-temp';
+  const STORAGE_KEY_CAT = restaurantId ? `menu-categories-${restaurantId}` : 'menu-categories-temp';
+  const STORAGE_KEY_MENU = restaurantId ? `menu-items-${restaurantId}` : 'menu-items-temp';
+
+  const DEFAULT_CATEGORIES: Category[] = [
+    { id: 'ALL', label: '전체' },
+    { id: 'MAIN', label: '메인 메뉴' },
+    { id: 'SIDE', label: '사이드 메뉴' },
+    { id: 'DRINK', label: '음료' },
+  ];
 
 
   const [menus, setMenus] = useState<any[]>([]);
-
-  useEffect(() => {
-  if (!restaurantId) return;
-
-  setMenus(mockMenusByRestaurantId[restaurantId] || []);
-}, [restaurantId]);
-
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
-
-  
-const [categories, setCategories] = useState<Category[]>([]);
-
-useEffect(() => {
-  if (!restaurantId) return;
-
-  const saved = localStorage.getItem(STORAGE_KEY_CAT);
-  setCategories(
-    saved
-      ? JSON.parse(saved)
-      : [
-          { id: 'ALL', label: '전체' },
-          { id: 'MAIN', label: '메인 메뉴' },
-          { id: 'SIDE', label: '사이드 메뉴' },
-          { id: 'DRINK', label: '음료' },
-        ]
-  );
-}, [restaurantId]);
-
-
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMenu, setEditingMenu] = useState<any>(null);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [tempCatLabel, setTempCatLabel] = useState('');
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CAT, JSON.stringify(categories));
+  if (!restaurantId) return;
+
+  const currentMenus = mockMenusByRestaurantId[restaurantId] || [];
+    setMenus(currentMenus);
+
+    const savedCats = localStorage.getItem(STORAGE_KEY_CAT);
+    if (savedCats) {
+      setCategories(JSON.parse(savedCats));
+    } else {
+      setCategories(DEFAULT_CATEGORIES);
+    }
+
+    const savedMenus = localStorage.getItem(STORAGE_KEY_MENU);
+    if (savedMenus) {
+      setMenus(JSON.parse(savedMenus));
+    } else {
+      const initialMenus = mockMenusByRestaurantId[restaurantId] || [];
+      setMenus(initialMenus);
+      localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(initialMenus));
+    }
+  }, [restaurantId]);
+
+  useEffect(() => {
+    if (categories.length > 0 && restaurantId) {
+      localStorage.setItem(STORAGE_KEY_CAT, JSON.stringify(categories));
+    }
   }, [categories, restaurantId]);
+
+  useEffect(() => {
+    if (restaurantId && menus.length > 0) {
+      localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(menus));
+    }
+  }, [menus, restaurantId]);
+
 
   const handleDragStart = (idx: number) => {
     if (categories[idx].id === 'ALL') return;
@@ -68,7 +85,7 @@ useEffect(() => {
   };
 
 const handleDragOver = (e: React.DragEvent) => {
-  e.preventDefault(); // drop 이벤트를 허용하기 위해 반드시 필요
+  e.preventDefault()
 };
 
 const handleDrop = (targetIdx: number) => {
@@ -77,16 +94,12 @@ const handleDrop = (targetIdx: number) => {
   const newCategories = [...categories];
   const draggedItem = newCategories[draggedIdx];
 
-  newCategories.splice(draggedIdx, 1); // 원래 위치에서 삭제
-  newCategories.splice(targetIdx, 0, draggedItem); // 새 위치에 삽입
+  newCategories.splice(draggedIdx, 1);
+  newCategories.splice(targetIdx, 0, draggedItem);
 
   setCategories(newCategories);
   setDraggedIdx(null);
 };
-
-  const filteredMenus = activeCategory === 'ALL' 
-    ? menus 
-    : menus.filter(menu => menu.category === activeCategory);
 
   const toggleActive = (id: string) => {
     setMenus(prev => prev.map(menu => 
@@ -94,15 +107,11 @@ const handleDrop = (targetIdx: number) => {
     ));
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-const [editingMenu, setEditingMenu] = useState<any>(null);
-
 const handleFormSubmit = (menuData: any) => {
   if (editingMenu) {
-    // 수정 로직
     setMenus(prev => prev.map(m => m.id === menuData.id ? { ...m, ...menuData } : m));
   } else {
-    // 추가 로직
+    const newMenu = { ...menuData, id: menuData.id || `MENU_${Date.now()}` };
     setMenus(prev => [menuData, ...prev]);
   }
   setIsModalOpen(false);
@@ -124,9 +133,6 @@ const handleAddClick = () => {
   setIsModalOpen(true);
 };
 
-const [editingCatId, setEditingCatId] = useState<string | null>(null);
-  const [tempCatLabel, setTempCatLabel] = useState('');
-
   const handleAddCategory = () => {
     const newId = `CAT_${Date.now()}`;
     const newCat = { id: newId, label: '새 카테고리' };
@@ -147,31 +153,22 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
   };
 
   const deleteCategory = (id: string) => {
-    const fallbackCategory = categories.find(c => c.id !== id && c.id !== 'ALL')?.id;
-    if (window.confirm('카테고리를 삭제하면 해당 카테고리의 메뉴 분류가 사라집니다. 삭제하시겠습니까?')) {
-      if (!fallbackCategory) {
-    alert('최소 하나의 카테고리는 필요합니다.');
-    return;
-  }
-
-  // 1. 메뉴들의 카테고리 변경
-  setMenus(prev =>
-    prev.map(m =>
-      m.category === id
-        ? { ...m, category: fallbackCategory }
-        : m
-    )
-  );
+    const fallback = categories.find(c => c.id !== id && c.id !== 'ALL')?.id;
+    if (window.confirm('카테고리를 삭제하시겠습니까?')) {
+      if (!fallback) return alert('최소 하나의 카테고리는 필요합니다.');
+      setMenus(prev => prev.map(m => m.category === id ? { ...m, category: fallback } : m));
       setCategories(prev => prev.filter(c => c.id !== id));
       if (activeCategory === id) setActiveCategory('ALL');
     }
-  };
+  }
 
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const filteredMenus = activeCategory === 'ALL' 
+    ? menus 
+    : menus.filter(menu => menu.category === activeCategory);
 
-
-  if (isLoading) return <div className="px-8 py-10">로딩 중...</div>;
+  if (isLoading) return <div className="px-8 py-10 text-gray-500 font-medium">데이터를 불러오는 중...</div>;
   if (error) return <div className="px-8 py-10 text-red-500">{error}</div>;
+
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
       {/* 헤더 섹션 */}
@@ -191,7 +188,7 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
         {categories.map(cat => (
           <button
             key={cat.id}
-            onClick={() => setActiveCategory(cat.id as CategoryType)}
+            onClick={() => setActiveCategory(cat.id)}
             className={`cursor-pointer px-5 py-2.5 rounded-lg text-md transition-all ${
               activeCategory === cat.id 
                 ? 'bg-blue-600 text-white' 
@@ -224,7 +221,7 @@ const [editingCatId, setEditingCatId] = useState<string | null>(null);
                   )}
                 </div>
                 <p className="text-sm text-blue-500 mb-3">
-                  {categories.find(c => c.id === menu.category)?.label}
+                  {categories.find(c => String(c.id) === String(menu.category))?.label || menu.category}
                 </p>
                 <p className="flex-1 text-md text-gray-500 leading-relaxed mb-6 line-clamp-2">
                   {menu.description}
