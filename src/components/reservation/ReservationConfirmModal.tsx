@@ -1,7 +1,12 @@
+import { useConfirmClose } from "@/hooks/useConfirmClose";
+import { useDepositRate } from "@/hooks/useDepositRate";
+import { useMenus } from "@/hooks/useMenus";
 import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { toYmd } from "@/utils/date";
+import { calcMenuTotal } from "@/utils/menu";
 import { formatKrw } from "@/utils/money";
+import { calcDeposit } from "@/utils/payment";
 import { tablePrefLabel } from "@/utils/reservation";
 import { X } from "lucide-react";
 
@@ -22,22 +27,21 @@ export default function ReservationConfirmMoodal({
   restaurant,
   draft,
 }: Props) {
-  if (!open) return null;
-
   const { people, date, time, seatType, tablePref } = draft;
 
-  //UI테스트를 위해서 r-1로 고정함. 나중에 백엔드 연결시 주석으로 변경필요. ReservationModal또한 변경필요.
-  // const layout = getMockLayoutByRestaurantId(restaurant.id ?? "r-1");
-  const layout = getMockLayoutByRestaurantId("r-1");
+  const layout = getMockLayoutByRestaurantId(restaurant.id ?? "1");
 
   const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
 
-  const handleRequestClose = () => {
-    const ok = window.confirm(
-      "예약이 확정되지 않았습니다.\n예약화면을 벗어나시겠습니까?",
-    );
-    if (ok) onClose();
-  };
+  const handleRequestClose = useConfirmClose(onClose);
+
+  const { menus } = useMenus(restaurant.id);
+  const { rate } = useDepositRate(restaurant.id);
+  const { selectedMenus } = draft;
+  const menuTotal = calcMenuTotal(menus, selectedMenus);
+  const depositAmount = calcDeposit(menuTotal, rate);
+
+  if (!open) return null;
 
   return (
     <div
@@ -100,12 +104,13 @@ export default function ReservationConfirmMoodal({
           <div className="border rounded-lg p-3 bg-blue-50 border-blue-200">
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
-            <div className="text-sm text-gray-800 mt-1">
-              예약금: {formatKrw(draft.payment.depositAmount)}원
-              {draft.payment.depositRate
-                ? ` (${Math.round(draft.payment.depositRate * 100)}% 정책 적용)`
-                : null}
+            <div className="text-gray-800 mt-1 font-semibold">
+              예약금: {formatKrw(depositAmount)}원
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {restaurant.paymentPolicy?.notice ??
+                "예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)"}
+            </p>
           </div>
           <p className="text-gray-700 text-center">
             위 내용으로 예약을 진행할까요?

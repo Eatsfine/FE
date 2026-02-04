@@ -5,7 +5,7 @@ import PaymentAddModal from "@/components/modals/paymentAddModal";
 
 interface PaymentMethod {
   id: string;
-  type: "easy-pay";
+  type: "간편결제";
   name: string;
   detail: string;
   isDefault: boolean;
@@ -16,7 +16,7 @@ export default function PaymentPage() {
   const [methods, setMethods] = useState<PaymentMethod[]>([
     {
       id: "1",
-      type: "easy-pay",
+      type: "간편결제",
       name: "카카오페이",
       detail: "",
       isDefault: false,
@@ -41,20 +41,20 @@ export default function PaymentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <section className="rounded-xl bg-white p-5 shadow-sm border border-gray-100">
+    <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       {/* 헤더 영역 */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h2 className="text-lg text-gray-900">결제수단 관리</h2>
-          <p className="mt-1 text-sm text-gray-900">
+          <h2 className="text-xl font-medium">결제수단 관리</h2>
+          <p className="mt-0.5 text-sm text-gray-600">
             예약 시 사용할 결제수단을 관리하세요
           </p>
         </div>
         <button
-          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-700 transition"
           onClick={() => setIsModalOpen(true)}
         >
-          <Plus size={18} />
+          <Plus size={20} />
           결제수단 추가
         </button>
       </div>
@@ -65,10 +65,10 @@ export default function PaymentPage() {
           <div
             key={method.id}
             className={cn(
-              "group relative flex items-center justify-between rounded-lg border-2 p-3 transition-all",
+              "group relative flex items-center justify-between rounded-lg border-2 p-3 transition",
               method.isDefault
                 ? "border-blue-500 bg-blue-50"
-                : "border-gray-100 bg-white hover:border-gray-200",
+                : "border-gray-100",
             )}
           >
             <div className="flex items-center gap-4">
@@ -80,7 +80,7 @@ export default function PaymentPage() {
               {/* 정보 영역 */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-900">{method.name}</span>
+                  <span className="text-lg">{method.name}</span>
                   <span className="text-sm text-gray-700">{method.detail}</span>
                   {method.isDefault && (
                     <span className="rounded bg-blue-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
@@ -88,7 +88,7 @@ export default function PaymentPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-600">간편결제</p>
+                <p className="text-sm text-gray-600">{method.type}</p>
               </div>
             </div>
 
@@ -97,26 +97,27 @@ export default function PaymentPage() {
               {!method.isDefault && (
                 <button
                   onClick={() => handleSetDefault(method.id)}
-                  className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50 transition"
                 >
                   기본으로 설정
                 </button>
               )}
               <button
                 onClick={() => handleDelete(method.id)}
-                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition"
               >
-                <Trash2 size={15} color="red" />
+                <Trash2 size={20} color="red" />
               </button>
             </div>
           </div>
         ))}
       </div>
-
-      <PaymentAddModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {isModalOpen && (
+        <PaymentAddModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
       {methods.length === 0 && (
         <div className="py-20 text-center">
