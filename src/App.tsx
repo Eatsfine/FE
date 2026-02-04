@@ -49,7 +49,11 @@ const routes: RouteObject[] = [
     path: "/mypage/store/:storeId",
     element: <OwnerPage />,
     errorElement: <NotFound />,
-  }
+  },
+  {
+    path: "*",
+    element : <NotFound />
+  },
 ];
 
 const router = createBrowserRouter(routes);
