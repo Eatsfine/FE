@@ -8,6 +8,7 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     thumbnailUrl: "/modernKoreaRestaurant.jpg",
     rating: 4.7,
     reviewCount: 328,
+    isApproved : true,
     operatingHours: {
       open: "11:00",
       close: "22:00",
@@ -41,6 +42,7 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
       notice:
         "예약 확정을 위해 예약금 결제가 필요합니다. 노쇼 방지를 위한 정책입니다.",
     },
+    
   },
   {
     id: "2",
@@ -49,6 +51,7 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     thumbnailUrl: "/ItalyTrattoria.jpg",
     rating: 4.5,
     reviewCount: 215,
+    isApproved: true,
     operatingHours: {
       open: "12:00",
       close: "23:00 (연중무휴)",
@@ -89,6 +92,7 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     thumbnailUrl: "/seatImg1.jpg",
     rating: 4.8,
     reviewCount: 452,
+    isApproved:false,
     operatingHours: {
       open: "10:00",
       close: "00:00 (라스트오더 23:00)",

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 
 export default function StorePage() {
   const stats = [
@@ -34,40 +35,23 @@ export default function StorePage() {
     },
   ];
 
-  const shops = [
-    {
-      id: 1,
-      name: "더 플레이스 강남점",
-      status: "운영중",
-      address: "서울 강남구 테헤란로 123",
-      category: "이탈리안",
-      totalReservations: "1234건",
-      rating: "4.8",
-      reviews: "256개",
-    },
-    {
-      id: 2,
-      name: "일식당 스시마루",
-      status: "운영중",
-      address: "서울 강남구 논현로 456",
-      category: "일식",
-      totalReservations: "892건",
-      rating: "4.9",
-      reviews: "189개",
-    },
-    {
-      id: 3,
-      name: "한식당 정",
-      status: "승인 대기",
-      address: "서울 종로구 인사동길 321",
-      category: "한식",
-      totalReservations: "-",
-      rating: "-",
-      reviews: "-",
-      notice:
-        "가게 승인 대기 중입니다. 영업일 기준 1-2일 내에 승인이 완료됩니다.",
-    },
-  ];
+  const shops = MOCK_RESTAURANTS.map((restaurant) => ({
+    id: restaurant.id,
+    name: restaurant.name,
+    isApproved: restaurant.isApproved,
+    address: restaurant.address,
+    category: restaurant.category,
+    totalReservations: "-",
+    rating: restaurant.rating.toFixed(1),
+    reviews: `${restaurant.reviewCount}개`,
+    notice: !restaurant.isApproved
+      ? "가게 승인 대기 중입니다. 영업일 기준 1-2일 내에 승인이 완료됩니다."
+      : undefined,
+  }));
+
+
+
+
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
@@ -108,8 +92,12 @@ export default function StorePage() {
       {/* 가게 리스트 */}
       <div className="space-y-4 mb-8">
         {shops.map((shop) => (
-          <div
+          <Link
+          to={`/mypage/store/${shop.id}`}
             key={shop.id}
+            className="block"
+            >
+            <div
             className="group relative rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-all cursor-pointer"
           >
             <div className="flex items-start justify-between mb-6">
@@ -122,13 +110,15 @@ export default function StorePage() {
                     <h3 className="text-xl font-medium">{shop.name}</h3>
                     <span
                       className={cn(
-                        "px-3 py-1 rounded-full text-sm font-medium",
-                        shop.status === "운영중"
+
+                        "px-2 py-0.5 rounded-full text-sm",
+                        shop.isApproved
+
                           ? "bg-green-50 text-green-600"
                           : "bg-yellow-50 text-yellow-600",
                       )}
                     >
-                      {shop.status}
+                      {shop.isApproved ? "운영중" : "승인 대기"}
                     </span>
                   </div>
                   <p className="text-sm text-gray-400 mb-2">{shop.address}</p>
@@ -144,7 +134,7 @@ export default function StorePage() {
             </div>
 
             {/* 가게별 상세 수치: 승인 대기일 때는 아예 렌더링하지 않음 */}
-            {shop.status !== "승인 대기" && (
+            {shop.isApproved&& (
               <div className="grid grid-cols-3 py-4 border-t border-gray-100 text-center">
                 <div>
                   <p className="text-sm text-gray-500 mb-2 font-medium">
@@ -170,7 +160,7 @@ export default function StorePage() {
             )}
 
             {/* 승인 대기 알림창: 승인 대기일 때만 표시 */}
-            {shop.status === "승인 대기" && shop.notice && (
+            {!shop.isApproved && shop.notice && (
               <div className="mt-4 p-4 bg-yellow-50/50 rounded-xl border border-yellow-100/50">
                 <p className="text-yellow-700 leading-relaxed font-medium">
                   {shop.notice}
@@ -178,6 +168,7 @@ export default function StorePage() {
               </div>
             )}
           </div>
+          </Link>
         ))}
       </div>
 

@@ -11,6 +11,7 @@ import MyPage from "./pages/myPage/myPage";
 import CustomerSupportPage from "./pages/CustomerSupportPage";
 import PublicLayout from "./layouts/PublicLayout";
 import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
+import OwnerPage from "./pages/ownerPage/ownerPage";
 
 const routes: RouteObject[] = [
   {
@@ -43,6 +44,11 @@ const routes: RouteObject[] = [
     path: "/mypage/store/register", //가게 등록 경로
     element:<StoreRegistrationPage />,
     errorElement: <NotFound />,  
+  },
+  {
+    path: "/mypage/store/:storeId",
+    element: <OwnerPage />,
+    errorElement: <NotFound />,
   }
 ];
 
