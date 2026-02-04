@@ -1,6 +1,6 @@
 import { loadKakaoMapSdk } from "@/lib/kakao";
 import type { RestaurantSummary } from "@/types/store";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type LatLng = { lat: number; lng: number };
 
@@ -39,6 +39,8 @@ export default function KakaoMap({
     [markers],
   );
 
+  const [sdkReady, setSdkReady] = useState(!!window.kakao?.map);
+
   //1. 지도 최초 1회 생성
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +49,7 @@ export default function KakaoMap({
       try {
         await loadKakaoMapSdk();
         if (cancelled) return;
+        setSdkReady(true);
         if (!containerRef.current) return;
 
         const kakao = window.kakao;
@@ -182,7 +185,7 @@ export default function KakaoMap({
         "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
       }
     >
-      {!window.kakao?.maps ? (
+      {!setSdkReady ? (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
           카카오맵 로딩 중..
         </div>
