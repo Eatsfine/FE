@@ -26,15 +26,20 @@ let refreshPromise: ReturnType<typeof postRefresh> | null = null;
 api.interceptors.response.use(
   (res) => {
     const data = res.data;
+    if (isApiResponse(data)) {
+      const failed =
+        (typeof (data as any).success === "boolean" &&
+          (data as any).success === false) ||
+        (typeof (data as any).isSuccess === "boolean" &&
+          (data as any).isSuccess === false);
 
-    if (isApiResponse(data) && data.isSuccess === false) {
-      const apiError: ApiError = {
-        status: res.status,
-        code: data.code,
-        message: data.message,
-      };
-
-      return Promise.reject(apiError);
+      if (failed) {
+        return Promise.reject({
+          status: res.status,
+          code: data.code,
+          message: data.message ?? "요청에 실패했습니다.",
+        });
+      }
     }
     return res;
   },

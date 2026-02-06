@@ -103,7 +103,7 @@ export default function ReservationMenuModal({
 
   const handleRequestClose = useConfirmClose(onClose);
 
-  if (!open) return;
+  if (!open) return null;
 
   return (
     <div
@@ -146,10 +146,11 @@ export default function ReservationMenuModal({
             (["MAIN", "SIDE", "DRINK"] as MenuCategory[]).map((cat) => {
               const list = grouped[cat];
               if (list.length === 0) return null;
+              const safeLabel = CategoryLabel[cat] ?? "기타";
 
               return (
                 <section key={cat} className="space-y-3">
-                  <div className="font-semibold">{CategoryLabel[cat]}</div>
+                  <div className="font-semibold">{safeLabel}</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {list.map((menu) => {
                       const qty = qtyMap.get(menu.id) ?? 0;

@@ -6,7 +6,7 @@ import {
   type SeatType,
   type TablePref,
 } from "@/types/restaurant";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarIcon, Clock3, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
@@ -18,6 +18,9 @@ import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { useStoreDetail } from "@/hooks/reservation/useStoreDetail";
+import { useMenus } from "@/hooks/reservation/useMenus";
+import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
 
 type Props = {
   open: boolean;
@@ -29,7 +32,7 @@ type Props = {
 };
 
 const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
-const TIMES = [
+const FALLBACKTIME = [
   "11:00",
   "11:30",
   "12:00",
@@ -63,13 +66,32 @@ export default function ReservationModal({
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
+  const storeId = restaurant.id;
+  const dateYmd = date ? toYmd(date) : undefined;
+  const isSplitAccepted = tablePref === "split_ok";
+
+  const storeQuery = useStoreDetail(storeId);
+  const menusQuery = useMenus(storeId);
+  const timesQuery = useAvailableTimes({
+    storeId,
+    date: dateYmd,
+    partySize: people,
+    isSplitAccepted,
+  });
   const { rate: depositRate } = useDepositRate(restaurant.id);
   const paymentNotice =
     restaurant.paymentPolicy?.notice ??
     "예약 확정을 위해 예약금 결제가 필요합니다.";
 
+  const didInitRef = useRef(false);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      didInitRef.current = false;
+      return;
+    }
+    if (didInitRef.current) return;
+    didInitRef.current = true;
     if (initialDraft) {
       setPeople(initialDraft.people);
       setDate(initialDraft.date);
@@ -85,7 +107,7 @@ export default function ReservationModal({
       setTablePref("split_ok");
       setSelectedTableId(null);
     }
-  }, [open, initialDraft]);
+  }, [open]);
 
   // date, time, people바뀌면 테이블 재선택 필요
   useEffect(() => {
@@ -94,12 +116,10 @@ export default function ReservationModal({
 
   const todayKst = startOfTodayInKst();
 
-  // 레이아웃 mock 넣음. (나중에 API로 교체예정)
   const layout: SeatLayout | null = useMemo(() => {
-    return getMockLayoutByRestaurantId(restaurant.id ?? "1");
-  }, [restaurant.id]);
+    return getMockLayoutByRestaurantId(storeId ?? "1");
+  }, [storeId]);
 
-  const dateYmd = date ? toYmd(date) : "";
   const canQueryTables = !!layout && !!date && !!time;
 
   // date, time 기준가능 mock
@@ -107,12 +127,12 @@ export default function ReservationModal({
     if (!layout || !date || !time) return new Set<string>();
     const restaurantId = restaurant.id ?? "r-1";
     return getMockAvailableTableIds({
-      restaurantId,
+      restaurantId: storeId,
       dateYmd,
       time,
       tableIds: layout.tables.map((t) => t.id),
     });
-  }, [layout, date, time, dateYmd, restaurant.id]);
+  }, [layout, date, time, dateYmd, storeId]);
 
   const canSubmit = !!date && !!time && !!selectedTableId && !!seatType;
 
@@ -126,10 +146,16 @@ export default function ReservationModal({
     return SEATS.filter((s) => seatTypeExists.has(s));
   }, [layout, seatTypeExists]);
 
+  const serverTimes = useMemo(() => {
+    const raw = timesQuery.data ?? [];
+    const trimmed = raw.map((t) => t.slice(0, 5)).filter(Boolean);
+    if (timesQuery.isError) return FALLBACKTIME;
+    return trimmed;
+  }, [timesQuery.data, timesQuery.isError]);
+
   const handleRequestClose = useConfirmClose(onClose);
 
   if (!open) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -139,17 +165,25 @@ export default function ReservationModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/50 z-0"
         aria-label="모달 닫기"
         onClick={() => onOpenChange(false)}
       />
+
       <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
-            <h2 className="text-xl truncate">{restaurant.name} 예약</h2>
+            <h2 className="text-xl truncate">
+              {storeQuery.data?.storeId} 예약
+            </h2>
             <p className="text-sm text-muted-foreground truncate">
-              {restaurant.address}
+              {storeQuery.data?.address}
             </p>
+
+            {/* 서버값 확인용 */}
+            {storeQuery.isError ? (
+              <p className="text-sm text-red-500 mt-1">식당 정보 조회 실패</p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -207,7 +241,8 @@ export default function ReservationModal({
                   <CalendarIcon className="h-4 w-4 opacity-70" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-2" align="start">
+
+              <PopoverContent className="w-auto p-2 z-[9999]" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -223,8 +258,36 @@ export default function ReservationModal({
               <Clock3 className="h-5 w-5" />
               시간대
             </div>
+
+            {/* 날짜 없을때 */}
+            {!dateYmd ? (
+              <p className="text-muted-foreground">날짜를 먼저 선택해주세요</p>
+            ) : null}
+
+            {/* 로딩/에러/빈상태일때 */}
+            {dateYmd && timesQuery.isLoading ? (
+              <p className="text-muted-foreground">
+                예약 가능시간 기다리는중..
+              </p>
+            ) : null}
+
+            {/* error일때 */}
+            {dateYmd && timesQuery.isError ? (
+              <p className="text-red-500">
+                서버 예약 가능 시간 조회가 실패해서 임시시간표 대체중
+              </p>
+            ) : null}
+
+            {/* 예약가능시간 없을때 */}
+            {dateYmd &&
+            !timesQuery.isLoading &&
+            !timesQuery.isError &&
+            serverTimes.length === 0 ? (
+              <p className="text-muted-foreground">예약 가능한 시간이 없어요</p>
+            ) : null}
+
             <div className="flex flex-wrap gap-2">
-              {TIMES.map((t) => {
+              {serverTimes.map((t) => {
                 const active = time === t;
                 return (
                   <Button
@@ -278,7 +341,7 @@ export default function ReservationModal({
             <div className="mb-3">테이블 선택</div>
             {!layout && (
               <p className="text-sm text-muted-foreground">
-                테이블 배치 정보가 없어요. (백엔드 연결필요)
+                테이블 배치 정보가 없어요.
               </p>
             )}
             {layout && !canQueryTables && (

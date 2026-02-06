@@ -56,7 +56,7 @@ export type GetAvailableTablesParams = {
   time: string;
   partySize: number;
   isSplitAccepted: boolean;
-  seatsType: SeatsTypes;
+  seatsType?: string;
 };
 
 type AvailableTablesResult = {

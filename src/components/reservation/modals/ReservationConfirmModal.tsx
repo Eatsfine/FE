@@ -35,13 +35,17 @@ export default function ReservationConfirmMoodal({
 
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { menus } = useMenus(restaurant.id);
-  const { rate } = useDepositRate(restaurant.id);
-  const { selectedMenus } = draft;
+  const menusQuery = useMenus(restaurant.id);
+  const menus = menusQuery.activeMenus ?? [];
+  const depositQuery = useDepositRate(restaurant.id);
+  const rate = Number.isFinite(depositQuery.rate) ? depositQuery.rate : 0.3;
+  const selectedMenus = draft.selectedMenus ?? [];
   const menuTotal = calcMenuTotal(menus, selectedMenus);
   const depositAmount = calcDeposit(menuTotal, rate);
 
   if (!open) return null;
+
+  const isCalculating = menusQuery.isLoading || depositQuery.isLoading;
 
   return (
     <div
@@ -105,7 +109,8 @@ export default function ReservationConfirmMoodal({
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
             <div className="text-gray-800 mt-1 font-semibold">
-              예약금: {formatKrw(depositAmount)}원
+              예약금:{" "}
+              {isCalculating ? "계산중 .." : `${formatKrw(depositAmount)}원`}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {restaurant.paymentPolicy?.notice ??
