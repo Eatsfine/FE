@@ -16,18 +16,13 @@ import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
 import type { ApiError } from "@/types/api";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useEmailSignup, useSocialLogin } from "@/hooks/queries/useAuth";
+import { useEmailSignup } from "@/hooks/queries/useAuth";
 
 interface SignupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToLogin: () => void;
 }
-
-type KakaoAuthSuccessResponse = {
-  access_token: string;
-};
 
 const defaultValues: SignupFormValues = {
   role: "customer",
@@ -47,7 +42,6 @@ export function SignupDialog({
   onSwitchToLogin,
 }: SignupDialogProps) {
   const signupMutation = useEmailSignup();
-  const socialLoginMutation = useSocialLogin();
 
   const {
     register,
@@ -68,47 +62,10 @@ export function SignupDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = (provider: "google" | "kakao", token: string) => {
-    socialLoginMutation.mutate(
-      { provider, token },
-      {
-        onSuccess: () => onClose(),
-        onError: (error) =>
-          alert(
-            (error as ApiError).message || "회원가입 중 문제가 발생했습니다.",
-          ),
-      },
-    );
-  };
-
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: (response) => {
-      handleSocialLogin("google", response.access_token);
-    },
-    onError: (errorResponse) => {
-      console.error("구글 로그인 실패:", errorResponse);
-    },
-  });
-
-  const handleKakaoLogin = () => {
-    if (!window.Kakao) {
-      return alert("카카오 스크립트가 아직 로드되지 않았습니다.");
-    }
-    const kakaoKey = import.meta.env.VITE_KAKAO_JS_KEY;
-    if (!kakaoKey) {
-      return alert("VITE_KAKAO_JS_KEY가 설정되어 있지 않습니다.");
-    }
-    if (!window.Kakao.isInitialized()) {
-      window.Kakao.init(kakaoKey);
-    }
-    window.Kakao.Auth.login({
-      success: (authObj: KakaoAuthSuccessResponse) => {
-        handleSocialLogin("kakao", authObj.access_token);
-      },
-      fail: (error: unknown) => {
-        console.error("카카오 로그인 실패:", error);
-      },
-    });
+  const handleSocialLogin = (provider: "google" | "kakao") => {
+    const backendUrl = import.meta.env.VITE_API_URL;
+    // TODO: url 수정 예정
+    window.location.href = `${backendUrl}/auth/social/${provider}`;
   };
 
   const onSubmit = (formData: SignupFormValues) => {
@@ -144,7 +101,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base cursor-pointer"
-              onClick={() => handleGoogleLogin()}
+              onClick={() => handleSocialLogin("google")}
             >
               <img
                 src="/icons/google.svg"
@@ -158,7 +115,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
-              onClick={handleKakaoLogin}
+              onClick={() => handleSocialLogin("kakao")}
             >
               <img
                 src="/icons/kakao.svg"

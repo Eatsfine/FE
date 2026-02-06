@@ -19,9 +19,12 @@ import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
-import { useEffect } from "react";
+import OAuthCallbackPage from "./pages/OAuthCallbackPage";
+import LoginErrorPage from "./pages/LoginErrorPage";
 
 const routes: RouteObject[] = [
+  { path: "/oauth/callback", element: <OAuthCallbackPage /> },
+  { path: "/login/error", element: <LoginErrorPage /> },
   {
     element: <PublicLayout />,
     errorElement: <NotFound />,
@@ -72,24 +75,6 @@ const routes: RouteObject[] = [
 const router = createBrowserRouter(routes);
 
 export default function App() {
-  // 카카오 sdk 초기화
-  useEffect(() => {
-    const tryInit = () => {
-      if (window.Kakao && !window.Kakao.isInitialized()) {
-        window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
-        return true;
-      }
-      return false;
-    };
-
-    if (tryInit()) return;
-
-    const interval = setInterval(() => {
-      if (tryInit()) clearInterval(interval);
-    }, 200);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <>
       <RouterProvider router={router} />

@@ -1,4 +1,4 @@
-import { postLogin, postSignup, postSocialLogin } from "@/api/auth";
+import { postLogin, postSignup } from "@/api/auth";
 import type { LoginFormValues } from "@/components/auth/login.schema";
 import type { SignupFormValues } from "@/components/auth/signup.schema";
 import { useAuthActions } from "@/stores/useAuthStore";
@@ -35,27 +35,6 @@ export const useEmailLogin = () => {
     },
     onError: (error: ApiError) => {
       console.error("이메일 로그인 실패:", error);
-    },
-  });
-};
-
-// 소셜 로그인 훅
-export const useSocialLogin = () => {
-  const { login } = useAuthActions();
-
-  return useMutation({
-    mutationFn: ({
-      provider,
-      token,
-    }: {
-      provider: "google" | "kakao";
-      token: string;
-    }) => postSocialLogin(provider, { accessToken: token }),
-    onSuccess: (response) => {
-      login(response.data.accessToken);
-    },
-    onError: (error: ApiError) => {
-      console.error("소셜 로그인 실패:", error);
     },
   });
 };
