@@ -5,7 +5,8 @@ import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuthActions, useIsAuthenticated } from "@/stores/useAuthStore";
+import { useIsAuthenticated } from "@/stores/useAuthStore";
+import { logout } from "@/api/auth";
 
 type NavItem = {
   label: string;
@@ -20,8 +21,6 @@ export default function Header() {
   const [signupOpen, setSignupOpen] = useState(false);
 
   const isAuthenticated = useIsAuthenticated();
-
-  const { logout } = useAuthActions();
 
   const nav = useNavigate();
 
@@ -62,10 +61,10 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
-    logout();
+    await logout();
     setMobileOpen(false);
 
     alert("로그아웃 되었습니다.");

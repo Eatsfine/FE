@@ -74,9 +74,20 @@ const router = createBrowserRouter(routes);
 export default function App() {
   // 카카오 sdk 초기화
   useEffect(() => {
-    if (window.Kakao && !window.Kakao.isInitialized()) {
-      window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
-    }
+    const tryInit = () => {
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
+        return true;
+      }
+      return false;
+    };
+
+    if (tryInit()) return;
+
+    const interval = setInterval(() => {
+      if (tryInit()) clearInterval(interval);
+    }, 200);
+    return () => clearInterval(interval);
   }, []);
 
   return (

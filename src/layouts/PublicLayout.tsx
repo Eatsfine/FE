@@ -1,15 +1,15 @@
-import { useAuthActions, useIsAuthenticated } from "@/stores/useAuthStore";
+import { logout } from "@/api/auth";
+import { useIsAuthenticated } from "@/stores/useAuthStore";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const nav = useNavigate();
-  const { logout } = useAuthActions();
   const isAuthenticated = useIsAuthenticated();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
-    logout();
+    await logout();
     alert("로그아웃 되었습니다.");
     nav("/", { replace: true });
   };

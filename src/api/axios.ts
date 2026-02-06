@@ -2,6 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { isApiResponse, normalizeApiError } from "./api.error";
 import type { ApiError } from "@/types/api";
 import { clearAuth, postRefresh } from "./auth";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
@@ -9,7 +10,7 @@ export const api = axios.create({
 });
 
 function getAccessToken() {
-  return localStorage.getItem("accessToken");
+  return useAuthStore.getState().accessToken;
 }
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -19,6 +20,8 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   }
   return config;
 });
+
+let refreshPromise: ReturnType<typeof postRefresh> | null = null;
 
 api.interceptors.response.use(
   (res) => {
@@ -65,14 +68,26 @@ api.interceptors.response.use(
       originalRequest._retry = true; // 재시도 플래그 설정
 
       try {
-        //토큰 재발급 요청
-        const response = await postRefresh();
+        // 이미 진행 중인 재발급 있으면 그 결과 재사용
+        if (!refreshPromise) {
+          refreshPromise = postRefresh().finally(() => {
+            refreshPromise = null;
+          });
+        }
+
+        const response = await refreshPromise;
+
+        // 재발급은 성공했지만 서버에서 실패 응답을 준 경우
+        if (!response.success) {
+          clearAuth();
+          return Promise.reject(apiError);
+        }
 
         if (response.success) {
           const newAccessToken = response.data.accessToken;
 
           // 새 토큰 저장
-          localStorage.setItem("accessToken", newAccessToken);
+          useAuthStore.getState().actions.login(newAccessToken);
 
           // 실패했던 요청의 헤더를 새 토큰으로 교체
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

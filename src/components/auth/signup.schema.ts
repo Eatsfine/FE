@@ -14,6 +14,7 @@ export const signupSchema = z
     phone: z
       .string()
       .min(1, { message: "휴대폰 번호를 입력해주세요." })
+      // SignupDialog에서 phoneNumber 유틸을 통해 하이픈 강제 적용되므로, 데이터 일관성을 위해 엄격한 정규식을 유지
       .regex(/^\d{2,3}-\d{3,4}-\d{4}$/, {
         message: "올바른 휴대폰 번호 형식이 아닙니다.",
       }),
