@@ -64,7 +64,7 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType | null>(null);
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
 
   const storeId = restaurant.id;
   const dateYmd = date ? toYmd(date) : undefined;

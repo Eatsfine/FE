@@ -47,7 +47,7 @@ export default function ReservationMenuModal({
   }, [open, draft.selectedMenus]);
 
   const qtyMap = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<number, number>();
     for (const s of selectedMenus) map.set(s.menuId, s.quantity);
     return map;
   }, [selectedMenus]);

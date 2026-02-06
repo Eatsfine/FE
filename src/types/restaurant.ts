@@ -52,7 +52,7 @@ export type ReservationDraft = {
   time: string;
   seatType: SeatType;
   tablePref: TablePref;
-  tableId: string;
+  tableId: number | null;
   selectedMenus: SelectedMenu[];
 };
 

@@ -1,4 +1,19 @@
+import type { DepositRate } from "@/types/payment";
 import { api } from "../axios";
+import { mockDepositRateByRestaurantId } from "@/mock/restaurantSetting";
+
+// 나중에 서버 API붙일곳
+// export async function getDepositRate(restaurantId: string): Promise<DepositRate>{
+//   const {data} = await api.get<ApiResult<{depositRate: DepositRate}>>(`/store/${restaurantId}/deposit-rate`);
+//   if (!data?.isSuccess) throw ...
+//   return data.result.depositRate;
+// }
+
+export async function getDepositRate(
+  restaurantId: string,
+): Promise<DepositRate> {
+  return mockDepositRateByRestaurantId[restaurantId] ?? 0.3;
+}
 
 type ApiResult<T> = {
   isSuccess: boolean;
@@ -77,6 +92,47 @@ export async function getAvailableTables(params: GetAvailableTablesParams) {
       status: 0,
       code: data?.code,
       message: data?.message ?? "예약 가능 테이블 조회를 실패하였습니다.",
+    };
+  }
+  return data.result;
+}
+
+type CreateBookingBody = {
+  date: string;
+  time: string;
+  partySize: number;
+  tableIds: number[];
+  menuItems: { menuId: number; quantity: number }[];
+  isSplitAccepted: boolean;
+};
+
+export type CreateBookingResult = {
+  bookingId: number;
+  status: "PENDING" | "CONFIRMED" | string;
+  storeName: string;
+  date: string;
+  time: string; //일단 18:00:00 이형태 나타날수도있음. 추후 수정부탁.
+  partySize: number;
+  totalDeposit: number;
+  paymentId?: number;
+  orderId: string;
+};
+
+export async function createBooking(params: {
+  storeId: string | number;
+  body: CreateBookingBody;
+}): Promise<CreateBookingResult> {
+  const { storeId, body } = params;
+  const { data } = await api.post<ApiResult<CreateBookingResult>>(
+    `/stores/${storeId}/bookings`,
+    body,
+  );
+
+  if (!data?.isSuccess) {
+    throw {
+      status: 0,
+      code: data?.code,
+      message: data?.message ?? "예약 생성에 실패했습니다.",
     };
   }
   return data.result;
