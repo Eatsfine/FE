@@ -133,38 +133,7 @@ export function SignupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4 mt-2">
-          <Controller
-            control={control}
-            name="role"
-            render={({ field }) => (
-              <div className="flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => field.onChange("customer")}
-                  className={
-                    field.value === "customer"
-                      ? "bg-blue-600 text-white h-12 w-full rounded-lg transition-colors"
-                      : "bg-gray-200 text-gray-600 h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-                  }
-                >
-                  고객
-                </button>
-                <button
-                  type="button"
-                  onClick={() => field.onChange("owner")}
-                  className={
-                    field.value === "owner"
-                      ? "bg-blue-600 text-white h-12 w-full rounded-lg transition-colors"
-                      : "bg-gray-200 text-gray-600 h-12 w-full rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-                  }
-                >
-                  점주
-                </button>
-              </div>
-            )}
-          />
-
+        <div className="space-y-4 py-4">
           {/* 소셜 회원가입 */}
           <div className="flex flex-col gap-4 py-4">
             <Button

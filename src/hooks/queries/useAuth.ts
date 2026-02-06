@@ -10,7 +10,7 @@ export const useEmailSignup = () => {
   return useMutation({
     mutationFn: (data: SignupFormValues) => {
       const requestBody = {
-        role: data.role!,
+        role: "customer" as const,
         name: data.name,
         email: data.email,
         phone: data.phone,
