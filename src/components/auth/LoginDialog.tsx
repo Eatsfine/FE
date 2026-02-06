@@ -207,22 +207,6 @@ export function LoginDialog({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <a
-                    href="#find-id"
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    아이디 찾기
-                  </a>
-                  <span className="text-gray-300">|</span>
-                  <a
-                    href="#find-password"
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    비밀번호 찾기
-                  </a>
-                </div>
-
                 <Button
                   type="submit"
                   disabled={emailLoginMutation.isPending}
@@ -234,7 +218,7 @@ export function LoginDialog({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full cursor-pointer"
+                  className="w-full h-12 cursor-pointer"
                   onClick={() => setShowEmailLogin(false)}
                 >
                   다른 방법으로 로그인
