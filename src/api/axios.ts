@@ -99,7 +99,7 @@ api.interceptors.response.use(
         // 재발급 실패 시 로그아웃 처리
         console.error("토큰 재발급 실패:", refreshError);
         clearAuth();
-        return Promise.reject(refreshError);
+        return Promise.reject(normalizeApiError(refreshError as AxiosError));
       }
     }
 

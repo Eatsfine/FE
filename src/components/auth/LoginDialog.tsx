@@ -84,8 +84,12 @@ export function LoginDialog({
     if (!window.Kakao) {
       return alert("카카오 스크립트가 아직 로드되지 않았습니다.");
     }
+    const kakaoKey = import.meta.env.VITE_KAKAO_JS_KEY;
+    if (!kakaoKey) {
+      return alert("VITE_KAKAO_JS_KEY가 설정되어 있지 않습니다.");
+    }
     if (!window.Kakao.isInitialized()) {
-      window.Kakao.init(import.meta.env.VITE_KAKAO_JS_KEY);
+      window.Kakao.init(kakaoKey);
     }
     window.Kakao.Auth.login({
       success: (authObj: KakaoAuthSuccessResponse) => {

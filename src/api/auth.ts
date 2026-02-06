@@ -66,10 +66,11 @@ export const logout = async () => {
 
 export const postRefresh = async () => {
   const { data } = await axios.post<ApiResponse<ResponseRefreshDto>>(
-    `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+    `${import.meta.env.VITE_API_URL}/auth/refresh`,
     {},
     {
       withCredentials: true,
+      timeout: 10000,
     },
   );
   return data;
