@@ -1,9 +1,8 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
-import { type ReservationDraft, type Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
-import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 import ReservationModal from "@/components/reservation/modals/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
 import ReservationCompleteModal from "@/components/reservation/modals/ReservationCompleteModal";
@@ -13,12 +12,13 @@ import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
 import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
 import { searchMockStores } from "@/mock/store.api.mock";
 import KakaoMap from "@/components/map/KakaoMap";
+import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 
 type DetailStatus = "idle" | "loading" | "success" | "error";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [reserveOpen, setReserveOpen] = useState(false);
@@ -33,6 +33,7 @@ export default function SearchPage() {
   const [detailError, setDetailError] = useState<string | null>(null);
 
   const detailRequestIdRef = useRef(0);
+  const detailQuery = useRestaurantDetail(selectedStoreId);
 
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     null,
@@ -46,40 +47,22 @@ export default function SearchPage() {
 
   const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
 
-  const selectedLegacy: Restaurant | null = useMemo(() => {
-    if (!selectedStoreId) return null;
-    return MOCK_RESTAURANTS.find((r) => r.id === selectedStoreId) ?? null;
-  }, [selectedStoreId]);
-
-  async function fetchStoreDetailMock(storeId: string) {
-    const detail = MOCK_STORE_DETAIL_BY_ID[storeId];
+  async function fetchStoreDetailMock(storeId: number) {
+    const detail = MOCK_STORE_DETAIL_BY_ID[String(storeId)];
     if (!detail) throw new Error("상세 정보 mock데이터가 없습니다");
     return detail;
   }
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
-    const requestId = ++detailRequestIdRef.current;
-
     setSelectedStoreId(storeId);
     setDetailOpen(true);
-    setDetailStatus("loading");
-    setDetailData(null);
-    setDetailError(null);
     setDraft(null);
     setConfirmOpen(false);
     setReserveOpen(false);
-    try {
-      const detail = await fetchStoreDetailMock(storeId);
-      if (requestId !== detailRequestIdRef.current) return;
-      setDetailData(detail);
-      setDetailStatus("success");
-    } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
-      setDetailError(msg);
-      setDetailStatus("error");
-    }
+    setReserveMenuOpen(false);
+    setPaymentOpen(false);
+    setCompleteOpen(false);
   };
 
   const retryDetail = async () => {
@@ -272,36 +255,50 @@ export default function SearchPage() {
               closeModalsOnly();
             }
           }}
-          status={detailStatus}
-          restaurant={detailData}
-          errorMessage={detailError ?? undefined}
-          onRetry={retryDetail}
+          status={
+            !selectedStoreId
+              ? "idle"
+              : detailQuery.isLoading
+                ? "loading"
+                : detailQuery.isError
+                  ? "error"
+                  : "success"
+          }
+          restaurant={detailQuery.data ?? null}
+          errorMessage={
+            detailQuery.isError
+              ? detailQuery.error instanceof Error
+                ? detailQuery.error.message
+                : "상세 조회 실패"
+              : undefined
+          }
+          onRetry={() => detailQuery.refetch()}
           onClickReserve={goReserve}
         />
       )}
       {/* 예약 페이지 모달 */}
-      {selectedLegacy && (
+      {selectedStoreId && (
         <ReservationModal
           open={reserveOpen}
           onOpenChange={(o: boolean) => {
             setReserveOpen(o);
             if (!o) closeModalsOnly();
           }}
-          restaurant={selectedLegacy}
+          restaurant={detailQuery.data ?? null}
           initialDraft={draft ?? undefined}
           onClickConfirm={goReserveMenu}
           onClose={closeModalsOnly}
         />
       )}
       {/* 메뉴선택 모달 */}
-      {selectedLegacy && draft && (
+      {selectedStoreId && draft && (
         <ReservationMenuModal
           open={reserveMenuOpen}
           onOpenChange={(o: boolean) => {
             setReserveMenuOpen(o);
             if (!o) closeModalsOnly();
           }}
-          restaurant={selectedLegacy}
+          restaurant={detailQuery.data ?? null}
           onConfirm={goConfirm}
           onBack={backToReserve}
           onClose={closeModalsOnly}
@@ -309,24 +306,24 @@ export default function SearchPage() {
         />
       )}
       {/* 예약확인 페이지 모달 */}
-      {selectedLegacy && draft && (
+      {selectedStoreId && draft && (
         <ReservationConfirmMoodal
           open={confirmOpen}
           onClose={closeModalsOnly}
           onBack={backToReserveMenu}
           onConfirm={goPayment}
-          restaurant={selectedLegacy}
+          restaurant={detailQuery.data ?? null}
           draft={draft}
         />
       )}
 
       {/* 결제 모달 */}
-      {selectedLegacy && draft && paymentOpen && (
+      {selectedStoreId && draft && paymentOpen && (
         <PaymentModal
           open={paymentOpen}
           onClose={closeModalsOnly}
           onOpenChange={setPaymentOpen}
-          restaurant={selectedLegacy}
+          restaurant={detailQuery.data ?? null}
           draft={draft}
           onSuccess={() => {
             setPaymentOpen(false);
@@ -335,10 +332,10 @@ export default function SearchPage() {
         />
       )}
       {/* 예약완료 페이지 모달 */}
-      {selectedLegacy && draft && (
+      {selectedStoreId && draft && (
         <ReservationCompleteModal
           open={completeOpen}
-          restaurant={selectedLegacy}
+          restaurant={detailQuery.data ?? null}
           draft={draft}
           onClose={closeModalsOnly}
           autoCloseMs={5000}

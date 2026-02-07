@@ -31,8 +31,9 @@ function formatBusinessHours(r: RestaurantDetail) {
     "SATURDAY",
     "SUNDAY",
   ];
+  const hours = Array.isArray(r.businessHours) ? r.businessHours : [];
 
-  const byDay = new Map(r.businessHours.map((b) => [b.day, b]));
+  const byDay = new Map(hours.map((b) => [b.day, b]));
   const lines = order.map((day) => {
     const item = byDay.get(day);
     if (!item) return `${DAY_LABEL[day]}: 정보 없음`;
@@ -144,7 +145,21 @@ export default function RestaurantDetailModal({
   }
   if (status !== "success") return null;
   if (!restaurant) return null;
-  const { lines: hourLines, breakLine } = formatBusinessHours(restaurant);
+
+  const rating = typeof restaurant.rating === "number" ? restaurant.rating : 0;
+  const reviewCount =
+    typeof restaurant.reviewCount === "number" ? restaurant.reviewCount : 0;
+  const tableImageUrls = Array.isArray(restaurant.tableImageUrls)
+    ? restaurant.tableImageUrls
+    : [];
+  const businessHours = Array.isArray(restaurant.businessHours)
+    ? restaurant.businessHours
+    : [];
+
+  const { lines: hourLines, breakLine } = formatBusinessHours({
+    ...restaurant,
+    businessHours,
+  });
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -185,10 +200,8 @@ export default function RestaurantDetailModal({
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Star className="size-5 text-yellow-500 fill-yellow-500" />
-              <span>{restaurant.rating.toFixed(1)}</span>
-              <span className="text-gray-500">
-                ({restaurant.reviewCount}개 리뷰)
-              </span>
+              <span>{rating.toFixed(1)}</span>
+              <span className="text-gray-500">({reviewCount}개 리뷰)</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -220,21 +233,25 @@ export default function RestaurantDetailModal({
 
             <div className="mb-6">
               <p className="text-gray-600 mb-2">테이블 사진</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {restaurant.tableImageUrls.map((url, idx) => (
-                  <div
-                    key={`${url}-${idx}`}
-                    className="aspect-square rounded-lg overflow-hidden"
-                  >
-                    <img
-                      src={url}
-                      alt={`테이블 ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
+              {tableImageUrls.length === 0 ? (
+                <p className="text-muted-foreground">등록된 사진이 없어요</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {tableImageUrls.map((url, idx) => (
+                    <div
+                      key={`${url}-${idx}`}
+                      className="aspect-square rounded-lg overflow-hidden"
+                    >
+                      <img
+                        src={url}
+                        alt={`테이블 ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3">

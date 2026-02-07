@@ -19,7 +19,7 @@ import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useStoreDetail } from "@/hooks/reservation/useStoreDetail";
-import { useMenus } from "@/hooks/reservation/useMenus";
+
 import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
 import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
 import { seatsTypeToSeatType } from "@/utils/reservation";
@@ -206,8 +206,8 @@ export default function ReservationModal({
       <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
-            <h2 className="text-xl truncate">
-              {storeQuery.data?.storeId} 예약
+            <h2 className="text-xl truncate font-medium">
+              {storeQuery.data?.storeName}{" "}
             </h2>
             <p className="text-sm text-muted-foreground truncate">
               {storeQuery.data?.address}

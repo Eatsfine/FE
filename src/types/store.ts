@@ -1,3 +1,5 @@
+import type { $ZodNumberDef } from "zod/v4/core";
+
 export type Category = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
 export type Day =
@@ -15,7 +17,7 @@ export type Location = {
 };
 
 export type RestaurantSummary = {
-  id: string;
+  id: $ZodNumberDef;
   name: string;
   address: string;
   category: Category;
@@ -40,7 +42,7 @@ export type BreakTime = {
 };
 
 export type RestaurantDetail = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   address: string;
