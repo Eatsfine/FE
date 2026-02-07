@@ -22,7 +22,7 @@ export type RequestLoginDto = {
 export type ResponseLoginDto = {
   id: number;
   accessToken: string;
-  refreshToken: string;
+  refreshToken: string | null;
 };
 
 export type ResponseLogoutDto = string;

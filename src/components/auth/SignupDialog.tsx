@@ -15,7 +15,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
-import type { ApiError } from "@/types/api";
 import { useEmailSignup } from "@/hooks/queries/useAuth";
 
 interface SignupDialogProps {
@@ -76,9 +75,8 @@ export function SignupDialog({
         onSwitchToLogin();
       },
       onError: (error) =>
-        alert(
-          (error as ApiError).message || "회원가입 중 문제가 발생했습니다.",
-        ),
+        // TODO: 에러 유틸 함수 추가 예정
+        alert(error.message || "회원가입 중 문제가 발생했습니다."),
     });
   };
 

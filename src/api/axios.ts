@@ -27,7 +27,7 @@ api.interceptors.response.use(
   (res) => {
     const data = res.data;
 
-    if (isApiResponse(data) && data.success === false) {
+    if (isApiResponse(data) && data.isSuccess === false) {
       const apiError: ApiError = {
         status: res.status,
         code: data.code,
@@ -59,7 +59,7 @@ api.interceptors.response.use(
       // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
       if (
         originalRequest._retry ||
-        originalRequest.url?.includes("/auth/refresh")
+        originalRequest.url?.includes("/api/auth/reissue")
       ) {
         clearAuth();
         return Promise.reject(apiError);
@@ -75,16 +75,10 @@ api.interceptors.response.use(
           });
         }
 
-        const response = await refreshPromise;
+        const result = await refreshPromise;
 
-        // 재발급은 성공했지만 서버에서 실패 응답을 준 경우
-        if (!response.success) {
-          clearAuth();
-          return Promise.reject(apiError);
-        }
-
-        if (response.success) {
-          const newAccessToken = response.data.accessToken;
+        if (result && result.accessToken) {
+          const newAccessToken = result.accessToken;
 
           // 새 토큰 저장
           useAuthStore.getState().actions.login(newAccessToken);
@@ -95,14 +89,28 @@ api.interceptors.response.use(
           // 재시도
           return api(originalRequest);
         }
+
+        clearAuth();
+        return Promise.reject(apiError);
       } catch (refreshError) {
         // 재발급 실패 시 로그아웃 처리
         console.error("토큰 재발급 실패:", refreshError);
         clearAuth();
-        return Promise.reject(normalizeApiError(refreshError as AxiosError));
+
+        if (axios.isAxiosError(refreshError)) {
+          return Promise.reject(normalizeApiError(refreshError));
+        }
+
+        const unknownError: ApiError = {
+          status: 0,
+          code: "UNKNOWN_REFRESH_ERROR",
+          message: "토큰 재발급 중 알 수 없는 오류가 발생했습니다.",
+        };
+
+        return Promise.reject(unknownError);
       }
     }
 
-    return Promise.reject(apiError);
+    return Promise.reject(err);
   },
 );

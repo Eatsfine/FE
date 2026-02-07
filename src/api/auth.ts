@@ -53,6 +53,8 @@ export const logout = async () => {
 };
 
 export const postRefresh = async (): Promise<ResponseRefreshDto> => {
+  // refresh는 api 인스턴스를 사용하지 않음
+  // 이유: response interceptor(401 → refresh)가 다시 실행되는 것을 방지하기 위함
   const { data } = await axios.post<ApiResponse<ResponseRefreshDto>>(
     `${import.meta.env.VITE_API_URL}/api/auth/reissue`,
     {},
