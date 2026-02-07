@@ -13,14 +13,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Calendar } from "../../ui/calendar";
 import { Button } from "../../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
-import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
-import { getMockAvailableTableIds } from "@/mock/tableAvailability";
+// import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
+// import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useStoreDetail } from "@/hooks/reservation/useStoreDetail";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
+import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
+import { seatsTypeToSeatType } from "@/utils/reservation";
 
 type Props = {
   open: boolean;
@@ -69,15 +71,39 @@ export default function ReservationModal({
   const storeId = restaurant.id;
   const dateYmd = date ? toYmd(date) : undefined;
   const isSplitAccepted = tablePref === "split_ok";
+  const canQueryTables = !!dateYmd && !!time;
+  const seatsTypeParam =
+    seatType === "창가석"
+      ? "WINDOW"
+      : seatType === "일반석"
+        ? "GENERAL"
+        : seatType === "룸/프라이빗"
+          ? "ROOM"
+          : seatType === "바(Bar)석"
+            ? "BAR"
+            : seatType === "야외석"
+              ? "OUTDOOR"
+              : undefined;
 
   const storeQuery = useStoreDetail(storeId);
-  const menusQuery = useMenus(storeId);
   const timesQuery = useAvailableTimes({
     storeId,
     date: dateYmd,
     partySize: people,
     isSplitAccepted,
   });
+  const availableTablesQuery = useAvailableTables(
+    canQueryTables
+      ? {
+          storeId,
+          date: dateYmd!,
+          time,
+          partySize: people,
+          isSplitAccepted,
+          seatsType: seatsTypeParam,
+        }
+      : null,
+  );
   const { rate: depositRate } = useDepositRate(restaurant.id);
   const paymentNotice =
     restaurant.paymentPolicy?.notice ??
@@ -117,22 +143,32 @@ export default function ReservationModal({
   const todayKst = startOfTodayInKst();
 
   const layout: SeatLayout | null = useMemo(() => {
-    return getMockLayoutByRestaurantId(storeId ?? "1");
-  }, [storeId]);
+    const data = availableTablesQuery.data;
+    if (!data) return null;
 
-  const canQueryTables = !!layout && !!date && !!time;
+    return {
+      gridRows: data.rows,
+      gridCols: data.cols,
+      tables: data.tables.map((t) => ({
+        id: t.tableId,
+        tableNo: Number(String(t.tableNumber).replace(/\D/g, "")) || t.tableId,
+        seatType: seatsTypeToSeatType(t.seatsType),
+        minPeople: 1, //서버에 min/max없어서 임시처리
+        maxPeople: t.tableSeats,
+        gridX: t.gridX,
+        gridY: t.gridY,
+        widthSpan: t.widthSpan || 1,
+        heightSpan: t.heightSpan || 1,
+      })),
+    };
+  }, [availableTablesQuery.data]);
 
   // date, time 기준가능 mock
   const availableIds = useMemo(() => {
-    if (!layout || !date || !time) return new Set<string>();
-    const restaurantId = restaurant.id ?? "r-1";
-    return getMockAvailableTableIds({
-      restaurantId: storeId,
-      dateYmd,
-      time,
-      tableIds: layout.tables.map((t) => t.id),
-    });
-  }, [layout, date, time, dateYmd, storeId]);
+    const data = availableTablesQuery.data;
+    if (!data) return new Set<number>();
+    return new Set<number>(data.tables.map((t) => t.tableId));
+  }, [availableTablesQuery.data]);
 
   const canSubmit = !!date && !!time && !!selectedTableId && !!seatType;
 
@@ -313,7 +349,8 @@ export default function ReservationModal({
             <div className="flex flex-wrap gap-2">
               {seatOptions.map((s) => {
                 const active = seatType === s;
-                const exists = seatTypeExists.has(s);
+                // 레이아웃없어도 좌석유형 클릭되도록함.
+                const exists = !layout ? true : seatTypeExists.has(s);
                 return (
                   <Button
                     key={s}

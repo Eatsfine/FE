@@ -61,10 +61,10 @@ export default function ReservationConfirmMoodal({
   if (!open) return null;
 
   const onClickConfirm = async () => {
-    const tableId = Number(draft.tableId);
+    const tableId = draft.tableId;
     if (!restaurant.id) return;
     if (createBookingMutation.isPending) return;
-    if (!Number.isFinite(tableId) || tableId <= 0) {
+    if (typeof tableId !== "number" || tableId <= 0) {
       alert("테이블을 먼저 선택해주세요");
       return;
     }
