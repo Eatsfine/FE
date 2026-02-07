@@ -125,12 +125,6 @@ export function SignupDialog({
               />
               카카오톡으로 가입하기
             </Button>
-
-            <p className="text-xs text-center text-gray-500 px-2 break-keep">
-              소셜 계정으로 가입 시 <span className="underline">이용약관</span>,{" "}
-              <span className="underline">개인정보처리방침</span> 에 동의하는
-              것으로 간주합니다.
-            </p>
           </div>
 
           <div className="relative">
