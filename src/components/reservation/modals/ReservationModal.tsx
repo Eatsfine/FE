@@ -178,6 +178,11 @@ export default function ReservationModal({
 
   const handleRequestClose = useConfirmClose(onClose);
 
+  useEffect(() => {
+    setSeatType(null);
+    setSelectedTableId(null);
+  }, [people, date, time]);
+
   if (!open) return null;
   return (
     <div
