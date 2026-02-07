@@ -64,8 +64,7 @@ export function SignupDialog({
 
   const handleSocialLogin = (provider: "google" | "kakao") => {
     const backendUrl = import.meta.env.VITE_API_URL;
-    // TODO: url 수정 예정
-    window.location.href = `${backendUrl}/auth/social/${provider}`;
+    window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
   };
 
   const onSubmit = (formData: SignupFormValues) => {
