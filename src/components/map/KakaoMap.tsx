@@ -42,6 +42,17 @@ export default function KakaoMap({
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
+  const relayout = () => {
+    const kakao = window.kakao;
+    if (!kakao?.maps || !mapRef.current) return;
+
+    try {
+      mapRef.current.relayout();
+      mapRef.current.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+    } catch {
+      // noop
+    }
+  };
   //1. 지도 최초 1회 생성
   useEffect(() => {
     let cancelled = false;
@@ -51,9 +62,9 @@ export default function KakaoMap({
         await loadKakaoMapSdk();
         if (cancelled) return;
         setSdkReady(true);
-        if (!containerRef.current) return;
 
         const kakao = window.kakao;
+        if (!containerRef.current) return;
         if (mapRef.current) return;
 
         const options = {
@@ -62,33 +73,55 @@ export default function KakaoMap({
         };
         mapRef.current = new kakao.maps.Map(containerRef.current, options);
         infoRef.current = new kakao.maps.InfoWindow({ zIndex: 2 });
+        // requestAnimationFrame(() => {
+        //   mapRef.current.relayout();
+        //   mapRef.current.setCenter(
+        //     new kakao.maps.LatLng(center.lat, center.lng),
+        //   );
+        // });
+        relayout();
+        requestAnimationFrame(relayout);
+        setTimeout(relayout, 300);
       } catch (e) {
         console.error(e);
         setSdkError("카카오맵 로딩에 실패했습니다.");
       }
     };
     init();
+
     return () => {
       cancelled = true;
     };
-  }, [center.lat, center.lng, defaultLevel]);
+  }, [defaultLevel]);
+  // 2. 컨테이너 사이즈 변하면 relayout
+  useEffect(() => {
+    if (!sdkReady) return;
+    if (!containerRef.current) return;
+    const el = containerRef.current;
+    const ro = new ResizeObserver(() => {
+      relayout();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [sdkReady]);
 
-  //2. 센터바뀌면 지도 중심 이동
+  //3. 센터바뀌면 지도 중심 이동 (선택 없을때만)
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps || !mapRef.current) return;
+    if (!sdkReady || !kakao?.maps || !mapRef.current) return;
 
-    if (selectedId) return;
+    if (selectedId != null) return;
 
     const next = new kakao.maps.LatLng(center.lat, center.lng);
     mapRef.current.panTo(next);
-  }, [center.lat, center.lng, selectedId]);
+  }, [sdkReady, center.lat, center.lng, selectedId]);
 
+  // 4. 선택 마커 있으면 글로 이동
   useEffect(() => {
     const kakao = window.kakao;
     if (!kakao?.maps || !mapRef.current) return;
 
-    if (!selectedId) return;
+    if (selectedId == null) return;
     const target = safeMarkers.find((m) => m.id === selectedId);
     if (!target) return;
 
@@ -98,10 +131,10 @@ export default function KakaoMap({
     );
 
     mapRef.current.panTo(next);
-    if (selectedLevel) mapRef.current.setLevel(selectedLevel);
+    mapRef.current.setLevel(selectedLevel);
   }, [selectedId, selectedLevel, safeMarkers]);
 
-  //3. 마커 바뀌면 마커 재생성
+  //5. 마커 바뀌면 마커 재생성
   useEffect(() => {
     const kakao = window.kakao;
     if (!kakao?.maps || !mapRef.current) return;
@@ -132,39 +165,29 @@ export default function KakaoMap({
       });
       markersRef.current.set(store.id, marker);
     });
+    relayout();
   }, [safeMarkers, onSelectMarker]);
 
-  // 선택변경 useeffect. selectedId가 바뀔때만
+  //6. 선택변경시 zIndex 처리
   useEffect(() => {
     const kakao = window.kakao;
     if (!kakao?.maps || !mapRef.current) return;
 
     const prevId = prevSelectedIdRef.current;
-    if (prevId) {
-      const prevMarker = markersRef.current.get(prevId);
-      prevMarker?.setZIndex(1);
+    if (prevId != null) {
+      markersRef.current.get(prevId)?.setZIndex(1);
     }
-    if (selectedId) {
-      const nextMarker = markersRef.current.get(selectedId);
-      nextMarker?.setZIndex(10);
-      const target = safeMarkers.find((m) => m.id === selectedId);
-      if (target) {
-        const next = new kakao.maps.LatLng(
-          target.location.lat,
-          target.location.lng,
-        );
-        mapRef.current.panTo(next);
-        if (selectedLevel) mapRef.current.setLevel(selectedLevel);
-      }
+    if (selectedId != null) {
+      markersRef.current.get(selectedId)?.setZIndex(10);
     }
     prevSelectedIdRef.current = selectedId ?? null;
-  }, [selectedId, selectedLevel, safeMarkers]);
+  }, [selectedId]);
 
-  //4. 마커 목록 바뀌면 bounds 맞추기
+  //7. 선택 없으면 bounds 맞추기
   useEffect(() => {
     const kakao = window.kakao;
     if (!kakao?.maps || !mapRef.current) return;
-    if (selectedId) return;
+    if (selectedId != null) return;
     if (safeMarkers.length === 0) return;
     const bounds = new kakao.maps.LatLngBounds();
 
@@ -175,7 +198,7 @@ export default function KakaoMap({
     });
     mapRef.current.setBounds(bounds);
     if (safeMarkers.length === 1) {
-      mapRef.current.setLevel(defaultLevel ?? 4);
+      mapRef.current.setLevel(defaultLevel);
     }
   }, [safeMarkers, selectedId, defaultLevel]);
 
@@ -187,7 +210,11 @@ export default function KakaoMap({
         "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
       }
     >
-      {!sdkReady ? (
+      {sdkError ? (
+        <div className="absolute inset-0 flex items-center justify-center text-red-500 text-sm">
+          {sdkError}
+        </div>
+      ) : !sdkReady ? (
         <div
           className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm"
           role="status"
