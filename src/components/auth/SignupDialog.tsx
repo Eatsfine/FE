@@ -16,6 +16,7 @@ import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useEmailSignup } from "@/hooks/queries/useAuth";
+import { getErrorMessage } from "@/utils/error";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -74,9 +75,9 @@ export function SignupDialog({
         alert("가입 완료되었습니다.");
         onSwitchToLogin();
       },
-      onError: (error) =>
-        // TODO: 에러 유틸 함수 추가 예정
-        alert(error.message || "회원가입 중 문제가 발생했습니다."),
+      onError: (error) => {
+        alert(getErrorMessage(error));
+      },
     });
   };
 

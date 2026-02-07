@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { type LoginFormValues, loginSchema } from "./login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEmailLogin } from "@/hooks/queries/useAuth";
+import { getErrorMessage } from "@/utils/error";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -62,9 +63,9 @@ export function LoginDialog({
   const handleEmailLogin = (data: LoginFormValues) => {
     emailLoginMutation.mutate(data, {
       onSuccess: () => onClose(),
-      onError: (error) =>
-        // TODO: 에러 유틸 함수 추가 예정
-        alert(error.message || "로그인 중 문제가 발생했습니다."),
+      onError: (error) => {
+        alert(getErrorMessage(error));
+      },
     });
   };
 
