@@ -12,8 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Calendar } from "../../ui/calendar";
 import { Button } from "../../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
-// import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
-// import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
@@ -487,6 +485,9 @@ export default function ReservationModal({
             disabled={!canSubmit}
             onClick={() => {
               if (!date || !time || !selectedTableId || !seatType) return;
+              const selectedTableNo =
+                layout?.tables.find((t) => t.id === selectedTableId)?.tableNo ??
+                null;
               onClickConfirm({
                 people,
                 date,
@@ -494,6 +495,7 @@ export default function ReservationModal({
                 seatType,
                 tablePref,
                 tableId: selectedTableId,
+                tableNo: selectedTableNo,
                 selectedMenus: initialDraft?.selectedMenus ?? [],
               });
             }}

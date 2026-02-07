@@ -3,8 +3,8 @@ import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useCreateBooking } from "@/hooks/reservation/useCreateBooking";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
-import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { calcMenuTotal } from "@/utils/menu";
 import { formatKrw } from "@/utils/money";
@@ -17,7 +17,7 @@ type Props = {
   onClose: () => void;
   onBack: () => void;
   onConfirm: (bookingResult: CreateBookingResult) => void;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   draft: ReservationDraft;
 };
 
@@ -29,13 +29,6 @@ export default function ReservationConfirmMoodal({
   restaurant,
   draft,
 }: Props) {
-  console.log(
-    "[confirm] darft.tableId=",
-    draft.tableId,
-    "tableIdNum=",
-    Number(draft.tableId),
-  );
-  console.log("[confirm] request body tableIds=", [Number(draft.tableId)]);
   const createBookingMutation = useCreateBooking();
   const menusQuery = useMenus(restaurant.id);
   const depositQuery = useDepositRate(restaurant.id);
@@ -49,12 +42,6 @@ export default function ReservationConfirmMoodal({
   const menuTotal = calcMenuTotal(menus, selectedMenus);
   const rate = depositQuery.rate;
   const depositAmount = calcDeposit(menuTotal, rate);
-
-  const layout = getMockLayoutByRestaurantId(restaurant.id ?? "1");
-
-  const seatTable = layout?.tables.find(
-    (t) => String(t.id) === String(draft.tableId),
-  );
 
   const isCalculating = menusQuery.isLoading || depositQuery.isLoading;
 
@@ -138,7 +125,7 @@ export default function ReservationConfirmMoodal({
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">좌석</div>
               <div>
-                {seatType}, {seatTable?.tableNo}번
+                {seatType}, {draft.tableNo}번
               </div>
             </div>
           </div>

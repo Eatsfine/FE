@@ -287,7 +287,7 @@ export default function SearchPage() {
         />
       )}
       {/* 예약 페이지 모달 */}
-      {selectedStoreId && (
+      {reserveOpen && selectedStoreId && detailQuery.data && (
         <ReservationModal
           open={reserveOpen}
           onOpenChange={(o: boolean) => {
