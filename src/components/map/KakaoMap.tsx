@@ -7,7 +7,7 @@ type LatLng = { lat: number; lng: number };
 type Props = {
   center: LatLng;
   markers: RestaurantSummary[];
-  selectedId?: string | null;
+  selectedId?: number | null;
   onSelectMarker?: (store: RestaurantSummary) => void;
   className?: string;
   defaultLevel?: number;
@@ -30,9 +30,9 @@ export default function KakaoMap({
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
-  const markersRef = useRef<Map<string, any>>(new Map());
+  const markersRef = useRef<Map<number, any>>(new Map());
   const infoRef = useRef<any>(null);
-  const prevSelectedIdRef = useRef<string | null>(null);
+  const prevSelectedIdRef = useRef<number | null>(null);
 
   const safeMarkers = useMemo(
     () => markers.filter((m) => !!m.location),

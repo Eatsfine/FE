@@ -10,9 +10,9 @@ import PaymentModal from "@/components/reservation/modals/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
 import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
 import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
-import { searchMockStores } from "@/mock/store.api.mock";
 import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
+import { useSearchStores } from "@/hooks/store/useSearchStores";
 
 type DetailStatus = "idle" | "loading" | "success" | "error";
 
@@ -28,24 +28,40 @@ export default function SearchPage() {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null,
+  );
+  const [hasSearched, setHasSearched] = useState(false);
+  const FALLBACK_COORDS = { lat: 37.5665, lng: 126.978 };
+  const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
+
+  const detailQuery = useRestaurantDetail(selectedStoreId);
+
+  const [searchParams, setSearchParams] = useState<{
+    keyword: string;
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const searchQuery = useSearchStores(
+    searchParams
+      ? { ...searchParams, radius: 50, sort: "DISTANCE", page: 1, limit: 20 }
+      : null,
+  );
+
+  const results = searchQuery.data ?? [];
+
+  // const [searchError, setSearchError] = useState<string | null>(null);
+  const searchError = searchQuery.isError
+    ? searchQuery.error instanceof Error
+      ? searchQuery.error.message
+      : "검색에 실패했어요"
+    : null;
+
   const [detailStatus, setDetailStatus] = useState<DetailStatus>("idle");
   const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
 
   const detailRequestIdRef = useRef(0);
-  const detailQuery = useRestaurantDetail(selectedStoreId);
-
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null,
-  );
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [results, setResults] = useState<RestaurantSummary[]>([]);
-
-  const [hasSearched, setHasSearched] = useState(false);
-
-  const FALLBACK_COORDS = { lat: 37.5665, lng: 126.978 };
-
-  const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
 
   async function fetchStoreDetailMock(storeId: number) {
     const detail = MOCK_STORE_DETAIL_BY_ID[String(storeId)];
@@ -130,20 +146,20 @@ export default function SearchPage() {
     setCompleteOpen(false);
   };
 
-  const resetAll = () => {
-    closeModalsOnly();
-    setDraft(null);
-    setSelectedStoreId(null);
-    setDetailStatus("idle");
-    setDetailData(null);
-    setDetailError(null);
-    setResults([]);
-    setSearchError(null);
-    setHasSearched(false);
-    setMapCenter(FALLBACK_COORDS);
-    setCoords(null);
-    setQuery("");
-  };
+  // const resetAll = () => {
+  //   closeModalsOnly();
+  //   setDraft(null);
+  //   setSelectedStoreId(null);
+  //   setDetailStatus("idle");
+  //   setDetailData(null);
+  //   setDetailError(null);
+  //   setResults([]);
+  //   setSearchError(null);
+  //   setHasSearched(false);
+  //   setMapCenter(FALLBACK_COORDS);
+  //   setCoords(null);
+  //   setQuery("");
+  // };
 
   function getCoords(): Promise<{ lat: number; lng: number }> {
     return new Promise((resolve) => {
@@ -152,12 +168,8 @@ export default function SearchPage() {
         return;
       }
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          resolve({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
-        },
+        (pos) =>
+          resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
         () => resolve(FALLBACK_COORDS),
         { enableHighAccuracy: false, timeout: 5000 },
       );
@@ -166,39 +178,37 @@ export default function SearchPage() {
 
   const runSearch = async () => {
     setHasSearched(true);
-
     setSelectedStoreId(null);
     const keyword = query.trim();
-    setSearchError(null);
 
     if (!keyword) {
-      setResults([]);
+      setSearchParams(null);
       return;
     }
 
     const c = coords ?? (await getCoords());
     setCoords(c);
-
     setMapCenter({ lat: c.lat, lng: c.lng });
+    setSearchParams({ keyword, lat: c.lat, lng: c.lng });
 
-    try {
-      const items = await searchMockStores({
-        lat: c.lat,
-        lng: c.lng,
-        keyword,
-        radiusKm: 50,
-        sort: "distance",
-      });
-      setResults(items);
+    // try {
+    //   const items = await searchMockStores({
+    //     lat: c.lat,
+    //     lng: c.lng,
+    //     keyword,
+    //     radiusKm: 50,
+    //     sort: "distance",
+    //   });
+    //   setResults(items);
 
-      if (items.length === 1) {
-        setSelectedStoreId(items[0].id);
-      }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "검색에 실패했어요";
-      setSearchError(msg);
-      setResults([]);
-    }
+    //   if (items.length === 1) {
+    //     setSelectedStoreId(items[0].id);
+    //   }
+    // } catch (e) {
+    //   const msg = e instanceof Error ? e.message : "검색에 실패했어요";
+    //   setSearchError(msg);
+    //   setResults([]);
+    // }
   };
 
   return (

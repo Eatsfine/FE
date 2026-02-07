@@ -1,7 +1,6 @@
 import {
   SEATS,
   type ReservationDraft,
-  type Restaurant,
   type SeatLayout,
   type SeatType,
   type TablePref,
@@ -23,11 +22,12 @@ import { useStoreDetail } from "@/hooks/reservation/useStoreDetail";
 import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
 import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
 import { seatsTypeToSeatType } from "@/utils/reservation";
+import type { RestaurantDetail } from "@/types/store";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
   onClose: () => void;

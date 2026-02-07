@@ -1,4 +1,4 @@
-import type { $ZodNumberDef } from "zod/v4/core";
+// import type { $ZodNumberDef } from "zod/v4/core";
 
 export type Category = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
@@ -17,7 +17,7 @@ export type Location = {
 };
 
 export type RestaurantSummary = {
-  id: $ZodNumberDef;
+  id: number;
   name: string;
   address: string;
   category: Category;
