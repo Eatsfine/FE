@@ -54,6 +54,9 @@ export function LoginDialog({
 
   const handleSocialLogin = (provider: "google" | "kakao") => {
     const backendUrl = import.meta.env.VITE_API_URL;
+    if (!backendUrl) {
+      return alert("서버 URL이 설정되어 있지 않습니다. 관리자에게 문의하세요.");
+    }
     window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
   };
 
