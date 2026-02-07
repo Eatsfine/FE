@@ -1,16 +1,17 @@
 export type RequestSignupDto = {
+  name: string;
   email: string;
   password: string;
-  name: string;
-  phone: string;
-  role: "customer" | "owner";
+  passwordConfirm: string;
+  phoneNumber: string;
+  tosConsent: boolean;
+  privacyConsent: boolean;
+  marketingConsent: boolean;
 };
 
 export type ResponseSignupDto = {
-  userId: string;
-  email: string;
-  name: string;
-  role: "customer" | "owner";
+  id: number;
+  createdAt: string;
 };
 
 export type RequestLoginDto = {
@@ -19,16 +20,12 @@ export type RequestLoginDto = {
 };
 
 export type ResponseLoginDto = {
+  id: number;
   accessToken: string;
-  user: {
-    userId: string;
-    email: string;
-    name: string;
-    role: "customer" | "owner";
-  };
+  refreshToken: string;
 };
 
-export type ResponseLogoutDto = null;
+export type ResponseLogoutDto = string;
 
 export type ResponseRefreshDto = {
   accessToken: string;

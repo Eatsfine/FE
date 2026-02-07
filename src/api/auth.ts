@@ -1,11 +1,11 @@
 import type { ApiResponse } from "@/types/api";
 import type {
-  RequestLoginDto,
   RequestSignupDto,
+  ResponseSignupDto,
+  RequestLoginDto,
   ResponseLoginDto,
   ResponseLogoutDto,
   ResponseRefreshDto,
-  ResponseSignupDto,
 } from "@/types/auth";
 import { api } from "./axios";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -13,28 +13,28 @@ import axios from "axios";
 
 export const postSignup = async (
   body: RequestSignupDto,
-): Promise<ApiResponse<ResponseSignupDto>> => {
+): Promise<ResponseSignupDto> => {
   const { data } = await api.post<ApiResponse<ResponseSignupDto>>(
-    "/auth/signup",
+    "/api/auth/signup",
     body,
   );
-  return data;
+  return data.result;
 };
 
 export const postLogin = async (
   body: RequestLoginDto,
-): Promise<ApiResponse<ResponseLoginDto>> => {
+): Promise<ResponseLoginDto> => {
   const { data } = await api.post<ApiResponse<ResponseLoginDto>>(
-    "/auth/login",
+    "/api/auth/login",
     body,
   );
-  return data;
+  return data.result;
 };
 
-export const postLogout = async () => {
+export const postLogout = async (): Promise<ResponseLogoutDto> => {
   const { data } =
-    await api.post<ApiResponse<ResponseLogoutDto>>("/auth/logout");
-  return data;
+    await api.delete<ApiResponse<ResponseLogoutDto>>("/api/auth/logout");
+  return data.result;
 };
 
 export const clearAuth = () => {
@@ -52,14 +52,14 @@ export const logout = async () => {
   }
 };
 
-export const postRefresh = async () => {
+export const postRefresh = async (): Promise<ResponseRefreshDto> => {
   const { data } = await axios.post<ApiResponse<ResponseRefreshDto>>(
-    `${import.meta.env.VITE_API_URL}/auth/refresh`,
+    `${import.meta.env.VITE_API_URL}/api/auth/reissue`,
     {},
     {
       withCredentials: true,
       timeout: 10000,
     },
   );
-  return data;
+  return data.result;
 };

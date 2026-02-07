@@ -10,11 +10,9 @@ export const useEmailSignup = () => {
   return useMutation({
     mutationFn: (data: SignupFormValues) => {
       const requestBody = {
-        role: "customer" as const,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        password: data.password,
+        ...data,
+        phoneNumber: data.phoneNumber.replace(/-/g, ""),
+        marketingConsent: data.marketingConsent ?? false,
       };
       return postSignup(requestBody);
     },
@@ -31,7 +29,7 @@ export const useEmailLogin = () => {
   return useMutation({
     mutationFn: (data: LoginFormValues) => postLogin(data),
     onSuccess: (response) => {
-      login(response.data.accessToken);
+      login(response.accessToken);
     },
     onError: (error: ApiError) => {
       console.error("이메일 로그인 실패:", error);

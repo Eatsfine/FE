@@ -25,15 +25,14 @@ interface SignupDialogProps {
 }
 
 const defaultValues: SignupFormValues = {
-  role: "customer",
   name: "",
   email: "",
-  phone: "",
+  phoneNumber: "",
   password: "",
-  confirmPassword: "",
-  terms: false,
-  privacy: false,
-  marketing: false,
+  passwordConfirm: "",
+  tosConsent: false,
+  privacyConsent: false,
+  marketingConsent: false,
 };
 
 export function SignupDialog({
@@ -173,7 +172,7 @@ export function SignupDialog({
             <div className="space-y-2">
               <Label htmlFor="signup-phone">휴대폰 번호</Label>
               <Controller
-                name="phone"
+                name="phoneNumber"
                 control={control}
                 render={({ field }) => (
                   <Input
@@ -189,8 +188,10 @@ export function SignupDialog({
                   />
                 )}
               />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
+              {errors.phoneNumber && (
+                <p className="text-sm text-red-500">
+                  {errors.phoneNumber.message}
+                </p>
               )}
             </div>
 
@@ -217,11 +218,11 @@ export function SignupDialog({
                 type="password"
                 placeholder="비밀번호를 다시 입력하세요"
                 className="h-12"
-                {...register("confirmPassword")}
+                {...register("passwordConfirm")}
               />
-              {errors.confirmPassword && (
+              {errors.passwordConfirm && (
                 <p className="text-sm text-red-500">
-                  {errors.confirmPassword.message}
+                  {errors.passwordConfirm.message}
                 </p>
               )}
             </div>
@@ -231,7 +232,7 @@ export function SignupDialog({
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="terms"
+                  name="tosConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
@@ -245,16 +246,16 @@ export function SignupDialog({
                   <span className="text-red-500">*</span> 이용약관에 동의합니다
                 </Label>
               </div>
-              {errors.terms && (
+              {errors.tosConsent && (
                 <p className="text-sm text-red-500 pl-9">
-                  {errors.terms.message}
+                  {errors.tosConsent.message}
                 </p>
               )}
 
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="privacy"
+                  name="privacyConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
@@ -269,16 +270,16 @@ export function SignupDialog({
                   동의합니다
                 </Label>
               </div>
-              {errors.privacy && (
+              {errors.privacyConsent && (
                 <p className="text-sm text-red-500 pl-9">
-                  {errors.privacy.message}
+                  {errors.privacyConsent.message}
                 </p>
               )}
 
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="marketing"
+                  name="marketingConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
