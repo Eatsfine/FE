@@ -18,7 +18,7 @@ type Params = {
 
 type ApiStoreSummary = {
   storeId: number;
-  storeName: string;
+  name: string;
   address: string;
   category: RestaurantSummary["category"];
   rating: number | null;
@@ -49,7 +49,7 @@ type ApiResponse = {
 function toSummary(s: ApiStoreSummary): RestaurantSummary {
   return {
     id: s.storeId,
-    name: s.storeName,
+    name: s.name,
     address: s.address,
     category: s.category,
     rating: typeof s.rating === "number" ? s.rating : 0,
@@ -89,6 +89,7 @@ export function useSearchStores(params: Params | null) {
         res.data?.result,
         Array.isArray(res.data?.result),
       );
+
       const stores = res.data.result?.stores ?? [];
       return stores.map(toSummary);
     },
