@@ -63,5 +63,8 @@ export const postRefresh = async (): Promise<ResponseRefreshDto> => {
       timeout: 10000,
     },
   );
+  if (!data.isSuccess) {
+    throw new Error(data.message || "토큰 재발급 실패");
+  }
   return data.result;
 };
