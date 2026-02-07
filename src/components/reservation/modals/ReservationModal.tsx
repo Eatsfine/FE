@@ -72,18 +72,6 @@ export default function ReservationModal({
   const dateYmd = date ? toYmd(date) : undefined;
   const isSplitAccepted = tablePref === "split_ok";
   const canQueryTables = !!dateYmd && !!time;
-  const seatsTypeParam =
-    seatType === "창가석"
-      ? "WINDOW"
-      : seatType === "일반석"
-        ? "GENERAL"
-        : seatType === "룸/프라이빗"
-          ? "ROOM"
-          : seatType === "바(Bar)석"
-            ? "BAR"
-            : seatType === "야외석"
-              ? "OUTDOOR"
-              : undefined;
 
   const storeQuery = useStoreDetail(storeId);
   const timesQuery = useAvailableTimes({
@@ -100,7 +88,6 @@ export default function ReservationModal({
           time,
           partySize: people,
           isSplitAccepted,
-          seatsType: seatsTypeParam,
         }
       : null,
   );
