@@ -7,7 +7,6 @@ import { X } from "lucide-react";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
-import { calcDeposit } from "@/utils/payment";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
@@ -19,6 +18,7 @@ type Props = {
   restaurant: Restaurant;
   draft: ReservationDraft;
   onSuccess: () => void;
+  booking: { bookingId: number; orderId: string; totalDeposit: number };
 };
 
 function mockPay(method: PayMethod, amount: number) {
@@ -35,6 +35,7 @@ export default function PaymentModal({
   restaurant,
   draft,
   onSuccess,
+  booking,
 }: Props) {
   const [method, setMethod] = useState<PayMethod | undefined>();
   const [loading, setLoading] = useState(false);
@@ -46,9 +47,10 @@ export default function PaymentModal({
     return calcMenuTotal(menus, draft.selectedMenus);
   }, [menus, draft.selectedMenus]);
 
-  const amount = useMemo(() => {
-    return calcDeposit(menuTotal, rate);
-  }, [menuTotal, rate]);
+  // const amount = useMemo(() => {
+  //   return calcDeposit(menuTotal, rate);
+  // }, [menuTotal, rate]);
+  const amount = booking.totalDeposit;
 
   const onClickPay = async () => {
     if (loading) return;
@@ -104,6 +106,9 @@ export default function PaymentModal({
                 <div className="mt-1 text-xl font-semibold">
                   {formatKrw(amount)}원
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  주문번호: {booking.orderId}
+                </p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">

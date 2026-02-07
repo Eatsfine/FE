@@ -34,7 +34,8 @@ export default function ReservationConfirmMoodal({
   const depositQuery = useDepositRate(restaurant.id);
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { people, date, time, seatType, tablePref } = draft;
+  const { people, date, time: rawTime, seatType, tablePref } = draft;
+  const time = rawTime.length === 5 ? `${draft.time}:00` : draft.time;
   const isSplitAccepted = tablePref === "split_ok";
 
   const menus = menusQuery.activeMenus ?? [];
@@ -57,7 +58,7 @@ export default function ReservationConfirmMoodal({
     }
     const body = {
       date: toYmd(draft.date),
-      time: draft.time,
+      time,
       partySize: draft.people,
       tableIds: [tableId],
       menuItems: (draft.selectedMenus ?? []).map((m) => ({
@@ -66,6 +67,7 @@ export default function ReservationConfirmMoodal({
       })),
       isSplitAccepted,
     };
+    console.log("[create booking body]", body);
 
     const result = await createBookingMutation.mutateAsync({
       storeId: restaurant.id,
@@ -88,6 +90,7 @@ export default function ReservationConfirmMoodal({
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
+
       <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">

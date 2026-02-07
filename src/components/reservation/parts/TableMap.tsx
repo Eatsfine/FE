@@ -3,18 +3,12 @@ import type { SeatLayout, SeatTable, SeatType } from "@/types/restaurant";
 
 type Props = {
   layout: SeatLayout;
-  availableIds: Set<string>;
+  availableIds: Set<number>;
   selectedTableId: number | null;
   seatType: SeatType | null;
   onSelectTable: (tableId: number) => void;
   onSelectSeatType: (seatType: SeatType) => void;
 };
-
-function toNumericTableId(id: string | number): number | null {
-  if (typeof id === "number") return id;
-  const m = id.match(/\d+/);
-  return m ? Number(m[0]) : null;
-}
 
 export default function TableMap({
   layout,
@@ -24,12 +18,9 @@ export default function TableMap({
   onSelectTable,
   onSelectSeatType,
 }: Props) {
-  const selectedTable =
-    selectedTableId != null
-      ? (layout.tables.find(
-          (t) => toNumericTableId(t.id) === selectedTableId,
-        ) ?? null)
-      : null;
+  const selectedTable = selectedTableId
+    ? (layout.tables.find((t) => t.id === selectedTableId) ?? null)
+    : null;
 
   const activeSeatType: SeatType | null =
     selectedTable?.seatType ?? seatType ?? null;
@@ -65,11 +56,7 @@ export default function TableMap({
       >
         {layout.tables.map((t: SeatTable) => {
           const isAvailable = availableIds.has(t.id);
-          const numericId = toNumericTableId(t.id);
-          const isSelected =
-            numericId != null && selectedTableId != null
-              ? selectedTableId === numericId
-              : false;
+          const isSelected = selectedTableId === t.id;
           const isActiveType = activeSeatType
             ? t.seatType === activeSeatType
             : true;
@@ -81,8 +68,7 @@ export default function TableMap({
               disabled={!isAvailable}
               onClick={() => {
                 if (!isAvailable) return;
-                if (numericId == null) return;
-                onSelectTable(numericId);
+                onSelectTable(t.id);
                 onSelectSeatType(t.seatType);
               }}
               className={cn(
@@ -101,7 +87,6 @@ export default function TableMap({
                 gridColumnStart: t.gridX + 1,
                 gridRowStart: t.gridY + 1,
               }}
-              aria-disabled={!isAvailable}
             >
               <div className="text-center">
                 <div className="text-sm">{t.tableNo}번</div>

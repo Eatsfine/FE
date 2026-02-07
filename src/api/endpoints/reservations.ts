@@ -2,13 +2,6 @@ import type { DepositRate } from "@/types/payment";
 import { api } from "../axios";
 import { mockDepositRateByRestaurantId } from "@/mock/restaurantSetting";
 
-// 나중에 서버 API붙일곳
-// export async function getDepositRate(restaurantId: string): Promise<DepositRate>{
-//   const {data} = await api.get<ApiResult<{depositRate: DepositRate}>>(`/store/${restaurantId}/deposit-rate`);
-//   if (!data?.isSuccess) throw ...
-//   return data.result.depositRate;
-// }
-
 export async function getDepositRate(
   restaurantId: string,
 ): Promise<DepositRate> {
