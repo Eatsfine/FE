@@ -172,10 +172,15 @@ export default function ReservationModal({
   const serverTimes = useMemo(() => {
     const raw = timesQuery.data ?? [];
     const trimmed = raw.map((t) => t.slice(0, 5)).filter(Boolean);
-    if (timesQuery.isError) return FALLBACKTIME;
+    if (timesQuery.isError || trimmed.length === 0) return FALLBACKTIME;
     return trimmed;
   }, [timesQuery.data, timesQuery.isError]);
 
+  const noAvailableSeats =
+    canQueryTables &&
+    !availableTablesQuery.isLoading &&
+    !availableTablesQuery.isError &&
+    (availableTablesQuery.data?.tables?.length ?? 0) === 0;
   const handleRequestClose = useConfirmClose(onClose);
 
   useEffect(() => {
@@ -310,7 +315,8 @@ export default function ReservationModal({
             {dateYmd &&
             !timesQuery.isLoading &&
             !timesQuery.isError &&
-            serverTimes.length === 0 ? (
+            serverTimes.length === 0 &&
+            !noAvailableSeats ? (
               <p className="text-muted-foreground">예약 가능한 시간이 없어요</p>
             ) : null}
 
@@ -364,6 +370,11 @@ export default function ReservationModal({
                 );
               })}
             </div>
+            {noAvailableSeats ? (
+              <p className="text-muted-foreground">
+                예약 가능한 좌석이 없어요.{" "}
+              </p>
+            ) : null}
           </div>
           {/* 테이블 배치도 */}
           <div className="mt-6 space-y-2">
@@ -378,7 +389,7 @@ export default function ReservationModal({
                 날짜와 시간대를 선택하면 테이블 선택 가능합니다.
               </p>
             )}
-            {layout && canQueryTables && (
+            {layout && canQueryTables && !noAvailableSeats && (
               <div className="overflow-x-auto">
                 <div className="min-w-[500px]">
                   <TableMap
