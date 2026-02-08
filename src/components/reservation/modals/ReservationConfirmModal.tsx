@@ -64,6 +64,7 @@ export default function ReservationConfirmMoodal({
     const body = {
       date: toYmd(draft.date),
       time: draft.time,
+
       partySize: draft.people,
       tableIds: [tableId],
       menuItems: (draft.selectedMenus ?? []).map((m) => ({
