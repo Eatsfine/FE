@@ -14,11 +14,8 @@ import axios from "axios";
 export const postSignup = async (
   body: RequestSignupDto,
 ): Promise<ResponseSignupDto> => {
-  const { data } = await api.post<ApiResponse<ResponseSignupDto>>(
-    "/api/auth/signup",
-    body,
-  );
-  return data.result;
+  const { data } = await api.post<ResponseSignupDto>("/api/auth/signup", body);
+  return data;
 };
 
 export const postLogin = async (
