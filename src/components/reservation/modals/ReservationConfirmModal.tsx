@@ -19,6 +19,7 @@ type Props = {
   onConfirm: (bookingResult: CreateBookingResult) => void;
   restaurant: RestaurantDetail;
   draft: ReservationDraft;
+  booking: CreateBookingResult | null;
 };
 
 export default function ReservationConfirmMoodal({
@@ -28,6 +29,7 @@ export default function ReservationConfirmMoodal({
   onConfirm,
   restaurant,
   draft,
+  booking,
 }: Props) {
   const createBookingMutation = useCreateBooking();
   const menusQuery = useMenus(restaurant.id);
@@ -48,6 +50,10 @@ export default function ReservationConfirmMoodal({
   if (!open) return null;
 
   const onClickConfirm = async () => {
+    if (booking) {
+      onConfirm(booking);
+      return;
+    }
     const tableId = draft.tableId;
     if (!restaurant.id) return;
     if (createBookingMutation.isPending) return;
@@ -72,6 +78,7 @@ export default function ReservationConfirmMoodal({
       storeId: restaurant.id,
       body,
     });
+    console.log("[create booking result]", result);
 
     onConfirm(result);
   };

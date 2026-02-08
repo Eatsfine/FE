@@ -5,7 +5,7 @@ import { mockDepositRateByRestaurantId } from "@/mock/restaurantSetting";
 export async function getDepositRate(
   restaurantId: string,
 ): Promise<DepositRate> {
-  return mockDepositRateByRestaurantId[restaurantId] ?? 0.3;
+  return mockDepositRateByRestaurantId[restaurantId] ?? 0.4;
 }
 
 type ApiResult<T> = {

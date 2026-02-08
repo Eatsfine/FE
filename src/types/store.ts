@@ -57,6 +57,7 @@ export type RestaurantDetail = {
   breakTime?: BreakTime;
   isOpenNow?: boolean;
   location?: Location;
+  depositRate?: number;
 };
 
 export const categoryLabel: Record<Category, string> = {

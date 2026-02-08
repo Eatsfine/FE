@@ -17,9 +17,12 @@ type ApiStoreDetail = {
   breakStartTime: string | null;
   breakEndTime: string | null;
   isOpenNow?: boolean;
+  depositRate?: number | null;
 };
 
 function toRestaurantDetail(api: ApiStoreDetail): RestaurantDetail {
+  const depositRatePercent = api.depositRate ?? 0;
+  const depositRate = depositRatePercent / 100;
   return {
     id: api.storeId,
     name: api.storeName,
@@ -38,6 +41,7 @@ function toRestaurantDetail(api: ApiStoreDetail): RestaurantDetail {
         ? { start: api.breakStartTime, end: api.breakEndTime }
         : undefined,
     isOpenNow: api.isOpenNow ?? undefined,
+    depositRate,
   };
 }
 

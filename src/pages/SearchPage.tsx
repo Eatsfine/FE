@@ -149,6 +149,11 @@ export default function SearchPage() {
     setPaymentOpen(true);
   };
 
+  const backToConfirm = () => {
+    setPaymentOpen(false);
+    setConfirmOpen(true);
+  };
+
   const closeModalsOnly = () => {
     setDetailOpen(false);
     setReserveOpen(false);
@@ -202,25 +207,6 @@ export default function SearchPage() {
     setCoords(c);
     setMapCenter({ lat: c.lat, lng: c.lng });
     setSearchParams({ keyword, lat: c.lat, lng: c.lng });
-
-    // try {
-    //   const items = await searchMockStores({
-    //     lat: c.lat,
-    //     lng: c.lng,
-    //     keyword,
-    //     radiusKm: 50,
-    //     sort: "distance",
-    //   });
-    //   setResults(items);
-
-    //   if (items.length === 1) {
-    //     setSelectedStoreId(items[0].id);
-    //   }
-    // } catch (e) {
-    //   const msg = e instanceof Error ? e.message : "검색에 실패했어요";
-    //   setSearchError(msg);
-    //   setResults([]);
-    // }
   };
 
   return (
@@ -336,6 +322,7 @@ export default function SearchPage() {
           onConfirm={goPayment}
           restaurant={detailQuery.data ?? null}
           draft={draft}
+          booking={booking}
         />
       )}
 
@@ -345,6 +332,7 @@ export default function SearchPage() {
           open={paymentOpen}
           onClose={closeModalsOnly}
           onOpenChange={setPaymentOpen}
+          onBack={backToConfirm}
           restaurant={detailQuery.data ?? null}
           draft={draft}
           booking={booking}
@@ -362,6 +350,7 @@ export default function SearchPage() {
           draft={draft}
           onClose={closeModalsOnly}
           autoCloseMs={5000}
+          booking={booking}
         />
       )}
     </>

@@ -8,6 +8,7 @@ import { useMenus } from "@/hooks/reservation/useMenus";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import type { CreateBookingResult } from "@/api/endpoints/reservations";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
@@ -15,10 +16,11 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onOpenChange: (open: boolean) => void;
+  onBack: () => void;
   restaurant: Restaurant;
   draft: ReservationDraft;
   onSuccess: () => void;
-  booking: { bookingId: number; orderId: string; totalDeposit: number };
+  booking: CreateBookingResult | null;
 };
 
 function mockPay(method: PayMethod, amount: number) {
@@ -32,6 +34,7 @@ export default function PaymentModal({
   open,
   onClose,
   onOpenChange,
+  onBack,
   restaurant,
   draft,
   onSuccess,
@@ -47,10 +50,12 @@ export default function PaymentModal({
     return calcMenuTotal(menus, draft.selectedMenus);
   }, [menus, draft.selectedMenus]);
 
-  // const amount = useMemo(() => {
-  //   return calcDeposit(menuTotal, rate);
-  // }, [menuTotal, rate]);
-  const amount = booking.totalDeposit;
+  console.log("[payment booking]", booking);
+  console.log("[payment amount]", booking?.totalDeposit);
+  console.log("[payment rate(mock)]", rate);
+  console.log("[payment menuTotal]", menuTotal);
+
+  const amount = booking?.totalDeposit;
 
   const onClickPay = async () => {
     if (loading) return;
@@ -108,9 +113,6 @@ export default function PaymentModal({
                 <div className="mt-1 text-xl font-semibold">
                   {formatKrw(amount)}원
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  주문번호: {booking.orderId}
-                </p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -147,14 +149,29 @@ export default function PaymentModal({
               </Button>
             </div>
           </div>
-          <Button
-            className="w-full h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
-            disabled={loading}
-            onClick={onClickPay}
-          >
-            {" "}
-            {loading ? "결제 진행중.." : "결제하기"}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              className="flex-1 h-12 rounded-xl cursor-pointer"
+              onClick={() => {
+                onOpenChange(false);
+                onBack();
+              }}
+            >
+              이전
+            </Button>
+            <Button
+              className="flex-1 h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
+              disabled={loading || !method}
+              onClick={onClickPay}
+            >
+              {" "}
+              {loading ? "결제 진행중.." : "결제하기"}
+            </Button>
+          </div>
+
           <p className="text-sm text-muted-foreground text-center">
             현재는 임시 결제입니다.
           </p>
