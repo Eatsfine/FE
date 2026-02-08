@@ -13,6 +13,7 @@ import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
 import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
+import type { CreateBookingResult } from "@/api/endpoints/reservations";
 
 type DetailStatus = "idle" | "loading" | "success" | "error";
 
@@ -68,6 +69,11 @@ export default function SearchPage() {
     if (!detail) throw new Error("상세 정보 mock데이터가 없습니다");
     return detail;
   }
+  const [booking, setBooking] = useState<{
+    bookingId: number;
+    orderId: string;
+    totalDeposit: number;
+  } | null>(null);
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
@@ -79,6 +85,7 @@ export default function SearchPage() {
     setReserveMenuOpen(false);
     setPaymentOpen(false);
     setCompleteOpen(false);
+    setBooking(null);
   };
 
   const retryDetail = async () => {
@@ -132,7 +139,12 @@ export default function SearchPage() {
     setReserveMenuOpen(true);
   };
 
-  const goPayment = () => {
+  const goPayment = (bookingResult: CreateBookingResult) => {
+    setBooking({
+      bookingId: bookingResult.bookingId,
+      orderId: bookingResult.orderId,
+      totalDeposit: bookingResult.totalDeposit,
+    });
     setConfirmOpen(false);
     setPaymentOpen(true);
   };
@@ -328,13 +340,14 @@ export default function SearchPage() {
       )}
 
       {/* 결제 모달 */}
-      {selectedStoreId && draft && paymentOpen && (
+      {selectedStoreId && draft && paymentOpen && booking && (
         <PaymentModal
           open={paymentOpen}
           onClose={closeModalsOnly}
           onOpenChange={setPaymentOpen}
           restaurant={detailQuery.data ?? null}
           draft={draft}
+          booking={booking}
           onSuccess={() => {
             setPaymentOpen(false);
             setCompleteOpen(true); //결제 성공 완료모달

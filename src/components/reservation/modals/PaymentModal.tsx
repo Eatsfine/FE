@@ -66,6 +66,8 @@ export default function PaymentModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   if (!open) return null;
+  if (!restaurant || !draft) return null;
+  if (!booking) return null;
 
   return (
     <div
