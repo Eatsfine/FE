@@ -34,8 +34,7 @@ export default function ReservationConfirmMoodal({
   const depositQuery = useDepositRate(restaurant.id);
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { people, date, time: rawTime, seatType, tablePref } = draft;
-  const time = rawTime.length === 5 ? `${draft.time}:00` : draft.time;
+  const { people, date, time, seatType, tablePref } = draft;
   const isSplitAccepted = tablePref === "split_ok";
 
   const menus = menusQuery.activeMenus ?? [];
@@ -58,7 +57,7 @@ export default function ReservationConfirmMoodal({
     }
     const body = {
       date: toYmd(draft.date),
-      time,
+      time: draft.time,
       partySize: draft.people,
       tableIds: [tableId],
       menuItems: (draft.selectedMenus ?? []).map((m) => ({
@@ -119,7 +118,7 @@ export default function ReservationConfirmMoodal({
             </div>
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">시간</div>
-              <div>{time}</div>
+              <div>{draft.time}</div>
             </div>
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">인원</div>
