@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { type LoginFormValues, loginSchema } from "./login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEmailLogin } from "@/hooks/queries/useAuth";
+import { getErrorMessage } from "@/utils/error";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -25,13 +27,15 @@ export function LoginDialog({
   onClose,
   onSwitchToSignup,
 }: LoginDialogProps) {
+  const emailLoginMutation = useEmailLogin();
+
   const [showEmailLogin, setShowEmailLogin] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -48,23 +52,21 @@ export function LoginDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    alert("로그인 완료되었습니다.");
-    onClose();
+  const handleSocialLogin = (provider: "google" | "kakao") => {
+    const backendUrl = import.meta.env.VITE_API_URL;
+    if (!backendUrl) {
+      return alert("서버 URL이 설정되어 있지 않습니다. 관리자에게 문의하세요.");
+    }
+    window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
   };
 
-  const handleEmailLogin = async (data: LoginFormValues) => {
-    try {
-      console.log("Email login:", data);
-      //await API
-
-      alert("로그인 완료되었습니다.");
-
-      onClose();
-    } catch (e) {
-      console.error("Login error:", e);
-    }
+  const handleEmailLogin = (data: LoginFormValues) => {
+    emailLoginMutation.mutate(data, {
+      onSuccess: () => onClose(),
+      onError: (error) => {
+        alert(getErrorMessage(error));
+      },
+    });
   };
 
   return (
@@ -169,34 +171,18 @@ export function LoginDialog({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <a
-                    href="#find-id"
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    아이디 찾기
-                  </a>
-                  <span className="text-gray-300">|</span>
-                  <a
-                    href="#find-password"
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    비밀번호 찾기
-                  </a>
-                </div>
-
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={emailLoginMutation.isPending}
                   className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                 >
-                  {isSubmitting ? "로그인 중..." : "로그인"}
+                  {emailLoginMutation.isPending ? "로그인 중..." : "로그인"}
                 </Button>
 
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full cursor-pointer"
+                  className="w-full h-12 cursor-pointer"
                   onClick={() => setShowEmailLogin(false)}
                 >
                   다른 방법으로 로그인

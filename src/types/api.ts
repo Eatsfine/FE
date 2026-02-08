@@ -1,12 +1,12 @@
-  export interface ApiResponse<T> {
-    success: boolean;
-    code: string;
-    data: T;
-    message: string;
-  }
+export interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
 
-  export interface ApiError {
-    status: number;
-    code?: string;
-    message: string;
-  }
+export interface ApiError {
+  status: number;
+  code?: string;
+  message: string;
+}

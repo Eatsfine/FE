@@ -19,11 +19,14 @@ import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
+import OAuthCallbackPage from "./pages/OAuthCallbackPage";
+import LoginErrorPage from "./pages/LoginErrorPage";
 
 const routes: RouteObject[] = [
+  { path: "/oauth/callback", element: <OAuthCallbackPage /> },
+  { path: "/login/error", element: <LoginErrorPage /> },
   {
-    //TODO: 로그아웃처리 필요
-    element: <PublicLayout onLogOut={() => {}} />,
+    element: <PublicLayout />,
     errorElement: <NotFound />,
     children: [
       { path: "/search", element: <SearchPage /> },

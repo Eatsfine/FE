@@ -5,7 +5,7 @@ export function isApiResponse(data: unknown): data is ApiResponse<unknown> {
   return (
     typeof data === "object" &&
     data !== null &&
-    "success" in data &&
+    "isSuccess" in data &&
     "code" in data &&
     "message" in data
   );
