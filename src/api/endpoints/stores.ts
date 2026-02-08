@@ -49,7 +49,7 @@ type ApiResult<T> = {
 
 export async function getStoreDetail(storeId: string): Promise<StoreDetail> {
   const { data } = await api.get<ApiResult<StoreDetail>>(
-    `/v1/stores/${storeId}`,
+    `/api/v1/stores/${storeId}`,
   );
   if (!data?.isSuccess) {
     throw {

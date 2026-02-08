@@ -24,7 +24,7 @@ type MenuListResult = {
 
 export async function getMenus(storeId: string): Promise<MenuItem[]> {
   const { data } = await api.get<ApiResult<MenuListResult>>(
-    `/v1/stores/${storeId}/menus`,
+    `/api/v1/stores/${storeId}/menus`,
   );
   if (!data?.isSuccess) {
     throw {

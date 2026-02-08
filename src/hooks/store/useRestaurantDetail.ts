@@ -53,7 +53,7 @@ export function useRestaurantDetail(storeId: number | null) {
       const res = await api.get<{
         isSuccess: boolean;
         result: ApiStoreDetail;
-      }>(`/v1/stores/${storeId}`);
+      }>(`/api/v1/stores/${storeId}`);
       console.log("detail raw", res.data);
       return toRestaurantDetail(res.data.result);
     },

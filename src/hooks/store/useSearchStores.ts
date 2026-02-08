@@ -81,7 +81,7 @@ export function useSearchStores(params: Params | null) {
       if (params.sigungu) cleanParams.sigungu = params.sigungu;
       if (params.bname) cleanParams.bname = params.bname;
 
-      const res = await api.get<ApiResponse>("/v1/stores/search", {
+      const res = await api.get<ApiResponse>("/api/v1/stores/search", {
         params: cleanParams,
       });
       console.log(
