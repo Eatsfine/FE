@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 type Step1Data = {
   businessNumber: string;
+  startDate: string;
   isVerified: boolean;
 };
 
@@ -29,6 +30,7 @@ export default function StoreRegistrationPage() {
   //결과 관리
   const [step1Data, setStep1Data] = useState<Step1Data>({
     businessNumber: "",
+    startDate: "",
     isVerified: false,
   });
 
