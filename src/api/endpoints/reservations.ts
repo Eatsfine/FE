@@ -32,7 +32,7 @@ export async function getAvailableTimes(
   const { storeId, ...query } = params;
 
   const { data } = await api.get<ApiResult<AvailableTimesResult>>(
-    `/stores/${storeId}/bookings/available-times`,
+    `/v1/stores/${storeId}/bookings/available-times`,
     { params: query },
   );
 
@@ -76,7 +76,7 @@ type AvailableTablesResult = {
 export async function getAvailableTables(params: GetAvailableTablesParams) {
   const { storeId, ...query } = params;
   const { data } = await api.get<ApiResult<AvailableTablesResult>>(
-    `/stores/${storeId}/bookings/available-tables`,
+    `/v1/stores/${storeId}/bookings/available-tables`,
     { params: query },
   );
 
@@ -117,7 +117,7 @@ export async function createBooking(params: {
 }): Promise<CreateBookingResult> {
   const { storeId, body } = params;
   const { data } = await api.post<ApiResult<CreateBookingResult>>(
-    `/stores/${storeId}/bookings`,
+    `/v1/stores/${storeId}/bookings`,
     body,
   );
 

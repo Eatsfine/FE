@@ -34,7 +34,7 @@ export function useAvailableTables(params: Params | null) {
     queryFn: async () => {
       const { storeId, ...query } = params!;
       const res = await api.get<{ isSuccess: boolean; result: ApiResult }>(
-        `/stores/${storeId}/bookings/available-tables`,
+        `/v1/stores/${storeId}/bookings/available-tables`,
         { params: query },
       );
       return res.data.result;
