@@ -269,7 +269,6 @@ export default function ReservationModal({
             {timeUi.msg ? (
               <p className="text-muted-foreground">{timeUi.msg}</p>
             ) : null}
-            ;
             <div className="flex flex-wrap gap-2">
               {timeUi.times.map((t) => {
                 const active = time === t;

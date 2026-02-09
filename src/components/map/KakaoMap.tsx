@@ -137,7 +137,9 @@ export default function KakaoMap({
     );
 
     mapRef.current.panTo(next);
-    mapRef.current.setLevel(selectedLevel);
+    if (selectedLevel != null) {
+      mapRef.current.setLevel(selectedLevel);
+    }
   }, [selectedId, selectedLevel, safeMarkers]);
 
   //5. 마커 바뀌면 마커 재생성

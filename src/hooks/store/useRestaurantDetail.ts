@@ -13,7 +13,9 @@ export function useRestaurantDetail(storeId: number | null) {
         isSuccess: boolean;
         result: StoreDetailDataDTO;
       }>(`/api/v1/stores/${storeId}`);
-      console.log("detail raw", res.data);
+      if (!res.data.isSuccess) {
+        throw new Error("매장 상세 조회에 실패했습니다.");
+      }
       return toRestaurantDetail(res.data.result);
     },
   });

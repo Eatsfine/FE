@@ -22,7 +22,7 @@ type Props = {
   booking: CreateBookingResult | null;
 };
 
-export default function ReservationConfirmMoodal({
+export default function ReservationConfirmModal({
   open,
   onClose,
   onBack,
@@ -100,7 +100,7 @@ export default function ReservationConfirmMoodal({
         onClick={handleRequestClose}
       />
 
-      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
+      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약 내용 확인</h3>

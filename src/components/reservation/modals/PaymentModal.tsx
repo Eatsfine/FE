@@ -1,4 +1,5 @@
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatKrw } from "@/utils/money";
 import { Button } from "../../ui/button";
@@ -18,7 +19,7 @@ type Props = {
   onClose: () => void;
   onOpenChange: (open: boolean) => void;
   onBack: () => void;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
 };
@@ -160,7 +161,7 @@ export default function PaymentModal({
       });
     } catch (e) {
       console.error(e);
-      alert(e instanceof Error ? e.message : "결제 위젯 초기화 실패");
+      alert(e instanceof Error ? e.message : "결제 요청에 실패하였습니다.");
     } finally {
       setLoading(false);
     }

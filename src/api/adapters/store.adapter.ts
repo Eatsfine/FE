@@ -30,9 +30,9 @@ export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
 
   const depositRatePercent = dto.depositRate ?? 0;
   const depositRate = depositRatePercent / 100;
-
+  const id = Number(dto.storeId);
   return {
-    id: Number(dto.storeId),
+    id,
     name: dto.storeName,
     description: dto.description,
     address: dto.address,

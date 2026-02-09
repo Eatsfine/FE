@@ -7,14 +7,11 @@ import ReservationModal from "@/components/reservation/modals/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
 import PaymentModal from "@/components/reservation/modals/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
-import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
 import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
 import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
-
-type DetailStatus = "idle" | "loading" | "success" | "error";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -49,24 +46,12 @@ export default function SearchPage() {
 
   const results = searchQuery.data ?? [];
 
-  // const [searchError, setSearchError] = useState<string | null>(null);
   const searchError = searchQuery.isError
     ? searchQuery.error instanceof Error
       ? searchQuery.error.message
       : "검색에 실패했어요"
     : null;
 
-  const [detailStatus, setDetailStatus] = useState<DetailStatus>("idle");
-  const [detailData, setDetailData] = useState<RestaurantDetail | null>(null);
-  const [detailError, setDetailError] = useState<string | null>(null);
-
-  const detailRequestIdRef = useRef(0);
-
-  async function fetchStoreDetailMock(storeId: number) {
-    const detail = MOCK_STORE_DETAIL_BY_ID[String(storeId)];
-    if (!detail) throw new Error("상세 정보 mock데이터가 없습니다");
-    return detail;
-  }
   const [booking, setBooking] = useState<{
     bookingId: number;
     orderId: string;
@@ -85,24 +70,6 @@ export default function SearchPage() {
     setBooking(null);
   };
 
-  const retryDetail = async () => {
-    if (!selectedStoreId) return;
-    const requestId = ++detailRequestIdRef.current;
-    setDetailStatus("loading");
-    setDetailError(null);
-    try {
-      const detail = await fetchStoreDetailMock(selectedStoreId);
-      if (requestId !== detailRequestIdRef.current) return;
-      setDetailData(detail);
-      setDetailStatus("success");
-    } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "상세 정보를 불러오지 못했어요";
-      setDetailError(msg);
-      setDetailStatus("error");
-    }
-  };
-
   const handleSelectStore = (store: RestaurantSummary) => {
     openDetail(store);
   };
@@ -110,9 +77,6 @@ export default function SearchPage() {
   const goReserve = () => {
     setDraft(null);
     setDetailOpen(false);
-    setDetailStatus("idle");
-    setDetailData(null);
-    setDetailError(null);
     setReserveOpen(true);
   };
 
@@ -158,21 +122,6 @@ export default function SearchPage() {
     setConfirmOpen(false);
     setPaymentOpen(false);
   };
-
-  // const resetAll = () => {
-  //   closeModalsOnly();
-  //   setDraft(null);
-  //   setSelectedStoreId(null);
-  //   setDetailStatus("idle");
-  //   setDetailData(null);
-  //   setDetailError(null);
-  //   setResults([]);
-  //   setSearchError(null);
-  //   setHasSearched(false);
-  //   setMapCenter(FALLBACK_COORDS);
-  //   setCoords(null);
-  //   setQuery("");
-  // };
 
   function getCoords(): Promise<{ lat: number; lng: number }> {
     return new Promise((resolve) => {
@@ -295,14 +244,14 @@ export default function SearchPage() {
         />
       )}
       {/* 메뉴선택 모달 */}
-      {selectedStoreId && draft && (
+      {selectedStoreId && draft && detailQuery.data && (
         <ReservationMenuModal
           open={reserveMenuOpen}
           onOpenChange={(o: boolean) => {
             setReserveMenuOpen(o);
             if (!o) closeModalsOnly();
           }}
-          restaurant={detailQuery.data ?? null}
+          restaurant={detailQuery.data}
           onConfirm={goConfirm}
           onBack={backToReserve}
           onClose={closeModalsOnly}
@@ -310,13 +259,13 @@ export default function SearchPage() {
         />
       )}
       {/* 예약확인 페이지 모달 */}
-      {selectedStoreId && draft && (
+      {selectedStoreId && draft && detailQuery.data && (
         <ReservationConfirmMoodal
           open={confirmOpen}
           onClose={closeModalsOnly}
           onBack={backToReserveMenu}
           onConfirm={goPayment}
-          restaurant={detailQuery.data ?? null}
+          restaurant={detailQuery.data}
           draft={draft}
           booking={booking}
         />
