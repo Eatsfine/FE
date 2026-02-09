@@ -33,6 +33,7 @@ export const useAuthStore = create<AuthState>()(
           set((state) => {
             state.accessToken = null;
             state.isAuthenticated = false;
+            state.userId = null;
           }),
         setUserId: (id) =>
           set((state) => {
