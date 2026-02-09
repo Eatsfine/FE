@@ -75,13 +75,16 @@ export default function ReservationConfirmMoodal({
     };
     console.log("[create booking body]", body);
 
-    const result = await createBookingMutation.mutateAsync({
-      storeId: restaurant.id,
-      body,
-    });
-    console.log("[create booking result]", result);
-
-    onConfirm(result);
+    try {
+      const result = await createBookingMutation.mutateAsync({
+        storeId: restaurant.id,
+        body,
+      });
+      onConfirm(result);
+    } catch (e) {
+      const msg = (e as any)?.message ?? "예약 생성에 실패했습니다.";
+      alert(msg);
+    }
   };
 
   return (

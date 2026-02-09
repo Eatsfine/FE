@@ -29,7 +29,7 @@ export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);
 
   return {
-    id: dto.storeId,
+    id: Number(dto.storeId),
     name: dto.storeName,
     description: dto.description,
     address: dto.address,

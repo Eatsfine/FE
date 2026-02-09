@@ -104,7 +104,7 @@ export type CreateBookingResult = {
   status: "PENDING" | "CONFIRMED" | string;
   storeName: string;
   date: string;
-  time: string; //일단 18:00:00 이형태 나타날수도있음. 추후 수정부탁.
+  time: string;
   partySize: number;
   totalDeposit: number;
   paymentId?: number;

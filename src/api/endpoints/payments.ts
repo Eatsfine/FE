@@ -18,9 +18,16 @@ export type PaymentRequestResult = {
 
 export async function requestPayment(body: { bookingId: number }) {
   const res = await api.post<ApiEnvelope<PaymentRequestResult>>(
-    "/api/v1/payments/request",
+    `/api/v1/payments/request`,
     body,
   );
+  if (!res.data?.isSuccess) {
+    throw {
+      status: 0,
+      code: res.data?.code,
+      message: res.data?.message ?? "결제 요청에 실패했습니다.",
+    };
+  }
   return res.data.result;
 }
 
