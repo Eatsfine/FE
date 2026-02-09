@@ -26,9 +26,8 @@ export default function SuccessPage() {
       try {
         await confirmPayment({ paymentKey, orderId, amount });
         // 일단 목록페이지 하이라이트로 보냄. 아예 상세로 보낼지 의논 필요.
-        if (bookingId) {
-          nav(`/mypage/reservations?height=${bookingId}`, { replace: true });
-        }
+        nav(`/mypage/reservations?highlight=${bookingId}`, { replace: true });
+
         nav("/mypage/reservations", { replace: true });
       } catch (e) {
         console.error(e);
