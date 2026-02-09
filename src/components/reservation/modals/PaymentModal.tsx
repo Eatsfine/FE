@@ -57,8 +57,10 @@ export default function PaymentModal({
     amount: number;
   } | null>(null);
 
-  const handleRequestClose = useConfirmClose(onClose);
+  const paymentMethodContainerRef = useRef<HTMLDivElement | null>(null);
+  const agreementContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const handleRequestClose = useConfirmClose(onClose);
   const userId = useUserId();
   useEffect(() => {
     if (!open) return;
@@ -68,6 +70,12 @@ export default function PaymentModal({
     (async () => {
       try {
         setLoading(true);
+        if (paymentMethodContainerRef.current) {
+          paymentMethodContainerRef.current.innerHTML = "";
+        }
+        if (agreementContainerRef.current) {
+          agreementContainerRef.current.innerHTML = "";
+        }
 
         const payOrder = await requestPayment({ bookingId: booking.bookingId });
         if (cancelled) return;
@@ -88,12 +96,10 @@ export default function PaymentModal({
         const tossPayments = await loadTossPayments(clientKey);
 
         if (cancelled) return;
-
-        if (!widgetsRef.current) {
-          const customerKey = String(userId);
-          widgetsRef.current = tossPayments.widgets({ customerKey });
-        }
-        const widgets = widgetsRef.current;
+        const customerKey = String(userId);
+        const widgets = tossPayments.widgets({ customerKey });
+        widgetsRef.current = widgets;
+        initedRef.current = false;
 
         await widgets.setAmount({ value: payOrder.amount, currency: "KRW" });
 
@@ -125,6 +131,17 @@ export default function PaymentModal({
 
       paymentMethodWidgetRef.current = null;
       agreementWidgetRef.current = null;
+
+      widgetsRef.current = null;
+      initedRef.current = false;
+      payOrderRef.current = null;
+
+      if (paymentMethodContainerRef.current) {
+        paymentMethodContainerRef.current.innerHTML = "";
+      }
+      if (agreementContainerRef.current) {
+        agreementContainerRef.current.innerHTML = "";
+      }
     };
   }, [open, booking, nav, userId]);
 
@@ -200,8 +217,16 @@ export default function PaymentModal({
 
           <div className="space-y-2">
             <div className="text-sm">결제수단</div>
-            <div id="toss-payment-method-widget" className="mt-3" />
-            <div id="toss-agreement-widget" className="mt-3" />
+            <div
+              id="toss-payment-method-widget"
+              ref={paymentMethodContainerRef}
+              className="mt-3 pointer-events-auto"
+            />
+            <div
+              id="toss-agreement-widget"
+              ref={agreementContainerRef}
+              className="mt-3 pointer-events-auto"
+            />
           </div>
 
           <div className="flex gap-3 pt-2">
