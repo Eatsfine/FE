@@ -58,21 +58,23 @@ export type BusinessHourDTO = {
 };
 
 export type StoreDetailDataDTO = {
-  storeId: string;
+  storeId: number | string;
   storeName: string;
   description: string;
   address: string;
   phone: string;
   category: CategoryDTO;
   rating: number;
-  reviewCount: number;
-  depositAmount: number;
-  mainImageUrl?: string;
-  tableImageUrls: string[];
-  businessHours: BusinessHourDTO[];
+  reviewCount: number | null;
+  mainImageUrl?: string | null;
+  tableImageUrls: string[] | null;
+  businessHours: BusinessHourDTO[] | null;
   breakStartTime?: string | null;
   breakEndTime?: string | null;
   isOpenNow?: boolean;
+
+  depositAmount: number;
+  depositRate?: number | null;
 };
 
 export type StoreDetailResponseDTO = ApiResponseDTO<StoreDetailDataDTO>;

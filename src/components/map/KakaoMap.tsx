@@ -51,7 +51,7 @@ export default function KakaoMap({
 
     try {
       mapRef.current.relayout();
-      // mapRef.current.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+
       mapRef.current.setCenter(
         new kakao.maps.LatLng(centerRef.current.lat, centerRef.current.lng),
       );

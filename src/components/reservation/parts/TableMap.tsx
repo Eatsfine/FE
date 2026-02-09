@@ -25,7 +25,6 @@ export default function TableMap({
   const activeSeatType: SeatType | null =
     selectedTable?.seatType ?? seatType ?? null;
 
-  // 선택된 좌석유형이 있을때만 흐리게 적용되도록.
   const shouldDimOthers = activeSeatType !== null;
 
   return (
@@ -73,14 +72,10 @@ export default function TableMap({
               }}
               className={cn(
                 "border rounded-lg text-left px-2 py-2 transition-colors bg-white",
-                //다른유형좌석은 흐리게 설정.
                 shouldDimOthers && !isActiveType && "bg-gray-300",
-                //예약불가
                 !isAvailable &&
                   "bg-red-100 text-red-700 border-red-200 cursor-not-allowed",
-                //선택됨 강조
                 isSelected && "bg-blue-100 border-blue-400 border-2",
-                //예약가능한것만 hover 스타일
                 isAvailable && "hover:brightness-95 cursor-pointer",
               )}
               style={{

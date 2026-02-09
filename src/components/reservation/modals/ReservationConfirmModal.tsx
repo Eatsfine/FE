@@ -73,7 +73,6 @@ export default function ReservationConfirmMoodal({
       })),
       isSplitAccepted,
     };
-    console.log("[create booking body]", body);
 
     try {
       const result = await createBookingMutation.mutateAsync({
@@ -81,8 +80,8 @@ export default function ReservationConfirmMoodal({
         body,
       });
       onConfirm(result);
-    } catch (e) {
-      const msg = (e as any)?.message ?? "예약 생성에 실패했습니다.";
+    } catch (err) {
+      const msg = (err as any)?.message ?? "예약 생성에 실패했습니다.";
       alert(msg);
     }
   };
@@ -154,8 +153,7 @@ export default function ReservationConfirmMoodal({
               {isCalculating ? "계산중 .." : `${formatKrw(depositAmount)}원`}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {restaurant.paymentPolicy?.notice ??
-                "예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)"}
+              예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)
             </p>
           </div>
           <p className="text-gray-700 text-center">

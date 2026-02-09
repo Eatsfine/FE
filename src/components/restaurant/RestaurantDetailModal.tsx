@@ -1,5 +1,6 @@
 import type { Day, RestaurantDetail } from "@/types/store";
 import { Clock, Star, X } from "lucide-react";
+import { Button } from "../ui/button";
 
 type Props = {
   open: boolean;
@@ -21,7 +22,10 @@ const DAY_LABEL: Record<Day, string> = {
   SUNDAY: "일",
 };
 
-function formatBusinessHours(r: RestaurantDetail) {
+function formatBusinessHours(
+  businessHours: RestaurantDetail["businessHours"],
+  breakTime?: RestaurantDetail["breakTime"],
+) {
   const order: Day[] = [
     "MONDAY",
     "TUESDAY",
@@ -31,7 +35,7 @@ function formatBusinessHours(r: RestaurantDetail) {
     "SATURDAY",
     "SUNDAY",
   ];
-  const hours = Array.isArray(r.businessHours) ? r.businessHours : [];
+  const hours = Array.isArray(businessHours) ? businessHours : [];
 
   const byDay = new Map(hours.map((b) => [b.day, b]));
   const lines = order.map((day) => {
@@ -43,8 +47,8 @@ function formatBusinessHours(r: RestaurantDetail) {
     return `${DAY_LABEL[day]}: ${open} - ${close}`;
   });
 
-  const breakLine = r.breakTime
-    ? `브레이크타임: ${r.breakTime.start} - ${r.breakTime.end}`
+  const breakLine = breakTime
+    ? `브레이크타임: ${breakTime.start} - ${breakTime.end}`
     : null;
 
   return { lines, breakLine };
@@ -152,14 +156,10 @@ export default function RestaurantDetailModal({
   const tableImageUrls = Array.isArray(restaurant.tableImageUrls)
     ? restaurant.tableImageUrls
     : [];
-  const businessHours = Array.isArray(restaurant.businessHours)
-    ? restaurant.businessHours
-    : [];
-
-  const { lines: hourLines, breakLine } = formatBusinessHours({
-    ...restaurant,
-    businessHours,
-  });
+  const { lines: hourLines, breakLine } = formatBusinessHours(
+    restaurant.businessHours,
+    restaurant.breakTime,
+  );
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -254,24 +254,13 @@ export default function RestaurantDetailModal({
               )}
             </div>
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                className="flex-1 bg-blue-500 text-white py-4 rounded-xl hover:bg-blue-600 transition-colors cursor-pointer"
-                onClick={onClickReserve}
-              >
-                식당 예약
-              </button>
-              <button
-                type="button"
-                className="flex-1 bg-gray-100 text-black py-4 rounded-xl hover:bg-gray-200 transition-colors cursor-pointer"
-                onClick={() => {
-                  window.alert("리뷰 기능은 추후 개발 예정입니다!");
-                }}
-              >
-                테이블 리뷰 보기
-              </button>
-            </div>
+            <Button
+              type="button"
+              className="mt-5 text-md h-14 w-full cursor-pointer bg-blue-500 hover:bg-blue-600"
+              onClick={onClickReserve}
+            >
+              식당 예약
+            </Button>
           </div>
         </div>
       </div>

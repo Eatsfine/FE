@@ -13,7 +13,6 @@ import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
-import { useAuthStore } from "@/stores/useAuthStore";
 
 type DetailStatus = "idle" | "loading" | "success" | "error";
 

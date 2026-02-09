@@ -1,4 +1,5 @@
 import { api } from "@/api/axios";
+import { queryKeys } from "@/query/keys";
 import { useQuery } from "@tanstack/react-query";
 
 type Params = {
@@ -29,7 +30,9 @@ type ApiResult = {
 
 export function useAvailableTables(params: Params | null) {
   return useQuery({
-    queryKey: ["availableTables", params],
+    queryKey: params
+      ? queryKeys.reservation.availableTables(params.storeId, params)
+      : ["reservation", "availableTables", "disabled"],
     enabled: !!params,
     queryFn: async () => {
       const { storeId, ...query } = params!;

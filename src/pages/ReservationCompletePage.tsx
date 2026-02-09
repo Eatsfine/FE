@@ -26,7 +26,6 @@ export default function ReservationCompletePage() {
     (async () => {
       try {
         setLoading(true);
-        // 1페이지에서 찾고, 없으면 totalPage까지 더 찾는 방식
         let page = 1;
         while (true) {
           const data = await getUserBookings(page);
