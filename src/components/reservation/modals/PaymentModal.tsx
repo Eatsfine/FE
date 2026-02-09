@@ -77,6 +77,13 @@ export default function PaymentModal({
         if (agreementContainerRef.current) {
           agreementContainerRef.current.innerHTML = "";
         }
+        const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
+          | string
+          | undefined;
+        if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
+        if (!userId) {
+          throw new Error("로그인 정보가 없어 결제를 진행할 수 없습니다.");
+        }
 
         const payOrder = await requestPayment({ bookingId: booking.bookingId });
         if (cancelled) return;
@@ -86,13 +93,6 @@ export default function PaymentModal({
           orderId: payOrder.orderId,
           amount: payOrder.amount,
         };
-        const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
-          | string
-          | undefined;
-        if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
-        if (!userId) {
-          throw new Error("로그인 정보가 없어 결제를 진행할 수 없습니다.");
-        }
 
         const tossPayments = await loadTossPayments(clientKey);
 

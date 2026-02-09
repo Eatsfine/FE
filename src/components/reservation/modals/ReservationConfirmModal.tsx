@@ -137,7 +137,7 @@ export default function ReservationConfirmModal({
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">좌석</div>
               <div>
-                {seatType}, {draft.tableNo}번
+                {seatType} {draft.tableNo != null ? `, ${draft.tableNo}번` : ""}
               </div>
             </div>
           </div>

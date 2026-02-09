@@ -52,11 +52,7 @@ export default function SearchPage() {
       : "검색에 실패했어요"
     : null;
 
-  const [booking, setBooking] = useState<{
-    bookingId: number;
-    orderId: string;
-    totalDeposit: number;
-  } | null>(null);
+  const [booking, setBooking] = useState<CreateBookingResult | null>(null);
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
@@ -101,11 +97,7 @@ export default function SearchPage() {
   };
 
   const goPayment = (bookingResult: CreateBookingResult) => {
-    setBooking({
-      bookingId: bookingResult.bookingId,
-      orderId: bookingResult.orderId,
-      totalDeposit: bookingResult.totalDeposit,
-    });
+    setBooking(bookingResult);
     setConfirmOpen(false);
     setPaymentOpen(true);
   };
@@ -266,17 +258,21 @@ export default function SearchPage() {
         />
       )}
 
-      {selectedStoreId && draft && paymentOpen && booking && (
-        <PaymentModal
-          open={paymentOpen}
-          onClose={closeModalsOnly}
-          onOpenChange={setPaymentOpen}
-          onBack={backToConfirm}
-          restaurant={detailQuery.data ?? null}
-          draft={draft}
-          booking={booking}
-        />
-      )}
+      {selectedStoreId &&
+        draft &&
+        paymentOpen &&
+        booking &&
+        detailQuery.data && (
+          <PaymentModal
+            open={paymentOpen}
+            onClose={closeModalsOnly}
+            onOpenChange={setPaymentOpen}
+            onBack={backToConfirm}
+            restaurant={detailQuery.data}
+            draft={draft}
+            booking={booking}
+          />
+        )}
     </>
   );
 }

@@ -206,7 +206,9 @@ export default function KakaoMap({
     });
     mapRef.current.setBounds(bounds);
     if (safeMarkers.length === 1) {
-      mapRef.current.setLevel(defaultLevel);
+      if (defaultLevel != null) {
+        mapRef.current.setLevel(defaultLevel);
+      }
     }
   }, [safeMarkers, selectedId, defaultLevel]);
 
@@ -219,7 +221,10 @@ export default function KakaoMap({
       }
     >
       {sdkError ? (
-        <div className="absolute inset-0 flex items-center justify-center text-red-500 text-sm">
+        <div
+          className="absolute inset-0 flex items-center justify-center text-red-500 text-sm"
+          role="alert"
+        >
           {sdkError}
         </div>
       ) : !sdkReady ? (

@@ -53,7 +53,6 @@ export default function ReservationModal({
   const isSplitAccepted = tablePref === "split_ok";
   const canQueryTables = !!dateYmd && !!time;
 
-  const storeQuery = useStoreDetail(storeId);
   const timesQuery = useAvailableTimes({
     storeId,
     date: dateYmd,
@@ -110,7 +109,7 @@ export default function ReservationModal({
       gridCols: data.cols,
       tables: data.tables.map((t) => ({
         id: t.tableId,
-        tableNo: Number(String(t.tableNumber).replace(/\D/g, "")) || t.tableId,
+        tableNo: parseInt(t.tableNumber.replace(/\D/g, ""), 10) || t.tableId,
         seatType: seatsTypeToSeatType(t.seatsType),
         minPeople: 1,
         maxPeople: t.tableSeats,
@@ -187,11 +186,9 @@ export default function ReservationModal({
       <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
-            <h2 className="text-xl truncate font-medium">
-              {storeQuery.data?.storeName}{" "}
-            </h2>
+            <h2 className="text-xl truncate font-medium">{restaurant.name} </h2>
             <p className="text-sm text-muted-foreground truncate">
-              {storeQuery.data?.address}
+              {restaurant.address}
             </p>
           </div>
           <button
@@ -325,14 +322,19 @@ export default function ReservationModal({
           </div>
           <div className="mt-6 space-y-2">
             <div className="mb-3">테이블 선택</div>
-            {!layout && (
+            {!layout && !canQueryTables && (
+              <p className="text-sm text-muted-foreground">
+                날자와 시간대를 선택하면 테이블을 고를 수 있어요.
+              </p>
+            )}
+            {!layout && canQueryTables && !availableTablesQuery.isLoading && (
               <p className="text-sm text-muted-foreground">
                 테이블 배치 정보가 없어요.
               </p>
             )}
-            {layout && !canQueryTables && (
+            {!layout && canQueryTables && availableTablesQuery.isLoading && (
               <p className="text-sm text-muted-foreground">
-                날짜와 시간대를 선택하면 테이블 선택 가능합니다.
+                테이블 정보를 불러오는중..
               </p>
             )}
             {layout && canQueryTables && !noAvailableSeats && (
