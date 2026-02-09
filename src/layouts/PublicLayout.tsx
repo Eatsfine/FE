@@ -1,5 +1,4 @@
 import { logout } from "@/api/auth";
-import { api } from "@/api/axios";
 import { getMemberInfo } from "@/api/endpoints/member";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,17 +23,30 @@ export default function PublicLayout() {
     let cancelled = false;
     (async () => {
       try {
-        const id = await getMemberInfo();
+        const member = await getMemberInfo();
         if (cancelled) return;
-        if (typeof id === "number") {
-          setUserId(id);
+        const rawId = member?.id;
+
+        let parsedId: number | null = null;
+        if (typeof rawId === "number") parsedId = rawId;
+        if (typeof rawId === "string" && /^\d+$/.test(rawId))
+          parsedId = Number(rawId);
+        if (parsedId != null && Number.isFinite(parsedId)) {
+          setUserId(parsedId);
         } else {
-          clearAuth();
+          console.warn("[member/info] invalid id:", rawId, member);
           nav("/", { replace: true });
         }
-      } catch (e) {
-        clearAuth();
-        nav("/", { replace: true });
+      } catch (e: any) {
+        if (cancelled) return;
+
+        const status = e?.response?.status;
+        if (status === 401 || status === 403) {
+          clearAuth();
+          nav("/", { replace: true });
+        } else {
+          console.error("[member/info] failed", status, e);
+        }
       }
     })();
     return () => {

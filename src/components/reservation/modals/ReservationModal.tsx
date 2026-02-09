@@ -15,8 +15,6 @@ import { startOfTodayInKst, toYmd } from "@/utils/date";
 import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
-import { useStoreDetail } from "@/hooks/reservation/useStoreDetail";
-
 import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
 import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
 import { seatsTypeToSeatType } from "@/utils/reservation";
@@ -24,7 +22,6 @@ import type { RestaurantDetail } from "@/types/store";
 
 type Props = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
   restaurant: RestaurantDetail;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
@@ -35,7 +32,6 @@ const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export default function ReservationModal({
   open,
-  onOpenChange,
   restaurant,
   initialDraft,
   onClickConfirm,
@@ -122,7 +118,6 @@ export default function ReservationModal({
     };
   }, [availableTablesQuery.data]);
 
-  // date, time 기준가능 mock
   const availableIds = useMemo(() => {
     const data = availableTablesQuery.data;
     if (!data) return new Set<number>();

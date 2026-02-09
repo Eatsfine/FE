@@ -222,10 +222,6 @@ export default function SearchPage() {
       {reserveOpen && selectedStoreId && detailQuery.data && (
         <ReservationModal
           open={reserveOpen}
-          onOpenChange={(o: boolean) => {
-            setReserveOpen(o);
-            if (!o) closeModalsOnly();
-          }}
           restaurant={detailQuery.data ?? null}
           initialDraft={draft ?? undefined}
           onClickConfirm={goReserveMenu}
