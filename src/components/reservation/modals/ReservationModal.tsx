@@ -181,7 +181,7 @@ export default function ReservationModal({
         type="button"
         className="absolute inset-0 bg-black/50 z-0"
         aria-label="모달 닫기"
-        onClick={() => onOpenChange(false)}
+        onClick={handleRequestClose}
       />
 
       <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">

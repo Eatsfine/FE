@@ -176,8 +176,8 @@ export default function PaymentModal({
   };
 
   const handleBack = () => {
-    onOpenChange(false);
     onBack();
+    onOpenChange(false);
   };
   if (!open) return null;
   if (!restaurant || !draft) return null;
