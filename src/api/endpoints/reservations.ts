@@ -1,12 +1,4 @@
-import type { DepositRate } from "@/types/payment";
 import { api } from "../axios";
-import { mockDepositRateByRestaurantId } from "@/mock/restaurantSetting";
-
-export async function getDepositRate(
-  restaurantId: string,
-): Promise<DepositRate> {
-  return mockDepositRateByRestaurantId[restaurantId] ?? 0.4;
-}
 
 type ApiResult<T> = {
   isSuccess: boolean;
