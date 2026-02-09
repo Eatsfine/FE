@@ -109,7 +109,8 @@ export default function ReservationModal({
       gridCols: data.cols,
       tables: data.tables.map((t) => ({
         id: t.tableId,
-        tableNo: parseInt(t.tableNumber.replace(/\D/g, ""), 10) || t.tableId,
+        tableNo:
+          parseInt((t.tableNumber ?? "").replace(/\D/g, ""), 10) || t.tableId,
         seatType: seatsTypeToSeatType(t.seatsType),
         minPeople: 1,
         maxPeople: t.tableSeats,
@@ -324,7 +325,7 @@ export default function ReservationModal({
             <div className="mb-3">테이블 선택</div>
             {!layout && !canQueryTables && (
               <p className="text-sm text-muted-foreground">
-                날자와 시간대를 선택하면 테이블을 고를 수 있어요.
+                날짜와 시간대를 선택하면 테이블을 고를 수 있어요.
               </p>
             )}
             {!layout && canQueryTables && !availableTablesQuery.isLoading && (

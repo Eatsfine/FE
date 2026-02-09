@@ -1,5 +1,6 @@
 import { logout } from "@/api/auth";
 import { api } from "@/api/axios";
+import { getMemberInfo } from "@/api/endpoints/member";
 import { Button } from "@/components/ui/button";
 import {
   useAuthStore,
@@ -19,13 +20,12 @@ export default function PublicLayout() {
   const { setUserId, logout: clearAuth } = useAuthStore((s) => s.actions);
   useEffect(() => {
     if (!accessToken) return;
-    if (userId) return;
+    if (userId != null) return;
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.get("/api/v1/member/info");
+        const id = await getMemberInfo();
         if (cancelled) return;
-        const id = res.data?.result?.id;
         if (typeof id === "number") {
           setUserId(id);
         } else {

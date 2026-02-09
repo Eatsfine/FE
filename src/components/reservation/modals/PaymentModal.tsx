@@ -63,6 +63,13 @@ export default function PaymentModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   const userId = useUserId();
+  const [payAmount, setPayAmount] = useState<number>(
+    booking?.totalDeposit ?? 0,
+  );
+  useEffect(() => {
+    setPayAmount(booking?.totalDeposit ?? 0);
+  }, [booking?.totalDeposit]);
+
   useEffect(() => {
     if (!open) return;
     if (!booking) return;
@@ -93,6 +100,7 @@ export default function PaymentModal({
           orderId: payOrder.orderId,
           amount: payOrder.amount,
         };
+        setPayAmount(payOrder.amount);
 
         const tossPayments = await loadTossPayments(clientKey);
 
