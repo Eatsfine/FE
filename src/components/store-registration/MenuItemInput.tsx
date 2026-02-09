@@ -1,7 +1,9 @@
-import type {
-  FieldErrors,
-  UseFormRegister,
-  UseFormSetValue,
+import {
+  Controller,
+  type Control,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
 } from "react-hook-form";
 import type { MenuFormValues } from "./Menu.schema";
 import {
@@ -18,6 +20,7 @@ interface MenuItemInputProps {
   index: number;
   onDelete: () => void;
   register: UseFormRegister<MenuFormValues>;
+  control: Control<MenuFormValues>;
   errors: FieldErrors<MenuFormValues>;
   setValue: UseFormSetValue<MenuFormValues>;
 }
@@ -26,6 +29,7 @@ export default function MenuItemInput({
   index,
   onDelete,
   register,
+  control,
   errors,
   setValue,
 }: MenuItemInputProps) {
@@ -54,7 +58,7 @@ export default function MenuItemInput({
       //URL.createObjectURL: 파일 객체를 임시 URL 문자열로 만들어주는 브라우저 기능
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      setValue(`menus.${index}.image`, file);
+      setValue(`menus.${index}.imageKey`, file);
     }
   };
 
@@ -67,7 +71,7 @@ export default function MenuItemInput({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    setValue(`menus.${index}.image`, null);
+    setValue(`menus.${index}.imageKey`, null);
   };
 
   return (
@@ -143,14 +147,14 @@ export default function MenuItemInput({
             <span className="text-red-500">*</span>
           </Label>
           <input
-            {...register(`menus.${index}.menuName`)}
+            {...register(`menus.${index}.name`)}
             type="text"
             placeholder="예: 스테이크"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.menus?.[index]?.menuName && (
+          {errors.menus?.[index]?.name && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.menus[index]?.menuName?.message}
+              {errors.menus[index]?.name?.message}
             </p>
           )}
         </div>
@@ -171,6 +175,26 @@ export default function MenuItemInput({
             </p>
           )}
         </div>
+      </div>
+      <div>
+        <Label className="block text-gray-700 mb-2">
+          카테고리 <span className="text-red-500">*</span>
+        </Label>
+        <Controller
+          name={`menus.${index}.category`}
+          control={control}
+          render={({ field }) => (
+            <select
+              {...field}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            >
+              <option value="MAIN">메인 메뉴</option>
+              <option value="SIDE">사이드 메뉴</option>
+              <option value="BEVERAGE">음료</option>
+              <option value="ALCOHOL">주류</option>
+            </select>
+          )}
+        />
       </div>
       <div>
         <Label className="block text-gray-700 mb-2">메뉴 설명</Label>

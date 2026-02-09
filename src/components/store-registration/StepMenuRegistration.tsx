@@ -23,8 +23,7 @@ export default function StepMenuRegistration({
   } = useForm<MenuFormValues>({
     resolver: zodResolver(MenuSchema),
     defaultValues: {
-      menus: [{ menuName: "", price: "", description: "" }],
-      ...defaultValues,
+      menus: defaultValues?.menus || [],
     },
     mode: "onChange",
   });
@@ -59,12 +58,21 @@ export default function StepMenuRegistration({
             index={index}
             onDelete={() => remove(index)}
             register={register}
+            control={control}
             errors={errors}
             setValue={setValue}
           />
         ))}
         <button
-          onClick={() => append({ menuName: "", price: "", description: "" })}
+          onClick={() =>
+            append({
+              name: "",
+              price: "",
+              description: "",
+              category: "MAIN",
+              imageKey: undefined,
+            })
+          }
           className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus className="size-5" aria-hidden="true" />
