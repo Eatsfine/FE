@@ -5,7 +5,6 @@ import type { ReservationDraft } from "@/types/restaurant";
 import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
 import ReservationModal from "@/components/reservation/modals/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
-import ReservationCompleteModal from "@/components/reservation/modals/ReservationCompleteModal";
 import PaymentModal from "@/components/reservation/modals/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
 import { MOCK_STORE_DETAIL_BY_ID } from "@/mock/stores.detail.mock";
@@ -26,7 +25,6 @@ export default function SearchPage() {
   const [reserveMenuOpen, setReserveMenuOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
-  const [completeOpen, setCompleteOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
@@ -84,7 +82,6 @@ export default function SearchPage() {
     setReserveOpen(false);
     setReserveMenuOpen(false);
     setPaymentOpen(false);
-    setCompleteOpen(false);
     setBooking(null);
   };
 
@@ -160,7 +157,6 @@ export default function SearchPage() {
     setReserveMenuOpen(false);
     setConfirmOpen(false);
     setPaymentOpen(false);
-    setCompleteOpen(false);
   };
 
   // const resetAll = () => {
@@ -336,20 +332,6 @@ export default function SearchPage() {
           restaurant={detailQuery.data ?? null}
           draft={draft}
           booking={booking}
-          onSuccess={() => {
-            setPaymentOpen(false);
-            setCompleteOpen(true); //결제 성공 완료모달
-          }}
-        />
-      )}
-      {/* 예약완료 페이지 모달 */}
-      {selectedStoreId && draft && (
-        <ReservationCompleteModal
-          open={completeOpen}
-          restaurant={detailQuery.data ?? null}
-          draft={draft}
-          onClose={closeModalsOnly}
-          autoCloseMs={5000}
         />
       )}
     </>

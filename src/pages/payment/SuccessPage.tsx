@@ -25,10 +25,14 @@ export default function SuccessPage() {
     (async () => {
       try {
         await confirmPayment({ paymentKey, orderId, amount });
-        // 일단 목록페이지 하이라이트로 보냄. 아예 상세로 보낼지 의논 필요.
-        nav(`/mypage/reservations?highlight=${bookingId}`, { replace: true });
-
-        nav("/mypage/reservations", { replace: true });
+        if (bookingId) {
+          //   nav(`/mypage/reservations?highlight=${bookingId}`, { replace: true });
+          nav(`/reservation/complete?bookingId=${bookingId}`, {
+            replace: true,
+          });
+        } else {
+          nav("/mypage/reservations", { replace: true });
+        }
       } catch (e) {
         console.error(e);
         nav("/payment/fail", { replace: true });

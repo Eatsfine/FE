@@ -21,7 +21,6 @@ type Props = {
   onBack: () => void;
   restaurant: Restaurant;
   draft: ReservationDraft;
-  onSuccess: () => void;
   booking: CreateBookingResult | null;
 };
 
@@ -36,7 +35,6 @@ export default function PaymentModal({
   onBack,
   restaurant,
   draft,
-  onSuccess,
   booking,
 }: Props) {
   const [method, setMethod] = useState<PayMethod | undefined>();
@@ -83,7 +81,6 @@ export default function PaymentModal({
         orderName: `${restaurant.name} 예약금`,
         successUrl: `${window.location.origin}/payment/success?bookingId=${booking.bookingId}`,
         failUrl: `${window.location.origin}/payment/fail?bookingId=${booking.bookingId}`,
-        // 선택 : customerName, email, mobile
       });
     } catch (e) {
       console.error(e);

@@ -23,6 +23,7 @@ import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import LoginErrorPage from "./pages/LoginErrorPage";
 import SuccessPage from "./pages/payment/SuccessPage";
 import FailPage from "./pages/payment/FailPage";
+import ReservationCompletePage from "./pages/ReservationCompletePage";
 
 const routes: RouteObject[] = [
   { path: "/oauth/callback", element: <OAuthCallbackPage /> },
@@ -76,6 +77,11 @@ const routes: RouteObject[] = [
   {
     path: "/payment/fail",
     element: <FailPage />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/reservation/complete",
+    element: <ReservationCompletePage />,
     errorElement: <NotFound />,
   },
   {
