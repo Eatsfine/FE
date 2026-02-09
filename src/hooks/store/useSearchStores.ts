@@ -84,11 +84,6 @@ export function useSearchStores(params: Params | null) {
       const res = await api.get<ApiResponse>("/api/v1/stores/search", {
         params: cleanParams,
       });
-      console.log(
-        "[search raw result]",
-        res.data?.result,
-        Array.isArray(res.data?.result),
-      );
 
       const stores = res.data.result?.stores ?? [];
       return stores.map(toSummary);

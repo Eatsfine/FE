@@ -59,7 +59,10 @@ export default function TableMap({
           const isActiveType = activeSeatType
             ? t.seatType === activeSeatType
             : true;
-
+          const peopleText =
+            t.minPeople === t.maxPeople
+              ? `${t.minPeople}명`
+              : `${t.minPeople}~${t.maxPeople}명`;
           return (
             <button
               key={t.id}
@@ -86,7 +89,7 @@ export default function TableMap({
               <div className="text-center">
                 <div className="text-sm">{t.tableNo}번</div>
                 <div className="text-xs text-muted-foreground">
-                  {t.minPeople}~{t.maxPeople}명
+                  {peopleText}
                 </div>
               </div>
             </button>

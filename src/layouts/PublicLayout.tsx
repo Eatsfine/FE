@@ -1,5 +1,6 @@
 import { logout } from "@/api/auth";
 import { api } from "@/api/axios";
+import { Button } from "@/components/ui/button";
 import {
   useAuthStore,
   useAuthToken,
@@ -66,13 +67,13 @@ export default function PublicLayout() {
             </div>
           </Link>
           {isAuthenticated && (
-            <button
+            <Button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-black hover:text-gray-600 transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-white hover:text-gray-500 cursor-pointer"
             >
               로그아웃
-            </button>
+            </Button>
           )}
         </div>
       </header>

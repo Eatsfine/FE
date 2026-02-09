@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
 import type { ReservationDraft } from "@/types/restaurant";
@@ -7,7 +7,7 @@ import ReservationModal from "@/components/reservation/modals/ReservationModal";
 import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
 import PaymentModal from "@/components/reservation/modals/PaymentModal";
 import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
-import type { RestaurantDetail, RestaurantSummary } from "@/types/store";
+import type { RestaurantSummary } from "@/types/store";
 import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
@@ -156,7 +156,6 @@ export default function SearchPage() {
 
   return (
     <>
-      {/* 검색창 */}
       <div className="w-full max-w-2xl mx-auto mb-6">
         <div className="relative">
           <input
@@ -180,7 +179,6 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* 카카오맵 */}
       <KakaoMap
         center={mapCenter}
         markers={results}
@@ -198,7 +196,7 @@ export default function SearchPage() {
           <RestaurantList restaurants={results} onSelect={handleSelectStore} />
         ) : null}
       </div>
-      {/* 상세 페이지 모달 */}
+
       {detailOpen && (
         <RestaurantDetailModal
           open={detailOpen}
@@ -229,7 +227,6 @@ export default function SearchPage() {
           onClickReserve={goReserve}
         />
       )}
-      {/* 예약 페이지 모달 */}
       {reserveOpen && selectedStoreId && detailQuery.data && (
         <ReservationModal
           open={reserveOpen}
@@ -243,7 +240,6 @@ export default function SearchPage() {
           onClose={closeModalsOnly}
         />
       )}
-      {/* 메뉴선택 모달 */}
       {selectedStoreId && draft && detailQuery.data && (
         <ReservationMenuModal
           open={reserveMenuOpen}
@@ -258,7 +254,6 @@ export default function SearchPage() {
           draft={draft}
         />
       )}
-      {/* 예약확인 페이지 모달 */}
       {selectedStoreId && draft && detailQuery.data && (
         <ReservationConfirmMoodal
           open={confirmOpen}
@@ -271,7 +266,6 @@ export default function SearchPage() {
         />
       )}
 
-      {/* 결제 모달 */}
       {selectedStoreId && draft && paymentOpen && booking && (
         <PaymentModal
           open={paymentOpen}
