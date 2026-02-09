@@ -10,6 +10,11 @@ import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { requestPayment } from "@/api/endpoints/payments";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
+import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useUserId } from "@/stores/useAuthStore";
+
+type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
 type Props = {
   open: boolean;
@@ -30,8 +35,9 @@ export default function PaymentModal({
   draft,
   booking,
 }: Props) {
+  const nav = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [widgetReady, setWidgetReady] = useState(false);
+  const [method, setMethod] = useState<PayMethod | undefined>();
 
   const { menus } = useMenus(restaurant.id);
   const { rate } = useDepositRate(restaurant.id);
@@ -42,103 +48,113 @@ export default function PaymentModal({
 
   const amount = booking?.totalDeposit ?? 0;
 
-  const widgetsRef = useRef<any>(null);
-  const renderedRef = useRef(false);
+  // const paymentMethodDivRef = useRef<HTMLDivElement | null>(null);
+  // const agreementDivRef = useRef<HTMLDivElement | null>(null);
+  const paymentMethodWidgetRef = useRef<any>(null);
+  const agreementWidgetRef = useRef<any>(null);
 
+  const widgetsRef = useRef<any>(null);
+  const initedRef = useRef(false);
+
+  const payOrderRef = useRef<{
+    paymentId: number;
+    bookingId: number;
+    orderId: string;
+    amount: number;
+  } | null>(null);
+
+  const handleRequestClose = useConfirmClose(onClose);
+
+  const userId = useUserId();
   useEffect(() => {
     if (!open) return;
     if (!booking) return;
-
-    if (renderedRef.current) {
-      setWidgetReady(true);
-      return;
-    }
     let cancelled = false;
+
     (async () => {
       try {
-        setWidgetReady(false);
+        setLoading(true);
+
+        const payOrder = await requestPayment({ bookingId: booking.bookingId });
+        if (cancelled) return;
+        payOrderRef.current = {
+          paymentId: payOrder.paymentId,
+          bookingId: payOrder.bookingId,
+          orderId: payOrder.orderId,
+          amount: payOrder.amount,
+        };
         const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
           | string
           | undefined;
         if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
+        if (!userId) {
+          throw new Error("로그인 정보가 없어 결제를 진행할 수 없습니다.");
+        }
 
         const tossPayments = await loadTossPayments(clientKey);
 
-        const widgets = (tossPayments as any).widgets({
-          customerKey: "ANONYMOUS",
-        });
-
-        await widgets.setAmount({
-          currency: "KRW",
-          value: amount,
-        });
-
-        await widgets.renderPaymentMethods({
-          selector: "#payment-method",
-          variantKey: "DEFAULT",
-        });
-
-        await widgets.renderAgreement({
-          selector: "#agreement",
-          variantKey: "AGREEMENT",
-        });
         if (cancelled) return;
 
-        widgetsRef.current = widgets;
-        renderedRef.current = true;
-        setWidgetReady(true);
+        if (!widgetsRef.current) {
+          const customerKey = String(userId);
+          widgetsRef.current = tossPayments.widgets({ customerKey });
+        }
+        const widgets = widgetsRef.current;
+
+        await widgets.setAmount({ value: payOrder.amount, currency: "KRW" });
+
+        if (!initedRef.current) {
+          initedRef.current = true;
+          paymentMethodWidgetRef.current = await widgets.renderPaymentMethods({
+            selector: "#toss-payment-method-widget",
+            variantKey: "DEFAULT",
+          });
+
+          agreementWidgetRef.current = await widgets.renderAgreement({
+            selector: "#toss-agreement-widget",
+            variantKey: "AGREEMENT",
+          });
+        }
       } catch (e) {
         console.error(e);
-        setWidgetReady(false);
-        alert(
-          e instanceof Error ? e.message : "결제 위젯 로딩에 실패했습니다.",
-        );
+        nav("/payment/fail", { replace: true });
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {
       cancelled = true;
+      try {
+        paymentMethodWidgetRef.current?.destroy?.();
+        agreementWidgetRef.current?.destroy?.();
+      } catch {}
+
+      paymentMethodWidgetRef.current = null;
+      agreementWidgetRef.current = null;
     };
-  }, [open, booking, amount]);
+  }, [open, booking, nav, userId]);
 
   const onClickPay = async () => {
     if (loading) return;
-    if (!amount) return;
-    if (!booking) return;
+    const payOrder = payOrderRef.current;
+    const widgets = widgetsRef.current;
+    if (!payOrder || !widgets) return;
     setLoading(true);
     try {
-      const payOrder = await requestPayment({
-        bookingId: booking.bookingId,
-      });
-      if (!payOrder?.orderId || !payOrder?.amount) {
-        throw new Error("결제 주문 생성 결과가 올바르지 않습니다.");
-      }
-      if (payOrder.amount <= 0) {
-        throw new Error("결제 금액이 0원이라 결제를 진행할 수 없습니다.");
-      }
-      const widgets = widgetsRef.current;
-      if (!widgets) throw new Error("결제 위젯이 준비되지 않았습니다.");
-
-      await widgets.setAmount({
-        currency: "KRW",
-        value: payOrder.amount,
-      });
-
       await widgets.requestPayment({
         orderId: payOrder.orderId,
         orderName: `${restaurant.name} 예약금`,
-        successUrl: `${window.location.origin}/payment/success?bookingId=${booking.bookingId}`,
-        failUrl: `${window.location.origin}/payment/fail?bookingId=${booking.bookingId}`,
+        successUrl: `${window.location.origin}/payment/success?bookingId=${payOrder.bookingId}`,
+        failUrl: `${window.location.origin}/payment/fail?bookingId=${payOrder.bookingId}`,
       });
     } catch (e) {
       console.error(e);
-      alert(e instanceof Error ? e.message : "결제 요청에 실패했습니다.");
-      // TODO: toast로 사용자 안내() sonner라는 UI팝업 라이브러리 사용할지 논의필요함.
+      // nav(`/payment/fail?bookingId=${payOrder.bookingId}`, { replace: true });
+      alert(e instanceof Error ? e.message : "결제 위젯 초기화 실패");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleRequestClose = useConfirmClose(onClose);
 
   const handleBack = () => {
     onOpenChange(false);
@@ -188,15 +204,47 @@ export default function PaymentModal({
               메뉴 총액 {formatKrw(menuTotal)}원 * {Math.round(rate * 100)}%
             </p>
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-2">
             <div className="text-sm">결제수단</div>
-            <div id="payment-method" className="border rounded-xl p-3" />
-            <div className="text-sm">약관</div>
-            <div id="agreement" className="border rounded-xl p-3" />
-            {!widgetReady ? (
-              <p className="text-sm text-gray-500">결제 위젯 로딩중..</p>
-            ) : null}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMethod("KAKAOPAY")}
+                className={cn(
+                  "h-12 cursor-pointer justify-center rounded-xl",
+                  method === "KAKAOPAY" &&
+                    "text-black bg-[#FFEB00] hover:bg-[#f2de00]",
+                )}
+              >
+                카카오페이
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMethod("TOSSPAY")}
+                className={cn(
+                  "h-12 cursor-pointer justify-center rounded-xl",
+                  method === "TOSSPAY" &&
+                    "text-white bg-[#0064FF] hover:bg-[#005fee]",
+                )}
+              >
+                토스페이
+              </Button>
+            </div>
+            <div
+              id="toss-payment-method-widget"
+              // ref={paymentMethodDivRef}
+              className="mt-3"
+            />
+            <div
+              id="toss-agreement-widget"
+              // ref={agreementDivRef}
+              className="mt-3"
+            />
           </div>
+
           <div className="flex gap-3 pt-2">
             <Button
               type="button"
@@ -210,7 +258,7 @@ export default function PaymentModal({
             <Button
               type="button"
               className="flex-1 h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
-              disabled={loading || !widgetReady}
+              disabled={loading || !method}
               onClick={onClickPay}
             >
               {loading ? "결제 진행중.." : "결제하기"}

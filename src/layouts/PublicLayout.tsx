@@ -1,15 +1,51 @@
 import { logout } from "@/api/auth";
-import { useIsAuthenticated } from "@/stores/useAuthStore";
+import { api } from "@/api/axios";
+import {
+  useAuthStore,
+  useAuthToken,
+  useIsAuthenticated,
+  useUserId,
+} from "@/stores/useAuthStore";
+import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const nav = useNavigate();
   const isAuthenticated = useIsAuthenticated();
 
+  const accessToken = useAuthToken();
+  const userId = useUserId();
+  const { setUserId, logout: clearAuth } = useAuthStore((s) => s.actions);
+  useEffect(() => {
+    if (!accessToken) return;
+    if (userId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get("/api/v1/member/info");
+        if (cancelled) return;
+        const id = res.data?.result?.id;
+        if (typeof id === "number") {
+          setUserId(id);
+        } else {
+          clearAuth();
+          nav("/", { replace: true });
+        }
+      } catch (e) {
+        clearAuth();
+        nav("/", { replace: true });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, userId, setUserId, clearAuth, nav]);
+
   const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
     await logout();
+    clearAuth();
     alert("로그아웃 되었습니다.");
     nav("/", { replace: true });
   };

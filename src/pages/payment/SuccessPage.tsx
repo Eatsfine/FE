@@ -1,12 +1,16 @@
 import { confirmPayment } from "@/api/endpoints/payments";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function SuccessPage() {
   const [sp] = useSearchParams();
   const nav = useNavigate();
 
+  const ranRef = useRef(false);
+
   useEffect(() => {
+    if (ranRef.current) return;
+    ranRef.current = true;
     const paymentKey = sp.get("paymentKey");
     const orderId = sp.get("orderId");
     const amountStr = sp.get("amount");
@@ -26,7 +30,6 @@ export default function SuccessPage() {
       try {
         await confirmPayment({ paymentKey, orderId, amount });
         if (bookingId) {
-          //   nav(`/mypage/reservations?highlight=${bookingId}`, { replace: true });
           nav(`/reservation/complete?bookingId=${bookingId}`, {
             replace: true,
           });
@@ -38,6 +41,6 @@ export default function SuccessPage() {
         nav("/payment/fail", { replace: true });
       }
     })();
-  }, [sp, nav]);
+  }, [sp.toString(), nav]);
   return <div className="p-6">결제 승인 처리중..</div>;
 }
