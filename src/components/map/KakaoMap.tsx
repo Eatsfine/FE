@@ -42,13 +42,19 @@ export default function KakaoMap({
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
+  const centerRef = useRef(center);
+  centerRef.current = center;
+
   const relayout = () => {
     const kakao = window.kakao;
     if (!kakao?.maps || !mapRef.current) return;
 
     try {
       mapRef.current.relayout();
-      mapRef.current.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+      // mapRef.current.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+      mapRef.current.setCenter(
+        new kakao.maps.LatLng(centerRef.current.lat, centerRef.current.lng),
+      );
     } catch {
       // noop
     }
