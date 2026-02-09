@@ -21,12 +21,21 @@ interface SupportModalProps {
 const inputStyle =
   "text-base bg-white w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none";
 
+const SUPPORT_TYPE_LABEL: Record<SupportFormValues["type"], string> = {
+  RESERVATION: "예약 문의",
+  PAYMENT_REFUND: "결제/환불 문의",
+  RESTAURANT_REGISTRATION: "식당 등록 문의",
+  REVIEW: "리뷰 관련",
+  TECH_SUPPORT: "기술 지원",
+  ETC: "기타",
+};
+
 const defaultValues: SupportFormValues = {
   name: "",
   email: "",
-  category: "예약",
-  subject: "",
-  message: "",
+  type: "RESERVATION",
+  title: "",
+  content: "",
 };
 
 export default function SupportModal({
@@ -98,6 +107,7 @@ export default function SupportModal({
                   id="name"
                   type="text"
                   placeholder="이름을 입력하세요"
+                  maxLength={20}
                   className={inputStyle}
                   {...register("name")}
                 />
@@ -115,6 +125,7 @@ export default function SupportModal({
                   id="email"
                   type="email"
                   placeholder="email@example.com"
+                  maxLength={50}
                   className={inputStyle}
                   {...register("email")}
                 />
@@ -126,59 +137,60 @@ export default function SupportModal({
 
             {/* 문의 유형 */}
             <div className="space-y-3">
-              <Label htmlFor="category" className="text-base font-medium">
+              <Label htmlFor="type" className="text-base font-medium">
                 문의 유형 <span className="text-red-500">*</span>
               </Label>
               <select
-                id="category"
+                id="type"
                 className={inputStyle + " cursor-pointer"}
-                {...register("category")}
+                {...register("type")}
               >
-                <option value="예약">예약 문의</option>
-                <option value="결제/환불">결제/환불 문의</option>
-                <option value="식당 등록">식당 등록 문의</option>
-                <option value="리뷰">리뷰 관련</option>
-                <option value="기술 지원">기술 지원</option>
-                <option value="기타">기타</option>
+                {Object.entries(SUPPORT_TYPE_LABEL).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
               </select>
-              {errors.category && (
+              {errors.type && (
                 <p className="text-sm text-red-500 mt-1 font-medium">
-                  {errors.category.message}
+                  {errors.type.message}
                 </p>
               )}
             </div>
 
             {/* 제목 */}
             <div className="space-y-3">
-              <Label htmlFor="subject" className="text-base font-medium">
+              <Label htmlFor="title" className="text-base font-medium">
                 제목 <span className="text-red-500">*</span>
               </Label>
               <input
-                id="subject"
+                id="title"
                 type="text"
                 placeholder="문의 제목을 입력하세요"
+                maxLength={100}
                 className={inputStyle}
-                {...register("subject")}
+                {...register("title")}
               />
-              {errors.subject && (
-                <p className="text-sm text-red-500">{errors.subject.message}</p>
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
               )}
             </div>
 
             {/* 문의 내용 */}
             <div className="space-y-3">
-              <Label htmlFor="message" className="text-base font-medium">
+              <Label htmlFor="content" className="text-base font-medium">
                 문의 내용 <span className="text-red-500">*</span>
               </Label>
               <textarea
-                id="message"
+                id="content"
                 rows={6}
                 placeholder="문의하실 내용을 자세히 입력하세요"
+                maxLength={2000}
                 className={inputStyle + " resize-none"}
-                {...register("message")}
+                {...register("content")}
               ></textarea>
-              {errors.message && (
-                <p className="text-sm text-red-500">{errors.message.message}</p>
+              {errors.content && (
+                <p className="text-sm text-red-500">{errors.content.message}</p>
               )}
             </div>
 
