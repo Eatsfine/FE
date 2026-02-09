@@ -9,6 +9,8 @@ import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
+import { requestPayment } from "@/api/endpoints/payments";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
 type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
@@ -23,11 +25,8 @@ type Props = {
   booking: CreateBookingResult | null;
 };
 
-function mockPay(method: PayMethod, amount: number) {
-  // TODO: 실제 연동할때 토스페이먼츠/카카오페이 SDK 호출로 교체하기
-  return new Promise<void>((resolve) => {
-    window.setTimeout(() => resolve(), 800);
-  });
+function toTossPayType(method: PayMethod) {
+  return method === "KAKAOPAY" ? "카카오페이" : "토스페이";
 }
 
 export default function PaymentModal({
@@ -59,11 +58,36 @@ export default function PaymentModal({
 
   const onClickPay = async () => {
     if (loading) return;
+    if (!method) return;
+    if (!amount) return;
+    if (!booking) return;
     setLoading(true);
     try {
-      await mockPay(method, amount);
-      onOpenChange(false);
-      onSuccess();
+      // 1. 백엔드 결제 주문 생성 (엔드포이트.필드명은 aPI 명세서에 맞춰서 주문번호 등 받기)
+      const payOrder = await requestPayment({
+        bookingId: booking.bookingId,
+      });
+
+      // 2.토스페이먼츠 sDK 로드
+      const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
+        | string
+        | undefined;
+      if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
+
+      const tossPayments = await loadTossPayments(clientKey);
+
+      // 3. 선택한 결제수단으로 결제창 요청 (리다이렉트 발생)
+      await tossPayments.requestPayment(toTossPayType(method), {
+        amount: payOrder.amount,
+        orderId: payOrder.orderId,
+        orderName: `${restaurant.name} 예약금`,
+        successUrl: `${window.location.origin}/payment/success?bookingId=${booking.bookingId}`,
+        failUrl: `${window.location.origin}/payment/fail?bookingId=${booking.bookingId}`,
+        // 선택 : customerName, email, mobile
+      });
+    } catch (e) {
+      console.error(e);
+      // TODO: toast로 사용자 안내() sonner라는 UI팝업 라이브러리 사용할지 논의필요함.
     } finally {
       setLoading(false);
     }

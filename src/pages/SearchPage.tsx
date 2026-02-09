@@ -350,7 +350,6 @@ export default function SearchPage() {
           draft={draft}
           onClose={closeModalsOnly}
           autoCloseMs={5000}
-          booking={booking}
         />
       )}
     </>
