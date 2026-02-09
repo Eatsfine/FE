@@ -69,6 +69,20 @@ export default function StepBusinessAuth({
         });
       },
       onError: (error) => {
+        const err = error as any;
+        const serverCode = err.response?.data?.code || err.code;
+        if (serverCode === "OWNER409") {
+          alert(
+            "이미 사장님 인증을 완료한 회원입니다. \n가게 정보 입력으로 이동해주세요.",
+          );
+          setIsVerified(true);
+          onComplete({
+            businessNumber: data.businessNumber,
+            startDate: data.startDate,
+            isVerified: true,
+          });
+          return;
+        }
         setIsVerified(false);
         alert(getErrorMessage(error));
       },
