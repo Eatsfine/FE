@@ -11,10 +11,7 @@ import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { requestPayment } from "@/api/endpoints/payments";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { useUserId } from "@/stores/useAuthStore";
-
-type PayMethod = "KAKAOPAY" | "TOSSPAY";
 
 type Props = {
   open: boolean;
@@ -37,7 +34,6 @@ export default function PaymentModal({
 }: Props) {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [method, setMethod] = useState<PayMethod | undefined>();
 
   const { menus } = useMenus(restaurant.id);
   const { rate } = useDepositRate(restaurant.id);
@@ -48,8 +44,6 @@ export default function PaymentModal({
 
   const amount = booking?.totalDeposit ?? 0;
 
-  // const paymentMethodDivRef = useRef<HTMLDivElement | null>(null);
-  // const agreementDivRef = useRef<HTMLDivElement | null>(null);
   const paymentMethodWidgetRef = useRef<any>(null);
   const agreementWidgetRef = useRef<any>(null);
 
@@ -149,7 +143,6 @@ export default function PaymentModal({
       });
     } catch (e) {
       console.error(e);
-      // nav(`/payment/fail?bookingId=${payOrder.bookingId}`, { replace: true });
       alert(e instanceof Error ? e.message : "결제 위젯 초기화 실패");
     } finally {
       setLoading(false);
@@ -207,42 +200,8 @@ export default function PaymentModal({
 
           <div className="space-y-2">
             <div className="text-sm">결제수단</div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMethod("KAKAOPAY")}
-                className={cn(
-                  "h-12 cursor-pointer justify-center rounded-xl",
-                  method === "KAKAOPAY" &&
-                    "text-black bg-[#FFEB00] hover:bg-[#f2de00]",
-                )}
-              >
-                카카오페이
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMethod("TOSSPAY")}
-                className={cn(
-                  "h-12 cursor-pointer justify-center rounded-xl",
-                  method === "TOSSPAY" &&
-                    "text-white bg-[#0064FF] hover:bg-[#005fee]",
-                )}
-              >
-                토스페이
-              </Button>
-            </div>
-            <div
-              id="toss-payment-method-widget"
-              // ref={paymentMethodDivRef}
-              className="mt-3"
-            />
-            <div
-              id="toss-agreement-widget"
-              // ref={agreementDivRef}
-              className="mt-3"
-            />
+            <div id="toss-payment-method-widget" className="mt-3" />
+            <div id="toss-agreement-widget" className="mt-3" />
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -258,7 +217,7 @@ export default function PaymentModal({
             <Button
               type="button"
               className="flex-1 h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
-              disabled={loading || !method}
+              disabled={loading}
               onClick={onClickPay}
             >
               {loading ? "결제 진행중.." : "결제하기"}
