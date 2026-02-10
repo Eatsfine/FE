@@ -64,3 +64,29 @@ export const categoryLabel: Record<Category, string> = {
   WESTERN: "양식",
   CAFE: "카페",
 };
+
+export type DepositRate = "TEN" | "TWENTY" | "THIRTY" | "FORTY" | "FIFTY";
+
+export type BusinessNumberDto = {
+  businessNumber: string;
+  startDate: string;
+};
+
+export type RequestStoreCreateDto = {
+  storeName: string;
+  businessNumberDto?: BusinessNumberDto;
+  description?: string;
+  sido: string;
+  sigungu: string;
+  bname: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  phoneNumber: string;
+  category: Category;
+  depositRate: DepositRate;
+  bookingIntervalMinutes: number;
+  businessHours: BusinessHour[];
+};
+
+export type ResponseStoreCreateDto = { storeId: number };

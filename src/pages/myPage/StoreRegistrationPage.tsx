@@ -7,6 +7,9 @@ import StepBusinessAuth from "@/components/store-registration/StepBusinessAuth";
 import StepMenuRegistration from "@/components/store-registration/StepMenuRegistration";
 import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
 import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
+import { transformToRegister } from "@/components/store-registration/StoreTransform.utils";
+import { useRegisterStore } from "@/hooks/queries/useStore";
+import { getErrorMessage } from "@/utils/error";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +21,8 @@ type Step1Data = {
 };
 
 export default function StoreRegistrationPage() {
+  const { mutate: registerStore } = useRegisterStore();
+
   const navigate = useNavigate();
 
   //모달 상태 관리
@@ -65,19 +70,18 @@ export default function StoreRegistrationPage() {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
-      const finalPayload = {
-        ...step1Data,
-        ...step2Data,
-        menus: (step3Data.menus || []).map((menu) => ({
-          ...menu,
-          price: Number(menu.price) || 0, //문자열 가격을 숫자로 변환, 실패 시 0
-        })),
-      };
-
-      console.log("최종 데이터:", finalPayload);
-      //API 호출
-
-      setIsCompleteModalOpen(true);
+      const finalPayload = transformToRegister(step1Data, step2Data);
+      console.log("최종 payload 확인:", finalPayload);
+      registerStore(finalPayload, {
+        onSuccess: (res) => {
+          console.log("등록 성공 응답:", res);
+          setIsCompleteModalOpen(true);
+        },
+        onError: (error) => {
+          console.error(" 등록 실패 원인:", error);
+          alert(getErrorMessage(error));
+        },
+      });
     }
   };
 

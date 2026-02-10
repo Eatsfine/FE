@@ -63,7 +63,7 @@ export default function StepStoreInfo({
       closeTime: "",
       holidays: [],
       depositRate: "TEN",
-      bookingIntervalMinutes: 30,
+      bookingIntervalMinutes: 0,
       sido: "",
       sigungu: "",
       bname: "",
@@ -104,9 +104,9 @@ export default function StepStoreInfo({
 
       geocoder.addressSearch(fullAddress, (result: any, status: any) => {
         if (status === window.kakao.maps.services.Status.OK) {
-          const lat = parseFloat(result[0].y); 
+          const lat = parseFloat(result[0].y);
           const lng = parseFloat(result[0].x);
-          
+
           console.log("좌표 변환 성공:", lat, lng);
 
           setValue("latitude", lat);
@@ -260,11 +260,6 @@ export default function StepStoreInfo({
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.openTime && touchedFields.openTime && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.openTime.message}
-              </p>
-            )}
           </div>
           <div>
             <Label htmlFor="closeTime" className="block text-gray-700 mb-2">
@@ -356,7 +351,7 @@ export default function StepStoreInfo({
 
         <div>
           <Label htmlFor="description" className="block text-gray-700 mb-2">
-            가게 소개 (선택)
+            가게 소개 <span className="text-red-500">*</span>
           </Label>
           <textarea
             id="description"
@@ -365,6 +360,11 @@ export default function StepStoreInfo({
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
+          {errors.description && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.description.message}
+            </p>
+          )}
         </div>
       </form>
       {isOpenPostcode && (
