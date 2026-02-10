@@ -14,6 +14,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormValues } from "./signup.schema";
 import { useEffect } from "react";
+import { phoneNumber } from "@/utils/phoneNumber";
+import { useEmailSignup } from "@/hooks/queries/useAuth";
+import { getErrorMessage } from "@/utils/error";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -21,15 +24,15 @@ interface SignupDialogProps {
   onSwitchToLogin: () => void;
 }
 
-const defaultValues = {
+const defaultValues: SignupFormValues = {
   name: "",
   email: "",
-  phone: "",
+  phoneNumber: "",
   password: "",
-  confirmPassword: "",
-  terms: false,
-  privacy: false,
-  marketing: false,
+  passwordConfirm: "",
+  tosConsent: false,
+  privacyConsent: false,
+  marketingConsent: false,
 };
 
 export function SignupDialog({
@@ -37,12 +40,14 @@ export function SignupDialog({
   onClose,
   onSwitchToLogin,
 }: SignupDialogProps) {
+  const signupMutation = useEmailSignup();
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignupFormValues>({
     defaultValues,
     resolver: zodResolver(signupSchema),
@@ -56,23 +61,24 @@ export function SignupDialog({
     }
   }, [isOpen, reset]);
 
-  const handleSocialSignup = (provider: string) => {
-    console.log(`Signup with ${provider}`);
-    alert("가입 완료되었습니다.");
-    onClose();
+  const handleSocialLogin = (provider: "google" | "kakao") => {
+    const backendUrl = import.meta.env.VITE_API_URL;
+    if (!backendUrl) {
+      return alert("서버 URL이 설정되어 있지 않습니다. 관리자에게 문의하세요.");
+    }
+    window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
   };
 
-  const onSubmit = async (data: SignupFormValues) => {
-    try {
-      console.log("Signup data:", data);
-      //await API
-
-      alert("가입 완료되었습니다.");
-
-      onClose();
-    } catch (e) {
-      console.error("Signup error:", e);
-    }
+  const onSubmit = (formData: SignupFormValues) => {
+    signupMutation.mutate(formData, {
+      onSuccess: () => {
+        alert("가입 완료되었습니다.");
+        onSwitchToLogin();
+      },
+      onError: (error) => {
+        alert(getErrorMessage(error));
+      },
+    });
   };
 
   return (
@@ -95,7 +101,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base cursor-pointer"
-              onClick={() => handleSocialSignup("google")}
+              onClick={() => handleSocialLogin("google")}
             >
               <img
                 src="/icons/google.svg"
@@ -109,7 +115,7 @@ export function SignupDialog({
               type="button"
               variant="outline"
               className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
-              onClick={() => handleSocialSignup("kakao")}
+              onClick={() => handleSocialLogin("kakao")}
             >
               <img
                 src="/icons/kakao.svg"
@@ -158,15 +164,27 @@ export function SignupDialog({
 
             <div className="space-y-2">
               <Label htmlFor="signup-phone">휴대폰 번호</Label>
-              <Input
-                id="signup-phone"
-                type="tel"
-                placeholder="01012345678"
-                className="h-12"
-                {...register("phone")}
+              <Controller
+                name="phoneNumber"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="010-1234-5678"
+                    className="h-12"
+                    onChange={(e) => {
+                      const formatted = phoneNumber(e.target.value);
+                      field.onChange(formatted);
+                    }}
+                  />
+                )}
               />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
+              {errors.phoneNumber && (
+                <p className="text-sm text-red-500">
+                  {errors.phoneNumber.message}
+                </p>
               )}
             </div>
 
@@ -193,11 +211,11 @@ export function SignupDialog({
                 type="password"
                 placeholder="비밀번호를 다시 입력하세요"
                 className="h-12"
-                {...register("confirmPassword")}
+                {...register("passwordConfirm")}
               />
-              {errors.confirmPassword && (
+              {errors.passwordConfirm && (
                 <p className="text-sm text-red-500">
-                  {errors.confirmPassword.message}
+                  {errors.passwordConfirm.message}
                 </p>
               )}
             </div>
@@ -207,7 +225,7 @@ export function SignupDialog({
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="terms"
+                  name="tosConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
@@ -221,16 +239,16 @@ export function SignupDialog({
                   <span className="text-red-500">*</span> 이용약관에 동의합니다
                 </Label>
               </div>
-              {errors.terms && (
+              {errors.tosConsent && (
                 <p className="text-sm text-red-500 pl-9">
-                  {errors.terms.message}
+                  {errors.tosConsent.message}
                 </p>
               )}
 
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="privacy"
+                  name="privacyConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
@@ -245,16 +263,16 @@ export function SignupDialog({
                   동의합니다
                 </Label>
               </div>
-              {errors.privacy && (
+              {errors.privacyConsent && (
                 <p className="text-sm text-red-500 pl-9">
-                  {errors.privacy.message}
+                  {errors.privacyConsent.message}
                 </p>
               )}
 
               <div className="flex items-center space-x-2">
                 <Controller
                   control={control}
-                  name="marketing"
+                  name="marketingConsent"
                   render={({ field }) => (
                     <Checkbox
                       checked={field.value}
@@ -271,10 +289,10 @@ export function SignupDialog({
             </div>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={signupMutation.isPending}
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
             >
-              {isSubmitting ? "가입 중..." : "가입하기"}
+              {signupMutation.isPending ? "가입 중..." : "가입하기"}
             </Button>
           </form>
 

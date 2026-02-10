@@ -1,10 +1,19 @@
-import { Link, Outlet } from "react-router-dom";
+import { logout } from "@/api/auth";
+import { useIsAuthenticated } from "@/stores/useAuthStore";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
-type PublicLayoutProps = {
-  onLogOut?: () => void;
-};
+export default function PublicLayout() {
+  const nav = useNavigate();
+  const isAuthenticated = useIsAuthenticated();
 
-export default function PublicLayout({ onLogOut }: PublicLayoutProps) {
+  const handleLogout = async () => {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+
+    await logout();
+    alert("로그아웃 되었습니다.");
+    nav("/", { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="w-full border-b bg-white sticky top-0 z-40 py-2">
@@ -20,13 +29,15 @@ export default function PublicLayout({ onLogOut }: PublicLayoutProps) {
               <p className="text-xs">원하는 자리를 선택하는 스마트 식당 예약</p>
             </div>
           </Link>
-          <button
-            type="button"
-            onClick={onLogOut}
-            className="flex items-center gap-2 px-4 py-2 text-black hover:text-gray-600 transition cursor-pointer"
-          >
-            로그아웃
-          </button>
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-black hover:text-gray-600 transition cursor-pointer"
+            >
+              로그아웃
+            </button>
+          )}
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-8">
