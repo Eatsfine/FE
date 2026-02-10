@@ -67,6 +67,7 @@ export default function SearchPage() {
       time: safeTime as any,
     };
   };
+  console.log("results count", results.length, "first", results[0]);
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;

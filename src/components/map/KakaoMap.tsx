@@ -34,10 +34,37 @@ export default function KakaoMap({
   const infoRef = useRef<any>(null);
   const prevSelectedIdRef = useRef<number | null>(null);
 
-  const safeMarkers = useMemo(
-    () => markers.filter((m) => !!m.location),
-    [markers],
-  );
+  const toNum = (v: unknown) => {
+    const n = typeof v === "string" ? parseFloat(v) : Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const normalizeLatLng = (loc: any): LatLng | null => {
+    if (!loc) return null;
+
+    let lat = toNum(loc.lat);
+    let lng = toNum(loc.lng);
+
+    if (lat == null || lng == null) return null;
+
+    if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
+      const tmp = lat;
+      lat = lng;
+      lng = tmp;
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+    return { lat, lng };
+  };
+
+  const safeMarkers = useMemo(() => {
+    return markers
+      .map((m) => {
+        const norm = normalizeLatLng((m as any).location);
+        if (!norm) return null;
+        return { ...m, location: norm };
+      })
+      .filter(Boolean) as RestaurantSummary[];
+  }, [markers]);
 
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
   const [sdkError, setSdkError] = useState<string | null>(null);
@@ -59,11 +86,6 @@ export default function KakaoMap({
       // noop
     }
   };
-
-  const toNum = (v: unknown) => {
-    const n = typeof v === "string" ? parseFloat(v) : Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
 
   //1. 지도 최초 1회 생성
   useEffect(() => {
@@ -205,11 +227,16 @@ export default function KakaoMap({
         new kakao.maps.LatLng(store.location.lat, store.location.lng),
       );
     });
-    mapRef.current.setBounds(bounds);
-    if (safeMarkers.length === 1) {
-      if (defaultLevel != null) {
-        mapRef.current.setLevel(defaultLevel);
-      }
+
+    requestAnimationFrame(() => {
+      try {
+        mapRef.current.relayout();
+        mapRef.current.setBounds(bounds);
+      } catch {}
+    });
+
+    if (safeMarkers.length === 1 && defaultLevel != null) {
+      mapRef.current.setLevel(defaultLevel);
     }
   }, [safeMarkers, selectedId, defaultLevel]);
 
