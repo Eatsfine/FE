@@ -5,6 +5,8 @@ import type { BreakTime } from '../../components/owner/BreakTimeModal';
 import { getTableSlots, updateTableSlotStatus, getBookingDetail } from "@/api/owner/reservation";
 import type { Slot, SlotStatus, UpdateSlotRequest } from "@/api/owner/reservation";
 import { deleteTableImage, uploadTableImage } from "@/api/owner/table";
+import { cancelBookingByOwner } from '@/api/owner/reservation';
+
 
 interface TableInfo {
   minCapacity: number;
@@ -65,6 +67,7 @@ const TableDetailModal: React.FC<Props> = ({
   const [detailLoading, setDetailLoading] = useState(false);
   const [showBookingDetail, setShowBookingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  const [bookingDetailBookingId, setBookingDetailBookingId] = useState<number | null>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -137,33 +140,37 @@ const TableDetailModal: React.FC<Props> = ({
 
   // --- 예약 상세 조회 ---
   const fetchBookingDetail = async (bookingId: number | null) => {
-    if (!bookingId) {
-      alert('예약 ID가 없습니다.');
-      return;
-    }
+  if (!bookingId) {
+    alert('예약 ID가 없습니다.');
+    return;
+  }
 
-    try {
-      setDetailLoading(true);
-      setDetailError(null);
-      setShowBookingDetail(true);
-      const res = await getBookingDetail(storeId, tableId, bookingId);
-      const result = res.data.result;
-      setBookingDetail({
-        bookerName: result.bookerName,
-        partySize: result.partySize,
-        amount: result.amount,
-      });
-    } catch (e: any) {
-      console.error('예약 상세 조회 실패', e?.response?.data ?? e);
-      const status = e?.response?.status;
-      if (status === 403) setDetailError('접근 권한이 없습니다.');
-      else if (status === 404) setDetailError('해당 예약을 찾을 수 없습니다.');
-      else setDetailError(e?.response?.data?.message ?? '예약 상세를 불러오지 못했습니다.');
-      setBookingDetail(null);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
+  setBookingDetailBookingId(bookingId); // 추가
+
+  try {
+    setDetailLoading(true);
+    setDetailError(null);
+    setShowBookingDetail(true);
+    const res = await getBookingDetail(storeId, tableId, bookingId);
+    const result = res.data.result;
+    setBookingDetail({
+      bookerName: result.bookerName,
+      partySize: result.partySize,
+      amount: result.amount,
+    });
+  } catch (e: any) {
+    console.error('예약 상세 조회 실패', e?.response?.data ?? e);
+    const status = e?.response?.status;
+    if (status === 403) setDetailError('접근 권한이 없습니다.');
+    else if (status === 404) setDetailError('해당 예약을 찾을 수 없습니다.');
+    else setDetailError(e?.response?.data?.message ?? '예약 상세를 불러오지 못했습니다.');
+    setBookingDetail(null);
+    setBookingDetailBookingId(null); // 오류 시 초기화
+  } finally {
+    setDetailLoading(false);
+  }
+};
+
 
   const handleToggleSlot = async (slot: Slot) => {
     if (!selectedFullDate) return;
@@ -281,6 +288,31 @@ const TableDetailModal: React.FC<Props> = ({
     }
   };
 
+  const handleCancelBooking = async (bookingId: number) => {
+  if (!confirm('이 예약을 취소하고 환불하시겠습니까?')) return;
+
+  try {
+    setDetailLoading(true);
+    const res = await cancelBookingByOwner(storeId, tableId, bookingId);
+    const result = res.data.result;
+    alert(`예약이 취소되었습니다.\n환불 금액: ${result.refundAmount.toLocaleString()}원\n취소 시각: ${new Date(result.canceledAt).toLocaleString()}`);
+    
+    // 예약 상세 및 슬롯 정보 갱신
+    setShowBookingDetail(false);
+    setBookingDetail(null);
+    if (selectedFullDate) fetchSlots(selectedFullDate);
+
+  } catch (err: any) {
+    console.error('예약 취소 실패', err?.response?.data ?? err);
+    const status = err?.response?.status;
+    if (status === 403) alert('접근 권한이 없습니다.');
+    else if (status === 404) alert('예약 정보를 찾을 수 없습니다.');
+    else alert(err?.response?.data?.message ?? '예약 취소에 실패했습니다.');
+  } finally {
+    setDetailLoading(false);
+  }
+};
+
   const capacityText = `${tableInfo.minCapacity}~${tableInfo.maxCapacity}인`;
   const tableType = getTableType(tableInfo.maxCapacity);
 
@@ -289,6 +321,7 @@ const TableDetailModal: React.FC<Props> = ({
     중형: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', label: '중형 테이블' },
     단체석: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-700', label: '단체석' },
   };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
@@ -537,7 +570,20 @@ const TableDetailModal: React.FC<Props> = ({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <button onClick={() => { setShowBookingDetail(false); setBookingDetail(null); setDetailError(null); }} className="text-sm text-gray-500 underline">닫기</button>
-                      { /* 사장이 예약을 관리하는 추가 액션(예: 예약 상세 페이지로 이동) 버튼이 필요하면 여기에 추가 가능 */ }
+                        {bookingDetail && (
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              onClick={() => {
+                                if (bookingDetailBookingId !== null) {
+                                handleCancelBooking(bookingDetailBookingId);
+                              }
+                            }}
+                              className="px-2 py-1 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600"
+                            >
+                              예약 취소 & 환불
+                            </button>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>

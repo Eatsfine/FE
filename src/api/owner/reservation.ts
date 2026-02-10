@@ -60,3 +60,8 @@ export const patchBreakTime = (storeId:number, body:PatchBreakTimeRequest) => {
 
 export const getBookingDetail = (storeId: number, tableId: number, bookingId: number) =>
   api.get<ApiResponse<BookingDetailResult>>(`/api/v1/stores/${storeId}/tables/${tableId}/slots/${bookingId}`);
+
+export const cancelBookingByOwner = (storeId: number, tableId: number, bookingId: number) =>
+  api.patch(`/api/v1/stores/${storeId}/tables/${tableId}/slots/${bookingId}/cancel`);
+
+
