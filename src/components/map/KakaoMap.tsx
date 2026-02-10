@@ -59,6 +59,12 @@ export default function KakaoMap({
       // noop
     }
   };
+
+  const toNum = (v: unknown) => {
+    const n = typeof v === "string" ? parseFloat(v) : Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
   //1. 지도 최초 1회 생성
   useEffect(() => {
     let cancelled = false;
@@ -79,12 +85,6 @@ export default function KakaoMap({
         };
         mapRef.current = new kakao.maps.Map(containerRef.current, options);
         infoRef.current = new kakao.maps.InfoWindow({ zIndex: 2 });
-        // requestAnimationFrame(() => {
-        //   mapRef.current.relayout();
-        //   mapRef.current.setCenter(
-        //     new kakao.maps.LatLng(center.lat, center.lng),
-        //   );
-        // });
         relayout();
         requestAnimationFrame(relayout);
         setTimeout(relayout, 300);
@@ -99,6 +99,7 @@ export default function KakaoMap({
       cancelled = true;
     };
   }, [defaultLevel]);
+
   // 2. 컨테이너 사이즈 변하면 relayout
   useEffect(() => {
     if (!sdkReady) return;

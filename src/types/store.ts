@@ -1,5 +1,3 @@
-// import type { $ZodNumberDef } from "zod/v4/core";
-
 export type Category = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
 export type Day =
