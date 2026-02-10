@@ -80,7 +80,7 @@ const OwnerPage: React.FC = () => {
       <main>
         {activeTab === "dashboard" && (
           <TableDashboard
-            storeId={selectedStore?.id}
+            storeId={selectedStore ? Number(selectedStore.id) : 0}
             storeName={selectedStore?.name}
           />
         )}

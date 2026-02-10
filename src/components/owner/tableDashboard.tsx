@@ -3,161 +3,443 @@ import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
 import TableCreateModal from './tableCreateModal';
 import TableDetailModal from './tableDetailModal';
 import BreakTimeModal, { type BreakTime } from './BreakTimeModal';
+import AddTableModal from './addTableModal';
+import { createLayout, createTable, deleteTable, getActiveLayout, type CreateTableRequest, type LayoutTable } from '@/api/owner/storeLayout';
+import { patchTableInfo, type UpdatedTable } from '@/api/owner/table';
+import { patchBreakTime } from '@/api/owner/reservation';
 
 interface TableDashboardProps {
-  storeId?: string;
+  storeId: number;
   storeName?: string;
 }
 
-
-interface TableInfo {
+export interface TableInfo {
+  tableId: number;
   numValue: number;
   minCapacity: number;
   maxCapacity: number;
   isEditingCapacity: boolean;
   isEditingNum: boolean;
+  isSaved?: boolean;
   originalMinCapacity?: number;
   originalMaxCapacity?: number;
+  tableImageUrl?: string | null;
 }
 
-const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => {
+interface PlacedTable {
+  gridX: number;
+  gridY: number;
+  tableInfo: TableInfo;
+}
 
-  const SETTINGS_STORAGE_KEY = storeId 
-    ? `store-settings-${storeId}` 
-    : 'store-settings-temp';
+/**
+ * API의 gridX/gridY는 0-based.
+ * UI 상 slotId(key)는 1-based index: slotId = gridY * columns + gridX + 1
+ */
+const mapTablesFromApi = (
+  tables: LayoutTable[],
+  columns: number,
+  prevTableData: Record<number, TableInfo> = {}
+): Record<number, TableInfo> => {
+  const result: Record<number, TableInfo> = {};
 
-  const STORAGE_KEY = storeId
-  ? `table-dashboard-state-${storeId}`
-  : 'table-dashboard-state-temp';
+  tables.forEach((t) => {
+    const slotId = t.gridY * columns + t.gridX + 1; // 일관된 계산
+    const displayNum = extractLeadingNumber(t.tableNumber) ?? slotId;
+    const imageUrl = (t as any).tableImageUrl ?? prevTableData?.[slotId]?.tableImageUrl ?? null;
 
+    result[slotId] = {
+      tableId: t.tableId,
+      numValue: displayNum,
+      minCapacity: t.minSeatCount,
+      maxCapacity: t.maxSeatCount,
+      isEditingCapacity: false,
+      isEditingNum: false,
+      isSaved: true,
+      originalMinCapacity: t.minSeatCount,
+      originalMaxCapacity: t.maxSeatCount,
+      tableImageUrl: imageUrl,
+    };
+  });
+
+  return result;
+};
+
+const extractLeadingNumber = (s?: string | null): number | null => {
+  if (!s) return null;
+  const m = s.match(/(-?\d+)/);
+  return m ? Number(m[1]) : null;
+};
+
+const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) => {
+  const SETTINGS_STORAGE_KEY = storeId ? `store-settings-${storeId}` : 'store-settings-temp';
+  const STORAGE_KEY = storeId ? `table-dashboard-state-${storeId}` : 'table-dashboard-state-temp';
 
   const getSavedData = () => {
-    if (!storeId) return null;
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse storage', e);
-      }
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error('로컬스토리지 파싱 실패', e);
+      return null;
     }
-    return null;
   };
 
-  const initialData = useMemo(()=>getSavedData(),[]);
+  const initialData = useMemo(() => getSavedData(), [/* intentionally empty */]);
 
-  const [config, setConfig] = useState(initialData?.config ?? { columns: 0, rows: 0 });
+  const [config, setConfig] = useState<{ columns: number; rows: number }>(initialData?.config ?? { columns: 0, rows: 0 });
   const [tableData, setTableData] = useState<Record<number, TableInfo>>(initialData?.tableData ?? {});
   const [breakTimes, setBreakTimes] = useState<BreakTime[]>(initialData?.breakTimes ?? []);
-  const [closedDays, setClosedDays] = useState<string[]>([]);
+  const [closedDays, setClosedDays] = useState<string[]>(initialData?.closedDays ?? []);
 
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [isBreakModalOpen, setIsBreakModalOpen] = useState(false);
-  
-  
+  const [isAddTableModalOpen, setAddTableModalOpen] = useState(false);
+  const [existingTables, setExistingTables] = useState<{ gridX: number; gridY: number; tableId?: number }[]>([]);
+  const [placedTables, setPlacedTables] = useState<PlacedTable[]>([]);
+
   useEffect(() => {
     const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (savedSettings) {
       try {
         const settingsData = JSON.parse(savedSettings);
-        // StoreSettingsData의 closedDays를 상태에 저장
-        if (settingsData.closedDays) {
-          setClosedDays(settingsData.closedDays);
-        }
+        if (settingsData?.closedDays) setClosedDays(settingsData.closedDays);
       } catch (e) {
-        console.error('설정 데이터를 불러오는데 실패했습니다.', e);
+        console.error('설정 데이터 파싱 실패', e);
       }
     }
-  }, [storeId, SETTINGS_STORAGE_KEY]);
+  }, [SETTINGS_STORAGE_KEY]);
 
   useEffect(() => {
-    const data = {
-      config,
-      tableData,
-      breakTimes,
-      closedDays,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    console.log("저장됨:", data); // 디버깅용
-  }, [config, tableData, breakTimes, closedDays]);
+    const data = { config, tableData, breakTimes, closedDays };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.error('로컬스토리지 저장 실패', e);
+    }
+  }, [STORAGE_KEY, config, tableData, breakTimes, closedDays]);
 
   const hasTables = config.columns > 0 && config.rows > 0;
 
   const getDefaultTableData = (id: number): TableInfo => ({
-      numValue: id,
-      minCapacity: 2,
-      maxCapacity: 4,
-      isEditingCapacity: false,
-      isEditingNum: false,
+    tableId: -1,
+    numValue: id,
+    minCapacity: 2,
+    maxCapacity: 4,
+    isEditingCapacity: false,
+    isEditingNum: false,
+    isSaved: false,
+    tableImageUrl: null,
   });
 
-  const getTableData = (id: number): TableInfo =>
-    tableData[id] ?? getDefaultTableData(id);
+  const getTableData = (id: number) => tableData[id] ?? getDefaultTableData(id);
 
   const updateTable = (id: number, updates: Partial<TableInfo>) => {
-  setTableData(prev => {
-    const current = prev[id] ?? getDefaultTableData(id);
-    const next = { ...current, ...updates };
+    setTableData(prev => {
+      const current = prev[id] ?? getDefaultTableData(id);
+      const next = { ...current, ...updates };
 
-    if (updates.minCapacity !== undefined) {
-      if (next.minCapacity >= next.maxCapacity) {
-        next.minCapacity = next.maxCapacity - 1;
+      // 용이성: min < max 보정
+      if (updates.minCapacity !== undefined && next.minCapacity >= next.maxCapacity) {
+        next.minCapacity = Math.max(1, next.maxCapacity - 1);
       }
-    }
-
-    if (updates.maxCapacity !== undefined) {
-      if (next.maxCapacity <= next.minCapacity) {
+      if (updates.maxCapacity !== undefined && next.maxCapacity <= next.minCapacity) {
         next.maxCapacity = next.minCapacity + 1;
       }
-    }
 
-    return { ...prev, [id]: next };
-  });
-};
-
-  const getTableStyle = (capacity: number) => {
-    if (capacity <= 4)
-    return {
-      border: 'border-yellow-300',
-      bg: 'bg-yellow-100',
-      badge: 'bg-yellow-500',
-      hover: 'hover:bg-yellow-200',
-    };
-
-  if (capacity <= 8)
-    return {
-      border: 'border-blue-300',
-      bg: 'bg-blue-100',
-      badge: 'bg-blue-500',
-      hover: 'hover:bg-blue-200',
-    };
-
-  return {
-    border: 'border-purple-300',
-    bg: 'bg-purple-100',
-    badge: 'bg-purple-500',
-    hover: 'hover:bg-purple-200',
-  };
-};
-
-const startEditingCapacity = (id: number) => {
-    const table = getTableData(id);
-    updateTable(id, { 
-      isEditingCapacity: true,
-      originalMinCapacity: table.minCapacity,
-      originalMaxCapacity: table.maxCapacity
+      return { ...prev, [id]: next };
     });
   };
 
+  const getTableStyle = (capacity: number) => {
+    if (capacity <= 4) return { border: 'border-yellow-300', bg: 'bg-yellow-100', badge: 'bg-yellow-500', hover: 'hover:bg-yellow-200' };
+    if (capacity <= 8) return { border: 'border-blue-300', bg: 'bg-blue-100', badge: 'bg-blue-500', hover: 'hover:bg-blue-200' };
+    return { border: 'border-purple-300', bg: 'bg-purple-100', badge: 'bg-purple-500', hover: 'hover:bg-purple-200' };
+  };
+
+  const startEditingCapacity = (id: number) => {
+    const table = getTableData(id);
+    updateTable(id, { isEditingCapacity: true, originalMinCapacity: table.minCapacity, originalMaxCapacity: table.maxCapacity });
+  };
+
+  useEffect(() => {
+    if (!storeId) return;
+
+    const fetchLayout = async () => {
+      try {
+        const layout = await getActiveLayout(storeId);
+        if (layout) {
+          setConfig({ columns: layout.gridInfo.gridCol, rows: layout.gridInfo.gridRow });
+
+          setPlacedTables(
+            layout.tables.map(t => ({
+              gridX: t.gridX,
+              gridY: t.gridY,
+              tableInfo: {
+                tableId: t.tableId,
+                numValue: extractLeadingNumber(t.tableNumber) ?? (t.gridY * layout.gridInfo.gridCol + t.gridX + 1),
+                minCapacity: t.minSeatCount,
+                maxCapacity: t.maxSeatCount,
+                isEditingCapacity: false,
+                isEditingNum: false,
+                isSaved: true,
+                tableImageUrl: (t as any).tableImageUrl ?? tableData[t.gridY * layout.gridInfo.gridCol + t.gridX + 1]?.tableImageUrl ?? null,
+              },
+            }))
+          );
+
+          setExistingTables(
+            layout.tables.map(t => ({ gridX: t.gridX + 1, gridY: t.gridY + 1, tableId: t.tableId }))
+          );
+
+          setTableData(mapTablesFromApi(layout.tables, layout.gridInfo.gridCol, tableData));
+          setCreateModalOpen(false);
+        } else {
+          setCreateModalOpen(true);
+        }
+      } catch (e) {
+        console.error("레이아웃 로드 실패", e);
+        setCreateModalOpen(true);
+      }
+    };
+
+    fetchLayout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeId]);
+
+  const handleCreateLayout = async (columns: number, rows: number) => {
+    if (!storeId) return;
+    try {
+      const newLayout = await createLayout(storeId, columns, rows);
+      if (!newLayout) throw new Error("레이아웃 생성 후 응답이 없습니다.");
+      setConfig({ columns: newLayout.gridInfo.gridCol, rows: newLayout.gridInfo.gridRow });
+      setTableData(mapTablesFromApi(newLayout.tables, newLayout.gridInfo.gridCol));
+      setCreateModalOpen(false);
+    } catch (e) {
+      console.error("배치도 생성 실패", e);
+      alert("배치도 생성에 실패했습니다.");
+    }
+  };
+
+  const handleAddTable = async (data: CreateTableRequest) => {
+    if (!storeId) return;
+    try {
+      // API는 0-based gridX/gridY를 기대
+      const payload: CreateTableRequest = { ...data, gridX: data.gridX - 1, gridY: data.gridY - 1 };
+      const newTable = await createTable(storeId, payload);
+      if (!newTable) throw new Error("서버에서 테이블 정보를 반환하지 않았습니다.");
+
+      // UI 상 existingTables 은 1-based coords 유지
+      setExistingTables(prev => [...prev, { gridX: data.gridX, gridY: data.gridY, tableId: newTable.tableId }]);
+
+      // slotId 계산 (UI key): (row-1) * cols + col
+      const slotId = (data.gridY - 1) * config.columns + data.gridX;
+      const extractedNum = extractLeadingNumber((newTable as any).tableNumber) ?? slotId;
+
+      setTableData(prev => ({
+        ...prev,
+        [slotId]: {
+          tableId: (newTable as any).tableId ?? -1,
+          numValue: extractedNum,
+          minCapacity: (newTable as any).minSeatCount ?? 2,
+          maxCapacity: (newTable as any).maxSeatCount ?? 4,
+          isEditingCapacity: false,
+          isEditingNum: false,
+          isSaved: true,
+          tableImageUrl: (newTable as any).tableImageUrl ?? null,
+        },
+      }));
+
+      setAddTableModalOpen(false);
+      alert('테이블 생성 완료');
+    } catch (e) {
+      console.error('테이블 추가 실패', e);
+      alert('테이블 생성 실패');
+    }
+  };
+
+  const handleDeleteTable = async (tableId?: number, slotId?: number) => {
+    if (!storeId) return;
+    if (!tableId || !slotId) {
+      alert('삭제할 테이블 정보를 찾을 수 없습니다. 새로고침 후 다시 시도하세요.');
+      return;
+    }
+
+    if (!confirm('정말 이 테이블을 삭제하시겠습니까? (삭제는 soft-delete로 기록됩니다)')) return;
+
+    try {
+      await deleteTable(storeId, tableId);
+
+      setTableData(prev => {
+        const next = { ...prev };
+        delete next[slotId];
+        return next;
+      });
+
+      const slotGridX = ((slotId - 1) % config.columns) + 1;
+      const slotGridY = Math.floor((slotId - 1) / config.columns) + 1;
+      setExistingTables(prev => prev.filter(t => !(t.gridX === slotGridX && t.gridY === slotGridY)));
+
+      setSelectedTable(null);
+      alert('테이블이 삭제되었습니다.');
+    } catch (e: any) {
+      const status = e?.response?.status;
+      if (status === 400) {
+        alert('미래 예약이 있어 삭제할 수 없습니다. 예약을 먼저 취소해주세요.');
+      } else if (status === 404) {
+        alert('가게 또는 테이블을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.');
+      } else {
+        console.error(e);
+        alert('테이블 삭제 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+      }
+    }
+  };
+
+  const buildPatchPayload = (opts: {
+    tableNumber?: number | null;
+    min?: number | null;
+    max?: number | null;
+    seatsType?: string | null;
+  }) => {
+    const body: any = {};
+    if (opts.tableNumber !== null && opts.tableNumber !== undefined) body.tableNumber = String(opts.tableNumber);
+    if (opts.min !== null && opts.min !== undefined) body.minSeatCount = opts.min;
+    if (opts.max !== null && opts.max !== undefined) body.maxSeatCount = opts.max;
+    if (opts.seatsType) body.seatsType = opts.seatsType;
+    if (Object.keys(body).length === 0) throw new Error('수정할 필드를 하나 이상 지정하세요.');
+    if (body.minSeatCount !== undefined && body.maxSeatCount !== undefined && body.minSeatCount > body.maxSeatCount) {
+      throw new Error('최소 인원은 최대 인원보다 클 수 없습니다.');
+    }
+    return body;
+  };
+
+  const handlePatchTableInfo = async (tableId: number, changes: { tableNumber?: number; min?: number; max?: number; seatsType?: string }) => {
+    if (!storeId) {
+      alert('storeId가 없습니다.');
+      return;
+    }
+
+    let payload;
+    try {
+      payload = buildPatchPayload({
+        tableNumber: changes.tableNumber ?? null,
+        min: changes.min ?? null,
+        max: changes.max ?? null,
+        seatsType: changes.seatsType ?? null,
+      });
+    } catch (err: any) {
+      alert(err.message);
+      return;
+    }
+
+    try {
+      const res = await patchTableInfo(storeId, tableId, payload);
+
+      const updatedTables: UpdatedTable[] = (res.data?.result?.updatedTables) ?? [];
+
+      setTableData(prev => {
+        const next = { ...prev };
+        updatedTables.forEach(ut => {
+          const slotKeyStr = Object.keys(next).find(k => next[Number(k)]?.tableId === ut.tableId);
+          const slotKey = slotKeyStr ? Number(slotKeyStr) : undefined;
+          const displayNum = extractLeadingNumber(ut.tableNumber) ?? slotKey;
+
+          if (slotKey && next[slotKey]) {
+            next[slotKey] = {
+              ...next[slotKey],
+              tableId: ut.tableId,
+              minCapacity: (ut as any).minSeatCount ?? next[slotKey].minCapacity,
+              maxCapacity: (ut as any).maxSeatCount ?? next[slotKey].maxCapacity,
+              numValue: displayNum ?? next[slotKey].numValue,
+              isSaved: true,
+            };
+          } else {
+            console.warn('로컬 슬롯을 찾을 수 없음 (업데이트된 테이블):', ut);
+          }
+        });
+        return next;
+      });
+
+      setPlacedTables(prev => prev.map(pt => {
+        const match = updatedTables.find(ut => ut.tableId === pt.tableInfo.tableId);
+        if (match) {
+          return {
+            ...pt,
+            tableInfo: {
+              ...pt.tableInfo,
+              minCapacity: (match as any).minSeatCount ?? pt.tableInfo.minCapacity,
+              maxCapacity: (match as any).maxSeatCount ?? pt.tableInfo.maxCapacity,
+              numValue: extractLeadingNumber(match.tableNumber) ?? pt.tableInfo.numValue,
+            }
+          };
+        }
+        return pt;
+      }));
+
+      alert('테이블 정보가 업데이트 되었습니다.');
+    } catch (e: any) {
+      const status = e?.response?.status;
+      if (status === 400) {
+        alert('잘못된 요청입니다. (좌석 범위 오류 또는 수정 필드 없음)');
+      } else if (status === 404) {
+        alert('가게 또는 테이블을 찾을 수 없습니다.');
+      } else {
+        console.error(e);
+        alert('테이블 수정 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+      }
+    }
+  };
+
+  const handleSetBreakTime = async (bt: BreakTime) => {
+    if (!storeId) {
+    alert('storeId가 없습니다.');
+    return;
+  }
+
+  const payload = {
+    breakStartTime: bt.start,
+    breakEndTime: bt.end,
+  };
+
+
+  try {
+    // API 호출
+    const res = await patchBreakTime(storeId, payload);
+    // 성공 응답 포맷에 맞게 state 업데이트
+    // (서버가 단일 브레이크타임만 반환한다고 가정)
+    setBreakTimes([ { 
+      start: res.data.result.breakStartTime, 
+      end: res.data.result.breakEndTime } ]);
+
+    // 옵션: 설정 저장 (SETTINGS_STORAGE_KEY 에 closedDays 등 함께 저장되어 있으므로 일관성 있게 유지)
+    try {
+      const prevSettingsRaw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const prevSettings = prevSettingsRaw ? JSON.parse(prevSettingsRaw) : {};
+      const newSettings = { ...prevSettings, breakTimes: [{ start: res.data.result.breakStartTime, end: res.data.result.breakEndTime }] };
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(newSettings));
+    } catch (err) {
+      console.warn('설정 로컬스토리지 저장 실패', err);
+    }
+
+    alert('브레이크 타임이 설정되었습니다.');
+  } catch (err: any) {
+    console.error('브레이크타임 설정 실패', err?.response?.data ?? err);
+    const status = err?.response?.status;
+    if (status === 400) {
+      alert(err?.response?.data?.message ?? '잘못된 브레이크타임 요청입니다.');
+    } else if (status === 404) {
+      alert('가게를 찾을 수 없습니다.');
+    } else {
+      alert(err?.response?.data?.message ?? '브레이크타임 설정에 실패했습니다. 콘솔을 확인하세요.');
+    }
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
-        
-        {/* 1. 상단 헤더 섹션 */}
+         {/* 1. 상단 헤더 섹션 */}
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리
@@ -261,6 +543,14 @@ const startEditingCapacity = (id: number) => {
           <div className="flex justify-between items-center mb-12">
             <h3 className="text-xl text-gray-900">테이블 배치도</h3>
             <span className="text-gray-900 text-sm tracking-widest uppercase">{config.columns} X {config.rows} 그리드</span>
+            {hasTables && (
+              <button
+                onClick={() => setAddTableModalOpen(true)}
+                className="bg-blue-600 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-base hover:bg-blue-700 transition-all"
+              >
+                <Plus size={18} /> 테이블 추가
+              </button>
+            )}
           </div>
           <div className="overflow-x-auto pb-4"> 
             <div 
@@ -274,12 +564,16 @@ const startEditingCapacity = (id: number) => {
                 const table = getTableData(id);
                 const style = getTableStyle(table.maxCapacity);
 
+                const extraStyle = table.isSaved
+                ? ''
+                : 'opacity-50 border-dashed'
+
                 return (
                   <div 
                     key={id} 
                     onClick={() => !table.isEditingCapacity && setSelectedTable(id)}
                     // w-32~40 사이로 조절하여 크기를 줄이고 aspect-square로 정사각 느낌을 줌
-                    className={`border-2 ${style.border} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
+                    className={`border-2 ${style.border} ${extraStyle} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
                   >
                     <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
                       {table.isEditingCapacity ? (
@@ -292,8 +586,22 @@ const startEditingCapacity = (id: number) => {
                             className="bg-white/60 border-b border-orange-400 outline-none text-center w-8 font-bold"
                             value={table.numValue}
                             onChange={(e) => updateTable(id, { numValue: Number(e.target.value) })}
-                            onBlur={() => updateTable(id, { isEditingNum: false })}
-                            onKeyDown={(e) => e.key === 'Enter' && updateTable(id, { isEditingNum: false })}
+                            onBlur={() => {
+                              updateTable(id, { isEditingNum: false });
+                              const tableId = getTableData(id).tableId;
+                              if (tableId) {
+                                handlePatchTableInfo(tableId, { tableNumber: table.numValue });
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                updateTable(id, { isEditingNum: false });
+                                const tableId = getTableData(id).tableId;
+                                if (tableId) {
+                                  handlePatchTableInfo(tableId, { tableNumber: table.numValue });
+                                }
+                              }
+                            }}
                           />
                           <span className="ml-1">번</span>
                         </div>
@@ -404,28 +712,58 @@ const startEditingCapacity = (id: number) => {
           </div>
       </main>
 
-      {/* 모달 컴포넌트들 */}
-      {isCreateModalOpen && <TableCreateModal onClose={() => setCreateModalOpen(false)} onConfirm={(c, r) => { setConfig({ columns: c, rows: r }); setCreateModalOpen(false); }} />}
-      {selectedTable && (
-        <TableDetailModal 
-          tableNumber={getTableData(selectedTable).numValue} 
-          // [추가] 테이블 상세 정보 전달
+      {/* 모달들 (로직 동일) */}
+      {isCreateModalOpen && <TableCreateModal onClose={() => setCreateModalOpen(false)} onConfirm={handleCreateLayout} />}
+      {selectedTable != null && (
+        <TableDetailModal
+          storeId={storeId}
+          tableNumber={getTableData(selectedTable).numValue}
           tableInfo={getTableData(selectedTable)}
-          // [추가] 인원 정보 업데이트 함수 전달
-          onUpdateCapacity={(min, max) => updateTable(selectedTable, { minCapacity: min, maxCapacity: max })}
-          onClose={() => setSelectedTable(null)} 
-          breakTimes={breakTimes} 
+          tableId={getTableData(selectedTable).tableId}
+          slotId={selectedTable}
+          onUpdateCapacity={(min, max) => {
+            const tableId = getTableData(selectedTable).tableId;
+            if (!tableId) {
+              updateTable(selectedTable, { minCapacity: min, maxCapacity: max });
+              return;
+            }
+            handlePatchTableInfo(tableId, { min, max });
+          }}
+          onDelete={(tableId, slotId) => handleDeleteTable(tableId, slotId)}
+          onClose={() => setSelectedTable(null)}
+          breakTimes={breakTimes}
           closedDays={closedDays}
+          onImageUpload={(tableId, url) => {
+            setTableData(prev => {
+              const next = { ...prev };
+              const slotIdStr = Object.keys(prev).find(k => prev[Number(k)]?.tableId === tableId);
+              if (slotIdStr) next[Number(slotIdStr)].tableImageUrl = url || null;
+              return next;
+            });
+          }}
         />
       )}
+
       {isBreakModalOpen && (
         <BreakTimeModal
-          openTime="11:00"
-          closeTime="22:00"
-          onClose={() => setIsBreakModalOpen(false)}
-          onConfirm={(bt) =>
-            setBreakTimes((prev) => [...prev, bt])
-          }
+            openTime="11:00"
+            closeTime="22:00"
+            onClose={() => setIsBreakModalOpen(false)}
+            onConfirm={(bt) => {
+              // 모달 내부에서 onConfirm 호출 후 모달은 닫히므로,
+              // API 호출을 여기에서 수행합니다.
+              handleSetBreakTime(bt);
+            }}
+          />
+      )}
+
+      {isAddTableModalOpen && (
+        <AddTableModal
+          onClose={() => setAddTableModalOpen(false)}
+          onConfirm={handleAddTable}
+          gridCols={config.columns}
+          gridRows={config.rows}
+          existingTables={existingTables}
         />
       )}
     </div>

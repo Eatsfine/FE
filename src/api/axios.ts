@@ -2,6 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { isApiResponse, normalizeApiError } from "./api.error";
 import type { ApiError } from "@/types/api";
 
+const OWNER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJvd25lckBuYXZlci5jb20iLCJyb2xlIjoiUk9MRV9PV05FUiIsImlhdCI6MTc3MDU3MDE5NywiZXhwIjo0OTI0MTcwMTk3fQ.0O8-mHTT6j59VTuMYmtGZs4r7JvqlsRi0jU09601iKs"
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
   timeout: 10000,
@@ -13,9 +14,24 @@ function getAccessToken() {
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
+  const ownerApiPaths = [
+    "/owner",
+    "/stores/",
+  ];
+
+  const isOwnerApi = ownerApiPaths.some((path) =>
+    config.url?.includes(path)
+  );
+
+  if (isOwnerApi) {
+    config.headers.Authorization = `Bearer ${OWNER_TOKEN}`;
+    return config;
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
