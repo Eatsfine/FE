@@ -13,7 +13,6 @@ import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 
 type Props = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
   onConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
@@ -29,7 +28,6 @@ const CategoryLabel: Record<MenuCategory, string> = {
 
 export default function ReservationMenuModal({
   open,
-  onOpenChange,
   restaurant,
   onConfirm,
   onBack,
@@ -283,7 +281,9 @@ export default function ReservationMenuModal({
               <Button
                 type="button"
                 className="h-12 px-6 rounded-lg cursor-pointer bg-blue-500  hover:bg-blue-600"
-                onClick={() => onConfirm({ ...draft, selectedMenus })}
+                onClick={() => {
+                  onConfirm({ ...draft, selectedMenus });
+                }}
               >
                 다음
               </Button>

@@ -1,11 +1,8 @@
 import { getUserBookings } from "@/api/endpoints/bookings";
 import ReservationCompleteModal from "@/components/reservation/modals/ReservationCompleteModal";
+import { toHHmm } from "@/utils/time";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
 
 export default function ReservationCompletePage() {
   const [sp] = useSearchParams();
@@ -29,6 +26,7 @@ export default function ReservationCompletePage() {
         let page = 1;
         while (true) {
           const data = await getUserBookings(page);
+
           const found = data.bookingList.find((b) => b.bookingId === bookingId);
           if (found) {
             setItem(found);
@@ -60,8 +58,8 @@ export default function ReservationCompletePage() {
   }, [item]);
   const draft = useMemo(() => {
     if (!item) return { people: 0, date: new Date(), time: "" } as any;
-    const date = new Date(item.bookingDate);
-    const time = `${pad2(item.bookingTime.hour)}:${pad2(item.bookingTime.minute)}`;
+    const date = new Date(`${item.bookingDate}T00:00:00`);
+    const time = toHHmm(item.bookingTime) ?? "";
     return { people: item.partySize, date, time } as any;
   }, [item]);
 

@@ -12,6 +12,7 @@ import KakaoMap from "@/components/map/KakaoMap";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
+import { toHHmm } from "@/utils/time";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -54,6 +55,19 @@ export default function SearchPage() {
 
   const [booking, setBooking] = useState<CreateBookingResult | null>(null);
 
+  const normalizeDraft = (d: ReservationDraft): ReservationDraft => {
+    const normalizedTime = toHHmm(d.time);
+    const safeTime =
+      !normalizedTime || normalizedTime.includes("undefined")
+        ? undefined
+        : normalizedTime;
+
+    return {
+      ...d,
+      time: safeTime as any,
+    };
+  };
+
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
     setSelectedStoreId(storeId);
@@ -77,7 +91,7 @@ export default function SearchPage() {
   };
 
   const goReserveMenu = (d: ReservationDraft) => {
-    setDraft(d);
+    setDraft(normalizeDraft(d));
     setReserveOpen(false);
     setReserveMenuOpen(true);
   };
@@ -87,7 +101,7 @@ export default function SearchPage() {
     setReserveOpen(true);
   };
   const goConfirm = (d: ReservationDraft) => {
-    setDraft(d);
+    setDraft(normalizeDraft(d));
     setReserveMenuOpen(false);
     setConfirmOpen(true);
   };
@@ -231,10 +245,6 @@ export default function SearchPage() {
       {selectedStoreId && draft && detailQuery.data && (
         <ReservationMenuModal
           open={reserveMenuOpen}
-          onOpenChange={(o: boolean) => {
-            setReserveMenuOpen(o);
-            if (!o) closeModalsOnly();
-          }}
           restaurant={detailQuery.data}
           onConfirm={goConfirm}
           onBack={backToReserve}
