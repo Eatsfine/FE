@@ -90,3 +90,12 @@ export type RequestStoreCreateDto = {
 };
 
 export type ResponseStoreCreateDto = { storeId: number };
+
+export type RequestMainImageDto = {
+  mainImage: File;
+};
+
+export type ResponseMainImageDto = {
+  storeId: number;
+  mainImageUrl: string;
+};

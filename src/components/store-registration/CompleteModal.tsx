@@ -8,6 +8,7 @@ import {
 import { useEffect } from "react";
 import type { StoreInfoFormValues } from "./StoreInfo.schema";
 import { Check } from "lucide-react";
+import { categoryLabel } from "@/types/store";
 
 interface CompleteModalProps {
   isOpen: boolean;
@@ -50,7 +51,9 @@ export default function CompleteModal({
           </div>
           <div className="flex justify-between items-start gap-4">
             <span className="text-gray-500 shrink-0">음식 종류</span>
-            <span className="text-gray-900 text-right">{data.category || "-"}</span>
+            <span className="text-gray-900 text-right">
+              {data.category ? categoryLabel[data.category] : "-"}
+            </span>
           </div>
           <div className="flex justify-between items-start gap-4">
             <span className="text-gray-500 shrink-0">주소</span>
@@ -60,7 +63,9 @@ export default function CompleteModal({
           </div>
           <div className="flex justify-between items-start gap-4">
             <span className="text-gray-500 shrink-0">전화번호</span>
-            <span className="text-gray-900 text-right">{data.phone || "-"}</span>
+            <span className="text-gray-900 text-right">
+              {data.phoneNumber || "-"}
+            </span>
           </div>
           <div className="flex justify-between items-start gap-4">
             <span className="text-gray-500 shrink-0">운영 시간</span>

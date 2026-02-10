@@ -8,7 +8,7 @@ import StepMenuRegistration from "@/components/store-registration/StepMenuRegist
 import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
 import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
 import { transformToRegister } from "@/components/store-registration/StoreTransform.utils";
-import { useRegisterStore } from "@/hooks/queries/useStore";
+import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
 import { getErrorMessage } from "@/utils/error";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -22,6 +22,7 @@ type Step1Data = {
 
 export default function StoreRegistrationPage() {
   const { mutate: registerStore } = useRegisterStore();
+  const { mutate: uploadImage } = useMainImage();
 
   const navigate = useNavigate();
 
@@ -75,7 +76,29 @@ export default function StoreRegistrationPage() {
       registerStore(finalPayload, {
         onSuccess: (res) => {
           console.log("등록 성공 응답:", res);
-          setIsCompleteModalOpen(true);
+
+          const createdStoreId = res.storeId;
+
+          if (step2Data.mainImage && step2Data.mainImage instanceof File) {
+            uploadImage(
+              {
+                storeId: createdStoreId,
+                body: { mainImage: step2Data.mainImage },
+              },
+              {
+                onSuccess: () => {
+                  console.log("이미지 업로드 완료");
+                  setIsCompleteModalOpen(true);
+                },
+                onError: (err) => {
+                  console.error("이미지 업로드 실패:", err);
+                  alert(getErrorMessage(err));
+                },
+              },
+            );
+          } else {
+            setIsCompleteModalOpen(true);
+          }
         },
         onError: (error) => {
           console.error(" 등록 실패 원인:", error);

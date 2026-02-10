@@ -2,11 +2,18 @@ import { Controller, useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { StoreInfoSchema, type StoreInfoFormValues } from "./StoreInfo.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
 import DaumPostcodeEmbed from "react-daum-postcode";
 import { loadKakaoMapSdk } from "@/lib/kakao";
-import { X } from "lucide-react";
+import { Upload, X } from "lucide-react";
+
+//window 객체에 kakao가 있음을 TS에게 알림
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>; // 부모로부터 받을 초기값
@@ -29,20 +36,9 @@ export default function StepStoreInfo({
 }: StepStoreInfoProps) {
   const [isOpenPostcode, setIsOpenPostcode] = useState(false);
 
-  useEffect(() => {
-    if (isOpenPostcode) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpenPostcode]);
-
-  useEffect(() => {
-    loadKakaoMapSdk().catch((err) => console.error("카카오맵 로드 실패:", err));
-  }, []);
+  // 이미지 미리보기 URL 상태
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -73,13 +69,68 @@ export default function StepStoreInfo({
     },
   });
 
-  //값이 변할 때마다 부모에게 실시간 보고
-  const values = watch();
+  const watchedMainImage = watch("mainImage");
 
   useEffect(() => {
-    onChange(isValid, values as StoreInfoFormValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid, JSON.stringify(values), onChange]);
+    if (watchedMainImage && watchedMainImage instanceof File) {
+      // File 객체가 있으면 URL 생성
+      const url = URL.createObjectURL(watchedMainImage);
+      setPreviewUrl(url);
+
+      // 컴포넌트가 언마운트되거나 이미지가 바뀌면 URL cleanup
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else if (typeof watchedMainImage === "string") {
+      // 서버에서 온 URL인 경우 바로 보여줌
+      setPreviewUrl(watchedMainImage);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [watchedMainImage]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("mainImage", file, { shouldValidate: true });
+    }
+  };
+
+  const handleRemoveImage = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setValue("mainImage", null, { shouldValidate: true });
+  };
+
+  useEffect(() => {
+    if (isOpenPostcode) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpenPostcode]);
+
+  useEffect(() => {
+    loadKakaoMapSdk().catch((err) => console.error("카카오맵 로드 실패:", err));
+  }, []);
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onChange(isValid, value as StoreInfoFormValues);
+    });
+
+    // 처음 마운트 될 때 데이터 동기화
+    onChange(isValid, control._formValues as StoreInfoFormValues);
+
+    return () => subscription.unsubscribe();
+  }, [watch, isValid, onChange, control]);
 
   const handleAddressComplete = (data: any) => {
     let fullAddress = data.address;
@@ -99,7 +150,7 @@ export default function StepStoreInfo({
     setValue("sigungu", data.sigungu);
     setValue("bname", data.bname);
 
-    if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+    if (window.kakao?.maps?.services) {
       const geocoder = new window.kakao.maps.services.Geocoder();
 
       geocoder.addressSearch(fullAddress, (result: any, status: any) => {
@@ -279,7 +330,7 @@ export default function StepStoreInfo({
           </div>
         </div>
         <div>
-          <Label htmlFor="" className="block text-gray-700 mb-2">
+          <Label htmlFor="holidays" className="block text-gray-700 mb-2">
             정기 휴무일(선택)
           </Label>
           <Controller
@@ -315,10 +366,11 @@ export default function StepStoreInfo({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label htmlFor="depositRate" className="block text-gray-700 mb-2">
               예약금 비율 <span className="text-red-500">*</span>
             </Label>
             <select
+              id="depositRate"
               {...register("depositRate")}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -330,10 +382,14 @@ export default function StepStoreInfo({
             </select>
           </div>
           <div>
-            <Label className="block text-gray-700 mb-2">
+            <Label
+              htmlFor="bookingIntervalMinutes"
+              className="block text-gray-700 mb-2"
+            >
               예약 시간 간격 (분)
             </Label>
             <input
+              id="bookingIntervalMinutes"
               type="number"
               {...register("bookingIntervalMinutes", {
                 valueAsNumber: true,
@@ -348,7 +404,53 @@ export default function StepStoreInfo({
             )}
           </div>
         </div>
+        <div>
+          <Label htmlFor="mainImage" className="block text-gray-700 mb-2">
+            식당 대표 이미지 <span className="text-red-500">*</span>
+          </Label>
+          <div className="flex items-start gap-4">
+            {!previewUrl ? (
+              <Label className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg, image/png"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+                <Upload className="size-8 text-gray-400" aria-hidden="true" />
+                <span className="text-xs text-gray-500 mt-2">
+                  이미지 업로드
+                </span>
+              </Label>
+            ) : (
+              <div className="relative w-32 h-32 border-2 border-gray-200 border-solid rounded-lg overflow-hidden group">
+                <img
+                  src={previewUrl}
+                  alt="미리보기"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-gray-500 hover:bg-white hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
 
+            <div className="flex-1 text-gray-500">
+              <p>• 최대 용량: 1MB</p>
+              <p>• 형식: JPG(JPEG), PNG</p>
+              {errors.mainImage && (
+                <p className="text-red-500 text-xs mt-1">
+                  • {(errors.mainImage as any).message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
         <div>
           <Label htmlFor="description" className="block text-gray-700 mb-2">
             가게 소개 <span className="text-red-500">*</span>

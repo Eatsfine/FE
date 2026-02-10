@@ -16,6 +16,10 @@ export const DepositRateEnum = z.enum([
   "FIFTY",
 ]);
 
+const MAX_FILE_SIZE = 1 * 1024 * 1024;
+
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
 export const StoreInfoSchema = z
   .object({
     storeName: z.string().min(1, { message: "가게 이름을 입력하세요." }),
@@ -53,6 +57,34 @@ export const StoreInfoSchema = z
     openTime: z.string().min(1),
     closeTime: z.string().min(1),
     holidays: z.array(z.string()).optional(),
+
+    mainImage: z
+      .any()
+      .refine((file) => !!file, {
+        message: "식당 대표 이미지를 등록해주세요.",
+      })
+      .refine(
+        (file) => {
+          if (file instanceof File) {
+            return file.size <= MAX_FILE_SIZE;
+          }
+          return true;
+        },
+        {
+          message: "이미지 크기는 1MB 이하여야 합니다.",
+        },
+      )
+      .refine(
+        (file) => {
+          if (file instanceof File) {
+            return ACCEPTED_IMAGE_TYPES.includes(file.type);
+          }
+          return true;
+        },
+        {
+          message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
+        },
+      ),
   })
   .refine(
     (data) => {
