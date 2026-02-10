@@ -38,7 +38,7 @@ api.interceptors.response.use(
   (res) => {
     const data = res.data;
 
-    if (isApiResponse(data) && data.success === false) {
+    if (isApiResponse(data) && data.isSuccess === false) {
       const apiError: ApiError = {
         status: res.status,
         code: data.code,

@@ -64,7 +64,7 @@ export const createLayout = async (storeId: number, gridCol: number, gridRow: nu
       `/api/v1/stores/${storeId}/layouts`,
       { gridCol, gridRow }
     );
-    if (res.status === 201 || (res.status === 200 && res.data.success)) {
+    if (res.status === 201 || (res.status === 200 && res.data.isSuccess)) {
       return res.data.result;
     }
     throw new Error("배치도 생성 응답이 올바르지 않습니다.");
@@ -77,7 +77,7 @@ export const createLayout = async (storeId: number, gridCol: number, gridRow: nu
 export const createTable = async (storeId: number, data: CreateTableRequest) : Promise<CreateTableResponse | null> => {
   try {
     const res = await api.post<ApiResponse<CreateTableResponse>>(`/api/v1/stores/${storeId}/tables`, data);
-    if ((res.status === 201 || res.status === 200) && res.data.success) {
+    if ((res.status === 201 || res.status === 200) && res.data.isSuccess) {
       return res.data.result;
     }
     console.error("테이블 생성 실패 응답:", res.data);

@@ -270,7 +270,7 @@ const TableDetailModal: React.FC<Props> = ({
 
     try {
       const res = await deleteTableImage(storeId, tableId);
-      if (res.data.success) {
+      if (res.data.isSuccess) {
         setTableImageUrl(null);
         setSelectedFile(null);
         if (previewUrl) {
