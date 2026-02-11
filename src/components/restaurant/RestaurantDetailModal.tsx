@@ -1,6 +1,8 @@
 import type { Day, RestaurantDetail } from "@/types/store";
 import { Clock, Star, X } from "lucide-react";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type Props = {
   open: boolean;
@@ -63,6 +65,19 @@ export default function RestaurantDetailModal({
   onRetry,
   onClickReserve,
 }: Props) {
+  const nav = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const handleReserveClick = () => {
+    if (!isAuthenticated) {
+      alert("로그인이 필요한 서비스입니다.");
+      onOpenChange(false);
+      nav("/", { state: { openLogin: true }, replace: true });
+      return;
+    }
+    onClickReserve();
+  };
+
   if (!open) return null;
 
   if (status === "idle" || status === "loading") {
@@ -257,7 +272,7 @@ export default function RestaurantDetailModal({
             <Button
               type="button"
               className="mt-5 text-md h-14 w-full cursor-pointer bg-blue-500 hover:bg-blue-600"
-              onClick={onClickReserve}
+              onClick={handleReserveClick}
             >
               식당 예약
             </Button>
