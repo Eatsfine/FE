@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Clock, ChevronDown } from 'lucide-react';
+import { getStore, updateStore, updateBusinessHours } from '@/api/owner/stores';
+
 
 interface StoreSettingsProps {
   storeId?: string;
 }
 
-interface StoreSettingsData {
-  storeName: string;
-  description: string;
-  phone: string;
-  email: string;
-  address: string;
-  openTime: string;
-  closeTime: string;
-  closedDays: string[];
-  reservationPeriod: string;
-  minGuests: number;
-  maxGuests: number;
-  sameDayBooking: boolean;
-  noShowPolicy: boolean;
-}
-
 
 const days = ['월', '화', '수', '목', '금', '토', '일'];
+
+const dayMapFromApi: Record<string, string> = {
+  MONDAY: '월',
+  TUESDAY: '화',
+  WEDNESDAY: '수',
+  THURSDAY: '목',
+  FRIDAY: '금',
+  SATURDAY: '토',
+  SUNDAY: '일',
+};
+
+const dayMapToApi: Record<string, any> = {
+  월: 'MONDAY',
+  화: 'TUESDAY',
+  수: 'WEDNESDAY',
+  목: 'THURSDAY',
+  금: 'FRIDAY',
+  토: 'SATURDAY',
+  일: 'SUNDAY',
+};
 
 const StoreSettings: React.FC<StoreSettingsProps> = ({storeId}) => {
   const [storeName, setStoreName] = useState('맛있는 레스토랑');
@@ -38,36 +44,37 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({storeId}) => {
   const [reservationPeriod, setReservationPeriod] = useState('1주일 전까지');
 const [minGuests, setMinGuests] = useState<number | string>(1);
   const [maxGuests, setMaxGuests] = useState<number | string>(20);
-  const [sameDayBooking, setSameDayBooking] = useState(false);
-  const [noShowPolicy, setNoShowPolicy] = useState(true);
 
-  const STORAGE_KEY = storeId
-  ? `store-settings-${storeId}`
-  : 'store-settings-temp';
-
-  useEffect(() => {
+useEffect(() => {
   if (!storeId) return;
 
-  const saved = localStorage.getItem(STORAGE_KEY);
+  getStore(storeId).then(res => {
+    const store = res.data.result;
 
-  if (saved) {
-    const data: StoreSettingsData = JSON.parse(saved);
+    setStoreName(store.storeName);
+    setDescription(store.description ?? '');
+    setPhone(store.phone ?? '');
+    setAddress(store.address ?? '');
 
-    setStoreName(data.storeName);
-    setDescription(data.description);
-    setPhone(data.phone);
-    setEmail(data.email);
-    setAddress(data.address);
-    setOpenTime(data.openTime);
-    setCloseTime(data.closeTime);
-    setClosedDays(data.closedDays);
-    setReservationPeriod(data.reservationPeriod);
-    setMinGuests(data.minGuests);
-    setMaxGuests(data.maxGuests);
-    setSameDayBooking(data.sameDayBooking);
-    setNoShowPolicy(data.noShowPolicy);
-  }
-}, [storeId]);
+    if (store.businessHours?.length) {
+      const open = store.businessHours.find(b => !b.isClosed);
+      if (open?.openTime && open?.closeTime) {
+        setOpenTime(open.openTime);  
+        setCloseTime(open.closeTime); 
+      }
+
+
+      const closed = store.businessHours
+        .filter(b => b.isClosed)
+        .map(b => dayMapFromApi[b.day]);
+
+      setClosedDays(closed);
+    }
+   }).catch(() => {
+    alert('가게 정보를 불러오는 데 실패했습니다.');
+    });
+  }, [storeId]);
+
 
 
 
@@ -91,9 +98,9 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
   );
 };
 
+
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
-      {/* 기본 정보 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">기본 정보</h3>
         <div className="space-y-6">
@@ -163,7 +170,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
         </div>
       </section>
 
-      {/* 영업 시간 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">영업 시간</h3>
         <div className="space-y-6 mb-8">
@@ -214,7 +220,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
         </div>
       </section>
 
-      {/* 예약 정책 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">예약 정책</h3>
         <div className="space-y-8">
@@ -283,74 +288,51 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
               className={inputStyle} 
             />
           </div>
-
-          {/* 토글 스위치 영역 */}
-          <div className="space-y-6 pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-800 text-base">당일 예약 허용</p>
-                <p className="text-sm text-gray-500 mt-1">당일 예약을 받을 수 있습니다</p>
-              </div>
-              <button 
-                onClick={() => setSameDayBooking(!sameDayBooking)}
-                role='switch'
-                aria-checked={sameDayBooking}
-                aria-label='당일 예약 허용'
-                className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${sameDayBooking ? 'bg-blue-600' : 'bg-gray-200'}`}
-              >
-                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${sameDayBooking ? 'left-8' : 'left-1'}`} />
-              </button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-800 text-base">노쇼 방지 정책</p>
-                <p className="text-sm text-gray-500 mt-1">예약 시 결제 정보를 받습니다</p>
-              </div>
-              <button 
-                onClick={() => setNoShowPolicy(!noShowPolicy)}
-                role='switch'
-                aria-checked={noShowPolicy}
-                aria-label='노쇼 방지 정책'
-                className={`cursor-pointer w-14 h-7 rounded-full transition-colors relative ${noShowPolicy ? 'bg-blue-600' : 'bg-gray-200'}`}
-              >
-                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${noShowPolicy ? 'left-8' : 'left-1'}`} />
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* 하단 저장 버튼 */}
       <div className="flex justify-end mb-20">
         <button 
-          onClick={() => {
-            if (!isValid) {
-              alert('가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.');
-              return;
-            }
+          onClick={async () => {
+  if (!isValid()) {
+    alert('가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.');
+    return;
+  }
 
-            if (!storeId) return;
+  if (!storeId) return;
 
-            const data: StoreSettingsData = {
-              storeName,
-              description,
-              phone,
-              email,
-              address,
-              openTime,
-              closeTime,
-              closedDays,
-              reservationPeriod,
-              minGuests: Number(minGuests),
-              maxGuests: Number(maxGuests),
-              sameDayBooking,
-              noShowPolicy,
-            };
+  try {
+    await updateStore(storeId, {
+      storeName,
+      description,
+      phoneNumber: phone,
+    });
+      } catch (e) {
+    alert('기본 정보 저장에 실패했습니다.');
+    return;
+  }
 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
 
-            alert('설정이 저장되었습니다.');
-          }}
+
+    const businessHours = days.map(day => ({
+  day: dayMapToApi[day],
+  isClosed: closedDays.includes(day),
+  openTime: closedDays.includes(day) ? null : openTime,
+  closeTime: closedDays.includes(day) ? null : closeTime,
+}));
+
+
+    await updateBusinessHours(storeId, businessHours);
+
+
+  } catch (e) {
+    alert('영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.');
+    return;
+  }
+      alert('설정이 저장되었습니다.');
+}}
+
           className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"
         >
           설정 저장

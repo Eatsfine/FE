@@ -61,12 +61,14 @@ api.interceptors.response.use(
     }
 
     if (apiError.status === 401 && originalRequest) {
+
       const isGuest = !useAuthStore.getState().accessToken;
       // 비회원이면 재발급x
       if (isGuest) {
         return Promise.reject(apiError);
       }
       // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
+
       if (
         originalRequest._retry ||
         originalRequest.url?.includes("/api/auth/reissue")
@@ -75,10 +77,9 @@ api.interceptors.response.use(
         return Promise.reject(apiError);
       }
 
-      originalRequest._retry = true; // 재시도 플래그 설정
+      originalRequest._retry = true; 
 
       try {
-        // 이미 진행 중인 재발급 있으면 그 결과 재사용
         if (!refreshPromise) {
           refreshPromise = postRefresh().finally(() => {
             refreshPromise = null;
@@ -90,20 +91,16 @@ api.interceptors.response.use(
         if (result && result.accessToken) {
           const newAccessToken = result.accessToken;
 
-          // 새 토큰 저장
           useAuthStore.getState().actions.login(newAccessToken);
 
-          // 실패했던 요청의 헤더를 새 토큰으로 교체
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-          // 재시도
           return api(originalRequest);
         }
 
         clearAuth();
         return Promise.reject(apiError);
       } catch (refreshError) {
-        // 재발급 실패 시 로그아웃 처리
         console.error("토큰 재발급 실패:", refreshError);
         clearAuth();
 

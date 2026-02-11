@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { mockMenusByRestaurantId } from '../../mock/menus';
 import MenuFormModal from './menuFormModal';
+
 import { deleteMenus } from '@/api/owner/menus';
 import { getMenus, updateMenuSoldOut } from '@/api/owner/menus';
+
 
 
 interface MenuManagementProps {
@@ -31,7 +33,7 @@ type CategoryType = string;
 const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const restaurantId = storeId;
 
-  // API에서 고정으로 제공하는 카테고리만 허용합니다. (ALL은 전체 보기용)
+  
   const DEFAULT_CATEGORIES: Category[] = [
     { id: 'ALL', label: '전체' },
     { id: 'MAIN', label: '메인 메뉴' },
@@ -41,7 +43,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   ];
 
   const [menus, setMenus] = useState<any[]>([]);
-  // 카테고리는 고정이므로 별도의 수정/저장 로직이 없습니다.
+ 
   const [categories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
   const [isLoading, setIsLoading] = useState(false);
@@ -113,7 +115,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
         setIsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [restaurantId]);
 
   useEffect(() => {
@@ -324,8 +326,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
           </div>
         ))}
       </div>
-
-      {/* 카테고리 추가/수정 UI 제거: 서버(또는 API)에서 제공하는 고정 카테고리만 허용합니다. */}
 
       <MenuFormModal
         isOpen={isModalOpen}
