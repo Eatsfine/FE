@@ -175,7 +175,6 @@ export default function KakaoMap({
 
     safeMarkers.forEach((store) => {
       const pos = new kakao.maps.LatLng(store.location.lat, store.location.lng);
-
       const marker = new kakao.maps.Marker({
         map: mapRef.current,
         position: pos,

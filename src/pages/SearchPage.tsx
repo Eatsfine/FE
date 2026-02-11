@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import RestaurantList from "@/components/restaurant/RestaurantList";
 import type { ReservationDraft } from "@/types/restaurant";
@@ -67,7 +67,42 @@ export default function SearchPage() {
       time: safeTime as any,
     };
   };
-  console.log("results count", results.length, "first", results[0]);
+  type LatLng = { lat: number; lng: number };
+  const [geoMap, setGeoMap] = useState<Map<number, LatLng>>(new Map());
+
+  function isValidLatLng(loc: any): loc is LatLng {
+    return (
+      loc &&
+      typeof loc.lat === "number" &&
+      typeof loc.lng === "number" &&
+      Number.isFinite(loc.lat) &&
+      Number.isFinite(loc.lng)
+    );
+  }
+  async function geocodeAddress(address: string): Promise<LatLng | null> {
+    const kakao = window.kakao;
+    if (!kakao?.maps?.services) {
+      return null;
+    }
+
+    const geocoder = new kakao.maps.services.Geocoder();
+
+    return new Promise((resolve) => {
+      geocoder.addressSearch(address, (res: any[], status: string) => {
+        if (status !== kakao.maps.services.Status.OK || !res?.[0]) {
+          resolve(null);
+          return;
+        }
+        const lng = parseFloat(res[0].x);
+        const lat = parseFloat(res[0].y);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          resolve(null);
+          return;
+        }
+        resolve({ lat, lng });
+      });
+    });
+  }
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
@@ -145,6 +180,44 @@ export default function SearchPage() {
     });
   }
 
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (!results || results.length === 0) return;
+
+      const kakao = window.kakao;
+      if (!kakao?.maps?.services) {
+        setTimeout(() => {
+          if (!cancelled) run();
+        }, 200);
+        return;
+      }
+      const targets = results.filter((r) => !isValidLatLng(r.location));
+      if (targets.length === 0) return;
+      const next = new Map(geoMap);
+
+      for (const r of targets) {
+        if (next.has(r.id)) continue;
+        const loc = await geocodeAddress(r.address);
+        if (loc) next.set(r.id, loc);
+      }
+      setGeoMap(next);
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [results]);
+
+  const geocodedResults = useMemo(() => {
+    return results
+      .map((r) => {
+        const loc = isValidLatLng(r.location) ? r.location : geoMap.get(r.id);
+        return loc ? { ...r, location: loc } : null;
+      })
+      .filter(Boolean) as RestaurantSummary[];
+  }, [results, geoMap]);
+
   const runSearch = async () => {
     setHasSearched(true);
     setSelectedStoreId(null);
@@ -188,7 +261,7 @@ export default function SearchPage() {
 
       <KakaoMap
         center={mapCenter}
-        markers={results}
+        markers={geocodedResults}
         selectedId={selectedStoreId}
         onSelectMarker={handleSelectStore}
         defaultLevel={4}
