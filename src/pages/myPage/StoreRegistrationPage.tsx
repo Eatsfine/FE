@@ -22,7 +22,7 @@ type Step1Data = {
 };
 
 export default function StoreRegistrationPage() {
-  const { mutate: registerStore } = useRegisterStore();
+  const { mutateAsync: registerStore } = useRegisterStore();
   const { mutateAsync: uploadImage } = useMainImage();
   const { mutateAsync: uploadMenuImage } = useMenuImage();
   const { mutateAsync: createMenu } = useMenuCreate();
@@ -70,73 +70,68 @@ export default function StoreRegistrationPage() {
     [],
   );
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
       const finalPayload = transformToRegister(step1Data, step2Data);
 
-      registerStore(finalPayload, {
-        onSuccess: async (res) => {
-          const createdStoreId = res.storeId;
-          const promises = [];
+      try {
+        const res = await registerStore(finalPayload);
+        const createdStoreId = res.storeId;
+        const promises = [];
 
-          if (step2Data.mainImage && step2Data.mainImage instanceof File) {
-            promises.push(
-              uploadImage({
-                storeId: createdStoreId,
-                body: { mainImage: step2Data.mainImage },
-              }),
-            );
-          }
+        if (step2Data.mainImage && step2Data.mainImage instanceof File) {
+          promises.push(
+            uploadImage({
+              storeId: createdStoreId,
+              body: { mainImage: step2Data.mainImage },
+            }),
+          );
+        }
 
-          if (step3Data.menus.length > 0) {
-            const processedMenus = await Promise.all(
-              step3Data.menus.map(async (menu) => {
-                let finalImageKey: string | undefined = undefined;
+        if (step3Data.menus.length > 0) {
+          const processedMenus = await Promise.all(
+            step3Data.menus.map(async (menu) => {
+              let finalImageKey: string | undefined = undefined;
 
-                if (menu.imageKey instanceof File) {
-                  try {
-                    const uploadRes = await uploadMenuImage({
-                      storeId: createdStoreId,
-                      body: { image: menu.imageKey },
-                    });
-                    finalImageKey = uploadRes.imageKey;
-                  } catch (err) {
-                    console.error("메뉴 이미지 업로드 실패", err);
-                  }
-                } else if (typeof menu.imageKey === "string") {
-                  finalImageKey = menu.imageKey;
+              if (menu.imageKey instanceof File) {
+                try {
+                  const uploadRes = await uploadMenuImage({
+                    storeId: createdStoreId,
+                    body: { image: menu.imageKey },
+                  });
+                  finalImageKey = uploadRes.imageKey;
+                } catch (err) {
+                  console.error("메뉴 이미지 업로드 실패:", err);
                 }
-                return {
-                  name: menu.name,
-                  price: Number(menu.price),
-                  description: menu.description,
-                  category: menu.category,
-                  imageKey: finalImageKey,
-                };
-              }),
-            );
-            promises.push(
-              createMenu({
-                storeId: createdStoreId,
-                body: { menus: processedMenus },
-              }),
-            );
-          }
-          try {
-            await Promise.all(promises);
-            setIsCompleteModalOpen(true);
-          } catch (error) {
-            console.error(error);
-            alert(getErrorMessage(error));
-          }
-        },
-        onError: (error) => {
-          console.error("가게 등록 실패:", error);
-          alert(getErrorMessage(error));
-        },
-      });
+              } else if (typeof menu.imageKey === "string") {
+                finalImageKey = menu.imageKey;
+              }
+              return {
+                name: menu.name,
+                price: Number(menu.price),
+                description: menu.description,
+                category: menu.category,
+                imageKey: finalImageKey,
+              };
+            }),
+          );
+          promises.push(
+            createMenu({
+              storeId: createdStoreId,
+              body: { menus: processedMenus },
+            }),
+          );
+        }
+
+        await Promise.all(promises);
+
+        setIsCompleteModalOpen(true);
+      } catch (error) {
+        console.error("가게 등록 실패:", error);
+        alert(getErrorMessage(error));
+      }
     }
   };
 
