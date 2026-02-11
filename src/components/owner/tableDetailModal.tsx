@@ -126,7 +126,6 @@ const tableType = getTableType(tableInfo.maxCapacity);
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
       <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
         
-        {/* 헤더 */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             {step !== 'DETAIL' && (
@@ -144,7 +143,6 @@ const tableType = getTableType(tableInfo.maxCapacity);
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-          {/* [Step 1] 상세 정보 */}
           {step === 'DETAIL' && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="w-full h-70 rounded-lg border border-gray-100 overflow-hidden">
@@ -219,7 +217,6 @@ const tableType = getTableType(tableInfo.maxCapacity);
             </div>
           )}
 
-          {/* [Step 2] 달력 */}
           {step === 'CALENDAR' && (
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-5">
               <div className="px-1 space-y-1">
@@ -244,7 +241,6 @@ const tableType = getTableType(tableInfo.maxCapacity);
                   const weekDay = dateObj.getDay(); 
                   const weekDayKorean = ['일','월','화','수','목','금','토'][weekDay];
 
-                  // 휴무일 체크
                   const isClosedDay = closedDays.includes(weekDayKorean);
                   
                   return (
@@ -278,7 +274,6 @@ const tableType = getTableType(tableInfo.maxCapacity);
             </div>
           )}
 
-          {/* [Step 3] 시간 설정 */}
           {step === 'SLOTS' && (
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center text-blue-900">
