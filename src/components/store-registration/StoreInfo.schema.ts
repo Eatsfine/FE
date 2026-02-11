@@ -83,6 +83,11 @@ export const StoreInfoSchema = z
         },
       ),
   })
+  .refine((data) => data.latitude !== 0 && data.longitude !== 0, {
+    message:
+      "선택하신 주소는 위치 확인이 어렵습니다. 정확한 주소를 다시 선택하세요.",
+    path: ["address"],
+  })
   .refine(
     (data) => {
       // TODO: 심야 영업 수정 예정

@@ -159,21 +159,18 @@ export default function StepStoreInfo({
           const lat = parseFloat(result[0].y);
           const lng = parseFloat(result[0].x);
 
-          console.log("좌표 변환 성공:", lat, lng);
-
-          setValue("latitude", lat);
-          setValue("longitude", lng);
+          setValue("latitude", lat, { shouldValidate: true });
+          setValue("longitude", lng, { shouldValidate: true });
         } else {
-          console.warn("좌표를 찾을 수 없습니다. (0으로 설정)");
-          setValue("latitude", 0);
-          setValue("longitude", 0);
+          setValue("latitude", 0, { shouldValidate: true });
+          setValue("longitude", 0, { shouldValidate: true });
         }
       });
     } else {
       // SDK가 아직 로드 안 됐으면 0으로 처리
-      console.warn("SDK 미로드로 좌표 변환 실패");
-      setValue("latitude", 0);
-      setValue("longitude", 0);
+      alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      setValue("latitude", 0, { shouldValidate: true });
+      setValue("longitude", 0, { shouldValidate: true });
     }
 
     setIsOpenPostcode(false);
@@ -255,7 +252,7 @@ export default function StepStoreInfo({
                 주소 검색
               </button>
             </div>
-            {errors.address && touchedFields.address && (
+            {errors.address && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.address.message}
               </p>
