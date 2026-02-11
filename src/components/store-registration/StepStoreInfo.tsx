@@ -128,16 +128,19 @@ export default function StepStoreInfo({
     loadKakaoMapSdk().catch((err) => console.error("카카오맵 로드 실패:", err));
   }, []);
 
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
   useEffect(() => {
     const subscription = watch((value) => {
-      onChange(isValid, value as StoreInfoFormValues);
+      onChangeRef.current(isValid, value as StoreInfoFormValues);
     });
 
     // 처음 마운트 될 때 데이터 동기화
-    onChange(isValid, getValues() as StoreInfoFormValues);
+    onChangeRef.current(isValid, getValues() as StoreInfoFormValues);
 
     return () => subscription.unsubscribe();
-  }, [watch, isValid, onChange, getValues]);
+  }, [watch, isValid, getValues]);
 
   const handleAddressComplete = (data: any) => {
     let fullAddress = data.address;
@@ -418,16 +421,19 @@ export default function StepStoreInfo({
             식당 대표 이미지 <span className="text-red-500">*</span>
           </Label>
           <div className="flex items-start gap-4">
+            <input
+              ref={fileInputRef}
+              id="mainImage"
+              type="file"
+              accept="image/jpeg, image/png"
+              className="hidden"
+              onChange={handleImageChange}
+            />
             {!previewUrl ? (
-              <Label className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors">
-                <input
-                  ref={fileInputRef}
-                  id="mainImage"
-                  type="file"
-                  accept="image/jpeg, image/png"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
+              <Label
+                htmlFor="mainImage"
+                className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+              >
                 <Upload className="size-8 text-gray-400" aria-hidden="true" />
                 <span className="text-xs text-gray-500 mt-2">
                   이미지 업로드
@@ -443,7 +449,8 @@ export default function StepStoreInfo({
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-gray-500 hover:bg-white hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                  aria-label="이미지 삭제"
+                  className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-gray-500 hover:bg-white hover:text-red-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
                 >
                   <X className="size-4" />
                 </button>

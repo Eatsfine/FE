@@ -65,9 +65,7 @@ export const StoreInfoSchema = z
       })
       .refine(
         (file) => {
-          if (file instanceof File) {
-            return file.size <= MAX_FILE_SIZE;
-          }
+          if (!(file instanceof File)) return false;
           return file.size <= MAX_FILE_SIZE;
         },
         {
@@ -76,6 +74,7 @@ export const StoreInfoSchema = z
       )
       .refine(
         (file) => {
+          if (!(file instanceof File)) return false;
           return ACCEPTED_IMAGE_TYPES.includes(file.type);
         },
         {

@@ -33,9 +33,21 @@ export const formatTimeToBackend = (timeStr: string | undefined): string => {
   return timeStr;
 };
 
+const formatCoordinate = (
+  value: number | string | undefined,
+  name: string,
+): number => {
+  if (value == null || value === undefined || value === "") {
+    throw new Error(`${name} 정보가 누락되었습니다. 주소를 다시 검색해주세요.`);
+  }
+  const num = Number(value);
+  if (Number.isNaN(num)) throw new Error(`${name} 형식이 올바르지 않습니다.`);
+  return num;
+};
+
 export const transformToRegister = (
   step1Data: { businessNumber: string; startDate: string },
-  step2Data: Partial<StoreInfoFormValues>,
+  step2Data: StoreInfoFormValues,
 ): RequestStoreCreateDto => {
   const {
     address,
@@ -73,21 +85,21 @@ export const transformToRegister = (
 
   // 최종 조립
   return {
-    storeName: step2Data.storeName || "",
+    storeName: step2Data.storeName,
     businessNumberDto: {
       businessNumber: step1Data.businessNumber,
       startDate: step1Data.startDate,
     },
-    description: step2Data.description || "",
-    sido: formatSido(sido || ""),
-    sigungu: step2Data.sigungu || "",
-    bname: step2Data.bname || "",
-    address: fullAddress || "",
-    latitude: Number(latitude) || 0,
-    longitude: Number(longitude) || 0,
-    phoneNumber: step2Data.phoneNumber || "",
-    category: step2Data.category as any,
-    depositRate: step2Data.depositRate as any,
+    description: step2Data.description,
+    sido: formatSido(sido),
+    sigungu: step2Data.sigungu,
+    bname: step2Data.bname,
+    address: fullAddress,
+    latitude: formatCoordinate(latitude, "위도"),
+    longitude: formatCoordinate(longitude, "경도"),
+    phoneNumber: step2Data.phoneNumber,
+    category: step2Data.category,
+    depositRate: step2Data.depositRate,
     bookingIntervalMinutes: step2Data.bookingIntervalMinutes || 0,
     businessHours,
   };
