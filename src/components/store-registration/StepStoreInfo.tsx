@@ -328,20 +328,25 @@ export default function StepStoreInfo({
           </div>
         </div>
         <div>
-          <Label htmlFor="holidays" className="block text-gray-700 mb-2">
+          <Label id="holidays-label" className="block text-gray-700 mb-2">
             정기 휴무일(선택)
           </Label>
           <Controller
             name="holidays"
             control={control}
             render={({ field: { value = [], onChange } }) => (
-              <div className="flex flex-wrap gap-2">
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-labelledby="holidays-label"
+              >
                 {DAYS.map((day) => {
                   const isSelected = value.includes(day.value);
                   return (
                     <button
                       key={day.value}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => {
                         const newHolidays = isSelected
                           ? value.filter((d: string) => d !== day.value)
