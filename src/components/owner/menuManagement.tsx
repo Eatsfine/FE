@@ -169,8 +169,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
         const menuIdNum = Number(id);
         const res = await deleteMenus(storeId, [menuIdNum]);
 
-        if (res.success) {
-          setMenus(prev => prev.filter(m => !res.data.deletedMenuIds.includes(Number(m.id))));
+        if (res.isSuccess) {
+          setMenus(prev => prev.filter(m => Number(m.id) !== menuIdNum));
           alert(res.message || '메뉴가 삭제되었습니다.');
         } else {
           alert('메뉴 삭제 실패: ' + res.message);

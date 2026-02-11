@@ -62,9 +62,9 @@ export interface DeleteMenusRequest {
 }
 
 export interface DeleteMenusResponse {
-  success: boolean;
+  isSuccess: boolean;
   code: string;
-  data: { deletedMenuIds: number[] };
+  result: { deletedMenuIds: number[] };
   message: string;
 }
 
