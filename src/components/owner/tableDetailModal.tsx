@@ -75,6 +75,7 @@ const TableDetailModal: React.FC<Props> = ({
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [tableImageUrl, setTableImageUrl] = useState<string | null>(null);
   
+  
   useEffect(() => {
     if (closedDaysProp) setClosedDays(closedDaysProp);
     setTempMin(tableInfo.minCapacity);
@@ -647,8 +648,24 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
                         {isBreak ? <AlertCircle size={25} className="text-gray-400" /> : isBooked ? <User size={25} className="text-yellow-600" /> : isAvailable ? <CheckCircle2 size={25} className="text-green-500" /> : <XCircle size={25} className="text-red-400" />}
                         <span className="text-sm">{slot.time}</span>
                       </div>
-                      <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${isBreak ? 'bg-gray-300 text-gray-600' : isBooked ? 'bg-yellow-100 text-yellow-800' : isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {isBreak ? '미운영' : isBooked ? '예약됨' : isAvailable ? '예약 가능' : '미운영'}
+                      <span
+                        className={`text-[10px] font-black px-2 py-1 rounded-lg ${
+                          isBreak
+                            ? 'bg-gray-200 text-gray-700'
+                            : isBooked
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : isAvailable
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {isBreak
+                          ? '브레이크 타임'
+                          : isBooked
+                          ? '예약됨'
+                          : isAvailable
+                          ? '예약 가능'
+                          : '미운영'}
                       </span>
                     </button>
                   );
