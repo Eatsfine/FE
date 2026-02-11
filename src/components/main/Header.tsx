@@ -91,7 +91,9 @@ export default function Header() {
     ? "bg-white/90 backdrop-blur border-b border-border"
     : "bg-transparent border-b border-white/10";
 
-  const logoSrc = scrolled ? "/Logo(Black no bg).svg" : "Logo(white no bg).svg";
+  const logoSrc = scrolled
+    ? "/Logo(Black no bg).svg"
+    : "/Logo(white no bg).svg";
 
   const brandClass = scrolled ? "text-[#191919]" : "text-white";
 
@@ -117,16 +119,16 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <div className="flex gap-3">
-            <img src={logoSrc} className="w-9 h-9" />
-            <button
-              type="button"
-              onClick={() => go("/")}
-              className={`text-[24px] tracking-tight ${brandClass}`}
-            >
+          <Link
+            to="/"
+            className="flex items-center gap-3"
+            onClick={() => setMobileOpen(false)}
+          >
+            <img src={logoSrc} alt="잇츠파인 로고" className="w-9 h-9" />
+            <span className={`text-[24px] tracking-tight ${brandClass}`}>
               잇츠파인
-            </button>
-          </div>
+            </span>
+          </Link>
 
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
