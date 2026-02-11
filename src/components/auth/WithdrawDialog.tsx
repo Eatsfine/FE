@@ -22,8 +22,8 @@ function isWithdrawBlockByBookings(e: any) {
   );
 }
 
-// 백엔드 메세지 내려오면
-// function isWithdrawBlockBookings(e: any) {
+// 백엔드 배포완료되면
+// function isWithdrawBlockByBookings(e: any) {
 //   const code = e?.response?.data?.code;
 //   return code === "WITHDRAW_BLOCKED";
 // }
@@ -53,7 +53,12 @@ export function WithdrawDialog({
   const { mutate, isPending } = useMutation({
     mutationFn: deleteWithDraw,
     onSuccess: async () => {
-      await performLogout();
+      try {
+        await performLogout();
+      } finally {
+        logout();
+      }
+
       alert("회원 탈퇴가 완료되었습니다.");
       onOpenChange(false);
       nav("/", { replace: true });
@@ -111,9 +116,11 @@ export function WithdrawDialog({
           ) : (
             <>
               <p className="text-muted-foreground">
-                탈퇴하면 계정과 데이터가 영구적으로 삭제됩니다.
+                탈퇴하면 계정이 비활성화되며 서비스 이용이 불가합니다.
               </p>
-              <p className="text-red-500">삭제한 계정은 되돌릴 수 없습니다.</p>
+              <p className="text-red-500">
+                탈퇴후에는 동일 계정으로 다시 로그인할 수 없습니다.
+              </p>
             </>
           )}
         </div>
