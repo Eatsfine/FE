@@ -3,6 +3,9 @@ import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
 import { mockMenusByRestaurantId } from '../../mock/menus';
 import MenuFormModal from './menuFormModal';
 import type { MenuCategory } from '@/types/menus';
+import { deleteMenus } from '@/api/owner/menus';
+import { deleteMenuImage, getMenus, updateMenuSoldOut } from '@/api/owner/menus';
+
 
 interface MenuManagementProps {
   storeId?: string;
@@ -11,6 +14,17 @@ interface MenuManagementProps {
 interface Category {
   id: string;
   label: string;
+}
+
+interface LocalMenu {
+  id: string; // local id (string)
+  name: string;
+  description?: string;
+  price: number;
+  category?: string;
+  imageUrl?: string | null;
+  isSoldOut?: boolean;
+  isActive?: boolean; // 로컬에서 관리
 }
 
 type CategoryType = string;
@@ -42,28 +56,87 @@ const MenuManagement: React.FC<MenuManagementProps> = ({storeId}) => {
   const [tempCatLabel, setTempCatLabel] = useState('');
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
+  const mapServerToLocal = (s: any): LocalMenu => ({
+    id: String(s.menuId ?? `MENU_${Date.now()}`),
+    name: s.name ?? '',
+    description: s.description ?? '',
+    price: s.price ?? 0,
+    category: s.category ?? undefined,
+    imageUrl: s.imageUrl ?? null,
+    isSoldOut: !!s.isSoldOut,
+    isActive: true, // 서버에서 제공하지 않으면 기본 활성화 상태를 true로 둡니다.
+  });
+
+
+
 
   useEffect(() => {
-  if (!restaurantId) return;
-
-  const currentMenus = mockMenusByRestaurantId[restaurantId] || [];
-    setMenus(currentMenus);
-
     const savedCats = localStorage.getItem(STORAGE_KEY_CAT);
     if (savedCats) {
-      setCategories(JSON.parse(savedCats));
+      try {
+        setCategories(JSON.parse(savedCats));
+      } catch {
+        setCategories(DEFAULT_CATEGORIES);
+      }
     } else {
       setCategories(DEFAULT_CATEGORIES);
     }
 
+    // 2) 메뉴 불러오기: 우선 로컬스토리지 -> 서버 호출 -> 실패시 mock fallback
     const savedMenus = localStorage.getItem(STORAGE_KEY_MENU);
     if (savedMenus) {
-      setMenus(JSON.parse(savedMenus));
-    } else {
-      const initialMenus = mockMenusByRestaurantId[restaurantId] || [];
-      setMenus(initialMenus);
-      localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(initialMenus));
+      try {
+        setMenus(JSON.parse(savedMenus));
+      } catch {
+        setMenus([]);
+      }
     }
+
+  if (!restaurantId) {
+      // storeId 없으면 mock 보여주기 (개발용)
+      const initialMenus = mockMenusByRestaurantId[restaurantId ?? ''] || [];
+      if (!savedMenus) {
+        const local = initialMenus.map(mapServerToLocal);
+        setMenus(local);
+        localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(local));
+      }
+      return;
+    }
+
+    // 실제 서버에서 메뉴를 가져옴
+    (async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+      const res = await getMenus(restaurantId);
+      if (res.isSuccess && res.result && Array.isArray(res.result.menus)) {
+        const serverMenus = res.result.menus.map(mapServerToLocal);
+
+        // 로컬에서 임시로 추가한 메뉴만 추출
+        const localTempMenus = menus.filter(m => m.id.startsWith('MENU_'));
+
+        // 서버 메뉴 + 로컬 임시 메뉴 병합
+        const mergedMenus = [...serverMenus, ...localTempMenus];
+
+        setMenus(mergedMenus);
+        localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(mergedMenus));
+      } else {
+        setError(res.message || '메뉴를 가져오는 중 문제가 발생했습니다.');
+      }
+    } catch (err: any) {
+      console.error('getMenus error', err);
+      setError('메뉴를 불러오는 데 실패했습니다. 네트워크를 확인해주세요.');
+
+        const initialMenus = mockMenusByRestaurantId[restaurantId] || [];
+        if (initialMenus.length > 0) {
+          const localFallback = initialMenus.map(mapServerToLocal);
+          setMenus(localFallback);
+          localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(localFallback));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, [restaurantId]);
 
   useEffect(() => {
@@ -73,7 +146,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({storeId}) => {
   }, [categories, restaurantId]);
 
   useEffect(() => {
-    if (restaurantId && menus.length > 0) {
+    if (restaurantId) {
       localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(menus));
     }
   }, [menus, restaurantId]);
@@ -108,19 +181,27 @@ const handleDrop = (targetIdx: number) => {
   };
 
 const handleFormSubmit = (menuData: any) => {
-  if (editingMenu) {
-    setMenus(prev => prev.map(m => m.id === menuData.id ? { ...m, ...menuData } : m));
-  } else {
-    const newMenu = { ...menuData, id: menuData.id || `MENU_${Date.now()}` };
-    setMenus(prev => [menuData, ...prev]);
-  }
-  setIsModalOpen(false);
-};
+  setMenus(prev => {
+    // id 비교는 문자열로 통일
+    const incomingId = menuData.id ? String(menuData.id) : null;
 
-const deleteMenu = (id: string) => {
-  if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
-    setMenus(prev => prev.filter(m => m.id !== id));
-  }
+const existingIndex = prev.findIndex(m => String(m.id) === incomingId);
+    if (existingIndex !== -1) {
+      const updatedMenus = [...prev];
+      updatedMenus[existingIndex] = {
+        ...prev[existingIndex], // 기존 상태(isActive 등) 보존
+        ...menuData,            // 수정된 내용 덮어쓰기
+        price: Number(menuData.price)
+      };
+      return updatedMenus;
+    } else {
+      return [{ ...menuData, price: Number(menuData.price) }, ...prev];
+    }
+  });
+
+  // 모달 닫고 편집 상태 클리어
+  setIsModalOpen(false);
+  setEditingMenu(null);
 };
 
 const handleEditClick = (menu: any) => {
@@ -161,6 +242,58 @@ const handleAddClick = () => {
       if (activeCategory === id) setActiveCategory('ALL');
     }
   }
+
+  const deleteMenu = async (id: string) => {
+  if (!storeId) return alert("storeId가 없습니다.");
+
+  if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
+    try {
+      // 서버 API 호출
+      const menuIdNum = Number(id); // API는 number 배열
+      const res = await deleteMenus(storeId, [menuIdNum]);
+
+      if (res.success) {
+        // 로컬 상태에서 삭제
+        setMenus(prev => prev.filter(m => !res.data.deletedMenuIds.includes(Number(m.id))));
+        alert(res.message || '메뉴가 삭제되었습니다.');
+      } else {
+        alert('메뉴 삭제 실패: ' + res.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('메뉴 삭제 중 오류가 발생했습니다.');
+    }
+  }
+};
+
+const toggleSoldOutOnServer = async (id: string, targetSoldOut: boolean) => {
+  if (!storeId) return alert("storeId가 없습니다.");
+
+  const menuIdNum = Number(id);
+  if (Number.isNaN(menuIdNum)) return alert("메뉴 ID가 유효하지 않습니다.");
+
+  try {
+    // 서버 호출 전 로컬에서 즉시 UI 반영(옵셔널). 안정성을 위해 서버 응답으로 확정하도록 아래는 서버 응답 기준 업데이트.
+    const res = await updateMenuSoldOut(storeId, menuIdNum, targetSoldOut);
+
+    if (res.isSuccess) {
+      // API 스펙이 res.data 또는 res.result 형태일 수 있으니 존재하는 필드로 처리
+      const newSoldOut = (res.result && (res.result as any).isSoldOut !== undefined);
+
+
+      setMenus(prev => prev.map(m => String(m.id) === String(id) ? { ...m, isSoldOut: !!newSoldOut } : m));
+      alert(res.message || (newSoldOut ? '품절 처리되었습니다.' : '품절 해제되었습니다.'));
+    } else {
+      alert('품절 상태 변경 실패: ' + res.message);
+    }
+  } catch (err: any) {
+    console.error('updateMenuSoldOut error', err);
+    alert('품절 상태 변경 중 오류가 발생했습니다.');
+  }
+};
+
+
+
 
   const filteredMenus = activeCategory === 'ALL' 
     ? menus 
@@ -212,6 +345,15 @@ const handleAddClick = () => {
                 : 'bg-gray-100 border-gray-200 opacity-60'}
             `}
           >
+            {menu.imageUrl && (
+              <img 
+                src={menu.imageUrl} 
+                alt={menu.name} 
+                className="w-full h-40 object-cover rounded-lg mb-4"
+              />
+            )}
+
+            
             <div className="flex justify-between items-start mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -250,13 +392,13 @@ const handleAddClick = () => {
               
               {/* 활성 토글 스위치 */}
               <button 
-                onClick={() => toggleActive(menu.id)}
-                 role="switch"
-                 aria-checked={menu.isActive}
-                 aria-label={`${menu.name} 활성화 상태`}
-                className={`cursor-pointer w-12 h-6 rounded-full transition-colors relative ${menu.isActive ? 'bg-blue-600' : 'bg-gray-200'}`}
+                onClick={() => toggleSoldOutOnServer(menu.id, !menu.isSoldOut)}
+                role="switch"
+                aria-checked={!menu.isSoldOut}
+                aria-label={`${menu.name} 판매 가능 여부`}
+                className={`cursor-pointer w-12 h-6 rounded-full transition-colors relative ${!menu.isSoldOut ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${menu.isActive ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${!menu.isSoldOut ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
           </div>
@@ -360,6 +502,15 @@ const handleAddClick = () => {
         onSubmit={handleFormSubmit}
         categories={categories}
         editingMenu={editingMenu}
+        storeId={storeId!}
+        onImageDelete={() => {
+          if (!editingMenu) return;
+            setMenus((prev) =>
+              prev.map((m) =>
+                m.id === editingMenu.id ? { ...m, imageUrl: null, imageKey: null } : m
+              )
+            );
+          }}
       />
     </div>
   );

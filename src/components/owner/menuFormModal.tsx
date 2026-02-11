@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { createMenus, updateMenu, uploadMenuImage, type MenuUpdateItem } from '@/api/owner/menus';
+import { deleteMenuImage } from '@/api/owner/menus';
 
 interface MenuFormModalProps {
   isOpen: boolean;
@@ -7,14 +9,19 @@ interface MenuFormModalProps {
   onSubmit: (menuData: any) => void;
   categories: { id: string; label: string }[];
   editingMenu?: any; // 수정 시 전달받을 데이터
+  storeId: string;
+  onImageDelete?: () => void; // 이미지 삭제 후 부모에게 알리기 위한 콜백
 }
+
 
 const MenuFormModal: React.FC<MenuFormModalProps> = ({ 
   isOpen, 
   onClose, 
   onSubmit, 
   categories, 
-  editingMenu 
+  editingMenu,
+  storeId,
+  onImageDelete,
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -22,6 +29,11 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
     price: '',
     description: '',
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+const [imageUrl, setImageUrl] = useState<string | null>(editingMenu?.imageUrl || null);
+const [imageKey, setImageKey] = useState<string | null>(null);
+const [uploading, setUploading] = useState(false);
 
   // 수정 모드일 경우 기존 데이터를 폼에 채워넣음
   useEffect(() => {
@@ -32,6 +44,10 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
         price: editingMenu.price.toString(),
         description: editingMenu.description || '',
       });
+
+      setImageUrl(editingMenu.imageUrl || null);
+    setImageKey(editingMenu.imageKey || null);
+
     } else {
       setFormData({ name: '', category: 'MAIN', price: '', description: '' });
     }
@@ -39,7 +55,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (Number(formData.price) < 0) {
@@ -47,15 +63,69 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
     return;
    }
 
+   if (!storeId) {
+    alert("storeId가 필요합니다.");
+    return;
+  }
+
+  try {
+    const isEditing = Boolean(editingMenu?.id);
+
+    const payload : MenuUpdateItem = {
+          name: formData.name.trim(),
+          description: formData.description.trim() || "",
+          price: Number(formData.price),
+          category: formData.category,    };
+    if (imageKey !== null) {
+      // 이미지 삭제 시 "", 새 업로드 시 "new_key"가 들어옴
+      payload.imageKey = imageKey;
+    } else if (isEditing && editingMenu?.imageKey) {
+      // imageKey가 null이고 수정모드면 기존 키 유지
+      payload.imageKey = editingMenu.imageKey;
+    }
+
+    if (isEditing) {
+  // ✅ 단일 객체 전달
+  const res = await updateMenu(storeId, editingMenu.id, payload);
+  if (res.isSuccess) {
+    alert("메뉴가 성공적으로 수정되었습니다.");
     onSubmit({
-      ...formData,
-      id: editingMenu?.id || Date.now().toString(), // 수정이면 기존 ID, 추가면 새 ID
-      price: Number(formData.price),
-      isActive: editingMenu ? editingMenu.isActive : true,
-      isSoldOut: editingMenu ? editingMenu.isSoldOut : false,
-    });
-    onClose();
-  };
+    ...formData,
+    id: String(editingMenu.id),
+    imageUrl: res.result.imageUrl ?? null,
+    imageKey: imageKey ?? null,
+    isActive: editingMenu?.isActive ?? true,
+    isSoldOut: editingMenu?.isSoldOut ?? false,
+    price: Number(formData.price),
+  });
+  onClose();
+  } else {
+    alert("메뉴 수정 실패: " + res.message);
+  }
+} else {
+  // 새 메뉴 생성
+  const res = await createMenus(storeId, [payload]);
+      if (res.isSuccess) {
+        alert("메뉴 등록 성공!");
+        onSubmit({
+          ...formData,
+          id: String(res.result.menus[0].menuId),
+          imageUrl: res.result.menus[0].imageUrl,
+          imageKey: res.result.menus[0].imageKey || null,
+          isActive: true,
+          isSoldOut: false,
+        });
+        onClose();
+      } else {
+        alert("메뉴 등록 실패: " + res.message);
+      }
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert(editingMenu ? "메뉴 수정 중 오류가 발생했습니다." : "메뉴 등록 중 오류가 발생했습니다.");
+  }
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
@@ -70,6 +140,105 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
             <X size={20} />
           </button>
         </div>
+
+        {/* 이미지 업로드 섹션 */}
+        <div className="flex flex-col items-center gap-3 w-full">
+          {/* 미리보기 */}
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="메뉴 미리보기"
+              className="w-32 h-32 object-cover rounded-xl border"
+            />
+          ) : (
+            <div className="w-32 h-32 bg-gray-100 rounded-xl border flex items-center justify-center text-gray-400 text-sm">
+              이미지 없음
+            </div>
+          )}
+
+          {/* 업로드 버튼 */}
+          <div className="flex flex-col gap-2">
+<label
+  className={`cursor-pointer px-6 py-2 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all ${
+    uploading ? 'opacity-50 pointer-events-none' : ''
+  }`}
+>
+  {uploading ? '업로드 중...' : '이미지 선택'}
+  <input
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      if (!e.target.files?.length) return;
+      const file = e.target.files[0];
+      setImageFile(file);
+      setUploading(true);
+
+      try {
+        const res = await uploadMenuImage(storeId, file);
+        if (res.isSuccess) {
+          setImageKey(res.result.imageKey);
+          setImageUrl(res.result.imageUrl);
+        } else {
+          alert("이미지 업로드 실패: " + res.message);
+          setImageFile(null);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("이미지 업로드 중 오류가 발생했습니다.");
+        setImageFile(null);
+      } finally {
+        setUploading(false);
+      }
+    }}
+  />
+</label>
+
+{/* 이미지 삭제 버튼 */}
+{imageUrl && (
+  <button
+    type="button"
+    className="ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
+    onClick={async () => {
+      // 등록 전 이미지 삭제 (서버 요청 없음)
+      if (!editingMenu?.menuId) {
+        setImageFile(null);
+        setImageUrl(null);
+        setImageKey("");
+        return;
+      }
+
+      
+      // 수정 모드, 서버에 삭제 요청
+      const menuId = editingMenu.id ; // 타입 확실히 지정
+      if (!menuId) {
+        alert("메뉴 ID가 존재하지 않아 삭제할 수 없습니다.");
+        return;
+      }
+
+      try {
+        const res = await deleteMenuImage(storeId, menuId);
+        if (res.isSuccess) {
+          setImageUrl(null);
+          setImageKey(null);
+          alert("이미지가 삭제되었습니다.");
+          if (onImageDelete) onImageDelete(); // 부모에게 알림
+        } else {
+          alert("이미지 삭제 실패: " + res.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("이미지 삭제 중 오류가 발생했습니다.");
+      }
+    }}
+  >
+    삭제
+  </button>
+)}
+          </div>
+</div>
+
+
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="space-y-2">
