@@ -69,7 +69,7 @@ export default function PublicLayout() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
           <Link to="/" className="flex items-center gap-3">
             <img
-              src="/eatsfineLogo.svg"
+              src="/Logo(blue no bg).svg"
               alt="잇츠파인 로고"
               className="h-10 w-10 object-contain"
             />
