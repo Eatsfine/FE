@@ -15,9 +15,26 @@ function getAccessToken() {
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
+  const ownerApiPaths = [
+    "/owner",
+    "/stores/",
+  ];
+
+  const isOwnerApi = ownerApiPaths.some((path) =>
+    config.url?.includes(path)
+  );
+
+  if (isOwnerApi) {
+    if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    return config;
+    }
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -59,6 +76,7 @@ api.interceptors.response.use(
         method: err.config?.method,
       });
     }
+
 
     if (apiError.status === 401 && originalRequest) {
 

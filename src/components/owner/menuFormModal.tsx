@@ -9,10 +9,8 @@ interface MenuFormModalProps {
   onSubmit: (menuData: any) => void;
   categories: { id: string; label: string }[];
   editingMenu?: any;
-
   storeId: string;
   onImageDelete?: () => void;
-
 }
 
 
@@ -38,7 +36,7 @@ const [imageUrl, setImageUrl] = useState<string | null>(editingMenu?.imageUrl ||
 const [imageKey, setImageKey] = useState<string | null>(null);
 const [uploading, setUploading] = useState(false);
 
-  
+
   useEffect(() => {
     if (editingMenu) {
       setFormData({

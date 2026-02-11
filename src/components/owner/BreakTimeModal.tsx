@@ -3,7 +3,7 @@ import { X, Clock } from 'lucide-react';
 
 export interface BreakTime {
   start: string;
-  end: string;
+  end: string; 
 }
 
 interface Props {

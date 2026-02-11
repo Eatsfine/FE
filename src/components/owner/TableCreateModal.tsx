@@ -10,6 +10,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
   const [cols, setCols] = useState(4);
   const [rows, setRows] = useState(3);
 
+  
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
     onClick={onClose}>
@@ -24,6 +25,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             <input 
               type="number" 
               min={1}
+              max={10}
               value={cols} 
               onChange={(e) => setCols(Number(e.target.value))} 
               className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" 
@@ -34,6 +36,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             <input 
               type="number" 
               min={1}
+              max={10}
               value={rows} 
               onChange={(e) => setRows(Number(e.target.value))} 
               className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" 
@@ -44,7 +47,11 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 py-3 border rounded-xl font-bold text-gray-500 cursor-pointer">취소</button>
           <button 
-            onClick={() => onConfirm(cols, rows)} 
+            onClick={()=>{
+              const colClamped = Math.min(Math.max(cols,1),10);
+              const rowClamped = Math.min(Math.max(rows,1),10);
+              onConfirm(colClamped, rowClamped);
+            }}
             className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold cursor-pointer"
           >
             생성하기
