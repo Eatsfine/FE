@@ -45,6 +45,7 @@ export default function StepStoreInfo({
     control,
     watch,
     setValue,
+    getValues,
     formState: { errors, isValid, touchedFields },
   } = useForm({
     resolver: zodResolver(StoreInfoSchema),
@@ -127,10 +128,10 @@ export default function StepStoreInfo({
     });
 
     // 처음 마운트 될 때 데이터 동기화
-    onChange(isValid, control._formValues as StoreInfoFormValues);
+    onChange(isValid, getValues() as StoreInfoFormValues);
 
     return () => subscription.unsubscribe();
-  }, [watch, isValid, onChange, control]);
+  }, [watch, isValid, onChange, getValues]);
 
   const handleAddressComplete = (data: any) => {
     let fullAddress = data.address;
@@ -413,6 +414,7 @@ export default function StepStoreInfo({
               <Label className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors">
                 <input
                   ref={fileInputRef}
+                  id="mainImage"
                   type="file"
                   accept="image/jpeg, image/png"
                   className="hidden"
