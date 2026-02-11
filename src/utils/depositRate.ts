@@ -1,4 +1,4 @@
-import type { DepositRate } from "@/types/store";
+import type { DepositRate } from "@/types/payment";
 
 export function toDepositRate(rate: number): DepositRate {
   switch (rate) {
