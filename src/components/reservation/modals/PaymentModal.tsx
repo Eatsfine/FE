@@ -1,42 +1,39 @@
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
-import { useMemo, useState } from "react";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatKrw } from "@/utils/money";
 import { Button } from "../../ui/button";
-import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
-import { calcDeposit } from "@/utils/payment";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
-
-type PayMethod = "KAKAOPAY" | "TOSSPAY";
+import type { CreateBookingResult } from "@/api/endpoints/reservations";
+import { requestPayment } from "@/api/endpoints/payments";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
+import { useNavigate } from "react-router-dom";
+import { useUserId } from "@/stores/useAuthStore";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onOpenChange: (open: boolean) => void;
-  restaurant: Restaurant;
+  onBack: () => void;
+  restaurant: RestaurantDetail;
   draft: ReservationDraft;
-  onSuccess: () => void;
+  booking: CreateBookingResult | null;
 };
-
-function mockPay(method: PayMethod, amount: number) {
-  // TODO: 실제 연동할때 토스페이먼츠/카카오페이 SDK 호출로 교체하기
-  return new Promise<void>((resolve) => {
-    window.setTimeout(() => resolve(), 800);
-  });
-}
 
 export default function PaymentModal({
   open,
   onClose,
   onOpenChange,
+  onBack,
   restaurant,
   draft,
-  onSuccess,
+  booking,
 }: Props) {
-  const [method, setMethod] = useState<PayMethod | undefined>();
+  const nav = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const { menus } = useMenus(restaurant.id);
@@ -46,24 +43,145 @@ export default function PaymentModal({
     return calcMenuTotal(menus, draft.selectedMenus);
   }, [menus, draft.selectedMenus]);
 
-  const amount = useMemo(() => {
-    return calcDeposit(menuTotal, rate);
-  }, [menuTotal, rate]);
+  const amount = booking?.totalDeposit ?? 0;
+
+  const paymentMethodWidgetRef = useRef<any>(null);
+  const agreementWidgetRef = useRef<any>(null);
+
+  const widgetsRef = useRef<any>(null);
+  const initedRef = useRef(false);
+
+  const payOrderRef = useRef<{
+    paymentId: number;
+    bookingId: number;
+    orderId: string;
+    amount: number;
+  } | null>(null);
+
+  const paymentMethodContainerRef = useRef<HTMLDivElement | null>(null);
+  const agreementContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleRequestClose = useConfirmClose(onClose);
+  const userId = useUserId();
+  const [payAmount, setPayAmount] = useState<number>(
+    booking?.totalDeposit ?? 0,
+  );
+  useEffect(() => {
+    setPayAmount(booking?.totalDeposit ?? 0);
+  }, [booking?.totalDeposit]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (!booking) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        if (paymentMethodContainerRef.current) {
+          paymentMethodContainerRef.current.innerHTML = "";
+        }
+        if (agreementContainerRef.current) {
+          agreementContainerRef.current.innerHTML = "";
+        }
+        const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
+          | string
+          | undefined;
+        if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
+        if (!userId) {
+          throw new Error("로그인 정보가 없어 결제를 진행할 수 없습니다.");
+        }
+
+        const payOrder = await requestPayment({ bookingId: booking.bookingId });
+        if (cancelled) return;
+        payOrderRef.current = {
+          paymentId: payOrder.paymentId,
+          bookingId: payOrder.bookingId,
+          orderId: payOrder.orderId,
+          amount: payOrder.amount,
+        };
+        setPayAmount(payOrder.amount);
+
+        const tossPayments = await loadTossPayments(clientKey);
+
+        if (cancelled) return;
+        const customerKey = String(userId);
+        const widgets = tossPayments.widgets({ customerKey });
+        widgetsRef.current = widgets;
+        initedRef.current = false;
+
+        await widgets.setAmount({ value: payOrder.amount, currency: "KRW" });
+
+        if (!initedRef.current) {
+          initedRef.current = true;
+          paymentMethodWidgetRef.current = await widgets.renderPaymentMethods({
+            selector: "#toss-payment-method-widget",
+            variantKey: "DEFAULT",
+          });
+
+          agreementWidgetRef.current = await widgets.renderAgreement({
+            selector: "#toss-agreement-widget",
+            variantKey: "AGREEMENT",
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        nav("/payment/fail", { replace: true });
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      try {
+        paymentMethodWidgetRef.current?.destroy?.();
+        agreementWidgetRef.current?.destroy?.();
+      } catch {}
+
+      paymentMethodWidgetRef.current = null;
+      agreementWidgetRef.current = null;
+
+      widgetsRef.current = null;
+      initedRef.current = false;
+      payOrderRef.current = null;
+
+      if (paymentMethodContainerRef.current) {
+        paymentMethodContainerRef.current.innerHTML = "";
+      }
+      if (agreementContainerRef.current) {
+        agreementContainerRef.current.innerHTML = "";
+      }
+    };
+  }, [open, booking, nav, userId]);
 
   const onClickPay = async () => {
     if (loading) return;
+    const payOrder = payOrderRef.current;
+    const widgets = widgetsRef.current;
+    if (!payOrder || !widgets) return;
     setLoading(true);
     try {
-      await mockPay(method, amount);
-      onOpenChange(false);
-      onSuccess();
+      await widgets.requestPayment({
+        orderId: payOrder.orderId,
+        orderName: `${restaurant.name} 예약금`,
+        successUrl: `${window.location.origin}/payment/success?bookingId=${payOrder.bookingId}`,
+        failUrl: `${window.location.origin}/payment/fail?bookingId=${payOrder.bookingId}`,
+      });
+    } catch (e) {
+      console.error(e);
+      alert(e instanceof Error ? e.message : "결제 요청에 실패하였습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRequestClose = useConfirmClose(onClose);
+  const handleBack = () => {
+    onBack();
+    onOpenChange(false);
+  };
   if (!open) return null;
+  if (!restaurant || !draft) return null;
+  if (!booking) return null;
 
   return (
     <div
@@ -79,7 +197,6 @@ export default function PaymentModal({
         onClick={handleRequestClose}
       />
       <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
-        {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약금 결제</h3>
           <button
@@ -98,58 +215,51 @@ export default function PaymentModal({
             <div className="mt-1 text-base truncate">{restaurant.name}</div>
           </div>
           <div className="border rounded-xl p-4 space-y-1">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-sm text-muted-foreground">결제 금액</div>
-                <div className="mt-1 text-xl font-semibold">
-                  {formatKrw(amount)}원
-                </div>
-              </div>
+            <div className="text-sm text-muted-foreground">결제 금액</div>
+            <div className="mt-1 text-xl font-semibold">
+              {formatKrw(amount)}원
             </div>
             <p className="text-xs text-muted-foreground">
               메뉴 총액 {formatKrw(menuTotal)}원 * {Math.round(rate * 100)}%
             </p>
           </div>
-          {/* 본문 */}
+
           <div className="space-y-2">
             <div className="text-sm">결제수단</div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMethod("KAKAOPAY")}
-                className={cn(
-                  "h-12 cursor-pointer justify-center rounded-xl",
-                  method === "KAKAOPAY" &&
-                    "text-black bg-[#FFEB00] hover:bg-[#f2de00]",
-                )}
-              >
-                카카오페이
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setMethod("TOSSPAY")}
-                className={cn(
-                  "h-12 cursor-pointer justify-center rounded-xl",
-                  method === "TOSSPAY" &&
-                    "text-white bg-[#0064FF] hover:bg-[#005fee] hover:text-white",
-                )}
-              >
-                토스페이
-              </Button>
-            </div>
+            <div
+              id="toss-payment-method-widget"
+              ref={paymentMethodContainerRef}
+              className="mt-3 pointer-events-auto"
+            />
+            <div
+              id="toss-agreement-widget"
+              ref={agreementContainerRef}
+              className="mt-3 pointer-events-auto"
+            />
           </div>
-          <Button
-            className="w-full h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
-            disabled={loading}
-            onClick={onClickPay}
-          >
-            {" "}
-            {loading ? "결제 진행중.." : "결제하기"}
-          </Button>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              className="flex-1 h-12 rounded-xl cursor-pointer"
+              onClick={handleBack}
+            >
+              이전
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 h-12 rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer "
+              disabled={loading}
+              onClick={onClickPay}
+            >
+              {loading ? "결제 진행중.." : "결제하기"}
+            </Button>
+          </div>
+
           <p className="text-sm text-muted-foreground text-center">
-            현재는 임시 결제입니다.
+            현재는 임시 결제(테스트)입니다.
           </p>
         </div>
       </div>
