@@ -9,6 +9,8 @@ import {
 } from "./BusinessAuth.schema";
 import { useVerifyOwner } from "@/hooks/queries/useAuth";
 import { getErrorMessage } from "@/utils/error";
+import { useNavigate } from "react-router-dom";
+import { logout } from "@/api/auth";
 
 interface StepBusinessAuthProps {
   defaultValues: {
@@ -32,6 +34,8 @@ export default function StepBusinessAuth({
   const [isVerified, setIsVerified] = useState(defaultValues.isVerified);
   // 메모리 누수 방지
   const isMountedRef = useRef(true);
+
+  const nav = useNavigate();
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -59,14 +63,10 @@ export default function StepBusinessAuth({
 
   const onSubmit = async (data: BusinessAuthFormValues) => {
     verifyOwner(data, {
-      onSuccess: () => {
+      onSuccess: async () => {
         if (!isMountedRef.current) return;
-        setIsVerified(true);
-        onComplete({
-          businessNumber: data.businessNumber,
-          startDate: data.startDate,
-          isVerified: true,
-        });
+        await logout();
+        nav("/", { replace: true });
       },
       onError: (error) => {
         const err = error as any;

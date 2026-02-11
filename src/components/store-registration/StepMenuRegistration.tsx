@@ -19,6 +19,8 @@ export default function StepMenuRegistration({
     control,
     setValue,
     watch,
+    trigger,
+    getValues,
     formState: { errors, isValid },
   } = useForm<MenuFormValues>({
     resolver: zodResolver(MenuSchema),
@@ -34,12 +36,13 @@ export default function StepMenuRegistration({
   });
 
   //부모에게 실시간 보고
-  const values = watch();
-
   useEffect(() => {
-    onChange(isValid, values as MenuFormValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid, JSON.stringify(values), onChange]);
+    const subscription = watch((value) => {
+      onChange(isValid, value as MenuFormValues);
+    });
+    onChange(isValid, getValues());
+    return () => subscription.unsubscribe();
+  }, [watch, isValid, onChange, getValues]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -61,6 +64,7 @@ export default function StepMenuRegistration({
             control={control}
             errors={errors}
             setValue={setValue}
+            trigger={trigger}
           />
         ))}
         <button

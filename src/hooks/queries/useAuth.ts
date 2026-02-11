@@ -48,7 +48,7 @@ export const useVerifyOwner = () => {
     mutationFn: (data: BusinessAuthFormValues) => patchVerifyOwner(data),
     onSuccess: () => {
       alert(
-        "사업자 인증이 완료되었습니다.\n\n사장님 권한 적용을 위해, 가게 등록을 마친 후\n반드시 재로그인해주세요.",
+        "사업자 인증이 완료되었습니다. \n사장님 권한 적용을 위해 반드시 재로그인해주세요.",
       );
     },
     onError: (error) => {
