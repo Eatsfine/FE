@@ -63,7 +63,6 @@ export default function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // 햄버거 메뉴 열려있을때 스크롤방지용
   useEffect(() => {
     if (!mobileOpen) return;
     const prev = document.body.style.overflow;
@@ -92,6 +91,8 @@ export default function Header() {
     ? "bg-white/90 backdrop-blur border-b border-border"
     : "bg-transparent border-b border-white/10";
 
+  const logoSrc = scrolled ? "/Logo(Black no bg).svg" : "Logo(white no bg).svg";
+
   const brandClass = scrolled ? "text-[#191919]" : "text-white";
 
   const navLinkClass = scrolled
@@ -116,13 +117,17 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <button
-            type="button"
-            onClick={() => go("/")}
-            className={`text-[24px] tracking-tight ${brandClass}`}
-          >
-            잇츠파인
-          </button>
+          <div className="flex gap-3">
+            <img src={logoSrc} className="w-9 h-9" />
+            <button
+              type="button"
+              onClick={() => go("/")}
+              className={`text-[24px] tracking-tight ${brandClass}`}
+            >
+              잇츠파인
+            </button>
+          </div>
+
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
             {navItems.map((item) => (
               <Link
@@ -184,8 +189,6 @@ export default function Header() {
           </button>
         </div>
       </div>
-      {/* "transition-[max-height,opacity] duration-300 ease-out",
-          mobileOpen ? "max-h-130 opacity-100" : "max-h-0 opacity-0", */}
       <div
         className={cn(
           "lg:hidden overflow-hidden",
