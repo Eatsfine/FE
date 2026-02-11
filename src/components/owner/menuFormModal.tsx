@@ -125,9 +125,9 @@ const [uploading, setUploading] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
     onClick={onClose}>
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100"
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100"
       onClick={(e)=>e.stopPropagation()}>
-        <div className="flex justify-between items-center px-8 py-6 border-b border-gray-50">
+        <div className="flex justify-between items-center px-8 py-6 border-b border-gray-50 shrink-0">
           <h3 className="text-xl text-gray-900">
             {editingMenu ? '메뉴 수정' : '새 메뉴 등록'}
           </h3>
@@ -135,7 +135,7 @@ const [uploading, setUploading] = useState(false);
             <X size={20} />
           </button>
         </div>
-
+        <div className='flex-1 overflow-y-auto'>
         <div className="flex flex-col items-center gap-3 w-full">
           {imageUrl ? (
             <img
@@ -189,7 +189,7 @@ const [uploading, setUploading] = useState(false);
         {imageUrl && (
           <button
             type="button"
-            className="ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
+            className="cursor-pointer ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
             onClick={async () => {
               if (!editingMenu?.menuId) {
                 setImageFile(null);
@@ -224,6 +224,7 @@ const [uploading, setUploading] = useState(false);
             삭제
           </button>
         )}
+        </div>
         </div>
       </div>
 
