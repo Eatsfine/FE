@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
 import { mockMenusByRestaurantId } from '../../mock/menus';
 import MenuFormModal from './menuFormModal';
-import type { MenuCategory } from '@/types/menus';
 
 interface MenuManagementProps {
   storeId?: string;
