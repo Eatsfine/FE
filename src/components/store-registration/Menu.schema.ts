@@ -14,7 +14,7 @@ export const MenuSchema = z.object({
       price: z
         .string()
         .min(1, "가격을 입력하세요.")
-        .regex(/^\d+$/, "숫자만 입력해주세요."),
+        .regex(/^(0|[1-9]\d*)$/, "0 이상의 올바른 숫자를 입력하세요."),
       category: MenuCategoryEnum,
       imageKey: z
         .any()
