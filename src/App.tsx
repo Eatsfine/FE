@@ -14,7 +14,6 @@ import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
 import MyPageLayout from "./layouts/myPageLayout";
 import MyInfoPage from "./pages/myPage/myInfoPage";
 import SettingsPage from "./pages/myPage/settingPage";
-import PaymentPage from "./pages/myPage/paymentPage";
 import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
@@ -29,18 +28,13 @@ import { PrivateRoute } from "./components/RouteGuards";
 const routes: RouteObject[] = [
   { path: "/oauth/callback", element: <OAuthCallbackPage /> },
   { path: "/login/error", element: <LoginErrorPage /> },
-  {
-    path: "/",
-    element: <Intro />,
-    errorElement: <NotFound />,
-  },
+  { path: "/", element: <Intro />, errorElement: <NotFound /> },
 
   {
     path: "/customer-support",
     element: <CustomerSupportPage />,
     errorElement: <NotFound />,
   },
-
   {
     element: <PublicLayout />,
     errorElement: <NotFound />,
@@ -56,7 +50,6 @@ const routes: RouteObject[] = [
               { index: true, element: <Navigate to="info" replace /> },
               { path: "info", element: <MyInfoPage /> },
               { path: "settings", element: <SettingsPage /> },
-              { path: "payment", element: <PaymentPage /> },
               { path: "subscription", element: <SubscriptionPage /> },
               { path: "reservations", element: <ReservationPage /> },
               { path: "store", element: <StorePage /> },
@@ -92,7 +85,6 @@ const routes: RouteObject[] = [
       },
     ],
   },
-
   {
     path: "*",
     element: <NotFound />,

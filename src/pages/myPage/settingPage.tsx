@@ -1,9 +1,12 @@
 import { Lock, Bell, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDiaLog";
+import { WithdrawDialog } from "@/components/auth/WithdrawDialog";
 
 export default function SettingsPage() {
-  // 알림 설정을 위한 상태 관리
+  const [pwOpen, setPwOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [notifications, setNotifications] = useState({
     reservation: true,
     promotion: true,
@@ -32,7 +35,10 @@ export default function SettingsPage() {
               정기적인 비밀번호 변경으로 계정을 안전하게 보호하세요
             </p>
           </div>
-          <button className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <button
+            className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={() => setPwOpen(true)}
+          >
             비밀번호 변경하기
           </button>
         </div>
@@ -106,9 +112,14 @@ export default function SettingsPage() {
               계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다
             </p>
           </div>
-          <button className="cursor-pointer rounded-lg border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-colors">
+          <button
+            className="cursor-pointer rounded-lg border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50 transition-colors"
+            onClick={() => setWithdrawOpen(true)}
+          >
             계정 탈퇴하기
           </button>
+          <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />
+          <WithdrawDialog open={withdrawOpen} onOpenChange={setWithdrawOpen} />
         </div>
       </div>
     </section>
