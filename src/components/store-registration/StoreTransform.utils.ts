@@ -65,8 +65,8 @@ export const transformToRegister = (
     const isClosed = holidays.includes(day);
     return {
       day,
-      openTime: isClosed ? null : (formatTimeToBackend(openTime) as any),
-      closeTime: isClosed ? null : (formatTimeToBackend(closeTime) as any),
+      openTime: isClosed ? null : formatTimeToBackend(openTime),
+      closeTime: isClosed ? null : formatTimeToBackend(closeTime),
       isClosed,
     };
   });
