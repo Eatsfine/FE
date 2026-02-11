@@ -334,7 +334,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
   GENERAL: '일반석',
   WINDOW: '창가석',
   ROOM: '룸',
-  BAR: '바테이블',
+  BAR: '바 좌석',
   OUTDOOR: '야외석',
 };
 
@@ -350,7 +350,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
 
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={() => { if (!uploading && !detailLoading) onClose(); }}>
       <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
 
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
@@ -597,7 +597,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
                         <div className="mt-2">
                           <p className="text-sm text-gray-800">예약자: <span className="font-semibold">{bookingDetail.bookerName}</span></p>
                           <p className="text-sm text-gray-800 mt-1">인원: <span className="font-semibold">{bookingDetail.partySize}명</span></p>
-                          <p className="text-sm text-gray-800 mt-1">결제된 예약금: <span className="font-semibold">{bookingDetail.amount.toLocaleString()}원</span></p>
+                          <p className="text-sm text-gray-800 mt-1">결제된 예약금: <span className="font-semibold">{(bookingDetail.amount ?? 0).toLocaleString()}원</span></p>
                         </div>
                       ) : (
                         <p className="text-gray-500 mt-2">상세 정보가 없습니다.</p>

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
-import TableCreateModal from './tableCreateModal1.tsx';
+import TableCreateModal from './tableCreateModal';
 import TableDetailModal from './tableDetailModal';
 import BreakTimeModal, { type BreakTime } from './BreakTimeModal';
-import AddTableModal from './AddTableModal.tsx';
+import AddTableModal from './addTableModal';
 import { createLayout, createTable, deleteTable, getActiveLayout, type CreateTableRequest, type LayoutTable } from '@/api/owner/storeLayout';
 import { patchTableInfo, type UpdatedTable } from '@/api/owner/table';
 import { patchBreakTime } from '@/api/owner/reservation';
@@ -259,7 +259,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
 
   const handleDeleteTable = async (tableId?: number, slotId?: number) => {
     if (!storeId) return;
-    if (!tableId || !slotId) {
+    if (tableId == null || slotId == null) {
       alert('삭제할 테이블 정보를 찾을 수 없습니다. 새로고침 후 다시 시도하세요.');
       return;
     }
@@ -435,7 +435,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
   GENERAL: '일반석',
   WINDOW: '창가석',
   ROOM: '룸',
-  BAR: '바 테이블',
+  BAR: '바 좌석',
   OUTDOOR: '야외석',
 };
 
