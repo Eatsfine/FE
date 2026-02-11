@@ -36,6 +36,7 @@ export interface CreateTableResponse {
   seatsType: string;
   gridX: number;
   gridY: number;
+  tableImageUrl: string | null;
 }
 
 export const getActiveLayout = async (storeId: number): Promise<LayoutResponse | null> => {

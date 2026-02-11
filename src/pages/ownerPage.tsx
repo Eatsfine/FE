@@ -79,10 +79,16 @@ const OwnerPage: React.FC = () => {
       {/* 탭 콘텐츠 영역 */}
       <main>
         {activeTab === "dashboard" && (
-          <TableDashboard
-            storeId={selectedStore ? Number(selectedStore.id) : 0}
-            storeName={selectedStore?.name}
-          />
+          selectedStore ? (
+            <TableDashboard
+              storeId={Number(selectedStore.id)}
+              storeName={selectedStore.name}
+            />
+          ) : (
+            <div className="max-w-7xl mx-auto py-20 text-center text-gray-500">
+              가게를 찾을 수 없습니다.
+            </div>
+          )
         )}
         {activeTab === "settings" && (
           <div className="max-w-7xl mx-auto text-gray-500">

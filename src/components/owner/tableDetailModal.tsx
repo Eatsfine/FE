@@ -82,6 +82,12 @@ const TableDetailModal: React.FC<Props> = ({
     setTableImageUrl(tableInfo.tableImageUrl && tableInfo.tableImageUrl.trim() !== '' ? tableInfo.tableImageUrl : null);
   }, [tableInfo, closedDaysProp]);
 
+   useEffect(() => {
+   return () => {
+     if (previewUrl) URL.revokeObjectURL(previewUrl);
+   };
+ }, [previewUrl]);
+
   // --- 달력 / 날짜 유틸 ---
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -178,7 +184,7 @@ const TableDetailModal: React.FC<Props> = ({
     // BOOKED이면 상세 조회
     if (slot.status === 'BOOKED') {
       // bookingId가 null이면 경고
-      if (!slot.bookingId) {
+      if (slot.bookingId == null) {
         alert('예약 ID가 없습니다.');
         return;
       }
@@ -261,7 +267,7 @@ const TableDetailModal: React.FC<Props> = ({
   };
 
   const handleDeleteImage = async () => {
-    if (!storeId || !tableId) return;
+    if (storeId == null || tableId == null) return;
     if (!tableImageUrl) {
       alert('삭제할 이미지가 없습니다.');
       return;
@@ -295,10 +301,13 @@ const TableDetailModal: React.FC<Props> = ({
     setDetailLoading(true);
     const res = await cancelBookingByOwner(storeId, tableId, bookingId);
     const result = res.data.result;
-    alert(`예약이 취소되었습니다.\n환불 금액: ${result.refundAmount.toLocaleString()}원\n취소 시각: ${new Date(result.canceledAt).toLocaleString()}`);
-    
-    // 예약 상세 및 슬롯 정보 갱신
-    setShowBookingDetail(false);
+    if (result?.refundAmount != null) {
+        alert(`예약이 취소되었습니다.\n환불 금액: ${result.refundAmount.toLocaleString()}원\n취소 시각: ${new Date(result.canceledAt).toLocaleString()}`);
+      } else {
+        alert('예약이 취소되었습니다.');
+      }    
+
+      setShowBookingDetail(false);
     setBookingDetail(null);
     if (selectedFullDate) fetchSlots(selectedFullDate);
 
@@ -602,7 +611,7 @@ const TableDetailModal: React.FC<Props> = ({
                     <button
                        type="button"
                        key={`${slot.time}-${slot.bookingId ?? "none"}`}
-                       disabled={isBreak}
+                       disabled={isBreak || loading}
                        aria-pressed={isAvailable}
                        onClick={() => { 
                         if (isBreak || loading) return;

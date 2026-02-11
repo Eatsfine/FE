@@ -50,14 +50,14 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
         <button className="absolute top-2 right-2" onClick={onClose}><X /></button>
         <h3 className="text-lg mb-4">새 테이블 추가</h3>
         <div className="flex flex-col gap-2 mb-4">
-          <label>좌표 X (1~{gridCols})</label>
-          <input type="number" className="border p-1 rounded w-full" value={gridX} onChange={e => setGridX(Number(e.target.value))}/>
-          <label>좌표 Y (1~{gridRows})</label>
-          <input type="number" className="border p-1 rounded w-full" value={gridY} onChange={e => setGridY(Number(e.target.value))}/>
-          <label>최소 인원</label>
-          <input type="number" className="border p-1 rounded w-full" value={minSeatCount} onChange={e => setMinSeatCount(Number(e.target.value))}/>
-          <label>최대 인원</label>
-          <input type="number" className="border p-1 rounded w-full" value={maxSeatCount} onChange={e => setMaxSeatCount(Number(e.target.value))}/>
+          <label htmlFor="add-table-gridx">좌표 X (1~{gridCols})</label>
+          <input id="add-table-gridx" type="number" className="border p-1 rounded w-full" value={gridX} onChange={e => setGridX(Number(e.target.value))}/>
+          <label htmlFor="add-table-gridy">좌표 Y (1~{gridRows})</label>
+          <input id="add-table-gridy" type="number" className="border p-1 rounded w-full" value={gridY} onChange={e => setGridY(Number(e.target.value))}/>
+          <label htmlFor="add-table-min-seat">최소 인원</label>
+          <input id="add-table-min-seat" type="number" className="border p-1 rounded w-full" value={minSeatCount} onChange={e => setMinSeatCount(Number(e.target.value))}/>
+          <label htmlFor="add-table-max-seat">최대 인원</label>
+          <input id="add-table-max-seat" type="number" className="border p-1 rounded w-full" value={maxSeatCount} onChange={e => setMaxSeatCount(Number(e.target.value))}/>
         </div>
         <button 
           onClick={handleConfirm} 

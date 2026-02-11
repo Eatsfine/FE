@@ -46,7 +46,7 @@ const mapTablesFromApi = (
   tables.forEach((t) => {
     const slotId = t.gridY * columns + t.gridX + 1; // 일관된 계산
     const displayNum = extractLeadingNumber(t.tableNumber) ?? slotId;
-    const imageUrl = (t as any).tableImageUrl ?? prevTableData?.[slotId]?.tableImageUrl ?? null;
+    const imageUrl = t.tableImageUrl ?? prevTableData?.[slotId]?.tableImageUrl ?? null;
 
     result[slotId] = {
       tableId: t.tableId,
@@ -240,14 +240,14 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
       setTableData(prev => ({
         ...prev,
         [slotId]: {
-          tableId: (newTable as any).tableId ?? -1,
+          tableId: newTable.tableId ?? -1,
           numValue: extractedNum,
-          minCapacity: (newTable as any).minSeatCount ?? 2,
-          maxCapacity: (newTable as any).maxSeatCount ?? 4,
+          minCapacity: newTable.minSeatCount ?? 2,
+          maxCapacity: newTable.maxSeatCount ?? 4,
           isEditingCapacity: false,
           isEditingNum: false,
           isSaved: true,
-          tableImageUrl: (newTable as any).tableImageUrl ?? null,
+          tableImageUrl: newTable.tableImageUrl ?? null,
         },
       }));
 
@@ -349,8 +349,8 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
             next[slotKey] = {
               ...next[slotKey],
               tableId: ut.tableId,
-              minCapacity: (ut as any).minSeatCount ?? next[slotKey].minCapacity,
-              maxCapacity: (ut as any).maxSeatCount ?? next[slotKey].maxCapacity,
+              minCapacity: ut.minSeatCount ?? next[slotKey].minCapacity,
+              maxCapacity: ut.maxSeatCount ?? next[slotKey].maxCapacity,
               numValue: displayNum ?? next[slotKey].numValue,
               isSaved: true,
             };
@@ -559,7 +559,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                 gridTemplateColumns: `repeat(${config.columns}, minmax(150px, 1fr))`,
               }}
             >
-              {Array.from({ length: config.columns * config.rows }).map((_, i) => {
+              {Array.from({ length: config.columns * config.rows }).map((_: any, i: number) => {
                 const id = i + 1;
                 const table = getTableData(id);
                 const style = getTableStyle(table.maxCapacity);
@@ -589,7 +589,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                             onBlur={() => {
                               updateTable(id, { isEditingNum: false });
                               const tableId = getTableData(id).tableId;
-                              if (tableId) {
+                              if (tableId>0) {
                                 handlePatchTableInfo(tableId, { tableNumber: table.numValue });
                               }
                             }}
@@ -597,7 +597,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                               if (e.key === 'Enter') {
                                 updateTable(id, { isEditingNum: false });
                                 const tableId = getTableData(id).tableId;
-                                if (tableId) {
+                                if (tableId>0) {
                                   handlePatchTableInfo(tableId, { tableNumber: table.numValue });
                                 }
                               }

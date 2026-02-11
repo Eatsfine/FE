@@ -25,8 +25,10 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   );
 
   if (isOwnerApi) {
+    if (token) {
     config.headers.Authorization = `Bearer ${token}`;
     return config;
+    }
   }
 
   if (token) {
