@@ -6,7 +6,6 @@ type ApiEnvelope<T> = {
   code?: string;
   message?: string;
   result: T;
-
 };
 
 export type MemberInfo = {
@@ -36,13 +35,13 @@ export async function patchMemberInfo(body: PatchMemberInfo) {
 
 export async function putProfileImage(file: File) {
   const formData = new FormData();
-
   formData.append("profileImage", file);
-
   const res = await api.put<ApiEnvelope<string>>(
     "/api/v1/member/profile-image",
     formData,
-    { headers: { "Content-Type": "multipart/form-data" } },
   );
-
+  if (!res.data.isSuccess) {
+    throw new Error(res.data.message ?? "프로필 업로드 실패");
+  }
+  return res.data.result;
 }

@@ -58,10 +58,11 @@ export default function MyInfoPage() {
     if (!url) return null;
     if (url.startsWith("http")) return url;
 
-    const apiBase = (import.meta.env.VITE_API_URL as string).replace(
-      /\/api\/?$/,
-      "",
-    );
+    const apiBase =
+      (import.meta.env.VITE_API_URL as string | undefined)?.replace(
+        /\/api\/?$/,
+        "",
+      ) ?? "";
     return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
   };
 
@@ -268,7 +269,7 @@ export default function MyInfoPage() {
             </label>
             <input
               id="nickname"
-              disabled={!isEditing || !isSaving}
+              disabled={!isEditing || isSaving}
               value={draft.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 ${
@@ -282,7 +283,7 @@ export default function MyInfoPage() {
           <div>
             <label className="mb-1 block text-gray-600">전화번호</label>
             <input
-              disabled={!isEditing || !isSaving}
+              disabled={!isEditing || isSaving}
               value={draft.phone}
               onChange={(e) =>
                 handleChange("phone", phoneNumber(e.target.value))
