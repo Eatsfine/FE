@@ -27,7 +27,9 @@ export const formatSido = (sido: string): string => {
 
 // 시간 문자열 객체 변환
 export const formatTimeToBackend = (timeStr: string | undefined): string => {
-  if (!timeStr) return "00:00";
+  if (!timeStr) {
+    throw new Error("영업 시간은 필수입니다.");
+  }
   return timeStr;
 };
 
