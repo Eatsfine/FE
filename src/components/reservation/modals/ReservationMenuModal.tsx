@@ -46,7 +46,7 @@ export default function ReservationMenuModal({
 
   const qtyMap = useMemo(() => {
     const map = new Map<number, number>();
-    for (const s of selectedMenus) map.set(s.menuId, s.quantity);
+    for (const s of selectedMenus) map.set(Number(s.menuId), s.quantity);
     return map;
   }, [selectedMenus]);
 
@@ -85,15 +85,16 @@ export default function ReservationMenuModal({
   };
 
   const inc = (menu: MenuItem) => {
-    const cur = qtyMap.get(menu.id) ?? 0;
+    const cur = qtyMap.get(Number(menu.id)) ?? 0;
     setQuantity(menu, cur + 1);
   };
   const dec = (menu: MenuItem) => {
-    const cur = qtyMap.get(menu.id) ?? 0;
+    const cur = qtyMap.get(Number(menu.id)) ?? 0;
     setQuantity(menu, cur - 1);
   };
 
   const { rate } = useDepositRate(restaurant.id);
+
   const depositAmount = useMemo(
     () => calcDeposit(totalPrice, rate),
     [totalPrice, rate],
@@ -151,7 +152,7 @@ export default function ReservationMenuModal({
                   <div className="font-semibold">{safeLabel}</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {list.map((menu) => {
-                      const qty = qtyMap.get(menu.id) ?? 0;
+                      const qty = qtyMap.get(Number(menu.id)) ?? 0;
                       const img =
                         menu.imageUrl && menu.imageUrl.trim().length > 0
                           ? menu.imageUrl

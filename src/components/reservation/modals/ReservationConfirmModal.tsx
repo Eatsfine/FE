@@ -36,7 +36,7 @@ export default function ReservationConfirmModal({
   const depositQuery = useDepositRate(restaurant.id);
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { people, date, time, seatType, tablePref } = draft;
+  const { people, date, seatType, tablePref } = draft;
   const isSplitAccepted = tablePref === "split_ok";
 
   const menus = menusQuery.activeMenus ?? [];

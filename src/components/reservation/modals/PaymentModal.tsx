@@ -63,7 +63,7 @@ export default function PaymentModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   const userId = useUserId();
-  const [payAmount, setPayAmount] = useState<number>(
+  const [_payAmount, setPayAmount] = useState<number>(
     booking?.totalDeposit ?? 0,
   );
   useEffect(() => {

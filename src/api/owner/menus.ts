@@ -15,11 +15,6 @@ interface GetMenusResult {
   menus: ServerMenu[];
 }
 
-interface UploadImageResult {
-  imageKey: string;
-  imageUrl: string;
-}
-
 export interface MenuUpdateItem {
   name: string;
   description?: string;

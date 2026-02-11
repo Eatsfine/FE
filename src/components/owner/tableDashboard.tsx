@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from "lucide-react";
 import TableCreateModal from "./TableCreateModal";
-import TableDetailModal from "./TableDetailModal";
 import BreakTimeModal, { type BreakTime } from "./BreakTimeModal";
 import AddTableModal from "./AddTableModal";
 import {
@@ -15,6 +14,7 @@ import {
 import { patchTableInfo, type UpdatedTable } from "@/api/owner/table";
 import { patchBreakTime } from "@/api/owner/reservation";
 import type { SeatsType } from "@/types/table";
+import TableDetailModal from "./tableDetailModal";
 
 interface TableDashboardProps {
   storeId: number;
@@ -121,7 +121,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
   const [existingTables, setExistingTables] = useState<
     { gridX: number; gridY: number; tableId?: number }[]
   >([]);
-  const [placedTables, setPlacedTables] = useState<PlacedTable[]>([]);
+  const [_placedTables, setPlacedTables] = useState<PlacedTable[]>([]);
 
   useEffect(() => {
     const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);

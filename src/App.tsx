@@ -18,12 +18,12 @@ import SuccessPage from "./pages/payment/SuccessPage";
 import FailPage from "./pages/payment/FailPage";
 import ReservationCompletePage from "./pages/ReservationCompletePage";
 import { PrivateRoute } from "./components/RouteGuards";
-import MyInfoPage from "./pages/myPage/myInfoPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import SettingsPage from "./pages/myPage/settingPage";
 import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
+import MyInfoPage from "./pages/myPage/MyInfoPage";
 
 const myPageRoutes: RouteObject = {
   path: "/mypage",
