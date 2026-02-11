@@ -6,7 +6,7 @@ interface MenuFormModalProps {
   onClose: () => void;
   onSubmit: (menuData: any) => void;
   categories: { id: string; label: string }[];
-  editingMenu?: any; // 수정 시 전달받을 데이터
+  editingMenu?: any;
 }
 
 const MenuFormModal: React.FC<MenuFormModalProps> = ({ 
@@ -23,7 +23,6 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
     description: '',
   });
 
-  // 수정 모드일 경우 기존 데이터를 폼에 채워넣음
   useEffect(() => {
     if (editingMenu) {
       setFormData({

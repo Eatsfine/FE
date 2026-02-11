@@ -1,5 +1,4 @@
 import { api } from '@/api/axios';
-import { useAuthStore } from '@/stores/useAuthStore';
 import type { ApiResponse } from '@/types/api';
 
 export interface StoreDetail {

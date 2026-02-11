@@ -63,7 +63,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => 
     if (savedSettings) {
       try {
         const settingsData = JSON.parse(savedSettings);
-        // StoreSettingsData의 closedDays를 상태에 저장
         if (settingsData.closedDays) {
           setClosedDays(settingsData.closedDays);
         }
@@ -81,7 +80,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({storeId, storeName}) => 
       closedDays,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    console.log("저장됨:", data); // 디버깅용
   }, [config, tableData, breakTimes, closedDays]);
 
   const hasTables = config.columns > 0 && config.rows > 0;
@@ -157,7 +155,6 @@ const startEditingCapacity = (id: number) => {
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
         
-        {/* 1. 상단 헤더 섹션 */}
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리
@@ -195,7 +192,6 @@ const startEditingCapacity = (id: number) => {
           </div>
         </div>
 
-        {/* 브레이크 타임 목록 */}
         {breakTimes.length > 0 && (
           <div className="mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -231,7 +227,6 @@ const startEditingCapacity = (id: number) => {
         )}
 
 
-        {/* 2. 3개 요약 카드 */}
         {hasTables && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-in fade-in duration-500">
             <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
@@ -254,7 +249,6 @@ const startEditingCapacity = (id: number) => {
 
 
 
-        {/* 3. 메인 영역 (배치도) */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm relative overflow-hidden">
           {hasTables ? (
             <div className="p-6">
@@ -278,7 +272,6 @@ const startEditingCapacity = (id: number) => {
                   <div 
                     key={id} 
                     onClick={() => !table.isEditingCapacity && setSelectedTable(id)}
-                    // w-32~40 사이로 조절하여 크기를 줄이고 aspect-square로 정사각 느낌을 줌
                     className={`border-2 ${style.border} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
                   >
                     <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
@@ -341,7 +334,6 @@ const startEditingCapacity = (id: number) => {
                                   onChange={(e) => updateTable(id, { maxCapacity: Number(e.target.value) })}
                                   onBlur={(e) => {
                                     const val = Number(e.target.value);
-                                    // 입력한 값이 최소값보다 작거나 같으면 최소값 + 1로 강제 고정
                                     if (val <= table.minCapacity) {
                                       updateTable(id, { maxCapacity: table.minCapacity + 1 });
                                     }
@@ -373,7 +365,6 @@ const startEditingCapacity = (id: number) => {
             </div>
           </div>
 
-          {/* 4. 하단 팁 및 범례 섹션 */}
           <div className="bg-gray-50 border border-gray-100 rounded-[28px] p-7 mt-8">
             <div className="flex items-center gap-3 text-sm text-gray-600 mb-5">
               <Lightbulb size={20} className="text-yellow-400 fill-yellow-400" />
@@ -404,14 +395,11 @@ const startEditingCapacity = (id: number) => {
           </div>
       </main>
 
-      {/* 모달 컴포넌트들 */}
       {isCreateModalOpen && <TableCreateModal onClose={() => setCreateModalOpen(false)} onConfirm={(c, r) => { setConfig({ columns: c, rows: r }); setCreateModalOpen(false); }} />}
       {selectedTable && (
         <TableDetailModal 
           tableNumber={getTableData(selectedTable).numValue} 
-          // [추가] 테이블 상세 정보 전달
           tableInfo={getTableData(selectedTable)}
-          // [추가] 인원 정보 업데이트 함수 전달
           onUpdateCapacity={(min, max) => updateTable(selectedTable, { minCapacity: min, maxCapacity: max })}
           onClose={() => setSelectedTable(null)} 
           breakTimes={breakTimes} 

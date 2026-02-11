@@ -101,7 +101,6 @@ useEffect(() => {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
-      {/* 기본 정보 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">기본 정보</h3>
         <div className="space-y-6">
@@ -171,7 +170,6 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* 영업 시간 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">영업 시간</h3>
         <div className="space-y-6 mb-8">
@@ -222,7 +220,6 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* 예약 정책 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">예약 정책</h3>
         <div className="space-y-8">
@@ -294,7 +291,6 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* 하단 저장 버튼 */}
       <div className="flex justify-end mb-20">
         <button 
           onClick={async () => {
@@ -306,7 +302,6 @@ useEffect(() => {
   if (!storeId) return;
 
   try {
-    /* 1️⃣ 기본 정보 */
     await updateStore(storeId, {
       storeName,
       description,
@@ -319,7 +314,6 @@ useEffect(() => {
 
   try {
 
-    /* 2️⃣ 영업시간 */
 
     const businessHours = days.map(day => ({
   day: dayMapToApi[day],

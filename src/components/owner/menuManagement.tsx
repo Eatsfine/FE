@@ -170,7 +170,6 @@ const handleAddClick = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
-      {/* 헤더 섹션 */}
       <div className="flex justify-between items-start mb-10">
         <div>
           <h2 className="text-2xl text-gray-900 mb-1">메뉴 관리</h2>
@@ -182,7 +181,6 @@ const handleAddClick = () => {
         </button>
       </div>
 
-      {/* 카테고리 탭 */}
       <div className="overflow-x-auto flex gap-3 mb-8 p-4 rounded-lg bg-white">
         {categories.map(cat => (
           <button
@@ -199,7 +197,6 @@ const handleAddClick = () => {
         ))}
       </div>
 
-      {/* 메뉴 카드 그리드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {filteredMenus.map(menu => (
           <div
@@ -247,7 +244,6 @@ const handleAddClick = () => {
             <div className="flex justify-between items-center mt-auto">
               <span className="text-lg text-gray-900">{menu.price.toLocaleString()}원</span>
               
-              {/* 활성 토글 스위치 */}
               <button 
                 onClick={() => toggleActive(menu.id)}
                  role="switch"
@@ -262,7 +258,6 @@ const handleAddClick = () => {
         ))}
       </div>
 
-      {/* 카테고리 관리 섹션*/}
       <section className="bg-white border border-gray-100 rounded-lg p-8 shadow-sm">
   <div className="flex justify-between items-center mb-6">
     <h3 className="text-lg text-gray-700 font-semibold uppercase tracking-widest">카테고리 관리</h3>
@@ -271,13 +266,12 @@ const handleAddClick = () => {
   
   <div className="space-y-2">
     {categories.filter(c => c.id !== 'ALL').map((cat) => {
-      // 'ALL'을 제외했으므로 실제 원본 배열에서의 인덱스를 구함
       const realIdx = categories.findIndex(c => c.id === cat.id);
       
       return (
         <div 
           key={cat.id} 
-          draggable // 드래그 가능하게 설정
+          draggable
           onDragStart={() => handleDragStart(realIdx)}
           onDragOver={(e) => {
             e.preventDefault();
@@ -292,7 +286,6 @@ const handleAddClick = () => {
           }`}
         >
           <div className="flex items-center gap-4 flex-1">
-            {/* 드래그 핸들 아이콘 (점 6개) */}
             <div className="flex flex-col gap-0.5 opacity-30 group-hover:opacity-100 transition-opacity">
               <div className="flex gap-0.5">
                 <div className="w-1 h-1 bg-gray-400 rounded-full" />
