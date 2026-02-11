@@ -10,6 +10,26 @@ interface StoreSettingsProps {
 
 const days = ['월', '화', '수', '목', '금', '토', '일'];
 
+const dayMapFromApi: Record<string, string> = {
+  MONDAY: '월',
+  TUESDAY: '화',
+  WEDNESDAY: '수',
+  THURSDAY: '목',
+  FRIDAY: '금',
+  SATURDAY: '토',
+  SUNDAY: '일',
+};
+
+const dayMapToApi: Record<string, any> = {
+  월: 'MONDAY',
+  화: 'TUESDAY',
+  수: 'WEDNESDAY',
+  목: 'THURSDAY',
+  금: 'FRIDAY',
+  토: 'SATURDAY',
+  일: 'SUNDAY',
+};
+
 const StoreSettings: React.FC<StoreSettingsProps> = ({storeId}) => {
   const [storeName, setStoreName] = useState('맛있는 레스토랑');
   const [description, setDescription] = useState('신선한 재료로 만드는 정성 가득한 음식을 제공합니다.');
@@ -50,8 +70,10 @@ useEffect(() => {
 
       setClosedDays(closed);
     }
-  });
-}, [storeId]);
+   }).catch(() => {
+    alert('가게 정보를 불러오는 데 실패했습니다.');
+    });
+  }, [storeId]);
 
 
 
@@ -74,26 +96,6 @@ useEffect(() => {
     email.trim() &&
     address.trim()
   );
-};
-
-const dayMapFromApi: Record<string, string> = {
-  MONDAY: '월',
-  TUESDAY: '화',
-  WEDNESDAY: '수',
-  THURSDAY: '목',
-  FRIDAY: '금',
-  SATURDAY: '토',
-  SUNDAY: '일',
-};
-
-const dayMapToApi: Record<string, any> = {
-  월: 'MONDAY',
-  화: 'TUESDAY',
-  수: 'WEDNESDAY',
-  목: 'THURSDAY',
-  금: 'FRIDAY',
-  토: 'SATURDAY',
-  일: 'SUNDAY',
 };
 
 
@@ -310,10 +312,14 @@ const dayMapToApi: Record<string, any> = {
       description,
       phoneNumber: phone,
     });
+      } catch (e) {
+    alert('기본 정보 저장에 실패했습니다.');
+    return;
+  }
+
+  try {
 
     /* 2️⃣ 영업시간 */
-    const [openHour, openMinute] = openTime.split(':').map(Number);
-    const [closeHour, closeMinute] = closeTime.split(':').map(Number);
 
     const businessHours = days.map(day => ({
   day: dayMapToApi[day],
@@ -325,10 +331,12 @@ const dayMapToApi: Record<string, any> = {
 
     await updateBusinessHours(storeId, businessHours);
 
-    alert('설정이 저장되었습니다.');
+
   } catch (e) {
-    alert('설정 저장에 실패했습니다.');
+    alert('영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.');
+    return;
   }
+      alert('설정이 저장되었습니다.');
 }}
 
           className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"

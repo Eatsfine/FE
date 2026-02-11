@@ -1,8 +1,6 @@
 import { api } from '@/api/axios';
+import { useAuthStore } from '@/stores/useAuthStore';
 import type { ApiResponse } from '@/types/api';
-
-
-const OWNER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJvd25lckBuYXZlci5jb20iLCJyb2xlIjoiUk9MRV9PV05FUiIsImlhdCI6MTc3MDU3MDE5NywiZXhwIjo0OTI0MTcwMTk3fQ.0O8-mHTT6j59VTuMYmtGZs4r7JvqlsRi0jU09601iKs"
 
 export interface StoreDetail {
   storeId: number;
@@ -48,11 +46,6 @@ export function updateStore(
   return api.patch<ApiResponse<any>>(
     `/api/v1/stores/${storeId}`,
     body,
-    {
-        headers: {
-            Authorization: `Bearer ${OWNER_TOKEN}`
-        }
-    }
   );
 }
 
@@ -63,10 +56,5 @@ export function updateBusinessHours(
   return api.patch<ApiResponse<{ businessHours: BusinessHour[] }>>(
     `/api/v1/stores/${storeId}/business-hours`,
     { businessHours },
-    {
-        headers: {
-            Authorization: `Bearer ${OWNER_TOKEN}`
-        }
-    }
   );
 }
