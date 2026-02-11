@@ -377,7 +377,9 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
                   src={tableImageUrl} 
                   alt={`${tableNumber}번 테이블 이미지`} 
                   className="w-full h-full object-cover" 
-                  onError={() => setTableImageUrl(null)}
+                  onError={() => {setTableImageUrl(null);
+                    if (onImageUpload) onImageUpload(tableId, '');
+                  }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center border-dashed">
@@ -611,8 +613,9 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
                                 handleCancelBooking(bookingDetailBookingId);
                               }
                             }}
-                              className="px-2 py-1 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600"
-                            >
+                            disabled={detailLoading}
+                              className="px-2 py-1 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
                               예약 취소 & 환불
                             </button>
                           </div>
