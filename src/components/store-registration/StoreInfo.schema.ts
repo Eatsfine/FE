@@ -60,7 +60,7 @@ export const StoreInfoSchema = z
 
     mainImage: z
       .any()
-      .refine((file) => !!file, {
+      .refine((file) => file instanceof File, {
         message: "식당 대표 이미지를 등록해주세요.",
       })
       .refine(
@@ -68,7 +68,7 @@ export const StoreInfoSchema = z
           if (file instanceof File) {
             return file.size <= MAX_FILE_SIZE;
           }
-          return true;
+          return file.size <= MAX_FILE_SIZE;
         },
         {
           message: "이미지 크기는 1MB 이하여야 합니다.",
@@ -76,10 +76,7 @@ export const StoreInfoSchema = z
       )
       .refine(
         (file) => {
-          if (file instanceof File) {
-            return ACCEPTED_IMAGE_TYPES.includes(file.type);
-          }
-          return true;
+          return ACCEPTED_IMAGE_TYPES.includes(file.type);
         },
         {
           message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
