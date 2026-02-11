@@ -58,17 +58,16 @@ export default function ForUserSection() {
               ))}
             </ul>
           </div>
-          <div
+          <img
+            src="/CustomerImage.png"
+            alt="고객 앱 화면"
             className={cn(
               "relative",
-              "transition-all duration-900 ease-out",
+              "transition-all duration-900 ease-out w-full h-full object-contain rounded-3xl",
               inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
             )}
-          >
-            <div className="bg-gradient-to-br from-[#2196F3] to-[#1976D2] rounded-3xl aspect-square flex items-center justify-center">
-              <p className="text-white/20">고객 앱 화면 이미지</p>
-            </div>
-          </div>
+            loading="lazy"
+          />
         </div>
       </div>
     </section>

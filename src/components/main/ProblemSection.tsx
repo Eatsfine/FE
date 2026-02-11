@@ -17,7 +17,6 @@ export default function ProblemSection() {
         </h2>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* 기존방식 section */}
           <div
             className={cn(
               "bg-[#F8F9FA] rounded-3xl p-12",
@@ -47,7 +46,6 @@ export default function ProblemSection() {
               ))}
             </div>
           </div>
-          {/* 잇츠파인 section */}
           <div
             className={cn(
               "bg-linear-to-br from-[#2196F3] to-[#1976D2] rounded-3xl p-12",

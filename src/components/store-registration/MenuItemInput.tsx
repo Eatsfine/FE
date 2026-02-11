@@ -61,9 +61,7 @@ export default function MenuItemInput({
     return null;
   }, [watchedImage]);
 
-  // 메모리 누수 방지를 위한 Cleanup
   useEffect(() => {
-    // 파일로 생성된 URL인 경우에만 해제
     if (watchedImage instanceof File && previewUrl) {
       return () => URL.revokeObjectURL(previewUrl);
     }

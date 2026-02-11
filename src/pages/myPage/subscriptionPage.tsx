@@ -6,7 +6,6 @@ export default function SubscriptionPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
-  // 현재 사용 중인 플랜 이름을 관리하는 상태 (기본값: 무료)
   const [selectedPlan, setSelectedPlan] = useState("무료");
 
   const getNextBillingDate = () => {
@@ -48,7 +47,7 @@ export default function SubscriptionPage() {
         "프리미엄 고객 지원",
         "동반 1인 무료 혜택",
       ],
-      isRecommended: true, // 추천 플랜 표시를 위한 플래그
+      isRecommended: true,
     },
     {
       name: "비즈니스 (사장님)",
@@ -65,7 +64,6 @@ export default function SubscriptionPage() {
     },
   ];
 
-  // 플랜 변경 핸들러
   const handlePlanChange = (planName: string) => {
     if (confirm(`플랜을 ${planName} 플랜으로 바꾸시겠습니까?`)) {
       setSelectedPlan(planName);
@@ -85,7 +83,7 @@ export default function SubscriptionPage() {
         "정말로 구독을 취소하시겠습니까? 다음 결제일부터는 혜택을 이용하실 수 없습니다.",
       )
     ) {
-      setSelectedPlan("무료"); // 취소 시 무료 플랜으로 변경 예시
+      setSelectedPlan("무료");
       alert("구독 취소가 완료되었습니다.");
     }
   };
@@ -99,7 +97,6 @@ export default function SubscriptionPage() {
         </p>
       </div>
 
-      {/* 현재 플랜 요약 박스 */}
       <div className="mb-10 rounded-xl bg-blue-50 p-6 border border-blue-100 grid">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -109,7 +106,6 @@ export default function SubscriptionPage() {
           <h3 className="text-2xl text-gray-900">{selectedPlan}</h3>
         </div>
 
-        {/* 결제일 정보: 무료 플랜이 아닐 때만 표시 */}
         {selectedPlan !== "무료" && (
           <div className="mt-4 flex items-center">
             <p className="text-sm text-gray-900">다음 결제일 : </p>
@@ -123,7 +119,6 @@ export default function SubscriptionPage() {
         )}
       </div>
 
-      {/* 결제 주기 전환 토글 */}
       <div className="mb-8 flex justify-center">
         <div className="relative flex rounded-lg bg-gray-100 p-1">
           <button
@@ -156,7 +151,6 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
-      {/* 플랜 카드 리스트 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {plans.map((plan) => {
           const isCurrent = selectedPlan === plan.name;
@@ -229,7 +223,6 @@ export default function SubscriptionPage() {
         })}
       </div>
 
-      {/* 여기에 추가: 하단 구독 관리 섹션 */}
       {selectedPlan !== "무료" && (
         <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
           <div>

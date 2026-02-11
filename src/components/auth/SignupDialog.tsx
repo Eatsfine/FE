@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, type SignupFormValues } from "./signup.schema";
+import { signupSchema, type SignupFormValues } from "./Signup.schema";
 import { useEffect } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useEmailSignup } from "@/hooks/queries/useAuth";
@@ -54,7 +54,6 @@ export function SignupDialog({
     mode: "onBlur",
   });
 
-  // 폼 열릴 때마다 초기화
   useEffect(() => {
     if (isOpen) {
       reset(defaultValues);
@@ -88,14 +87,12 @@ export function SignupDialog({
           <DialogTitle className="text-center text-2xl font-bold">
             회원가입
           </DialogTitle>
-          {/* 스크린 리더용 설명(경고 방지) */}
           <DialogDescription className="sr-only">
             이메일과 소셜 계정으로 회원가입을 할 수 있는 폼
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* 소셜 회원가입 */}
           <div className="flex flex-col gap-4 py-4">
             <Button
               type="button"
@@ -133,7 +130,6 @@ export function SignupDialog({
             </span>
           </div>
 
-          {/* 이메일 회원가입 폼 */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="signup-name">이름</Label>
@@ -220,7 +216,6 @@ export function SignupDialog({
               )}
             </div>
 
-            {/* 동의 */}
             <div className="space-y-3 pt-4 border-t">
               <div className="flex items-center space-x-2">
                 <Controller
@@ -297,8 +292,6 @@ export function SignupDialog({
           </form>
 
           <Separator />
-
-          {/* 로그인으로 이동 */}
           <div className="text-center text-sm text-gray-600">
             이미 계정이 있으신가요?{" "}
             <button

@@ -23,7 +23,6 @@ export default function SettingsPage() {
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <h2 className="text-xl font-medium mb-6">계정 설정</h2>
 
-      {/* 비밀번호 변경 섹션 */}
       <div className="flex gap-4 pb-8 border-b border-gray-100">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
           <Lock size={20} />
@@ -44,7 +43,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* 알림 설정 섹션 */}
       <div className="flex gap-4 py-8 border-b border-gray-100">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
           <Bell size={20} />
@@ -100,7 +98,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* 계정 탈퇴 섹션 */}
       <div className="flex gap-4 pt-8">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
           <Trash2 size={20} />
@@ -126,7 +123,6 @@ export default function SettingsPage() {
   );
 }
 
-// 토글 아이템 컴포넌트
 function ToggleButton({
   label,
   description,
@@ -149,7 +145,6 @@ function ToggleButton({
   );
 }
 
-// 스위치 UI 컴포넌트
 function Switch({
   enabled,
   onClick,

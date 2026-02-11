@@ -19,19 +19,18 @@ export default function ForOwnerSection() {
     <section ref={sectionRef} id="forowner" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div
+          <img
+            src="/OwnerImage.png"
+            alt="사장님 대시보드 화면"
             className={cn(
               "relative",
-              "transition-all duration-900 ease-out",
+              "transition-all duration-900 ease-out w-full h-full object-contain rounded-3xl",
               inView
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-20",
             )}
-          >
-            <p className="bg-linear-to-br from-[#E3F2FD] to-[#BBDEFB] rounded-3xl aspect-square flex items-center justify-center text-[#191919]/20">
-              사장님 대시보드 이미지
-            </p>
-          </div>
+            loading="lazy"
+          />
           <div
             className={cn(
               "transition-all duration-900 ease-out",
