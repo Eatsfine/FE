@@ -40,8 +40,11 @@ export const queryKeys = {
     detail: (reservationId: string | number) =>
       ["reservation", "detail", reservationId] as const,
 
-    availability: (restaurantId: string | number, params?: Params) =>
-      ["reservation", "availability", restaurantId, params ?? {}] as const,
+    availableTimes: (storeId: string | number, params?: Params) =>
+      ["reservation", "availableTimes", storeId, params ?? {}] as const,
+
+    availableTables: (storeId: string | number, params?: Params) =>
+      ["reservation", "availableTables", storeId, params ?? {}] as const,
   },
   payment: {
     all: ["payment"] as const,

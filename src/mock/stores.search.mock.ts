@@ -2,7 +2,7 @@ import type { RestaurantSummary } from "@/types/store";
 
 export const MOCK_STORE_SEARCH: RestaurantSummary[] = [
   {
-    id: "1",
+    id: 1,
     name: "모던 한식당",
     category: "KOREAN",
     rating: 4.7,
@@ -14,7 +14,7 @@ export const MOCK_STORE_SEARCH: RestaurantSummary[] = [
     location: { lat: 37.498, lng: 127.0276 },
   },
   {
-    id: "2",
+    id: 2,
     name: "이탈리아 트라토리아",
     category: "WESTERN",
     rating: 4.5,
@@ -26,7 +26,7 @@ export const MOCK_STORE_SEARCH: RestaurantSummary[] = [
     location: { lat: 37.574, lng: 126.985 },
   },
   {
-    id: "3",
+    id: 3,
     name: "스카이뷰 레스토랑",
     category: "WESTERN",
     rating: 4.8,

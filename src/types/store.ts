@@ -15,7 +15,7 @@ export type Location = {
 };
 
 export type RestaurantSummary = {
-  id: string;
+  id: number;
   name: string;
   address: string;
   category: Category;
@@ -40,7 +40,7 @@ export type BreakTime = {
 };
 
 export type RestaurantDetail = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   address: string;
@@ -55,6 +55,7 @@ export type RestaurantDetail = {
   breakTime?: BreakTime;
   isOpenNow?: boolean;
   location?: Location;
+  depositRate?: number;
 };
 
 export const categoryLabel: Record<Category, string> = {

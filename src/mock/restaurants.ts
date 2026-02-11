@@ -2,13 +2,13 @@ import type { Restaurant } from "@/types/restaurant";
 
 export const MOCK_RESTAURANTS: Restaurant[] = [
   {
-    id: "1",
+    id: 1,
     name: "모던 한식당",
     category: "한식",
     thumbnailUrl: "/modernKoreaRestaurant.jpg",
     rating: 4.7,
     reviewCount: 328,
-    isApproved : true,
+    isApproved: true,
     operatingHours: {
       open: "11:00",
       close: "22:00",
@@ -42,10 +42,9 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
       notice:
         "예약 확정을 위해 예약금 결제가 필요합니다. 노쇼 방지를 위한 정책입니다.",
     },
-    
   },
   {
-    id: "2",
+    id: 2,
     name: "이탈리아 트라토리아",
     category: "이탈리아",
     thumbnailUrl: "/ItalyTrattoria.jpg",
@@ -86,13 +85,13 @@ export const MOCK_RESTAURANTS: Restaurant[] = [
     },
   },
   {
-    id: "3",
+    id: 3,
     name: "스카이뷰 레스토랑",
     category: "다이닝",
     thumbnailUrl: "/seatImg1.jpg",
     rating: 4.8,
     reviewCount: 452,
-    isApproved:false,
+    isApproved: false,
     operatingHours: {
       open: "10:00",
       close: "00:00 (라스트오더 23:00)",
