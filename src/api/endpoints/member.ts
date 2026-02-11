@@ -31,7 +31,7 @@ export type ChangePasswordResponse = {
   changeAt: string;
   message: string;
 };
-export async function putChangePassword(body: ChangePasswordResponse) {
+export async function putChangePassword(body: ChangePasswordRequest) {
   const res = await api.put<ApiEnvelope<ChangePasswordResponse>>(
     "/api/v1/member/password",
     body,

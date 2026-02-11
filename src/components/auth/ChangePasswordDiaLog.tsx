@@ -87,8 +87,11 @@ export function ChangePasswordDialog({
         </div>
         <form onSubmit={onSubmit} className="px-6 py-5 space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">현재 비밀번호</label>
+            <label htmlFor="currentPassword" className="text-sm font-medium">
+              현재 비밀번호
+            </label>
             <input
+              id="currentPassword"
               type="password"
               autoComplete="current-password"
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { logout as performLogout } from "@/api/auth";
 
 function isWithdrawBlockByBookings(e: any) {
   const msg = e?.response?.data?.message;
@@ -35,7 +36,7 @@ export function WithdrawDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const nav = useNavigate();
-  const logout = useAuthStore((logout: any) => logout);
+  const logout = useAuthStore((s) => s.actions.logout);
 
   const [blocked, setBlocked] = useState(false);
 
@@ -51,10 +52,8 @@ export function WithdrawDialog({
 
   const { mutate, isPending } = useMutation({
     mutationFn: deleteWithDraw,
-    onSuccess: () => {
-      try {
-        logout?.();
-      } catch {}
+    onSuccess: async () => {
+      await performLogout();
       alert("회원 탈퇴가 완료되었습니다.");
       onOpenChange(false);
       nav("/", { replace: true });
