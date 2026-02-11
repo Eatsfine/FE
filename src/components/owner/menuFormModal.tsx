@@ -8,9 +8,9 @@ interface MenuFormModalProps {
   onClose: () => void;
   onSubmit: (menuData: any) => void;
   categories: { id: string; label: string }[];
-  editingMenu?: any; // 수정 시 전달받을 데이터
+  editingMenu?: any;
   storeId: string;
-  onImageDelete?: () => void; // 이미지 삭제 후 부모에게 알리기 위한 콜백
+  onImageDelete?: () => void;
 }
 
 
@@ -35,7 +35,6 @@ const [imageUrl, setImageUrl] = useState<string | null>(editingMenu?.imageUrl ||
 const [imageKey, setImageKey] = useState<string | null>(null);
 const [uploading, setUploading] = useState(false);
 
-  // 수정 모드일 경우 기존 데이터를 폼에 채워넣음
   useEffect(() => {
     if (editingMenu) {
       setFormData({
@@ -77,15 +76,12 @@ const [uploading, setUploading] = useState(false);
           price: Number(formData.price),
           category: formData.category,    };
     if (imageKey !== null) {
-      // 이미지 삭제 시 "", 새 업로드 시 "new_key"가 들어옴
       payload.imageKey = imageKey;
     } else if (isEditing && editingMenu?.imageKey) {
-      // imageKey가 null이고 수정모드면 기존 키 유지
       payload.imageKey = editingMenu.imageKey;
     }
 
     if (isEditing) {
-  // ✅ 단일 객체 전달
   const res = await updateMenu(storeId, editingMenu.id, payload);
   if (res.isSuccess) {
     alert("메뉴가 성공적으로 수정되었습니다.");
@@ -103,7 +99,6 @@ const [uploading, setUploading] = useState(false);
     alert("메뉴 수정 실패: " + res.message);
   }
 } else {
-  // 새 메뉴 생성
   const res = await createMenus(storeId, [payload]);
       if (res.isSuccess) {
         alert("메뉴 등록 성공!");
@@ -141,9 +136,7 @@ const [uploading, setUploading] = useState(false);
           </button>
         </div>
 
-        {/* 이미지 업로드 섹션 */}
         <div className="flex flex-col items-center gap-3 w-full">
-          {/* 미리보기 */}
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -156,87 +149,83 @@ const [uploading, setUploading] = useState(false);
             </div>
           )}
 
-          {/* 업로드 버튼 */}
           <div className="flex flex-col gap-2">
-<label
-  className={`cursor-pointer px-6 py-2 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all ${
-    uploading ? 'opacity-50 pointer-events-none' : ''
-  }`}
->
-  {uploading ? '업로드 중...' : '이미지 선택'}
-  <input
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={async (e) => {
-      if (!e.target.files?.length) return;
-      const file = e.target.files[0];
-      setImageFile(file);
-      setUploading(true);
+          <label
+            className={`cursor-pointer px-6 py-2 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all ${
+              uploading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          >
+          {uploading ? '업로드 중...' : '이미지 선택'}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              if (!e.target.files?.length) return;
+              const file = e.target.files[0];
+              setImageFile(file);
+              setUploading(true);
 
-      try {
-        const res = await uploadMenuImage(storeId, file);
-        if (res.isSuccess) {
-          setImageKey(res.result.imageKey);
-          setImageUrl(res.result.imageUrl);
-        } else {
-          alert("이미지 업로드 실패: " + res.message);
-          setImageFile(null);
-        }
-      } catch (err) {
-        console.error(err);
-        alert("이미지 업로드 중 오류가 발생했습니다.");
-        setImageFile(null);
-      } finally {
-        setUploading(false);
-      }
-    }}
-  />
-</label>
+              try {
+                const res = await uploadMenuImage(storeId, file);
+                if (res.isSuccess) {
+                  setImageKey(res.result.imageKey);
+                  setImageUrl(res.result.imageUrl);
+                } else {
+                  alert("이미지 업로드 실패: " + res.message);
+                  setImageFile(null);
+                }
+              } catch (err) {
+                console.error(err);
+                alert("이미지 업로드 중 오류가 발생했습니다.");
+                setImageFile(null);
+              } finally {
+                setUploading(false);
+              }
+            }}
+          />
+        </label>
 
-{/* 이미지 삭제 버튼 */}
-{imageUrl && (
-  <button
-    type="button"
-    className="ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
-    onClick={async () => {
-      // 등록 전 이미지 삭제 (서버 요청 없음)
-      if (!editingMenu?.menuId) {
-        setImageFile(null);
-        setImageUrl(null);
-        setImageKey("");
-        return;
-      }
+        {imageUrl && (
+          <button
+            type="button"
+            className="ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
+            onClick={async () => {
+              if (!editingMenu?.menuId) {
+                setImageFile(null);
+                setImageUrl(null);
+                setImageKey("");
+                return;
+              }
 
-      
-      // 수정 모드, 서버에 삭제 요청
-      const menuId = editingMenu.id ; // 타입 확실히 지정
-      if (!menuId) {
-        alert("메뉴 ID가 존재하지 않아 삭제할 수 없습니다.");
-        return;
-      }
+              
+              const menuId = editingMenu.id ; 
+              if (!menuId) {
+                alert("메뉴 ID가 존재하지 않아 삭제할 수 없습니다.");
+                return;
+              }
 
-      try {
-        const res = await deleteMenuImage(storeId, menuId);
-        if (res.isSuccess) {
-          setImageUrl(null);
-          setImageKey(null);
-          alert("이미지가 삭제되었습니다.");
-          if (onImageDelete) onImageDelete(); // 부모에게 알림
-        } else {
-          alert("이미지 삭제 실패: " + res.message);
-        }
-      } catch (err) {
-        console.error(err);
-        alert("이미지 삭제 중 오류가 발생했습니다.");
-      }
-    }}
-  >
-    삭제
-  </button>
-)}
-          </div>
-</div>
+              try {
+                const res = await deleteMenuImage(storeId, menuId);
+                if (res.isSuccess) {
+                  setImageUrl(null);
+                  setImageKey(null);
+                  alert("이미지가 삭제되었습니다.");
+                  if (onImageDelete) onImageDelete(); // 부모에게 알림
+                } else {
+                  alert("이미지 삭제 실패: " + res.message);
+                }
+              } catch (err) {
+                console.error(err);
+                alert("이미지 삭제 중 오류가 발생했습니다.");
+              }
+            }}
+          >
+            삭제
+          </button>
+        )}
+        </div>
+      </div>
 
 
 

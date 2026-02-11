@@ -1,5 +1,4 @@
-// src/api/owner/menus.ts
-import { api, OWNER_TOKEN } from "../axios"; // 프로젝트의 axios 인스턴스 경로에 맞춰 조정하세요
+import { api, OWNER_TOKEN } from "../axios";
 import type { ApiResponse } from "@/types/api";
 
 export interface ServerMenu {
@@ -10,7 +9,6 @@ export interface ServerMenu {
   category?: string | null;
   imageUrl?: string | null;
   isSoldOut?: boolean;
-  // 서버가 활성화 정보(isActive)를 주지 않으면 로컬에서 관리합니다.
 }
 
 interface GetMenusResult {
@@ -27,7 +25,7 @@ export interface MenuUpdateItem {
   description?: string;
   price: number;
   category: string;
-  imageKey?: string; // 빈 문자열 보내면 이미지 삭제
+  imageKey?: string; 
 }
 
 interface MenuUpdateResult {
@@ -70,12 +68,6 @@ export interface DeleteMenusResponse {
   message: string;
 }
 
-
-
-/**
- * 가게의 메뉴 목록 조회
- * @param storeId string or number
- */
 export async function getMenus(storeId: string | number) {
   const res = await api.get<ApiResponse<GetMenusResult>>(`/api/v1/stores/${storeId}/menus`);
   return res.data;
@@ -162,7 +154,6 @@ export const deleteMenus = async (storeId: string, menuIds: number[]): Promise<D
   return res.data;
 };
 
-// 품절 상태 변경
 export async function updateMenuSoldOut(
   storeId: string | number,
   menuId: string | number,
