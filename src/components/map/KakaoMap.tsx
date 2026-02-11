@@ -78,13 +78,7 @@ export default function KakaoMap({
 
     try {
       mapRef.current.relayout();
-
-      mapRef.current.setCenter(
-        new kakao.maps.LatLng(centerRef.current.lat, centerRef.current.lng),
-      );
-    } catch {
-      // noop
-    }
+    } catch {}
   };
 
   //1. 지도 최초 1회 생성
@@ -183,6 +177,10 @@ export default function KakaoMap({
       });
 
       kakao.maps.event.addListener(marker, "click", () => {
+        mapRef.current?.panTo(pos);
+        if (selectedLevel != null) {
+          mapRef.current?.setLevel(selectedLevel);
+        }
         if (infoRef.current) {
           const el = document.createElement("div");
           el.style.cssText =
