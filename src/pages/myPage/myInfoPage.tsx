@@ -44,6 +44,7 @@ export default function MyInfoPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["memberInfo"],
     queryFn: getMemberInfo,
+    refetchOnWindowFocus: false,
   });
 
   const [original, setOriginal] = useState<Form>({
@@ -52,6 +53,17 @@ export default function MyInfoPage() {
     phone: "",
   });
   const [draft, setDraft] = useState<Form>(original);
+
+  const toAbsolute = (url: string | null) => {
+    if (!url) return null;
+    if (url.startsWith("http")) return url;
+
+    const apiBase = (import.meta.env.VITE_API_URL as string).replace(
+      /\/api\/?$/,
+      "",
+    );
+    return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
 
   useEffect(() => {
     if (!data) return;
@@ -63,7 +75,7 @@ export default function MyInfoPage() {
     };
     setOriginal(nextOriginal);
     setDraft(nextOriginal);
-    setServerProfileUrl(data.profileImage ?? null);
+    setServerProfileUrl(toAbsolute(data.profileImage ?? null));
   }, [data]);
 
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
@@ -117,6 +129,8 @@ export default function MyInfoPage() {
       setImageUploadError("PNG/JPG 파일만 업로드할 수 있습니다");
       return;
     }
+    setImageUploadError(null);
+    setDraftImageFile(file);
     uploadImage(file);
   };
 
@@ -233,20 +247,6 @@ export default function MyInfoPage() {
 
         <div className="w-full space-y-5">
           <div>
-            <label className="mb-1 block text-gray-600">아이디</label>
-            <input
-              disabled
-              value="user1234"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-500"
-            />
-            {isEditing ? (
-              <p className="mt-1 text-sm text-muted-foreground ml-4">
-                아이디는 변경할 수 없습니다
-              </p>
-            ) : null}
-          </div>
-
-          <div>
             <label className="mb-1 block text-gray-600">이메일</label>
             <input
               disabled
@@ -263,9 +263,12 @@ export default function MyInfoPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-gray-600">닉네임</label>
+            <label htmlFor="nickname" className="mb-1 block text-gray-600">
+              닉네임
+            </label>
             <input
-              disabled={!isEditing}
+              id="nickname"
+              disabled={!isEditing || !isSaving}
               value={draft.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 ${
@@ -279,7 +282,7 @@ export default function MyInfoPage() {
           <div>
             <label className="mb-1 block text-gray-600">전화번호</label>
             <input
-              disabled={!isEditing}
+              disabled={!isEditing || !isSaving}
               value={draft.phone}
               onChange={(e) =>
                 handleChange("phone", phoneNumber(e.target.value))

@@ -2,10 +2,9 @@ import { api } from "../axios";
 
 type ApiEnvelope<T> = {
   isSuccess?: boolean;
-  success?: boolean;
   code?: string;
   message?: string;
-  result: T;
+  result?: T;
 };
 
 export type MemberInfo = {
@@ -17,6 +16,9 @@ export type MemberInfo = {
 };
 export async function getMemberInfo() {
   const res = await api.get<ApiEnvelope<MemberInfo>>("/api/v1/member/info");
+  if (!res.data.isSuccess || !res.data.result) {
+    throw new Error(res.data.message ?? "회원정보 조회 실패");
+  }
   return res.data.result;
 }
 
