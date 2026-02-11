@@ -14,16 +14,12 @@ import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
 import MyPageLayout from "./layouts/myPageLayout";
 import MyInfoPage from "./pages/myPage/myInfoPage";
 import SettingsPage from "./pages/myPage/settingPage";
-import PaymentPage from "./pages/myPage/paymentPage";
 import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import LoginErrorPage from "./pages/LoginErrorPage";
-import SuccessPage from "./pages/payment/SuccessPage";
-import FailPage from "./pages/payment/FailPage";
-import ReservationCompletePage from "./pages/ReservationCompletePage";
 
 const routes: RouteObject[] = [
   { path: "/oauth/callback", element: <OAuthCallbackPage /> },
@@ -40,7 +36,6 @@ const routes: RouteObject[] = [
           { index: true, element: <Navigate to="info" replace /> },
           { path: "info", element: <MyInfoPage /> },
           { path: "settings", element: <SettingsPage /> },
-          { path: "payment", element: <PaymentPage /> },
           { path: "subscription", element: <SubscriptionPage /> },
           { path: "reservations", element: <ReservationPage /> },
           { path: "store", element: <StorePage /> },
@@ -67,21 +62,6 @@ const routes: RouteObject[] = [
   {
     path: "/mypage/store/:storeId",
     element: <OwnerPage />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/payment/success",
-    element: <SuccessPage />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/payment/fail",
-    element: <FailPage />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/reservation/complete",
-    element: <ReservationCompletePage />,
     errorElement: <NotFound />,
   },
   {
