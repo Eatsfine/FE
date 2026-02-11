@@ -54,8 +54,8 @@ export default function MyInfoPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setDraftImageFile(file); //TODO: 서버 업로드에 사용
-    e.target.value = ""; //같은 파일 재선택 가능하도록 설정
+    setDraftImageFile(file);
+    e.target.value = "";
   };
 
   const isValidPhone = (value: string) => {
