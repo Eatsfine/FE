@@ -7,7 +7,6 @@ declare global {
 let loadingPromise: Promise<void> | null = null;
 
 export function loadKakaoMapSdk(): Promise<void> {
-  // 이미 로드됨
   if (window.kakao?.maps) return Promise.resolve();
 
   if (loadingPromise) return loadingPromise;

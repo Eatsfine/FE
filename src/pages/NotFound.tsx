@@ -1,6 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Home, ArrowLeft } from 'lucide-react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Home, ArrowLeft } from "lucide-react";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -9,14 +9,13 @@ const NotFound: React.FC = () => {
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      navigate('/', {replace: true});
+      navigate("/", { replace: true });
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full text-center">
-        {/* 아이콘 섹션 */}
         <div className="relative mb-8">
           <div className="absolute inset-0 flex items-center justify-center animate-pulse">
             <div className="w-32 h-32 bg-blue-100 rounded-full"></div>
@@ -25,18 +24,16 @@ const NotFound: React.FC = () => {
             <Search size={60} className="text-blue-600" />
           </div>
         </div>
-
-        {/* 텍스트 섹션 */}
         <h1 className="text-7xl font-bold text-blue-600 mb-4">404</h1>
         <h2 className="text-2xl font-semibold text-gray-900 mb-3">
           페이지를 찾을 수 없습니다
         </h2>
         <p className="text-gray-500 mb-10 leading-relaxed">
-          요청하신 페이지가 삭제되었거나 주소가 올바르지 않습니다.<br />
+          요청하신 페이지가 삭제되었거나 주소가 올바르지 않습니다.
+          <br />
           입력하신 URL을 다시 한번 확인해 주세요.
         </p>
 
-        {/* 버튼 섹션 */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={handleGoBack}
@@ -46,7 +43,7 @@ const NotFound: React.FC = () => {
             이전으로
           </button>
           <button
-            onClick={() => navigate('/', {replace: true})}
+            onClick={() => navigate("/", { replace: true })}
             className="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
           >
             <Home size={18} />

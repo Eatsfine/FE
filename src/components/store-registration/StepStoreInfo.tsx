@@ -8,7 +8,6 @@ import DaumPostcodeEmbed from "react-daum-postcode";
 import { loadKakaoMapSdk } from "@/lib/kakao";
 import { Upload, X } from "lucide-react";
 
-//window 객체에 kakao가 있음을 TS에게 알림
 declare global {
   interface Window {
     kakao: any;
@@ -16,10 +15,9 @@ declare global {
 }
 
 interface StepStoreInfoProps {
-  defaultValues: Partial<StoreInfoFormValues>; // 부모로부터 받을 초기값
-  onChange: (isValid: boolean, data: StoreInfoFormValues) => void; // 부모에게 데이터 전달할 함수
+  defaultValues: Partial<StoreInfoFormValues>;
+  onChange: (isValid: boolean, data: StoreInfoFormValues) => void;
 }
-
 const DAYS = [
   { label: "월", value: "MONDAY" },
   { label: "화", value: "TUESDAY" },
@@ -36,7 +34,6 @@ export default function StepStoreInfo({
 }: StepStoreInfoProps) {
   const [isOpenPostcode, setIsOpenPostcode] = useState(false);
 
-  // 이미지 미리보기 URL 상태
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,16 +71,13 @@ export default function StepStoreInfo({
 
   useEffect(() => {
     if (watchedMainImage && watchedMainImage instanceof File) {
-      // File 객체가 있으면 URL 생성
       const url = URL.createObjectURL(watchedMainImage);
       setPreviewUrl(url);
 
-      // 컴포넌트가 언마운트되거나 이미지가 바뀌면 URL cleanup
       return () => {
         URL.revokeObjectURL(url);
       };
     } else if (typeof watchedMainImage === "string") {
-      // 서버에서 온 URL인 경우 바로 보여줌
       setPreviewUrl(watchedMainImage);
     } else {
       setPreviewUrl(null);
@@ -136,7 +130,6 @@ export default function StepStoreInfo({
       onChangeRef.current(isValid, value as StoreInfoFormValues);
     });
 
-    // 처음 마운트 될 때 데이터 동기화
     onChangeRef.current(isValid, getValues() as StoreInfoFormValues);
 
     return () => subscription.unsubscribe();
@@ -176,7 +169,6 @@ export default function StepStoreInfo({
         }
       });
     } else {
-      // SDK가 아직 로드 안 됐으면 0으로 처리
       alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setValue("latitude", 0, { shouldValidate: true });
       setValue("longitude", 0, { shouldValidate: true });

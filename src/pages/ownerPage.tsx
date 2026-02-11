@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import TableDashboard from "../components/owner/tableDashboard";
+import TableDashboard from "../components/owner/TableDashboard";
 import { Store } from "lucide-react";
-import StoreSettings from "../components/owner/storeSettings";
-import MenuManagement from "../components/owner/menuManagement1";
+import StoreSettings from "../components/owner/StoreSettings";
+import MenuManagement from "../components/owner/MenuManagement";
 import { useParams } from "react-router-dom";
-import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 
 type TabType = "dashboard" | "settings" | "menu";
 
@@ -12,17 +11,13 @@ const OwnerPage: React.FC = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
-  const selectedStore = MOCK_RESTAURANTS.find((store) => store.id === storeId);
-
   return (
     <div className="w-full min-h-screen bg-gray-50">
-
       <header className="bg-white border-b border-gray-200 pt-3">
         <div className="max-w-7xl mx-auto">
           <div className="text-lg text-gray-900 flex items-center gap-2 pb-4 border-b px-5">
             <Store className="text-blue-600" size={24} />내 가게 관리
           </div>
-
 
           <nav className="flex gap-5 pt-4 px-5">
             <button
@@ -76,19 +71,14 @@ const OwnerPage: React.FC = () => {
         </div>
       </header>
 
-
       <main>
-        {activeTab === "dashboard" && (
-          selectedStore ? (
-            <TableDashboard
-              storeId={Number(selectedStore.id)}
-              storeName={selectedStore.name}
-            />
-          ) : (
-            <div className="max-w-7xl mx-auto py-20 text-center text-gray-500">
-              가게를 찾을 수 없습니다.
-            </div>
-          )
+        {activeTab === "dashboard" && storeId && (
+          <TableDashboard storeId={Number(storeId)} storeName="내 가게" />
+        )}
+        {activeTab === "dashboard" && !storeId && (
+          <div className="max-w-7xl mx-auto py-20 text-center text-gray-500">
+            storeId가 없습니다.
+          </div>
         )}
         {activeTab === "settings" && (
           <div className="max-w-7xl mx-auto text-gray-500">

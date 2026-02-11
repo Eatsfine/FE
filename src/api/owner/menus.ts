@@ -1,4 +1,4 @@
-import { api} from "../axios";
+import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 
 export interface ServerMenu {
@@ -25,7 +25,7 @@ export interface MenuUpdateItem {
   description?: string;
   price: number;
   category: string;
-  imageKey?: string; 
+  imageKey?: string;
 }
 
 interface MenuUpdateResult {
@@ -69,11 +69,16 @@ export interface DeleteMenusResponse {
 }
 
 export async function getMenus(storeId: string | number) {
-  const res = await api.get<ApiResponse<GetMenusResult>>(`/api/v1/stores/${storeId}/menus`);
+  const res = await api.get<ApiResponse<GetMenusResult>>(
+    `/api/v1/stores/${storeId}/menus`,
+  );
   return res.data;
 }
 
-export async function createMenus(storeId: string | number, menus: MenuCreateItem[]) {
+export async function createMenus(
+  storeId: string | number,
+  menus: MenuCreateItem[],
+) {
   const res = await api.post<ApiResponse<MenuCreateResult>>(
     `/api/v1/stores/${storeId}/menus`,
     { menus },
@@ -85,29 +90,28 @@ export async function uploadMenuImage(storeId: string | number, file: File) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const res = await api.post<ApiResponse<{ imageKey: string; imageUrl: string }>>(
-    `/api/v1/stores/${storeId}/menus/images`,
-    formData,
-  );
+  const res = await api.post<
+    ApiResponse<{ imageKey: string; imageUrl: string }>
+  >(`/api/v1/stores/${storeId}/menus/images`, formData);
   return res.data;
 }
 
 export const deleteMenuImage = async (
   storeId: string,
-  menuId: string
+  menuId: string,
 ): Promise<ApiResponse<{ deletedImageKey: string }>> => {
   try {
     const res = await api.delete<ApiResponse<{ deletedImageKey: string }>>(
-        `/api/v1/stores/${storeId}/menus/${menuId}/image`,
+      `/api/v1/stores/${storeId}/menus/${menuId}/image`,
     );
     return res.data;
   } catch (err: any) {
-    console.error('deleteMenuImage error', err);
+    console.error("deleteMenuImage error", err);
     return {
       isSuccess: false,
-      code: '_MENU_IMAGE_DELETE_FAILED',
-      message: err?.response?.data?.message || '이미지 삭제 실패',
-      result: { deletedImageKey: '' },
+      code: "_MENU_IMAGE_DELETE_FAILED",
+      message: err?.response?.data?.message || "이미지 삭제 실패",
+      result: { deletedImageKey: "" },
     };
   }
 };
@@ -115,7 +119,7 @@ export const deleteMenuImage = async (
 export async function updateMenu(
   storeId: string | number,
   menuId: string | number,
-  menu: MenuUpdateItem
+  menu: MenuUpdateItem,
 ) {
   const res = await api.patch<ApiResponse<MenuUpdateResult>>(
     `/api/v1/stores/${storeId}/menus/${menuId}`,
@@ -124,7 +128,10 @@ export async function updateMenu(
   return res.data;
 }
 
-export const deleteMenus = async (storeId: string, menuIds: number[]): Promise<DeleteMenusResponse> => {
+export const deleteMenus = async (
+  storeId: string,
+  menuIds: number[],
+): Promise<DeleteMenusResponse> => {
   const res = await api.delete(`/api/v1/stores/${storeId}/menus`, {
     data: { menuIds },
   });
@@ -135,13 +142,11 @@ export const deleteMenus = async (storeId: string, menuIds: number[]): Promise<D
 export async function updateMenuSoldOut(
   storeId: string | number,
   menuId: string | number,
-  isSoldOut: boolean
+  isSoldOut: boolean,
 ) {
   const body = { isSoldOut };
-  const res = await api.patch<ApiResponse<{ menuId: number; isSoldOut: boolean }>>(
-    `/api/v1/stores/${storeId}/menus/${menuId}/sold-out`,
-    body,
-  );
+  const res = await api.patch<
+    ApiResponse<{ menuId: number; isSoldOut: boolean }>
+  >(`/api/v1/stores/${storeId}/menus/${menuId}/sold-out`, body);
   return res.data;
 }
-

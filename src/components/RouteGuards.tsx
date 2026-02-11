@@ -9,7 +9,6 @@ export const PrivateRoute = () => {
     return null;
   }
 
-  // 비로그인 홈화면으로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/" replace state={{ openLogin: true }} />;
   }

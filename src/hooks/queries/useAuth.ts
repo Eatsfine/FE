@@ -1,6 +1,6 @@
 import { patchVerifyOwner, postLogin, postSignup } from "@/api/auth";
-import type { LoginFormValues } from "@/components/auth/login.schema";
-import type { SignupFormValues } from "@/components/auth/signup.schema";
+import type { LoginFormValues } from "@/components/auth/Login.schema";
+import type { SignupFormValues } from "@/components/auth/Signup.schema";
 import type { BusinessAuthFormValues } from "@/components/store-registration/BusinessAuth.schema";
 import { useAuthActions } from "@/stores/useAuthStore";
 import type {
@@ -10,7 +10,6 @@ import type {
 } from "@/types/auth";
 import { useMutation } from "@tanstack/react-query";
 
-// 이메일 회원가입 훅
 export const useEmailSignup = () => {
   return useMutation<ResponseSignupDto, Error, SignupFormValues>({
     mutationFn: (data) => {
@@ -27,7 +26,6 @@ export const useEmailSignup = () => {
   });
 };
 
-// 이메일 로그인 훅
 export const useEmailLogin = () => {
   const { login } = useAuthActions();
 
@@ -42,7 +40,6 @@ export const useEmailLogin = () => {
   });
 };
 
-// 사장 인증 훅
 export const useVerifyOwner = () => {
   return useMutation<ResponseVerifyOwnerDto, Error, BusinessAuthFormValues>({
     mutationFn: (data: BusinessAuthFormValues) => patchVerifyOwner(data),

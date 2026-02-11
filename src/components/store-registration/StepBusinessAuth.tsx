@@ -32,7 +32,6 @@ export default function StepBusinessAuth({
   const { mutate: verifyOwner, isPending } = useVerifyOwner();
 
   const [isVerified, setIsVerified] = useState(defaultValues.isVerified);
-  // 메모리 누수 방지
   const isMountedRef = useRef(true);
 
   const nav = useNavigate();

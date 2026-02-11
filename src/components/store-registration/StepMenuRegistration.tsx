@@ -35,7 +35,6 @@ export default function StepMenuRegistration({
     name: "menus",
   });
 
-  //부모에게 실시간 보고
   useEffect(() => {
     const subscription = watch((value) => {
       onChange(isValid, value as MenuFormValues);

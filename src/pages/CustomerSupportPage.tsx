@@ -21,13 +21,8 @@ export default function CustomerSupportPage() {
         </div>
       </header>
 
-      {/* 문의 섹션 */}
       <SupportHero />
-
-      {/* FAQ 메인 */}
       <SupportFAQ />
-
-      {/* 문의처 정보 섹션 */}
       <SupportContact />
 
       <footer className="bg-gray-900 text-gray-400">

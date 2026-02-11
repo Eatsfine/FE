@@ -1,7 +1,6 @@
 import type { BusinessHour, Day, RequestStoreCreateDto } from "@/types/store";
 import type { StoreInfoFormValues } from "./StoreInfo.schema";
 
-// 시도 명칭 풀네임 변환
 export const formatSido = (sido: string): string => {
   const mapping: Record<string, string> = {
     서울: "서울특별시",
@@ -25,7 +24,6 @@ export const formatSido = (sido: string): string => {
   return mapping[sido] || sido;
 };
 
-// 시간 문자열 객체 변환
 export const formatTimeToBackend = (timeStr: string | undefined): string => {
   if (!timeStr) {
     throw new Error("영업 시간은 필수입니다.");
@@ -83,7 +81,6 @@ export const transformToRegister = (
     };
   });
 
-  // 최종 조립
   return {
     storeName: step2Data.storeName,
     businessNumberDto: {

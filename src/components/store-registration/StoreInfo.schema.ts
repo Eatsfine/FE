@@ -29,7 +29,6 @@ export const StoreInfoSchema = z
     address: z.string().min(1),
     detailAddress: z.string().optional(),
 
-    // 숨겨진 값들
     sido: z.string(),
     sigungu: z.string(),
     bname: z.string(),
@@ -89,7 +88,6 @@ export const StoreInfoSchema = z
   })
   .refine(
     (data) => {
-      // TODO: 심야 영업 수정 예정
       if (data.openTime && data.closeTime) {
         return data.openTime < data.closeTime;
       }

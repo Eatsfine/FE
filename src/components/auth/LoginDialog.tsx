@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { type LoginFormValues, loginSchema } from "./login.schema";
+import { type LoginFormValues, loginSchema } from "./Login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEmailLogin } from "@/hooks/queries/useAuth";
 import { getErrorMessage } from "@/utils/error";
@@ -45,7 +45,6 @@ export function LoginDialog({
     mode: "onSubmit",
   });
 
-  // 폼 열릴 때마다 초기화
   useEffect(() => {
     if (isOpen) {
       reset();
@@ -134,7 +133,6 @@ export function LoginDialog({
             </>
           ) : (
             <>
-              {/* 이메일 로그인 폼 */}
               <form
                 onSubmit={handleSubmit(handleEmailLogin)}
                 className="space-y-4"
@@ -193,7 +191,6 @@ export function LoginDialog({
 
           <Separator />
 
-          {/* 회원가입으로 이동 */}
           <div className="text-center text-sm text-gray-600">
             계정이 없으신가요?{" "}
             <button
