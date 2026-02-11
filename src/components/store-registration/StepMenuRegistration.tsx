@@ -19,12 +19,13 @@ export default function StepMenuRegistration({
     control,
     setValue,
     watch,
+    trigger,
+    getValues,
     formState: { errors, isValid },
   } = useForm<MenuFormValues>({
     resolver: zodResolver(MenuSchema),
     defaultValues: {
-      menus: [{ menuName: "", price: "", description: "" }],
-      ...defaultValues,
+      menus: defaultValues?.menus || [],
     },
     mode: "onChange",
   });
@@ -35,12 +36,13 @@ export default function StepMenuRegistration({
   });
 
   //부모에게 실시간 보고
-  const values = watch();
-
   useEffect(() => {
-    onChange(isValid, values as MenuFormValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid, JSON.stringify(values), onChange]);
+    const subscription = watch((value) => {
+      onChange(isValid, value as MenuFormValues);
+    });
+    onChange(isValid, getValues());
+    return () => subscription.unsubscribe();
+  }, [watch, isValid, onChange, getValues]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -59,12 +61,22 @@ export default function StepMenuRegistration({
             index={index}
             onDelete={() => remove(index)}
             register={register}
+            control={control}
             errors={errors}
             setValue={setValue}
+            trigger={trigger}
           />
         ))}
         <button
-          onClick={() => append({ menuName: "", price: "", description: "" })}
+          onClick={() =>
+            append({
+              name: "",
+              price: "",
+              description: "",
+              category: "MAIN",
+              imageKey: undefined,
+            })
+          }
           className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus className="size-5" aria-hidden="true" />
