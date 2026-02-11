@@ -39,7 +39,7 @@ export function ChangePasswordDialog({
   const { mutate, isPending } = useMutation({
     mutationFn: putChangePassword,
     onSuccess: (result) => {
-      alert(result.message);
+      alert(result.message ?? "비밀번호가 변경되었습니다");
       form.reset();
       onOpenChange(false);
     },
