@@ -72,7 +72,7 @@ export default function RestaurantDetailModal({
     if (!isAuthenticated) {
       alert("로그인이 필요한 서비스입니다.");
       onOpenChange(false);
-      nav("/", { state: { openLogin: true } });
+      nav("/", { state: { openLogin: true }, replace: true });
       return;
     }
     onClickReserve();
