@@ -1,4 +1,4 @@
-import { api, OWNER_TOKEN } from "../axios";
+import { api} from "../axios";
 import type { ApiResponse } from "@/types/api";
 
 export interface ServerMenu {
@@ -76,11 +76,7 @@ export async function getMenus(storeId: string | number) {
 export async function createMenus(storeId: string | number, menus: MenuCreateItem[]) {
   const res = await api.post<ApiResponse<MenuCreateResult>>(
     `/api/v1/stores/${storeId}/menus`,
-    { menus },{
-        headers: {
-            Authorization: `Bearer ${OWNER_TOKEN}`,
-        }
-    }
+    { menus },
   );
   return res.data;
 }
@@ -89,14 +85,9 @@ export async function uploadMenuImage(storeId: string | number, file: File) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const token = localStorage.getItem("accessToken");
-
   const res = await api.post<ApiResponse<{ imageKey: string; imageUrl: string }>>(
     `/api/v1/stores/${storeId}/menus/images`,
     formData,
-    { headers: {
-        Authorization: `Bearer ${OWNER_TOKEN}`,
-     } }
   );
   return res.data;
 }
@@ -108,11 +99,6 @@ export const deleteMenuImage = async (
   try {
     const res = await api.delete<ApiResponse<{ deletedImageKey: string }>>(
         `/api/v1/stores/${storeId}/menus/${menuId}/image`,
-        {
-            headers: {
-                Authorization: `Bearer ${OWNER_TOKEN}`,
-            }
-        }
     );
     return res.data;
   } catch (err: any) {
@@ -134,20 +120,12 @@ export async function updateMenu(
   const res = await api.patch<ApiResponse<MenuUpdateResult>>(
     `/api/v1/stores/${storeId}/menus/${menuId}`,
     menu,
-    {
-      headers: {
-        Authorization: `Bearer ${OWNER_TOKEN}`,
-      },
-    }
   );
   return res.data;
 }
 
 export const deleteMenus = async (storeId: string, menuIds: number[]): Promise<DeleteMenusResponse> => {
   const res = await api.delete(`/api/v1/stores/${storeId}/menus`, {
-    headers: {
-        Authorization: `Bearer ${OWNER_TOKEN}`,
-      },
     data: { menuIds },
   });
 
@@ -163,12 +141,6 @@ export async function updateMenuSoldOut(
   const res = await api.patch<ApiResponse<{ menuId: number; isSoldOut: boolean }>>(
     `/api/v1/stores/${storeId}/menus/${menuId}/sold-out`,
     body,
-    {
-      headers: {
-        Authorization: `Bearer ${OWNER_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    }
   );
   return res.data;
 }

@@ -49,7 +49,11 @@ const [uploading, setUploading] = useState(false);
 
     } else {
       setFormData({ name: '', category: 'MAIN', price: '', description: '' });
+      setImageUrl(null);
+      setImageKey(null);
     }
+    setImageFile(null);
+    setUploading(false);
   }, [editingMenu, isOpen]);
 
   if (!isOpen) return null;
@@ -191,15 +195,15 @@ const [uploading, setUploading] = useState(false);
             type="button"
             className="cursor-pointer ml-2 px-4 py-2 bg-red-100 text-red-600 rounded-xl"
             onClick={async () => {
-              if (!editingMenu?.menuId) {
+              if (!editingMenu?.id) {
                 setImageFile(null);
                 setImageUrl(null);
-                setImageKey("");
+                setImageKey(null);
                 return;
               }
 
               
-              const menuId = editingMenu.id ; 
+              const menuId = editingMenu.id; 
               if (!menuId) {
                 alert("메뉴 ID가 존재하지 않아 삭제할 수 없습니다.");
                 return;

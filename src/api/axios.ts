@@ -4,7 +4,6 @@ import type { ApiError } from "@/types/api";
 import { clearAuth, postRefresh } from "./auth";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
   timeout: 10000,

@@ -157,12 +157,23 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   };
 
   const handleAddClick = () => {
+      if (!storeId) {
+    alert("가게 정보가 없습니다.");
+    return;
+  }
     setEditingMenu(null);
     setIsModalOpen(true);
   };
 
   const deleteMenu = async (id: string) => {
     if (!storeId) return alert("storeId가 없습니다.");
+
+    if (id.startsWith('MENU_')) {
+      if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
+        setMenus(prev => prev.filter(m => m.id !== id));
+      }
+      return;
+    }
 
     if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
       try {
@@ -192,9 +203,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
       const res = await updateMenuSoldOut(storeId, menuIdNum, targetSoldOut);
 
       if (res.isSuccess) {
-        const newSoldOut = (res.result && (res.result as any).isSoldOut !== undefined);
+        const newSoldOut = res.result?.isSoldOut ?? targetSoldOut;
 
-        setMenus(prev => prev.map(m => String(m.id) === String(id) ? { ...m, isSoldOut: !!newSoldOut } : m));
+        setMenus(prev => prev.map(m => String(m.id) === String(id) ? { ...m, isSoldOut: newSoldOut } : m));
         alert(res.message || (newSoldOut ? '품절 처리되었습니다.' : '품절 해제되었습니다.'));
       } else {
         alert('품절 상태 변경 실패: ' + res.message);
