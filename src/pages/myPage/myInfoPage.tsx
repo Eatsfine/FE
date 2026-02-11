@@ -112,9 +112,9 @@ export default function MyInfoPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = "";
-    const okType = ["image/jpeg", "image/png", "image/webp"];
+    const okType = ["image/jpeg", "image/png"];
     if (!okType.includes(file.type)) {
-      setImageUploadError("PNG/JPG/WEBP 파일만 업로드할 수 있습니다");
+      setImageUploadError("PNG/JPG 파일만 업로드할 수 있습니다");
       return;
     }
     uploadImage(file);
