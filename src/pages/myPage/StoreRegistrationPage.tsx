@@ -71,7 +71,10 @@ export default function StoreRegistrationPage() {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
-      const finalPayload = transformToRegister(step1Data, step2Data);
+      const finalPayload = transformToRegister(
+        step1Data as Required<typeof step1Data>,
+        step2Data as Required<typeof step2Data>,
+      );
 
       try {
         const res = await registerStore(finalPayload);
