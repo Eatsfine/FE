@@ -85,6 +85,7 @@ export const StoreInfoSchema = z
   })
   .refine(
     (data) => {
+      // TODO: 심야 영업 수정 예정
       if (data.openTime && data.closeTime) {
         return data.openTime < data.closeTime;
       }
