@@ -77,7 +77,7 @@ const OwnerPage: React.FC = () => {
         )}
         {activeTab === "dashboard" && !storeId && (
           <div className="max-w-7xl mx-auto py-20 text-center text-gray-500">
-            storeId가 없습니다.
+            가게 정보를 찾을 수 없습니다. 다시 시도해 주세요.
           </div>
         )}
         {activeTab === "settings" && (

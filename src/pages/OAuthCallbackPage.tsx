@@ -32,7 +32,7 @@ const OAuthCallbackPage: React.FC = () => {
         </div>
 
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          로그인 처리 중..
+          로그인 처리 중...
         </h2>
         <p className="text-gray-500 leading-relaxed">
           잠시만 기다려 주시면

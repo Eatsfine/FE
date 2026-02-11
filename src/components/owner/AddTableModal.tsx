@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { X, Check } from "lucide-react";
 import type { CreateTableRequest } from "@/api/owner/storeLayout";
 import type { SeatsType } from "@/types/table";
@@ -18,6 +18,15 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
   gridRows,
   existingTables = [],
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
   const [gridX, setGridX] = useState(1);
   const [gridY, setGridY] = useState(1);
   const [minSeatCount, setMinSeatCount] = useState(2);
@@ -54,12 +63,28 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-80 relative">
-        <button className="absolute top-2 right-2" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className="bg-white p-6 rounded-lg w-80 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="absolute top-2 right-2"
+          onClick={onClose}
+          aria-label="모달 닫기"
+        >
           <X />
         </button>
-        <h3 className="text-lg mb-4">새 테이블 추가</h3>
+        <h3 id="modal-title" className="text-lg mb-4">
+          새 테이블 추가
+        </h3>
         <div className="flex flex-col gap-2 mb-4">
           <label htmlFor="add-table-gridx">좌표 X (1~{gridCols})</label>
           <input
