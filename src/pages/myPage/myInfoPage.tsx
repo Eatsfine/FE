@@ -1,4 +1,8 @@
-import { getMemberInfo, patchMemberInfo } from "@/api/endpoints/member";
+import {
+  getMemberInfo,
+  patchMemberInfo,
+  putProfileImage,
+} from "@/api/endpoints/member";
 import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,6 +28,8 @@ export default function MyInfoPage() {
   const [shownUrl, setShownUrl] = useState<string | null>(null);
 
   const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
+
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!shownFile) {
@@ -73,6 +79,21 @@ export default function MyInfoPage() {
     },
   });
 
+  const { mutate: uploadImage, isPending: isUploadingImage } = useMutation({
+    mutationFn: putProfileImage,
+    onSuccess: async () => {
+      setImageUploadError(null);
+      await qc.invalidateQueries({ queryKey: ["memberInfo"] });
+    },
+    onError: () => {
+      setImageUploadError(
+        "프로필 이미지 저장에 실패했습니다. 다시 시도해주세요",
+      );
+      setDraftImageFile(originalImageFile);
+      alert("프로필 이미지 저장에 실패했습니다. 다시 시도해주세요");
+    },
+  });
+
   const handleEditStart = () => {
     setDraft(original);
     setDraftImageFile(originalImageFile);
@@ -90,8 +111,13 @@ export default function MyInfoPage() {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setDraftImageFile(file); //TODO: 서버 업로드에 사용
     e.target.value = "";
+    const okType = ["image/jpeg", "image/png", "image/webp"];
+    if (!okType.includes(file.type)) {
+      setImageUploadError("PNG/JPG/WEBP 파일만 업로드할 수 있습니다");
+      return;
+    }
+    uploadImage(file);
   };
 
   const isValidPhone = (value: string) => {
@@ -159,10 +185,10 @@ export default function MyInfoPage() {
             <Button
               onClick={handleSave}
               className="cursor-pointer bg-blue-500 hover:bg-blue-600"
-              disabled={isSaving}
+              disabled={isSaving || isUploadingImage || !!imageUploadError}
             >
               <Save size={16} />
-              <p className="px-1 ml-1">{isSaving ? "저장 중" : "저장"}</p>
+              <p className="px-1 ml-1">저장</p>
             </Button>
           </div>
         )}
@@ -189,6 +215,7 @@ export default function MyInfoPage() {
               <button
                 type="button"
                 onClick={handleImageClick}
+                disabled={isUploadingImage}
                 className="cursor-pointer transition absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-700"
               >
                 <Camera size={20} />

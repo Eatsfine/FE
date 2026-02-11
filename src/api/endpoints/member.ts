@@ -29,3 +29,16 @@ export async function patchMemberInfo(body: PatchMemberInfo) {
   const res = await api.patch<ApiEnvelope<string>>("/api/v1/member/info", body);
   return res.data.result;
 }
+
+export async function putProfileImage(file: File) {
+  const formData = new FormData();
+
+  formData.append("profileImage", file);
+
+  const res = await api.put<ApiEnvelope<string>>(
+    "/api/v1/member/profile-image",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return res.data.result;
+}
