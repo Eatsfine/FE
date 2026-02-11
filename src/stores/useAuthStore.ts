@@ -6,6 +6,7 @@ interface AuthState {
   accessToken: string | null;
   isAuthenticated: boolean;
   userId: number | null;
+  hasHydrated: boolean;
 
   actions: {
     login: (token: string) => void;
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       isAuthenticated: false,
       userId: null,
+      hasHydrated: false,
 
       actions: {
         login: (token) =>
@@ -50,6 +52,14 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         userId: state.userId,
       }),
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Auth store rehydration failed:", error);
+        }
+        if (state) {
+          state.hasHydrated = true;
+        }
+      },
     },
   ),
 );
