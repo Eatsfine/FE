@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const CategoryEnum = z.enum([
+export const StoreCategoryEnum = z.enum([
   "KOREAN",
   "CHINESE",
   "JAPANESE",
@@ -43,7 +43,7 @@ export const StoreInfoSchema = z
         message: "올바른 전화번호 형식이 아닙니다.",
       }),
 
-    category: CategoryEnum,
+    category: StoreCategoryEnum,
 
     depositRate: DepositRateEnum,
 

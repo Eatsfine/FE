@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CategoryEnum = z.enum(["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"]);
+export const MenuCategoryEnum = z.enum(["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"]);
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 
@@ -15,7 +15,7 @@ export const MenuSchema = z.object({
         .string()
         .min(1, "가격을 입력하세요.")
         .regex(/^\d+$/, "숫자만 입력해주세요."),
-      category: CategoryEnum,
+      category: MenuCategoryEnum,
       imageKey: z
         .any()
         .optional()
