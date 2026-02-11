@@ -12,7 +12,7 @@ export function toRestaurantSummary(
   dto: StoreSearchItemDTO,
 ): RestaurantSummary {
   return {
-    id: dto.storeId,
+    id: Number(dto.storeId),
     name: dto.name,
     address: dto.address,
     category: dto.category,
@@ -28,8 +28,11 @@ export function toRestaurantSummary(
 export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);
 
+  const depositRatePercent = dto.depositRate ?? 0;
+  const depositRate = depositRatePercent / 100;
+  const id = Number(dto.storeId);
   return {
-    id: dto.storeId,
+    id,
     name: dto.storeName,
     description: dto.description,
     address: dto.address,
@@ -43,6 +46,7 @@ export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
     businessHours: dto.businessHours ?? [],
     breakTime,
     isOpenNow: dto.isOpenNow,
+    depositRate,
   };
 }
 

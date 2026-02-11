@@ -352,7 +352,6 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={() => { if (!uploading && !detailLoading) onClose(); }}>
       <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             {step !== 'DETAIL' && (
@@ -370,7 +369,6 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-
           {step === 'DETAIL' && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="w-full h-70 rounded-lg border border-gray-100 overflow-hidden">

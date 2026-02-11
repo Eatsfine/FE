@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
-import TableCreateModal from './tableCreateModal';
+import TableCreateModal from './TableCreateModal';
 import TableDetailModal from './tableDetailModal';
 import BreakTimeModal, { type BreakTime } from './BreakTimeModal';
-import AddTableModal from './addTableModal';
+import AddTableModal from './AddTableModal';
 import { createLayout, createTable, deleteTable, getActiveLayout, type CreateTableRequest, type LayoutTable } from '@/api/owner/storeLayout';
 import { patchTableInfo, type UpdatedTable } from '@/api/owner/table';
 import { patchBreakTime } from '@/api/owner/reservation';
@@ -105,6 +105,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
       try {
         const settingsData = JSON.parse(savedSettings);
         if (settingsData?.closedDays) setClosedDays(settingsData.closedDays);
+
       } catch (e) {
         console.error('설정 데이터 파싱 실패', e);
       }
@@ -112,6 +113,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
   }, [SETTINGS_STORAGE_KEY]);
 
   useEffect(() => {
+
     const data = { config, tableData, breakTimes, closedDays };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -119,6 +121,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
       console.error('로컬스토리지 저장 실패', e);
     }
   }, [STORAGE_KEY, config, tableData, breakTimes, closedDays]);
+
 
   const hasTables = config.columns > 0 && config.rows > 0;
 
@@ -443,7 +446,6 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
-
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리
@@ -580,6 +582,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
                       }
                     }}                   
                     className={`border-2 ${style.border} ${extraStyle} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
+
                   >
                     <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
                       {table.isEditingCapacity ? (
@@ -739,6 +742,7 @@ const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
           onDelete={(tableId, slotId) => handleDeleteTable(tableId, slotId)}
           onClose={() => setSelectedTable(null)}
           breakTimes={breakTimes}
+
           closedDays={closedDays}
           onImageUpload={(tableId, url) => {
             setTableData(prev => {

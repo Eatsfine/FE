@@ -2,52 +2,188 @@ import { Controller, useForm } from "react-hook-form";
 import { Label } from "../ui/label";
 import { StoreInfoSchema, type StoreInfoFormValues } from "./StoreInfo.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
+import DaumPostcodeEmbed from "react-daum-postcode";
+import { loadKakaoMapSdk } from "@/lib/kakao";
+import { Upload, X } from "lucide-react";
+
+//window 객체에 kakao가 있음을 TS에게 알림
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>; // 부모로부터 받을 초기값
   onChange: (isValid: boolean, data: StoreInfoFormValues) => void; // 부모에게 데이터 전달할 함수
 }
 
+const DAYS = [
+  { label: "월", value: "MONDAY" },
+  { label: "화", value: "TUESDAY" },
+  { label: "수", value: "WEDNESDAY" },
+  { label: "목", value: "THURSDAY" },
+  { label: "금", value: "FRIDAY" },
+  { label: "토", value: "SATURDAY" },
+  { label: "일", value: "SUNDAY" },
+];
+
 export default function StepStoreInfo({
   defaultValues,
   onChange,
 }: StepStoreInfoProps) {
+  const [isOpenPostcode, setIsOpenPostcode] = useState(false);
+
+  // 이미지 미리보기 URL 상태
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const {
     register,
     control,
     watch,
+    setValue,
+    getValues,
     formState: { errors, isValid, touchedFields },
   } = useForm({
     resolver: zodResolver(StoreInfoSchema),
     mode: "onChange",
     defaultValues: {
       storeName: "",
-      category: "",
+      category: "KOREAN",
       address: "",
-      phone: "",
+      detailAddress: "",
+      phoneNumber: "",
       openTime: "",
       closeTime: "",
       holidays: [],
-      reservationDeadline: "",
-      minPeople: 1,
-      maxPeople: 1,
-      acceptSameDay: false,
-      noShowPolicy: false,
+      depositRate: "TEN",
+      bookingIntervalMinutes: 0,
+      sido: "",
+      sigungu: "",
+      bname: "",
+      latitude: 0,
+      longitude: 0,
       ...defaultValues,
     },
   });
 
-  //값이 변할 때마다 부모에게 실시간 보고
-  const values = watch();
+  const watchedMainImage = watch("mainImage");
 
   useEffect(() => {
-    onChange(isValid, values as StoreInfoFormValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid, JSON.stringify(values), onChange]);
+    if (watchedMainImage && watchedMainImage instanceof File) {
+      // File 객체가 있으면 URL 생성
+      const url = URL.createObjectURL(watchedMainImage);
+      setPreviewUrl(url);
 
-  const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
+      // 컴포넌트가 언마운트되거나 이미지가 바뀌면 URL cleanup
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else if (typeof watchedMainImage === "string") {
+      // 서버에서 온 URL인 경우 바로 보여줌
+      setPreviewUrl(watchedMainImage);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [watchedMainImage]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("mainImage", file, { shouldValidate: true });
+    }
+  };
+
+  const handleRemoveImage = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setValue("mainImage", null, { shouldValidate: true });
+  };
+
+  useEffect(() => {
+    if (isOpenPostcode) {
+      document.body.style.overflow = "hidden";
+
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setIsOpenPostcode(false);
+      };
+      document.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        document.removeEventListener("keydown", handleEsc);
+      };
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isOpenPostcode]);
+
+  useEffect(() => {
+    loadKakaoMapSdk().catch((err) => console.error("카카오맵 로드 실패:", err));
+  }, []);
+
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onChangeRef.current(isValid, value as StoreInfoFormValues);
+    });
+
+    // 처음 마운트 될 때 데이터 동기화
+    onChangeRef.current(isValid, getValues() as StoreInfoFormValues);
+
+    return () => subscription.unsubscribe();
+  }, [watch, isValid, getValues]);
+
+  const handleAddressComplete = (data: any) => {
+    let fullAddress = data.address;
+    let extraAddress = "";
+
+    if (data.addressType === "R") {
+      if (data.bname !== "") extraAddress += data.bname;
+      if (data.buildingName !== "")
+        extraAddress +=
+          extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+      fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+    }
+
+    setValue("address", fullAddress, { shouldValidate: true });
+
+    setValue("sido", data.sido);
+    setValue("sigungu", data.sigungu);
+    setValue("bname", data.bname);
+
+    if (window.kakao?.maps?.services) {
+      const geocoder = new window.kakao.maps.services.Geocoder();
+
+      geocoder.addressSearch(fullAddress, (result: any, status: any) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          const lat = parseFloat(result[0].y);
+          const lng = parseFloat(result[0].x);
+
+          setValue("latitude", lat, { shouldValidate: true });
+          setValue("longitude", lng, { shouldValidate: true });
+        } else {
+          setValue("latitude", 0, { shouldValidate: true });
+          setValue("longitude", 0, { shouldValidate: true });
+        }
+      });
+    } else {
+      // SDK가 아직 로드 안 됐으면 0으로 처리
+      alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      setValue("latitude", 0, { shouldValidate: true });
+      setValue("longitude", 0, { shouldValidate: true });
+    }
+
+    setIsOpenPostcode(false);
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -88,14 +224,11 @@ export default function StepStoreInfo({
               {...register("category")}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
-              <option value="">선택해주세요</option>
-              <option value="한식">한식</option>
-              <option value="일식">일식</option>
-              <option value="중식">중식</option>
-              <option value="양식">양식</option>
-              <option value="이탈리안">이탈리안</option>
-              <option value="카페">카페</option>
-              <option value="기타">기타</option>
+              <option value="KOREAN">한식</option>
+              <option value="CHINESE">중식</option>
+              <option value="JAPANESE">일식</option>
+              <option value="WESTERN">양식</option>
+              <option value="CAFE">카페</option>
             </select>
             {errors.category && touchedFields.category && (
               <p className="text-red-500 text-xs mt-1">
@@ -115,18 +248,20 @@ export default function StepStoreInfo({
               <input
                 id="address"
                 {...register("address")}
+                readOnly
                 type="text"
                 placeholder="주소 검색"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 min-w-0 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="button"
+                onClick={() => setIsOpenPostcode(true)}
                 className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 whitespace-nowrap cursor-pointer"
               >
                 주소 검색
               </button>
             </div>
-            {errors.address && touchedFields.address && (
+            {errors.address && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.address.message}
               </p>
@@ -148,7 +283,7 @@ export default function StepStoreInfo({
             <span className="text-red-500">*</span>
           </Label>
           <Controller
-            name="phone"
+            name="phoneNumber"
             control={control}
             render={({ field: { onChange, value } }) => (
               <input
@@ -165,8 +300,10 @@ export default function StepStoreInfo({
               />
             )}
           />
-          {errors.phone && touchedFields.phone && (
-            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+          {errors.phoneNumber && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.phoneNumber.message}
+            </p>
           )}
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -181,11 +318,6 @@ export default function StepStoreInfo({
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.openTime && touchedFields.openTime && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.openTime.message}
-              </p>
-            )}
           </div>
           <div>
             <Label htmlFor="closeTime" className="block text-gray-700 mb-2">
@@ -205,24 +337,29 @@ export default function StepStoreInfo({
           </div>
         </div>
         <div>
-          <Label htmlFor="" className="block text-gray-700 mb-2">
+          <Label id="holidays-label" className="block text-gray-700 mb-2">
             정기 휴무일(선택)
           </Label>
           <Controller
             name="holidays"
             control={control}
             render={({ field: { value = [], onChange } }) => (
-              <div className="flex flex-wrap gap-2">
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-labelledby="holidays-label"
+              >
                 {DAYS.map((day) => {
-                  const isSelected = value.includes(day);
+                  const isSelected = value.includes(day.value);
                   return (
                     <button
-                      key={day}
+                      key={day.value}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => {
                         const newHolidays = isSelected
-                          ? value.filter((d: string) => d !== day)
-                          : [...value, day];
+                          ? value.filter((d: string) => d !== day.value)
+                          : [...value, day.value];
                         onChange(newHolidays);
                       }}
                       className={`px-4 py-2 border rounded-lg transition-colors cursor-pointer ${
@@ -231,7 +368,7 @@ export default function StepStoreInfo({
                           : "bg-white text-black border-gray-300 hover:bg-gray-100"
                       }`}
                     >
-                      {day}
+                      {day.label}
                     </button>
                   );
                 })}
@@ -239,9 +376,101 @@ export default function StepStoreInfo({
             )}
           />
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="depositRate" className="block text-gray-700 mb-2">
+              예약금 비율 <span className="text-red-500">*</span>
+            </Label>
+            <select
+              id="depositRate"
+              {...register("depositRate")}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="TEN">10%</option>
+              <option value="TWENTY">20%</option>
+              <option value="THIRTY">30%</option>
+              <option value="FORTY">40%</option>
+              <option value="FIFTY">50%</option>
+            </select>
+          </div>
+          <div>
+            <Label
+              htmlFor="bookingIntervalMinutes"
+              className="block text-gray-700 mb-2"
+            >
+              예약 시간 간격 (분)
+            </Label>
+            <input
+              id="bookingIntervalMinutes"
+              type="number"
+              {...register("bookingIntervalMinutes", {
+                valueAsNumber: true,
+              })}
+              placeholder="30"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.bookingIntervalMinutes && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.bookingIntervalMinutes.message}
+              </p>
+            )}
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="mainImage" className="block text-gray-700 mb-2">
+            식당 대표 이미지 <span className="text-red-500">*</span>
+          </Label>
+          <div className="flex items-start gap-4">
+            <input
+              ref={fileInputRef}
+              id="mainImage"
+              type="file"
+              accept="image/jpeg, image/png"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+            {!previewUrl ? (
+              <Label
+                htmlFor="mainImage"
+                className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+              >
+                <Upload className="size-8 text-gray-400" aria-hidden="true" />
+                <span className="text-xs text-gray-500 mt-2">
+                  이미지 업로드
+                </span>
+              </Label>
+            ) : (
+              <div className="relative w-32 h-32 border-2 border-gray-200 border-solid rounded-lg overflow-hidden group">
+                <img
+                  src={previewUrl}
+                  alt="미리보기"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  aria-label="이미지 삭제"
+                  className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-gray-500 hover:bg-white hover:text-red-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
+
+            <div className="flex-1 text-gray-500">
+              <p>• 최대 용량: 1MB</p>
+              <p>• 형식: JPG(JPEG), PNG</p>
+              {errors.mainImage && (
+                <p className="text-red-500 text-xs mt-1">
+                  • {(errors.mainImage as any).message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
         <div>
           <Label htmlFor="description" className="block text-gray-700 mb-2">
-            가게 소개 (선택)
+            가게 소개 <span className="text-red-500">*</span>
           </Label>
           <textarea
             id="description"
@@ -250,94 +479,41 @@ export default function StepStoreInfo({
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
-        </div>
-
-        <h3 className="text-gray-900 mb-4 font-bold">예약 정책</h3>
-        <div>
-          <Label className="block text-gray-700 mb-2">
-            예약 가능 기간 <span className="text-red-500">*</span>
-          </Label>
-          <select
-            {...register("reservationDeadline")}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          >
-            <option value="">선택해주세요</option>
-            <option value="1주일 전까지">1주일 전까지</option>
-            <option value="2주일 전까지">2주일 전까지</option>
-            <option value="1개월 전까지">1개월 전까지</option>
-            <option value="3개월 전까지">3개월 전까지</option>
-          </select>
-          {errors.reservationDeadline && touchedFields.reservationDeadline && (
+          {errors.description && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.reservationDeadline.message}
+              {errors.description.message}
             </p>
           )}
-        </div>
-        <div>
-          <Label className="block text-gray-700 mb-2">
-            최소 예약 인원 <span className="text-red-500">*</span>
-          </Label>
-          <input
-            type="number"
-            {...register("minPeople")}
-            onFocus={(e) => e.target.select()}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.minPeople && touchedFields.minPeople && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.minPeople.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <Label className="block text-gray-700 mb-2">
-            최대 예약 인원 <span className="text-red-500">*</span>
-          </Label>
-          <input
-            type="number"
-            {...register("maxPeople")}
-            onFocus={(e) => e.target.select()}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.maxPeople && touchedFields.maxPeople && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.maxPeople.message}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <p className="font-medium text-gray-900">당일 예약 허용</p>
-            <p className="text-gray-600 mt-1 text-sm">
-              당일 예약을 받을 수 있습니다
-            </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              {...register("acceptSameDay")}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <p className="font-medium text-gray-900">노쇼 방지 정책</p>
-            <p className="text-gray-600 mt-1 text-sm">
-              예약 시 결제 정보를 받습니다
-            </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              {...register("noShowPolicy")}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
         </div>
       </form>
+      {isOpenPostcode && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setIsOpenPostcode(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-white w-full h-full md:h-[500px] md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsOpenPostcode(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-black z-10 cursor-pointer"
+              aria-label="닫기"
+            >
+              <X className="size-6" />
+            </button>
+            <div className="flex-1 p-4 pt-11">
+              <DaumPostcodeEmbed
+                onComplete={handleAddressComplete}
+                style={{ height: "100%" }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

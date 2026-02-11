@@ -1,11 +1,13 @@
-import { mockDepositRateByRestaurantId } from "@/mock/restaurantSetting";
-import type { DepositRate } from "@/types/payment";
-import { useMemo } from "react";
+import { useRestaurantDetail } from "../store/useRestaurantDetail";
 
-export function useDepositRate(restaurantId: string) {
-  const rate: DepositRate = useMemo(() => {
-    return mockDepositRateByRestaurantId[restaurantId] ?? 0.3;
-  }, [restaurantId]);
+export function useDepositRate(storeId: number | string) {
+  const detailQuery = useRestaurantDetail(Number(storeId));
 
-  return { rate };
+  const rate = detailQuery.data?.depositRate ?? 0;
+  return {
+    rate,
+    isLoading: detailQuery.isLoading,
+    isError: detailQuery.isError,
+    error: detailQuery.error,
+  };
 }

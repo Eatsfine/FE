@@ -13,7 +13,6 @@ import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 
 type Props = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
   restaurant: Restaurant;
   onConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
@@ -29,7 +28,6 @@ const CategoryLabel: Record<MenuCategory, string> = {
 
 export default function ReservationMenuModal({
   open,
-  onOpenChange,
   restaurant,
   onConfirm,
   onBack,
@@ -47,7 +45,7 @@ export default function ReservationMenuModal({
   }, [open, draft.selectedMenus]);
 
   const qtyMap = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<number, number>();
     for (const s of selectedMenus) map.set(s.menuId, s.quantity);
     return map;
   }, [selectedMenus]);
@@ -103,7 +101,7 @@ export default function ReservationMenuModal({
 
   const handleRequestClose = useConfirmClose(onClose);
 
-  if (!open) return;
+  if (!open) return null;
 
   return (
     <div
@@ -146,10 +144,11 @@ export default function ReservationMenuModal({
             (["MAIN", "SIDE", "DRINK"] as MenuCategory[]).map((cat) => {
               const list = grouped[cat];
               if (list.length === 0) return null;
+              const safeLabel = CategoryLabel[cat] ?? "기타";
 
               return (
                 <section key={cat} className="space-y-3">
-                  <div className="font-semibold">{CategoryLabel[cat]}</div>
+                  <div className="font-semibold">{safeLabel}</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {list.map((menu) => {
                       const qty = qtyMap.get(menu.id) ?? 0;
@@ -282,7 +281,9 @@ export default function ReservationMenuModal({
               <Button
                 type="button"
                 className="h-12 px-6 rounded-lg cursor-pointer bg-blue-500  hover:bg-blue-600"
-                onClick={() => onConfirm({ ...draft, selectedMenus })}
+                onClick={() => {
+                  onConfirm({ ...draft, selectedMenus });
+                }}
               >
                 다음
               </Button>

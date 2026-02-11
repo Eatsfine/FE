@@ -6,6 +6,8 @@ import type {
   ResponseLoginDto,
   ResponseLogoutDto,
   ResponseRefreshDto,
+  RequestVerifyOwnerDto,
+  ResponseVerifyOwnerDto,
 } from "@/types/auth";
 import { api } from "./axios";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -63,5 +65,15 @@ export const postRefresh = async (): Promise<ResponseRefreshDto> => {
   if (!data.isSuccess) {
     throw new Error(data.message || "토큰 재발급 실패");
   }
+  return data.result;
+};
+
+export const patchVerifyOwner = async (
+  body: RequestVerifyOwnerDto,
+): Promise<ResponseVerifyOwnerDto> => {
+  const { data } = await api.patch<ApiResponse<ResponseVerifyOwnerDto>>(
+    "/api/users/role/owner",
+    body,
+  );
   return data.result;
 };

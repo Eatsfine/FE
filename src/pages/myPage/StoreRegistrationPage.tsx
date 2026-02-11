@@ -7,16 +7,26 @@ import StepBusinessAuth from "@/components/store-registration/StepBusinessAuth";
 import StepMenuRegistration from "@/components/store-registration/StepMenuRegistration";
 import StepStoreInfo from "@/components/store-registration/StepStoreInfo";
 import type { StoreInfoFormValues } from "@/components/store-registration/StoreInfo.schema";
+import { transformToRegister } from "@/components/store-registration/StoreTransform.utils";
+import { useMenuCreate, useMenuImage } from "@/hooks/queries/useMenu";
+import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
+import { getErrorMessage } from "@/utils/error";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Step1Data = {
   businessNumber: string;
+  startDate: string;
   isVerified: boolean;
 };
 
 export default function StoreRegistrationPage() {
+  const { mutateAsync: registerStore } = useRegisterStore();
+  const { mutateAsync: uploadImage } = useMainImage();
+  const { mutateAsync: uploadMenuImage } = useMenuImage();
+  const { mutateAsync: createMenu } = useMenuCreate();
+
   const navigate = useNavigate();
 
   //모달 상태 관리
@@ -29,6 +39,7 @@ export default function StoreRegistrationPage() {
   //결과 관리
   const [step1Data, setStep1Data] = useState<Step1Data>({
     businessNumber: "",
+    startDate: "",
     isVerified: false,
   });
 
@@ -59,23 +70,68 @@ export default function StoreRegistrationPage() {
     [],
   );
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
-      const finalPayload = {
-        ...step1Data,
-        ...step2Data,
-        menus: (step3Data.menus || []).map((menu) => ({
-          ...menu,
-          price: Number(menu.price) || 0, //문자열 가격을 숫자로 변환, 실패 시 0
-        })),
-      };
+      const finalPayload = transformToRegister(step1Data, step2Data);
 
-      console.log("최종 데이터:", finalPayload);
-      //API 호출
+      try {
+        const res = await registerStore(finalPayload);
+        const createdStoreId = res.storeId;
+        const promises = [];
 
-      setIsCompleteModalOpen(true);
+        if (step2Data.mainImage && step2Data.mainImage instanceof File) {
+          promises.push(
+            uploadImage({
+              storeId: createdStoreId,
+              body: { mainImage: step2Data.mainImage },
+            }),
+          );
+        }
+
+        if (step3Data.menus.length > 0) {
+          const processedMenus = await Promise.all(
+            step3Data.menus.map(async (menu) => {
+              let finalImageKey: string | undefined = undefined;
+
+              if (menu.imageKey instanceof File) {
+                try {
+                  const uploadRes = await uploadMenuImage({
+                    storeId: createdStoreId,
+                    body: { image: menu.imageKey },
+                  });
+                  finalImageKey = uploadRes.imageKey;
+                } catch (err) {
+                  console.error("메뉴 이미지 업로드 실패:", err);
+                }
+              } else if (typeof menu.imageKey === "string") {
+                finalImageKey = menu.imageKey;
+              }
+              return {
+                name: menu.name,
+                price: Number(menu.price),
+                description: menu.description,
+                category: menu.category,
+                imageKey: finalImageKey,
+              };
+            }),
+          );
+          promises.push(
+            createMenu({
+              storeId: createdStoreId,
+              body: { menus: processedMenus },
+            }),
+          );
+        }
+
+        await Promise.all(promises);
+
+        setIsCompleteModalOpen(true);
+      } catch (error) {
+        console.error("가게 등록 실패:", error);
+        alert(getErrorMessage(error));
+      }
     }
   };
 

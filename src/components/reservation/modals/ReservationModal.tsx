@@ -1,56 +1,37 @@
 import {
   SEATS,
   type ReservationDraft,
-  type Restaurant,
   type SeatLayout,
   type SeatType,
   type TablePref,
 } from "@/types/restaurant";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarIcon, Clock3, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Calendar } from "../../ui/calendar";
 import { Button } from "../../ui/button";
 import { startOfTodayInKst, toYmd } from "@/utils/date";
-import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
-import { getMockAvailableTableIds } from "@/mock/tableAvailability";
 import TableMap from "../parts/TableMap";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
+import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
+import { seatsTypeToSeatType } from "@/utils/reservation";
+import type { RestaurantDetail } from "@/types/store";
 
 type Props = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
   onClose: () => void;
 };
 
 const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
-const TIMES = [
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-];
 
 export default function ReservationModal({
   open,
-  onOpenChange,
   restaurant,
   initialDraft,
   onClickConfirm,
@@ -61,15 +42,41 @@ export default function ReservationModal({
   const [time, setTime] = useState<string>("");
   const [seatType, setSeatType] = useState<SeatType | null>(null);
   const [tablePref, setTablePref] = useState<TablePref>("split_ok");
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
 
+  const storeId = restaurant.id;
+  const dateYmd = date ? toYmd(date) : undefined;
+  const isSplitAccepted = tablePref === "split_ok";
+  const canQueryTables = !!dateYmd && !!time;
+
+  const timesQuery = useAvailableTimes({
+    storeId,
+    date: dateYmd,
+    partySize: people,
+    isSplitAccepted,
+  });
+  const availableTablesQuery = useAvailableTables(
+    canQueryTables
+      ? {
+          storeId,
+          date: dateYmd!,
+          time,
+          partySize: people,
+          isSplitAccepted,
+        }
+      : null,
+  );
   const { rate: depositRate } = useDepositRate(restaurant.id);
-  const paymentNotice =
-    restaurant.paymentPolicy?.notice ??
-    "예약 확정을 위해 예약금 결제가 필요합니다.";
+
+  const didInitRef = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      didInitRef.current = false;
+      return;
+    }
+    if (didInitRef.current) return;
+    didInitRef.current = true;
     if (initialDraft) {
       setPeople(initialDraft.people);
       setDate(initialDraft.date);
@@ -85,34 +92,37 @@ export default function ReservationModal({
       setTablePref("split_ok");
       setSelectedTableId(null);
     }
-  }, [open, initialDraft]);
-
-  // date, time, people바뀌면 테이블 재선택 필요
-  useEffect(() => {
-    setSelectedTableId(null);
-  }, [people, date, time]);
+  }, [open]);
 
   const todayKst = startOfTodayInKst();
 
-  // 레이아웃 mock 넣음. (나중에 API로 교체예정)
   const layout: SeatLayout | null = useMemo(() => {
-    return getMockLayoutByRestaurantId(restaurant.id ?? "1");
-  }, [restaurant.id]);
+    const data = availableTablesQuery.data;
+    if (!data) return null;
 
-  const dateYmd = date ? toYmd(date) : "";
-  const canQueryTables = !!layout && !!date && !!time;
+    return {
+      gridRows: data.rows,
+      gridCols: data.cols,
+      tables: data.tables.map((t) => ({
+        id: t.tableId,
+        tableNo:
+          parseInt((t.tableNumber ?? "").replace(/\D/g, ""), 10) || t.tableId,
+        seatType: seatsTypeToSeatType(t.seatsType),
+        minPeople: 1,
+        maxPeople: t.tableSeats,
+        gridX: t.gridX,
+        gridY: t.gridY,
+        widthSpan: t.widthSpan || 1,
+        heightSpan: t.heightSpan || 1,
+      })),
+    };
+  }, [availableTablesQuery.data]);
 
-  // date, time 기준가능 mock
   const availableIds = useMemo(() => {
-    if (!layout || !date || !time) return new Set<string>();
-    const restaurantId = restaurant.id ?? "r-1";
-    return getMockAvailableTableIds({
-      restaurantId,
-      dateYmd,
-      time,
-      tableIds: layout.tables.map((t) => t.id),
-    });
-  }, [layout, date, time, dateYmd, restaurant.id]);
+    const data = availableTablesQuery.data;
+    if (!data) return new Set<number>();
+    return new Set<number>(data.tables.map((t) => t.tableId));
+  }, [availableTablesQuery.data]);
 
   const canSubmit = !!date && !!time && !!selectedTableId && !!seatType;
 
@@ -126,10 +136,35 @@ export default function ReservationModal({
     return SEATS.filter((s) => seatTypeExists.has(s));
   }, [layout, seatTypeExists]);
 
+  const times = useMemo(() => {
+    const raw = timesQuery.data ?? [];
+    return raw.map((t) => t.slice(0, 5)).filter(Boolean);
+  }, [timesQuery.data]);
+
+  const timeUi = useMemo(() => {
+    if (!dateYmd)
+      return { msg: "날짜를 먼저 선택해주세요", times: [] as string[] };
+    if (timesQuery.isLoading)
+      return { msg: "예약 가능시간 기다리는중..", times: [] };
+    if (timesQuery.isError) return { msg: "서버 조회 실패", times: [] };
+    if (times.length === 0)
+      return { msg: "예약 가능한 시간이 없어요", times: [] };
+    return { msg: null as string | null, times };
+  }, [dateYmd, timesQuery.isLoading, timesQuery.isError, times]);
+
+  const noAvailableSeats =
+    canQueryTables &&
+    !availableTablesQuery.isLoading &&
+    !availableTablesQuery.isError &&
+    (availableTablesQuery.data?.tables?.length ?? 0) === 0;
   const handleRequestClose = useConfirmClose(onClose);
 
-  if (!open) return null;
+  useEffect(() => {
+    setSeatType(null);
+    setSelectedTableId(null);
+  }, [people, date, time]);
 
+  if (!open) return null;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -139,14 +174,15 @@ export default function ReservationModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/50 z-0"
         aria-label="모달 닫기"
-        onClick={() => onOpenChange(false)}
+        onClick={handleRequestClose}
       />
+
       <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
-            <h2 className="text-xl truncate">{restaurant.name} 예약</h2>
+            <h2 className="text-xl truncate font-medium">{restaurant.name} </h2>
             <p className="text-sm text-muted-foreground truncate">
               {restaurant.address}
             </p>
@@ -207,7 +243,8 @@ export default function ReservationModal({
                   <CalendarIcon className="h-4 w-4 opacity-70" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-2" align="start">
+
+              <PopoverContent className="w-auto p-2 z-[9999]" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -217,14 +254,16 @@ export default function ReservationModal({
               </PopoverContent>
             </Popover>
           </div>
-          {/* 시간대 */}
           <div className="mt-5 space-y-2">
             <div className="flex items-center gap-2 text-md mb-3">
               <Clock3 className="h-5 w-5" />
               시간대
             </div>
+            {timeUi.msg ? (
+              <p className="text-muted-foreground">{timeUi.msg}</p>
+            ) : null}
             <div className="flex flex-wrap gap-2">
-              {TIMES.map((t) => {
+              {timeUi.times.map((t) => {
                 const active = time === t;
                 return (
                   <Button
@@ -244,13 +283,12 @@ export default function ReservationModal({
               })}
             </div>
           </div>
-          {/* 좌석 유형 */}
           <div className="mt-6 space-y-2">
             <div className="text-md mb-3">좌석 유형</div>
             <div className="flex flex-wrap gap-2">
               {seatOptions.map((s) => {
                 const active = seatType === s;
-                const exists = seatTypeExists.has(s);
+                const exists = !layout ? true : seatTypeExists.has(s);
                 return (
                   <Button
                     key={s}
@@ -272,21 +310,30 @@ export default function ReservationModal({
                 );
               })}
             </div>
+            {noAvailableSeats ? (
+              <p className="text-muted-foreground">
+                예약 가능한 좌석이 없어요.{" "}
+              </p>
+            ) : null}
           </div>
-          {/* 테이블 배치도 */}
           <div className="mt-6 space-y-2">
             <div className="mb-3">테이블 선택</div>
-            {!layout && (
+            {!layout && !canQueryTables && (
               <p className="text-sm text-muted-foreground">
-                테이블 배치 정보가 없어요. (백엔드 연결필요)
+                날짜와 시간대를 선택하면 테이블을 고를 수 있어요.
               </p>
             )}
-            {layout && !canQueryTables && (
+            {!layout && canQueryTables && !availableTablesQuery.isLoading && (
               <p className="text-sm text-muted-foreground">
-                날짜와 시간대를 선택하면 테이블 선택 가능합니다.
+                테이블 배치 정보가 없어요.
               </p>
             )}
-            {layout && canQueryTables && (
+            {!layout && canQueryTables && availableTablesQuery.isLoading && (
+              <p className="text-sm text-muted-foreground">
+                테이블 정보를 불러오는중..
+              </p>
+            )}
+            {layout && canQueryTables && !noAvailableSeats && (
               <div className="overflow-x-auto">
                 <div className="min-w-[500px]">
                   <TableMap
@@ -307,7 +354,6 @@ export default function ReservationModal({
             )}
           </div>
 
-          {/* 테이블 선호도 */}
           <div className="mt-6 space-y-2">
             <div className="text-md mb-3">테이블 선호도</div>
             <div className="space-y-3">
@@ -359,7 +405,6 @@ export default function ReservationModal({
               </button>
             </div>
           </div>
-          {/* 결제 유형 */}
           <div className="mt-6 space-y-2">
             <div className="text-md">결제 유형</div>
             <div className="rounded-lg p-4 text-md border-2 border-blue-500 text-blue-500 bg-blue-50 space-y-1">
@@ -373,17 +418,21 @@ export default function ReservationModal({
                 예약금은 <b>메뉴 선택 후</b> 메뉴 총액의{" "}
                 <b>{Math.round(depositRate * 100)}%</b>로 계산됩니다.
               </p>
-              <p className="text-xs text-muted-foreground">{paymentNotice}</p>
+              <p className="text-xs text-muted-foreground">
+                예약 확정을 위해 예약금 결제가 필요합니다.
+              </p>
             </div>
           </div>
 
-          {/* 예약 확인 모달 이동 */}
           <Button
             type="button"
-            className="mt-5 text-md h-14 w-full rounded-lg cursor-pointer bg-blue-500 hover:bg-blue-600"
+            className="mt-5 text-md h-14 w-full cursor-pointer bg-blue-500 hover:bg-blue-600"
             disabled={!canSubmit}
             onClick={() => {
               if (!date || !time || !selectedTableId || !seatType) return;
+              const selectedTableNo =
+                layout?.tables.find((t) => t.id === selectedTableId)?.tableNo ??
+                null;
               onClickConfirm({
                 people,
                 date,
@@ -391,6 +440,7 @@ export default function ReservationModal({
                 seatType,
                 tablePref,
                 tableId: selectedTableId,
+                tableNo: selectedTableNo,
                 selectedMenus: initialDraft?.selectedMenus ?? [],
               });
             }}
