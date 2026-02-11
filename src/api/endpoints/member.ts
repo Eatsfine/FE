@@ -45,3 +45,27 @@ export async function putProfileImage(file: File) {
   }
   return res.data.result;
 }
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+  newPasswordConfirm: string;
+};
+
+export type ChangePasswordResponse = {
+  change: boolean;
+  changeAt: string;
+  message: string;
+};
+export async function putChangePassword(body: ChangePasswordRequest) {
+  const res = await api.put<ApiEnvelope<ChangePasswordResponse>>(
+    "/api/v1/member/password",
+    body,
+  );
+  return res.data.result;
+}
+
+export async function deleteWithDraw() {
+  const res = await api.delete<string>(`/api/auth/withdraw`);
+  return res.data;
+}

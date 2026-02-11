@@ -2,9 +2,10 @@ import type { MenuCategory, MenuItem } from "@/types/menus";
 import { api } from "../axios";
 
 type ApiResult<T> = {
-  isSuccess: boolean;
-  code: string;
-  message: string;
+  isSuccess?: boolean;
+  success?: boolean;
+  code?: string;
+  message?: string;
   result: T;
 };
 

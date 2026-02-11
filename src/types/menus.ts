@@ -7,6 +7,7 @@ export type MenuItem = {
   category: MenuCategory;
   description?: string;
   imageUrl?: string;
+  imageKey?: string;
   price: number;
   isSoldOut: boolean;
   isActive: boolean;

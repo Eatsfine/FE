@@ -133,6 +133,7 @@ export default function MyInfoPage() {
     setImageUploadError(null);
     setDraftImageFile(file);
     uploadImage(file);
+
   };
 
   const isValidPhone = (value: string) => {
