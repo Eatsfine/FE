@@ -110,12 +110,18 @@ export default function StepStoreInfo({
   useEffect(() => {
     if (isOpenPostcode) {
       document.body.style.overflow = "hidden";
+
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setIsOpenPostcode(false);
+      };
+      document.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        document.removeEventListener("keydown", handleEsc);
+      };
     } else {
       document.body.style.overflow = "unset";
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [isOpenPostcode]);
 
   useEffect(() => {
@@ -477,6 +483,8 @@ export default function StepStoreInfo({
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           onClick={() => setIsOpenPostcode(false)}
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="bg-white w-full h-full md:h-[500px] md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
@@ -486,6 +494,7 @@ export default function StepStoreInfo({
               type="button"
               onClick={() => setIsOpenPostcode(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-black z-10 cursor-pointer"
+              aria-label="닫기"
             >
               <X className="size-6" />
             </button>
