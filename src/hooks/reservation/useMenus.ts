@@ -1,13 +1,19 @@
-import { mockMenusByRestaurantId } from "@/mock/menus";
-import type { MenuItem } from "@/types/menus";
-import { useMemo } from "react";
+import { getMenus } from "@/api/endpoints/menus";
+import { queryKeys } from "@/query/keys";
+import { useQuery } from "@tanstack/react-query";
 
-export function useMenus(restaurantId: string) {
-  const menus: MenuItem[] = useMemo(() => {
-    return mockMenusByRestaurantId[restaurantId] ?? [];
-  }, [restaurantId]);
+export function useMenus(storeId?: string | number) {
+  const query = useQuery({
+    queryKey: storeId
+      ? queryKeys.restaurant.menus(storeId)
+      : ["restaurant", "menus", "disabled"],
+    queryFn: () => getMenus(String(storeId)),
+    enabled: !!storeId,
+  });
 
-  const activeMenus = useMemo(() => menus.filter((m) => m.isActive), [menus]);
-
-  return { menus, activeMenus };
+  return {
+    ...query,
+    activeMenus: query.data ?? [],
+    menus: query.data ?? [],
+  };
 }

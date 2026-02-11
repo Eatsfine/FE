@@ -30,3 +30,13 @@ export type ResponseLogoutDto = string;
 export type ResponseRefreshDto = {
   accessToken: string;
 };
+
+export type RequestVerifyOwnerDto = {
+  businessNumber: string;
+  startDate: string;
+};
+
+export type ResponseVerifyOwnerDto = {
+  businessNumber: string;
+  startDate: string;
+};

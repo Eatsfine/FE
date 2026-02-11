@@ -2,7 +2,7 @@ import type { SelectedMenu } from "@/types/menus";
 import type { DepositRate } from "@/types/payment";
 
 export type Restaurant = {
-  id: string;
+  id: number;
   name: string;
   category: string;
   rating: number;
@@ -52,7 +52,8 @@ export type ReservationDraft = {
   time: string;
   seatType: SeatType;
   tablePref: TablePref;
-  tableId: string;
+  tableId: number;
+  tableNo: number | null;
   selectedMenus: SelectedMenu[];
 };
 
@@ -62,7 +63,7 @@ export type PaymentPolicy = {
 };
 
 export type SeatTable = {
-  id: string;
+  id: number;
   tableNo: number;
   minPeople: number;
   maxPeople: number;

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { mockMenusByRestaurantId } from '../../mock/menus';
 import MenuFormModal from './menuFormModal';
+
+import { deleteMenus } from '@/api/owner/menus';
+import { getMenus, updateMenuSoldOut } from '@/api/owner/menus';
+
+
 
 interface MenuManagementProps {
   storeId?: string;
@@ -12,157 +17,209 @@ interface Category {
   label: string;
 }
 
+interface LocalMenu {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  category?: string;
+  imageUrl?: string | null;
+  isSoldOut?: boolean;
+  isActive?: boolean;
+}
+
 type CategoryType = string;
 
-const MenuManagement: React.FC<MenuManagementProps> = ({storeId}) => {
-
+const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const restaurantId = storeId;
 
-  const STORAGE_KEY_CAT = restaurantId ? `menu-categories-${restaurantId}` : 'menu-categories-temp';
-  const STORAGE_KEY_MENU = restaurantId ? `menu-items-${restaurantId}` : 'menu-items-temp';
-
+  
   const DEFAULT_CATEGORIES: Category[] = [
     { id: 'ALL', label: '전체' },
     { id: 'MAIN', label: '메인 메뉴' },
     { id: 'SIDE', label: '사이드 메뉴' },
-    { id: 'DRINK', label: '음료' },
+    { id: 'BEVERAGE', label: '음료' },
+    { id: 'ALCOHOL', label: '주류' },
   ];
 
-
   const [menus, setMenus] = useState<any[]>([]);
-  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+ 
+  const [categories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState<CategoryType>('ALL');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<any>(null);
-  const [editingCatId, setEditingCatId] = useState<string | null>(null);
-  const [tempCatLabel, setTempCatLabel] = useState('');
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
+  const mapServerToLocal = (s: any): LocalMenu => ({
+    id: String(s.menuId ?? `MENU_${Date.now()}`),
+    name: s.name ?? '',
+    description: s.description ?? '',
+    price: s.price ?? 0,
+    category: s.category ?? undefined,
+    imageUrl: s.imageUrl ?? null,
+    isSoldOut: !!s.isSoldOut,
+    isActive: true,
+  });
 
   useEffect(() => {
-  if (!restaurantId) return;
-
-  const currentMenus = mockMenusByRestaurantId[restaurantId] || [];
-    setMenus(currentMenus);
-
-    const savedCats = localStorage.getItem(STORAGE_KEY_CAT);
-    if (savedCats) {
-      setCategories(JSON.parse(savedCats));
-    } else {
-      setCategories(DEFAULT_CATEGORIES);
-    }
+    const STORAGE_KEY_MENU = restaurantId ? `menu-items-${restaurantId}` : 'menu-items-temp';
 
     const savedMenus = localStorage.getItem(STORAGE_KEY_MENU);
     if (savedMenus) {
-      setMenus(JSON.parse(savedMenus));
-    } else {
-      const initialMenus = mockMenusByRestaurantId[restaurantId] || [];
-      setMenus(initialMenus);
-      localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(initialMenus));
+      try {
+        setMenus(JSON.parse(savedMenus));
+      } catch {
+        setMenus([]);
+      }
     }
+
+    if (!restaurantId) {
+      const initialMenus = mockMenusByRestaurantId[restaurantId ?? ''] || [];
+      if (!savedMenus) {
+        const local = initialMenus.map(mapServerToLocal);
+        setMenus(local);
+        localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(local));
+      }
+      return;
+    }
+
+    (async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await getMenus(restaurantId);
+        if (res.isSuccess && res.result && Array.isArray(res.result.menus)) {
+          const serverMenus = res.result.menus.map(mapServerToLocal);
+
+          const localTempMenus = menus.filter(m => m.id.startsWith('MENU_'));
+
+          const mergedMenus = [...serverMenus, ...localTempMenus];
+
+          setMenus(mergedMenus);
+          localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(mergedMenus));
+        } else {
+          setError(res.message || '메뉴를 가져오는 중 문제가 발생했습니다.');
+        }
+      } catch (err: any) {
+        console.error('getMenus error', err);
+        setError('메뉴를 불러오는 데 실패했습니다. 네트워크를 확인해주세요.');
+
+        const initialMenus = mockMenusByRestaurantId[restaurantId] || [];
+        if (initialMenus.length > 0) {
+          const localFallback = initialMenus.map(mapServerToLocal);
+          setMenus(localFallback);
+          localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(localFallback));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+
   }, [restaurantId]);
 
   useEffect(() => {
-    if (categories.length > 0 && restaurantId) {
-      localStorage.setItem(STORAGE_KEY_CAT, JSON.stringify(categories));
-    }
-  }, [categories, restaurantId]);
-
-  useEffect(() => {
-    if (restaurantId && menus.length > 0) {
+    if (restaurantId) {
+      const STORAGE_KEY_MENU = `menu-items-${restaurantId}`;
       localStorage.setItem(STORAGE_KEY_MENU, JSON.stringify(menus));
     }
   }, [menus, restaurantId]);
 
-
-  const handleDragStart = (idx: number) => {
-    if (categories[idx].id === 'ALL') return;
-    setDraggedIdx(idx);
-  };
-
-const handleDragOver = (e: React.DragEvent) => {
-  e.preventDefault()
-};
-
-const handleDrop = (targetIdx: number) => {
-  if (draggedIdx === null || draggedIdx === targetIdx) return;
-
-  const newCategories = [...categories];
-  const draggedItem = newCategories[draggedIdx];
-
-  newCategories.splice(draggedIdx, 1);
-  newCategories.splice(targetIdx, 0, draggedItem);
-
-  setCategories(newCategories);
-  setDraggedIdx(null);
-};
-
   const toggleActive = (id: string) => {
-    setMenus(prev => prev.map(menu => 
+    setMenus(prev => prev.map(menu =>
       menu.id === id ? { ...menu, isActive: !menu.isActive } : menu
     ));
   };
 
-const handleFormSubmit = (menuData: any) => {
-  if (editingMenu) {
-    setMenus(prev => prev.map(m => m.id === menuData.id ? { ...m, ...menuData } : m));
-  } else {
-    const newMenu = { ...menuData, id: menuData.id || `MENU_${Date.now()}` };
-    setMenus(prev => [menuData, ...prev]);
+  const handleFormSubmit = (menuData: any) => {
+    setMenus(prev => {
+      const incomingId = menuData.id ? String(menuData.id) : null;
+
+      const existingIndex = prev.findIndex(m => String(m.id) === incomingId);
+      if (existingIndex !== -1) {
+        const updatedMenus = [...prev];
+        updatedMenus[existingIndex] = {
+          ...prev[existingIndex],
+          ...menuData,
+          price: Number(menuData.price)
+        };
+        return updatedMenus;
+      } else {
+        return [{ ...menuData, price: Number(menuData.price) }, ...prev];
+      }
+    });
+
+    setIsModalOpen(false);
+    setEditingMenu(null);
+  };
+
+  const handleEditClick = (menu: any) => {
+    setEditingMenu(menu);
+    setIsModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+      if (!storeId) {
+    alert("가게 정보가 없습니다.");
+    return;
   }
-  setIsModalOpen(false);
-};
-
-const deleteMenu = (id: string) => {
-  if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
-    setMenus(prev => prev.filter(m => m.id !== id));
-  }
-};
-
-const handleEditClick = (menu: any) => {
-  setEditingMenu(menu);
-  setIsModalOpen(true);
-};
-
-const handleAddClick = () => {
-  setEditingMenu(null);
-  setIsModalOpen(true);
-};
-
-  const handleAddCategory = () => {
-    const newId = `CAT_${Date.now()}`;
-    const newCat = { id: newId, label: '새 카테고리' };
-    setCategories([...categories, newCat]);
-    setEditingCatId(newId);
-    setTempCatLabel('새 카테고리');
+    setEditingMenu(null);
+    setIsModalOpen(true);
   };
 
-  const startEditCategory = (id: string, label: string) => {
-    setEditingCatId(id);
-    setTempCatLabel(label);
-  };
+  const deleteMenu = async (id: string) => {
+    if (!storeId) return alert("storeId가 없습니다.");
 
-  const saveCategory = (id: string) => {
-    if (!tempCatLabel.trim()) return;
-    setCategories(prev => prev.map(c => c.id === id ? { ...c, label: tempCatLabel } : c));
-    setEditingCatId(null);
-  };
-
-  const deleteCategory = (id: string) => {
-    const fallback = categories.find(c => c.id !== id && c.id !== 'ALL')?.id;
-    if (window.confirm('카테고리를 삭제하시겠습니까?')) {
-      if (!fallback) return alert('최소 하나의 카테고리는 필요합니다.');
-      setMenus(prev => prev.map(m => m.category === id ? { ...m, category: fallback } : m));
-      setCategories(prev => prev.filter(c => c.id !== id));
-      if (activeCategory === id) setActiveCategory('ALL');
+    if (id.startsWith('MENU_')) {
+      if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
+        setMenus(prev => prev.filter(m => m.id !== id));
+      }
+      return;
     }
-  }
 
-  const filteredMenus = activeCategory === 'ALL' 
-    ? menus 
+    if (window.confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
+      try {
+        const menuIdNum = Number(id);
+        const res = await deleteMenus(storeId, [menuIdNum]);
+
+        if (res.isSuccess) {
+          setMenus(prev => prev.filter(m => Number(m.id) !== menuIdNum));
+          alert(res.message || '메뉴가 삭제되었습니다.');
+        } else {
+          alert('메뉴 삭제 실패: ' + res.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('메뉴 삭제 중 오류가 발생했습니다.');
+      }
+    }
+  };
+
+  const toggleSoldOutOnServer = async (id: string, targetSoldOut: boolean) => {
+    if (!storeId) return alert("storeId가 없습니다.");
+
+    const menuIdNum = Number(id);
+    if (Number.isNaN(menuIdNum)) return alert("메뉴 ID가 유효하지 않습니다.");
+
+    try {
+      const res = await updateMenuSoldOut(storeId, menuIdNum, targetSoldOut);
+
+      if (res.isSuccess) {
+        const newSoldOut = res.result?.isSoldOut ?? targetSoldOut;
+
+        setMenus(prev => prev.map(m => String(m.id) === String(id) ? { ...m, isSoldOut: newSoldOut } : m));
+        alert(res.message || (newSoldOut ? '품절 처리되었습니다.' : '품절 해제되었습니다.'));
+      } else {
+        alert('품절 상태 변경 실패: ' + res.message);
+      }
+    } catch (err: any) {
+      console.error('updateMenuSoldOut error', err);
+      alert('품절 상태 변경 중 오류가 발생했습니다.');
+    }
+  };
+
+  const filteredMenus = activeCategory === 'ALL'
+    ? menus
     : menus.filter(menu => menu.category === activeCategory);
 
   if (isLoading) return <div className="px-8 py-10 text-gray-500 font-medium">데이터를 불러오는 중...</div>;
@@ -170,16 +227,18 @@ const handleAddClick = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
+
       <div className="flex justify-between items-start mb-10">
         <div>
           <h2 className="text-2xl text-gray-900 mb-1">메뉴 관리</h2>
           <p className="text-gray-500 text-sm font-medium">총 {menus.length}개의 메뉴가 등록되어 있습니다</p>
         </div>
         <button className="cursor-pointer bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all"
-        onClick={handleAddClick}>
+          onClick={handleAddClick}>
           <Plus size={18} /> 메뉴 추가
         </button>
       </div>
+
 
       <div className="overflow-x-auto flex gap-3 mb-8 p-4 rounded-lg bg-white">
         {categories.map(cat => (
@@ -187,8 +246,8 @@ const handleAddClick = () => {
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             className={`cursor-pointer px-5 py-2.5 rounded-lg text-md transition-all ${
-              activeCategory === cat.id 
-                ? 'bg-blue-600 text-white' 
+              activeCategory === cat.id
+                ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 border border-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
@@ -196,6 +255,7 @@ const handleAddClick = () => {
           </button>
         ))}
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {filteredMenus.map(menu => (
@@ -208,6 +268,15 @@ const handleAddClick = () => {
                 : 'bg-gray-100 border-gray-200 opacity-60'}
             `}
           >
+            {menu.imageUrl && (
+              <img
+                src={menu.imageUrl}
+                alt={menu.name}
+                className="w-full h-40 object-cover rounded-lg mb-4"
+              />
+            )}
+
+
             <div className="flex justify-between items-start mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -243,115 +312,36 @@ const handleAddClick = () => {
 
             <div className="flex justify-between items-center mt-auto">
               <span className="text-lg text-gray-900">{menu.price.toLocaleString()}원</span>
-              
-              <button 
-                onClick={() => toggleActive(menu.id)}
-                 role="switch"
-                 aria-checked={menu.isActive}
-                 aria-label={`${menu.name} 활성화 상태`}
-                className={`cursor-pointer w-12 h-6 rounded-full transition-colors relative ${menu.isActive ? 'bg-blue-600' : 'bg-gray-200'}`}
+
+              <button
+                onClick={() => toggleSoldOutOnServer(menu.id, !menu.isSoldOut)}
+                role="switch"
+                aria-checked={!menu.isSoldOut}
+                aria-label={`${menu.name} 판매 가능 여부`}
+                className={`cursor-pointer w-12 h-6 rounded-full transition-colors relative ${!menu.isSoldOut ? 'bg-blue-600' : 'bg-gray-200'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${menu.isActive ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${!menu.isSoldOut ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      <section className="bg-white border border-gray-100 rounded-lg p-8 shadow-sm">
-  <div className="flex justify-between items-center mb-6">
-    <h3 className="text-lg text-gray-700 font-semibold uppercase tracking-widest">카테고리 관리</h3>
-    <p className="text-xs text-gray-400">드래그하여 순서를 변경할 수 있습니다</p>
-  </div>
-  
-  <div className="space-y-2">
-    {categories.filter(c => c.id !== 'ALL').map((cat) => {
-      const realIdx = categories.findIndex(c => c.id === cat.id);
-      
-      return (
-        <div 
-          key={cat.id} 
-          draggable
-          onDragStart={() => handleDragStart(realIdx)}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setHoverIdx(realIdx);
-          }}
-          onDrop={() => {
-            handleDrop(realIdx);
-            setHoverIdx(null);
-          }}
-          className={`flex items-center justify-between p-4 border-2 border-transparent hover:border-blue-100 hover:bg-blue-50/50 rounded-2xl transition-all group cursor-move ${
-            draggedIdx === realIdx ? 'opacity-40 bg-gray-100 border-blue-400 bg-blue-50' : 'bg-white'
-          }`}
-        >
-          <div className="flex items-center gap-4 flex-1">
-            <div className="flex flex-col gap-0.5 opacity-30 group-hover:opacity-100 transition-opacity">
-              <div className="flex gap-0.5">
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-              </div>
-              <div className="flex gap-0.5">
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-              </div>
-              <div className="flex gap-0.5">
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-                <div className="w-1 h-1 bg-gray-400 rounded-full" />
-              </div>
-            </div>
-
-            {editingCatId === cat.id ? (
-              <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
-                <input 
-                  autoFocus
-                  className="border-b-2 border-blue-500 outline-none bg-transparent px-1 py-1 text-gray-700 w-full max-w-[200px]"
-                  value={tempCatLabel}
-                  onChange={(e) => setTempCatLabel(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveCategory(cat.id)}
-                />
-                <button onClick={() => saveCategory(cat.id)} className="p-1 text-blue-600"><Check size={18}/></button>
-                <button onClick={() => setEditingCatId(null)} className="p-1 text-gray-400"><X size={18}/></button>
-              </div>
-            ) : (
-              <span className="text-gray-700">{cat.label}</span>
-            )}
-          </div>
-
-          {!editingCatId && (
-            <div className="flex gap-4 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-              <button 
-                onClick={(e) => { e.stopPropagation(); startEditCategory(cat.id, cat.label); }}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                수정
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); deleteCategory(cat.id); }}
-                className="text-red-500 hover:text-red-600"
-              >
-                삭제
-              </button>
-            </div>
-          )}
-        </div>
-      );
-    })}
-  </div>
-        <button 
-          onClick={handleAddCategory}
-          className="cursor-pointer w-full mt-4 py-4 border-2 border-dashed border-gray-100 rounded-2xl text-gray-700 text-sm font-bold hover:bg-gray-50 hover:border-blue-200 transition-all flex items-center justify-center gap-2"
-        >
-          <Plus size={16} /> 카테고리 추가
-        </button>
-      </section>
-
-      <MenuFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <MenuFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         categories={categories}
         editingMenu={editingMenu}
+        storeId={storeId!}
+        onImageDelete={() => {
+          if (!editingMenu) return;
+          setMenus((prev) =>
+            prev.map((m) =>
+              m.id === editingMenu.id ? { ...m, imageUrl: null, imageKey: null } : m
+            )
+          );
+        }}
       />
     </div>
   );

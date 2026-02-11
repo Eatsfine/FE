@@ -1,8 +1,10 @@
+import type { CreateBookingResult } from "@/api/endpoints/reservations.ts";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { useCreateBooking } from "@/hooks/reservation/useCreateBooking";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
-import { getMockLayoutByRestaurantId } from "@/mock/seatLayout";
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { calcMenuTotal } from "@/utils/menu";
 import { formatKrw } from "@/utils/money";
@@ -14,34 +16,75 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onBack: () => void;
-  onConfirm: () => void;
-  restaurant: Restaurant;
+  onConfirm: (bookingResult: CreateBookingResult) => void;
+  restaurant: RestaurantDetail;
   draft: ReservationDraft;
+  booking: CreateBookingResult | null;
 };
 
-export default function ReservationConfirmMoodal({
+export default function ReservationConfirmModal({
   open,
   onClose,
   onBack,
   onConfirm,
   restaurant,
   draft,
+  booking,
 }: Props) {
-  const { people, date, time, seatType, tablePref } = draft;
-
-  const layout = getMockLayoutByRestaurantId(restaurant.id ?? "1");
-
-  const seatTable = layout?.tables.find((t) => t.id === draft.tableId);
-
+  const createBookingMutation = useCreateBooking();
+  const menusQuery = useMenus(restaurant.id);
+  const depositQuery = useDepositRate(restaurant.id);
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { menus } = useMenus(restaurant.id);
-  const { rate } = useDepositRate(restaurant.id);
-  const { selectedMenus } = draft;
+  const { people, date, time, seatType, tablePref } = draft;
+  const isSplitAccepted = tablePref === "split_ok";
+
+  const menus = menusQuery.activeMenus ?? [];
+  const selectedMenus = draft.selectedMenus ?? [];
   const menuTotal = calcMenuTotal(menus, selectedMenus);
+  const rate = depositQuery.rate;
   const depositAmount = calcDeposit(menuTotal, rate);
 
+  const isCalculating = menusQuery.isLoading || depositQuery.isLoading;
+
   if (!open) return null;
+
+  const onClickConfirm = async () => {
+    if (booking) {
+      onConfirm(booking);
+      return;
+    }
+    const tableId = draft.tableId;
+    if (!restaurant.id) return;
+    if (createBookingMutation.isPending) return;
+    if (typeof tableId !== "number" || tableId <= 0) {
+      alert("테이블을 먼저 선택해주세요");
+      return;
+    }
+    const body = {
+      date: toYmd(draft.date),
+      time: draft.time,
+
+      partySize: draft.people,
+      tableIds: [tableId],
+      menuItems: (draft.selectedMenus ?? []).map((m) => ({
+        menuId: Number(m.menuId),
+        quantity: m.quantity,
+      })),
+      isSplitAccepted,
+    };
+
+    try {
+      const result = await createBookingMutation.mutateAsync({
+        storeId: restaurant.id,
+        body,
+      });
+      onConfirm(result);
+    } catch (err) {
+      const msg = (err as any)?.message ?? "예약 생성에 실패했습니다.";
+      alert(msg);
+    }
+  };
 
   return (
     <div
@@ -56,7 +99,8 @@ export default function ReservationConfirmMoodal({
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
-      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
+
+      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약 내용 확인</h3>
@@ -84,7 +128,7 @@ export default function ReservationConfirmMoodal({
             </div>
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">시간</div>
-              <div>{time}</div>
+              <div>{draft.time}</div>
             </div>
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">인원</div>
@@ -93,7 +137,7 @@ export default function ReservationConfirmMoodal({
             <div className="border rounded-lg p-3">
               <div className="text-sm text-gray-500">좌석</div>
               <div>
-                {seatType}, {seatTable?.tableNo}번
+                {seatType} {draft.tableNo != null ? `, ${draft.tableNo}번` : ""}
               </div>
             </div>
           </div>
@@ -105,11 +149,11 @@ export default function ReservationConfirmMoodal({
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
             <div className="text-gray-800 mt-1 font-semibold">
-              예약금: {formatKrw(depositAmount)}원
+              예약금:{" "}
+              {isCalculating ? "계산중 .." : `${formatKrw(depositAmount)}원`}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {restaurant.paymentPolicy?.notice ??
-                "예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)"}
+              예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)
             </p>
           </div>
           <p className="text-gray-700 text-center">
@@ -126,9 +170,12 @@ export default function ReservationConfirmMoodal({
             <button
               className="flex-1 border rounded-xl py-3 text-white bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer"
               type="button"
-              onClick={onConfirm}
+              onClick={onClickConfirm}
+              disabled={createBookingMutation.isPending}
             >
-              예약금 결제하기
+              {createBookingMutation.isPending
+                ? "예약 생성중"
+                : "예약금 결제하기"}
             </button>
           </div>
         </div>
