@@ -20,31 +20,15 @@ import StorePage from "./pages/myPage/storePage";
 import OwnerPage from "./pages/ownerPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import LoginErrorPage from "./pages/LoginErrorPage";
+import SuccessPage from "./pages/payment/SuccessPage";
+import FailPage from "./pages/payment/FailPage";
+import ReservationCompletePage from "./pages/ReservationCompletePage";
+import { PrivateRoute } from "./components/RouteGuards";
 
 const routes: RouteObject[] = [
   { path: "/oauth/callback", element: <OAuthCallbackPage /> },
   { path: "/login/error", element: <LoginErrorPage /> },
-  {
-    element: <PublicLayout />,
-    errorElement: <NotFound />,
-    children: [
-      { path: "/search", element: <SearchPage /> },
-      {
-        path: "/mypage",
-        element: <MyPageLayout />,
-        children: [
-          { index: true, element: <Navigate to="info" replace /> },
-          { path: "info", element: <MyInfoPage /> },
-          { path: "settings", element: <SettingsPage /> },
-          { path: "subscription", element: <SubscriptionPage /> },
-          { path: "reservations", element: <ReservationPage /> },
-          { path: "store", element: <StorePage /> },
-        ],
-      },
-    ],
-  },
-  {
-    path: "/",
+  { path: "/",
     element: <Intro />,
     errorElement: <NotFound />,
   },
@@ -54,15 +38,56 @@ const routes: RouteObject[] = [
     element: <CustomerSupportPage />,
     errorElement: <NotFound />,
   },
-  {
-    path: "/mypage/store/register",
-    element: <StoreRegistrationPage />,
+
+    element: <PublicLayout />,
     errorElement: <NotFound />,
+    children: [
+      { path: "/search", element: <SearchPage /> },
+      {
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: "/mypage",
+            element: <MyPageLayout />,
+            children: [
+              { index: true, element: <Navigate to="info" replace /> },
+              { path: "info", element: <MyInfoPage /> },
+              { path: "settings", element: <SettingsPage /> },
+              { path: "payment", element: <PaymentPage /> },
+              { path: "subscription", element: <SubscriptionPage /> },
+              { path: "reservations", element: <ReservationPage /> },
+              { path: "store", element: <StorePage /> },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
-    path: "/mypage/store/:storeId",
-    element: <OwnerPage />,
+    element: <PrivateRoute />,
     errorElement: <NotFound />,
+    children: [
+      {
+        path: "/mypage/store/register",
+        element: <StoreRegistrationPage />,
+      },
+      {
+        path: "/mypage/store/:storeId",
+        element: <OwnerPage />,
+      },
+      {
+        path: "/payment/success",
+        element: <SuccessPage />,
+      },
+      {
+        path: "/payment/fail",
+        element: <FailPage />,
+      },
+      {
+        path: "/reservation/complete",
+        element: <ReservationCompletePage />,
+      },
+    ],
   },
   {
     path: "*",
