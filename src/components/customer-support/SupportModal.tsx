@@ -11,6 +11,10 @@ import { supportSchema, type SupportFormValues } from "./support.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import { postInquiry } from "@/api/inquiry";
+import { getErrorMessage } from "@/utils/error";
+
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -47,11 +51,23 @@ export default function SupportModal({
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SupportFormValues>({
     resolver: zodResolver(supportSchema),
     defaultValues,
     mode: "onSubmit",
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: postInquiry,
+    onSuccess: (data) => {
+      console.log("문의 접수 ID:", data.id);
+      onComplete();
+    },
+    onError: (error) => {
+      console.error(error);
+      alert(getErrorMessage(error));
+    },
   });
 
   // 폼 열릴 때마다 초기화
@@ -62,13 +78,7 @@ export default function SupportModal({
   }, [isOpen, reset]);
 
   const onSubmit = async (data: SupportFormValues) => {
-    try {
-      console.log("Support data:", data);
-      //await API
-      onComplete();
-    } catch (e) {
-      console.error("error:", e);
-    }
+    mutate(data);
   };
 
   return (
@@ -212,11 +222,11 @@ export default function SupportModal({
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isPending}
                 className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Send className="size-4" />
-                {isSubmitting ? "문의 중..." : "문의하기"}
+                {isPending ? "문의 중..." : "문의하기"}
               </button>
             </div>
           </form>

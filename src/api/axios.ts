@@ -61,6 +61,11 @@ api.interceptors.response.use(
     }
 
     if (apiError.status === 401 && originalRequest) {
+      const isGuest = !useAuthStore.getState().accessToken;
+      // 비회원이면 재발급x
+      if (isGuest) {
+        return Promise.reject(apiError);
+      }
       // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
       if (
         originalRequest._retry ||
