@@ -48,7 +48,8 @@ export const transformToRegister = (
     longitude,
   } = step2Data;
 
-  const fullAddress = detailAddress ? `${address} ${detailAddress}` : address;
+  const fullAddress =
+    detailAddress && address ? `${address} ${detailAddress}` : address || "";
 
   const weekDays: Day[] = [
     "MONDAY",
