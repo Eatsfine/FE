@@ -1,18 +1,10 @@
 import { Outlet, NavLink } from "react-router-dom";
-import {
-  Calendar,
-  CreditCard,
-  Crown,
-  Settings,
-  Store,
-  User,
-} from "lucide-react";
+import { Calendar, Crown, Settings, Store, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   { to: "/mypage/info", label: "내 정보", icon: User },
   { to: "/mypage/settings", label: "계정 설정", icon: Settings },
-  { to: "/mypage/payment", label: "결제수단", icon: CreditCard },
   { to: "/mypage/subscription", label: "구독 관리", icon: Crown },
   { to: "/mypage/reservations", label: "예약 현황", icon: Calendar },
   { to: "/mypage/store", label: "내 가게 관리", icon: Store },
