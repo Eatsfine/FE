@@ -1,4 +1,3 @@
-import axios from "axios";
 import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 
@@ -28,8 +27,8 @@ export interface UpdateSlotResult {
 }
 
 export interface PatchBreakTimeRequest {
-  breakStartTime: string; // "14:00"
-  breakEndTime: string;   // "15:00"
+  breakStartTime: string; 
+  breakEndTime: string; 
 }
 
 export interface BookingDetailResult {

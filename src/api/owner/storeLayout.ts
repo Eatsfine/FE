@@ -1,5 +1,6 @@
 import type { ApiResponse } from '@/types/api';
 import { api } from '../axios'; // 기존 axios 인스턴스
+import type { SeatsType } from '@/types/table';
 
 export interface LayoutTable {
   tableId: number;
@@ -11,6 +12,7 @@ export interface LayoutTable {
   widthSpan: number;
   heightSpan: number;
   tableImageUrl: string | null;
+  seatsType: SeatsType;
 }
 
 export interface LayoutResponse {
@@ -25,7 +27,7 @@ export interface CreateTableRequest {
   gridY: number;
   minSeatCount: number;
   maxSeatCount: number;
-  seatsType: 'GENERAL' | 'PRIVATE';
+  seatsType: SeatsType;
 }
 
 export interface CreateTableResponse {
@@ -46,7 +48,7 @@ export const getActiveLayout = async (storeId: number): Promise<LayoutResponse |
       return res.data.result;
     } 
     if (res.status === 204) {
-      return null; // 배치도 없음
+      return null;
     }
     return null;
   } catch (e: any) {

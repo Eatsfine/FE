@@ -4,13 +4,15 @@ import { X, User, Calendar, Clock, Pencil, Check, ArrowLeft, ChevronLeft, Chevro
 import type { BreakTime } from '../../components/owner/BreakTimeModal';
 import { getTableSlots, updateTableSlotStatus, getBookingDetail } from "@/api/owner/reservation";
 import type { Slot, SlotStatus, UpdateSlotRequest } from "@/api/owner/reservation";
-import { deleteTableImage, uploadTableImage } from "@/api/owner/table";
+import { deleteTableImage, patchTableInfo, uploadTableImage } from "@/api/owner/table";
 import { cancelBookingByOwner } from '@/api/owner/reservation';
+import type { SeatsType } from '@/types/table';
 
 
 interface TableInfo {
   minCapacity: number;
   maxCapacity: number;
+  seatsType: SeatsType;
   tableImageUrl?: string | null;
 }
 
@@ -55,14 +57,12 @@ const TableDetailModal: React.FC<Props> = ({
   const [tempMin, setTempMin] = useState(tableInfo.minCapacity);
   const [tempMax, setTempMax] = useState(tableInfo.maxCapacity);
   const [closedDays, setClosedDays] = useState<string[]>(closedDaysProp);
-
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedFullDate, setSelectedFullDate] = useState<Date | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 예약 상세 관련 상태
   const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showBookingDetail, setShowBookingDetail] = useState(false);
@@ -74,7 +74,7 @@ const TableDetailModal: React.FC<Props> = ({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [tableImageUrl, setTableImageUrl] = useState<string | null>(null);
-
+  
   useEffect(() => {
     if (closedDaysProp) setClosedDays(closedDaysProp);
     setTempMin(tableInfo.minCapacity);
@@ -88,7 +88,7 @@ const TableDetailModal: React.FC<Props> = ({
    };
  }, [previewUrl]);
 
-  // --- 달력 / 날짜 유틸 ---
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const year = viewDate.getFullYear();
@@ -110,11 +110,22 @@ const TableDetailModal: React.FC<Props> = ({
   };
 
   const isCapacityValid = Number.isFinite(tempMin) && Number.isFinite(tempMax) && tempMin > 0 && tempMax >= tempMin;
-  const confirmCapacity = () => {
-    if (!isCapacityValid) return;
+  const confirmCapacity = async () => {
+  if (!isCapacityValid) return;
+
+  try {
+    await patchTableInfo(storeId, tableId, {
+      minSeatCount: Number(tempMin),
+      maxSeatCount: Number(tempMax),
+    });
+
     onUpdateCapacity(Number(tempMin), Number(tempMax));
     setIsEditing(false);
-  };
+  } catch (e: any) {
+    console.error('테이블 정보 수정 실패', e?.response?.data ?? e);
+    alert(e?.response?.data?.message ?? '테이블 정보 수정에 실패했습니다.');
+  }
+};
 
   type TableType = '소형' | '중형' | '단체석';
   const getTableType = (maxCapacity: number): TableType => {
@@ -144,14 +155,13 @@ const TableDetailModal: React.FC<Props> = ({
     }
   };
 
-  // --- 예약 상세 조회 ---
   const fetchBookingDetail = async (bookingId: number | null) => {
   if (!bookingId) {
     alert('예약 ID가 없습니다.');
     return;
   }
 
-  setBookingDetailBookingId(bookingId); // 추가
+  setBookingDetailBookingId(bookingId);
 
   try {
     setDetailLoading(true);
@@ -171,7 +181,7 @@ const TableDetailModal: React.FC<Props> = ({
     else if (status === 404) setDetailError('해당 예약을 찾을 수 없습니다.');
     else setDetailError(e?.response?.data?.message ?? '예약 상세를 불러오지 못했습니다.');
     setBookingDetail(null);
-    setBookingDetailBookingId(null); // 오류 시 초기화
+    setBookingDetailBookingId(null);
   } finally {
     setDetailLoading(false);
   }
@@ -181,9 +191,7 @@ const TableDetailModal: React.FC<Props> = ({
   const handleToggleSlot = async (slot: Slot) => {
     if (!selectedFullDate) return;
 
-    // BOOKED이면 상세 조회
     if (slot.status === 'BOOKED') {
-      // bookingId가 null이면 경고
       if (slot.bookingId == null) {
         alert('예약 ID가 없습니다.');
         return;
@@ -220,7 +228,6 @@ const TableDetailModal: React.FC<Props> = ({
     }
   };
 
-  // --- 이미지 업로드 ---
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
     if (!f) return;
@@ -322,6 +329,15 @@ const TableDetailModal: React.FC<Props> = ({
   }
 };
 
+const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
+  GENERAL: '일반석',
+  WINDOW: '창가석',
+  ROOM: '룸',
+  BAR: '바테이블',
+  OUTDOOR: '야외석',
+};
+
+
   const capacityText = `${tableInfo.minCapacity}~${tableInfo.maxCapacity}인`;
   const tableType = getTableType(tableInfo.maxCapacity);
 
@@ -335,7 +351,7 @@ const TableDetailModal: React.FC<Props> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
       <div className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-         {/* 헤더 */}
+
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             {step !== 'DETAIL' && (
@@ -353,7 +369,7 @@ const TableDetailModal: React.FC<Props> = ({
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-          {/* [Step 1] 상세 정보 */}
+
           {step === 'DETAIL' && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="w-full h-70 rounded-lg border border-gray-100 overflow-hidden">
@@ -371,7 +387,7 @@ const TableDetailModal: React.FC<Props> = ({
                   </div>
                 )}
               </div>
-              {/* 이미지 선택 & 업로드 */}
+
               <div className="mt-3 flex items-center gap-3">
                 <input
                   id="table-image-input"
@@ -447,6 +463,15 @@ const TableDetailModal: React.FC<Props> = ({
                 </div>
               </div>
 
+              <div className="flex items-center gap-3">
+                <div className="flex-1 bg-gray-50 border p-4 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">테이블 유형</p>
+                  <p className="font-semibold">
+                    {SEATS_TYPE_LABEL[tableInfo.seatsType]}
+                  </p>
+                </div>
+              </div>
+
               <button onClick={() => setStep('CALENDAR')} className="cursor-pointer w-full bg-blue-600 text-white py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-blue-700 transition-all active:scale-[0.98]">
                 <Calendar size={18} /> 예약 정보 및 시간대 관리
               </button>
@@ -481,7 +506,7 @@ const TableDetailModal: React.FC<Props> = ({
             </div>
           )}
 
-          {/* [Step 2] 달력 */}
+
           {step === 'CALENDAR' && (
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-5">
               <div className="px-1 space-y-1">
@@ -506,7 +531,7 @@ const TableDetailModal: React.FC<Props> = ({
                   const weekDay = dateObj.getDay(); 
                   const weekDayKorean = ['일','월','화','수','목','금','토'][weekDay];
 
-                  // 휴무일 체크
+
                   const isClosedDay = closedDays.includes(weekDayKorean);
                   
                   return (
@@ -542,7 +567,7 @@ const TableDetailModal: React.FC<Props> = ({
             </div>
           )}
 
-          {/* [Step 3] 시간 설정 */}
+
           {step === 'SLOTS' && (
             <div className="animate-in slide-in-from-right-5 duration-300 space-y-4">
               {loading && (
@@ -557,7 +582,7 @@ const TableDetailModal: React.FC<Props> = ({
                 </div>
               )}
 
-              {/* 예약 상세 패널 */}
+
               {showBookingDetail && (
                 <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
                   <div className="flex justify-between items-start">

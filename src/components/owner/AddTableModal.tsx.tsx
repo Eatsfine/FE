@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import type { CreateTableRequest } from '@/api/owner/storeLayout';
+import type { SeatsType } from '@/types/table';
 
 interface AddTableModalProps {
   onClose: () => void;
@@ -16,7 +17,7 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
   const [gridY, setGridY] = useState(1);
   const [minSeatCount, setMinSeatCount] = useState(2);
   const [maxSeatCount, setMaxSeatCount] = useState(4);
-
+const [seatsType, setSeatsType] = useState<SeatsType>('GENERAL');
   const handleConfirm = () => {
     if (minSeatCount > maxSeatCount) {
     alert('최소 인원은 최대 인원보다 클 수 없습니다.');
@@ -28,7 +29,6 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
         return;
     }
 
-    // 테이블 겹침 확인
     const isOccupied = existingTables.some(t => t.gridX === gridX && t.gridY === gridY);
     if (isOccupied) {
       alert('해당 좌표에 이미 테이블이 있습니다.');
@@ -40,7 +40,7 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
         gridY, 
         minSeatCount, 
         maxSeatCount, 
-        seatsType: 'GENERAL', 
+        seatsType, 
     });
   };
 
@@ -58,6 +58,19 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
           <input id="add-table-min-seat" type="number" className="border p-1 rounded w-full" value={minSeatCount} onChange={e => setMinSeatCount(Number(e.target.value))}/>
           <label htmlFor="add-table-max-seat">최대 인원</label>
           <input id="add-table-max-seat" type="number" className="border p-1 rounded w-full" value={maxSeatCount} onChange={e => setMaxSeatCount(Number(e.target.value))}/>
+          <label htmlFor="add-table-seats-type">테이블 유형</label>
+          <select
+            id="add-table-seats-type"
+            className="border p-1 rounded w-full"
+            value={seatsType}
+            onChange={(e) => setSeatsType(e.target.value as SeatsType)}
+          >
+            <option value="GENERAL">일반석</option>
+            <option value="WINDOW">창가석</option>
+            <option value="ROOM">룸</option>
+            <option value="BAR">바 좌석</option>
+            <option value="OUTDOOR">야외석</option>
+          </select>
         </div>
         <button 
           onClick={handleConfirm} 

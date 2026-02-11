@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { X, Clock } from 'lucide-react';
 
 export interface BreakTime {
-  start: string; // "14:00"
-  end: string;   // "15:00"
+  start: string;
+  end: string; 
 }
 
 interface Props {

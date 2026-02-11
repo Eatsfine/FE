@@ -93,7 +93,7 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10">
-      {/* 기본 정보 섹션 */}
+
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">기본 정보</h3>
         <div className="space-y-6">
@@ -163,7 +163,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
         </div>
       </section>
 
-      {/* 영업 시간 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">영업 시간</h3>
         <div className="space-y-6 mb-8">
@@ -214,7 +213,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
         </div>
       </section>
 
-      {/* 예약 정책 섹션 */}
       <section className={sectionStyle}>
         <h3 className="text-lg mb-8">예약 정책</h3>
         <div className="space-y-8">
@@ -284,7 +282,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
             />
           </div>
 
-          {/* 토글 스위치 영역 */}
           <div className="space-y-6 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -320,7 +317,6 @@ const [minGuests, setMinGuests] = useState<number | string>(1);
         </div>
       </section>
 
-      {/* 하단 저장 버튼 */}
       <div className="flex justify-end mb-20">
         <button 
           onClick={() => {

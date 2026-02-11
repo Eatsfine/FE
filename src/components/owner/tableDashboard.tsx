@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
-import TableCreateModal from './tableCreateModal';
+import TableCreateModal from './tableCreateModal1.tsx';
 import TableDetailModal from './tableDetailModal';
 import BreakTimeModal, { type BreakTime } from './BreakTimeModal';
-import AddTableModal from './addTableModal';
+import AddTableModal from './AddTableModal.tsx';
 import { createLayout, createTable, deleteTable, getActiveLayout, type CreateTableRequest, type LayoutTable } from '@/api/owner/storeLayout';
 import { patchTableInfo, type UpdatedTable } from '@/api/owner/table';
 import { patchBreakTime } from '@/api/owner/reservation';
+import type { SeatsType } from '@/types/table';
 
 interface TableDashboardProps {
   storeId: number;
@@ -24,6 +25,7 @@ export interface TableInfo {
   originalMinCapacity?: number;
   originalMaxCapacity?: number;
   tableImageUrl?: string | null;
+  seatsType: SeatsType
 }
 
 interface PlacedTable {
@@ -32,10 +34,7 @@ interface PlacedTable {
   tableInfo: TableInfo;
 }
 
-/**
- * API의 gridX/gridY는 0-based.
- * UI 상 slotId(key)는 1-based index: slotId = gridY * columns + gridX + 1
- */
+
 const mapTablesFromApi = (
   tables: LayoutTable[],
   columns: number,
@@ -59,6 +58,7 @@ const mapTablesFromApi = (
       originalMinCapacity: t.minSeatCount,
       originalMaxCapacity: t.maxSeatCount,
       tableImageUrl: imageUrl,
+      seatsType: t.seatsType ?? 'GENERAL',
     };
   });
 
@@ -131,6 +131,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
     isEditingNum: false,
     isSaved: false,
     tableImageUrl: null,
+    seatsType: 'GENERAL',
   });
 
   const getTableData = (id: number) => tableData[id] ?? getDefaultTableData(id);
@@ -140,7 +141,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
       const current = prev[id] ?? getDefaultTableData(id);
       const next = { ...current, ...updates };
 
-      // 용이성: min < max 보정
       if (updates.minCapacity !== undefined && next.minCapacity >= next.maxCapacity) {
         next.minCapacity = Math.max(1, next.maxCapacity - 1);
       }
@@ -185,6 +185,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                 isEditingNum: false,
                 isSaved: true,
                 tableImageUrl: (t as any).tableImageUrl ?? tableData[t.gridY * layout.gridInfo.gridCol + t.gridX + 1]?.tableImageUrl ?? null,
+                seatsType: t.seatsType ?? 'GENERAL',
               },
             }))
           );
@@ -205,7 +206,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
     };
 
     fetchLayout();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId]);
 
   const handleCreateLayout = async (columns: number, rows: number) => {
@@ -225,15 +225,12 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
   const handleAddTable = async (data: CreateTableRequest) => {
     if (!storeId) return;
     try {
-      // API는 0-based gridX/gridY를 기대
       const payload: CreateTableRequest = { ...data, gridX: data.gridX - 1, gridY: data.gridY - 1 };
       const newTable = await createTable(storeId, payload);
       if (!newTable) throw new Error("서버에서 테이블 정보를 반환하지 않았습니다.");
 
-      // UI 상 existingTables 은 1-based coords 유지
       setExistingTables(prev => [...prev, { gridX: data.gridX, gridY: data.gridY, tableId: newTable.tableId }]);
 
-      // slotId 계산 (UI key): (row-1) * cols + col
       const slotId = (data.gridY - 1) * config.columns + data.gridX;
       const extractedNum = extractLeadingNumber((newTable as any).tableNumber) ?? slotId;
 
@@ -248,6 +245,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
           isEditingNum: false,
           isSaved: true,
           tableImageUrl: newTable.tableImageUrl ?? null,
+          seatsType: (newTable.seatsType ?? 'GENERAL') as SeatsType,
         },
       }));
 
@@ -404,15 +402,12 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
 
 
   try {
-    // API 호출
     const res = await patchBreakTime(storeId, payload);
-    // 성공 응답 포맷에 맞게 state 업데이트
-    // (서버가 단일 브레이크타임만 반환한다고 가정)
+
     setBreakTimes([ { 
       start: res.data.result.breakStartTime, 
       end: res.data.result.breakEndTime } ]);
 
-    // 옵션: 설정 저장 (SETTINGS_STORAGE_KEY 에 closedDays 등 함께 저장되어 있으므로 일관성 있게 유지)
     try {
       const prevSettingsRaw = localStorage.getItem(SETTINGS_STORAGE_KEY);
       const prevSettings = prevSettingsRaw ? JSON.parse(prevSettingsRaw) : {};
@@ -436,10 +431,19 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
   }
 };
 
+const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
+  GENERAL: '일반석',
+  WINDOW: '창가석',
+  ROOM: '룸',
+  BAR: '바 테이블',
+  OUTDOOR: '야외석',
+};
+
+
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
       <main className="max-w-7xl mx-auto px-8 py-10">
-         {/* 1. 상단 헤더 섹션 */}
+
         <div className="flex flex-col gap-4 mb-10 sm:flex-row sm:justify-between sm:items-end">
           <div>
             <h2 className="text-xl text-gray-900 mb-1">테이블 관리
@@ -477,7 +481,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
           </div>
         </div>
 
-        {/* 브레이크 타임 목록 */}
+
         {breakTimes.length > 0 && (
           <div className="mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -513,7 +517,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
         )}
 
 
-        {/* 2. 3개 요약 카드 */}
         {hasTables && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-in fade-in duration-500">
             <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
@@ -536,7 +539,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
 
 
 
-        {/* 3. 메인 영역 (배치도) */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm relative overflow-hidden">
           {hasTables ? (
             <div className="p-6">
@@ -571,8 +573,12 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                 return (
                   <div 
                     key={id} 
-                    onClick={() => !table.isEditingCapacity && setSelectedTable(id)}
-                    // w-32~40 사이로 조절하여 크기를 줄이고 aspect-square로 정사각 느낌을 줌
+                    onClick={() => {
+                      if (!table.isSaved) return;
+                      if (!table.isEditingCapacity) {
+                        setSelectedTable(id);
+                      }
+                    }}                   
                     className={`border-2 ${style.border} ${extraStyle} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
                   >
                     <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
@@ -620,7 +626,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                       )}
                     </div>
 
-                    {/* 인원 설정 버튼 및 컨트롤러 */}
                     <div className="relative w-full flex flex-col items-center">
                       {table.isEditingCapacity ? (
                         <div className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
@@ -649,7 +654,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                                   onChange={(e) => updateTable(id, { maxCapacity: Number(e.target.value) })}
                                   onBlur={(e) => {
                                     const val = Number(e.target.value);
-                                    // 입력한 값이 최소값보다 작거나 같으면 최소값 + 1로 강제 고정
                                     if (val <= table.minCapacity) {
                                       updateTable(id, { maxCapacity: table.minCapacity + 1 });
                                     }
@@ -667,12 +671,17 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                           </div>
                         </div>
                       ) : (
+                        <>
                         <div 
                           onClick={(e) => { e.stopPropagation(); startEditingCapacity(id); }}
                           className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-[60px] text-center transition-transform active:scale-95`}
                         >
                           {table.minCapacity}~{table.maxCapacity}인
                         </div>
+                        <div className="mt-3 text-[11px] text-gray-600">
+                          {SEATS_TYPE_LABEL[table.seatsType]}
+                        </div>
+                      </>
                       )}
                     </div>
                   </div>
@@ -681,7 +690,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
             </div>
           </div>
 
-          {/* 4. 하단 팁 및 범례 섹션 */}
           <div className="bg-gray-50 border border-gray-100 rounded-[28px] p-7 mt-8">
             <div className="flex items-center gap-3 text-sm text-gray-600 mb-5">
               <Lightbulb size={20} className="text-yellow-400 fill-yellow-400" />
@@ -712,7 +720,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
           </div>
       </main>
 
-      {/* 모달들 (로직 동일) */}
       {isCreateModalOpen && <TableCreateModal onClose={() => setCreateModalOpen(false)} onConfirm={handleCreateLayout} />}
       {selectedTable != null && (
         <TableDetailModal
@@ -737,8 +744,11 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
             setTableData(prev => {
               const next = { ...prev };
               const slotIdStr = Object.keys(prev).find(k => prev[Number(k)]?.tableId === tableId);
-              if (slotIdStr) next[Number(slotIdStr)].tableImageUrl = url || null;
-              return next;
+              if (slotIdStr) {
+                  const key = Number(slotIdStr);
+                  next[key] = { ...next[key], tableImageUrl: url || null };
+                }              
+                return next;
             });
           }}
         />
@@ -750,8 +760,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
             closeTime="22:00"
             onClose={() => setIsBreakModalOpen(false)}
             onConfirm={(bt) => {
-              // 모달 내부에서 onConfirm 호출 후 모달은 닫히므로,
-              // API 호출을 여기에서 수행합니다.
               handleSetBreakTime(bt);
             }}
           />

@@ -30,7 +30,7 @@ export const uploadTableImage = (
   storeId: number,
   tableId: number,
   file: File,
-  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void // ⭐ 수정
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
 ) => {
   const formData = new FormData();
   formData.append("tableImage", file);
