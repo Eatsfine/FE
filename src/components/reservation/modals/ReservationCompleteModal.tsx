@@ -1,5 +1,6 @@
 import type { ReservationDraft, Restaurant } from "@/types/restaurant";
 import { toYmd } from "@/utils/date";
+import { toHHmm } from "@/utils/time";
 import { CircleCheck } from "lucide-react";
 import { useEffect } from "react";
 
@@ -30,7 +31,9 @@ export default function ReservationCompleteModal({
   if (!open) return null;
 
   const { people, date, time } = draft;
-
+  console.log("[complete] draft=", draft);
+  console.log("[complete] time=", draft.time);
+  const timeText = toHHmm(time);
   return (
     <div
       className="fixed inset-0 z-60 flex items-center justify-center p-4"
@@ -52,7 +55,7 @@ export default function ReservationCompleteModal({
             <p>{restaurant.name}</p>
             <p>{toYmd(date)}</p>
             <div className="flex justify-center gap-4">
-              <p>{time}</p>
+              <p>{timeText ?? "시간 미확정"}</p>
               <p>{people}명</p>
             </div>
           </div>

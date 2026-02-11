@@ -11,4 +11,15 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  //백엔드연결성공시삭제예정
+  // CORS 오류허용을 위한 임시장치
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://eatsfine.co.kr",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 });

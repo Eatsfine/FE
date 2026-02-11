@@ -2,9 +2,11 @@ import { api } from "../axios";
 
 type ApiEnvelope<T> = {
   isSuccess?: boolean;
+  success?: boolean;
   code?: string;
   message?: string;
-  result?: T;
+  result: T;
+
 };
 
 export type MemberInfo = {
@@ -42,5 +44,5 @@ export async function putProfileImage(file: File) {
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-  return res.data.result;
+
 }

@@ -26,15 +26,20 @@ let refreshPromise: ReturnType<typeof postRefresh> | null = null;
 api.interceptors.response.use(
   (res) => {
     const data = res.data;
+    if (isApiResponse(data)) {
+      const failed =
+        (typeof (data as any).success === "boolean" &&
+          (data as any).success === false) ||
+        (typeof (data as any).isSuccess === "boolean" &&
+          (data as any).isSuccess === false);
 
-    if (isApiResponse(data) && data.isSuccess === false) {
-      const apiError: ApiError = {
-        status: res.status,
-        code: data.code,
-        message: data.message,
-      };
-
-      return Promise.reject(apiError);
+      if (failed) {
+        return Promise.reject({
+          status: res.status,
+          code: data.code,
+          message: data.message ?? "요청에 실패했습니다.",
+        });
+      }
     }
     return res;
   },
@@ -56,6 +61,11 @@ api.interceptors.response.use(
     }
 
     if (apiError.status === 401 && originalRequest) {
+      const isGuest = !useAuthStore.getState().accessToken;
+      // 비회원이면 재발급x
+      if (isGuest) {
+        return Promise.reject(apiError);
+      }
       // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
       if (
         originalRequest._retry ||

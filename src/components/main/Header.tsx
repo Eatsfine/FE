@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LoginDialog } from "../auth/LoginDialog";
 import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsAuthenticated } from "@/stores/useAuthStore";
@@ -23,6 +23,18 @@ export default function Header() {
   const isAuthenticated = useIsAuthenticated();
 
   const nav = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.openLogin) {
+      const timer = setTimeout(() => {
+        setLoginOpen(true);
+        nav(location.pathname, { replace: true, state: {} });
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location, nav]);
 
   const navItems: NavItem[] = useMemo(
     () => [

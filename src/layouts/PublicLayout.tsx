@@ -1,15 +1,64 @@
 import { logout } from "@/api/auth";
-import { useIsAuthenticated } from "@/stores/useAuthStore";
+import { getMemberInfo } from "@/api/endpoints/member";
+import { Button } from "@/components/ui/button";
+import {
+  useAuthStore,
+  useAuthToken,
+  useIsAuthenticated,
+  useUserId,
+} from "@/stores/useAuthStore";
+import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const nav = useNavigate();
   const isAuthenticated = useIsAuthenticated();
 
+  const accessToken = useAuthToken();
+  const userId = useUserId();
+  const { setUserId, logout: clearAuth } = useAuthStore((s) => s.actions);
+  useEffect(() => {
+    if (!accessToken) return;
+    if (userId != null) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const member = await getMemberInfo();
+        if (cancelled) return;
+        const rawId = member?.id;
+
+        let parsedId: number | null = null;
+        if (typeof rawId === "number") parsedId = rawId;
+        if (typeof rawId === "string" && /^\d+$/.test(rawId))
+          parsedId = Number(rawId);
+        if (parsedId != null && Number.isFinite(parsedId)) {
+          setUserId(parsedId);
+        } else {
+          console.warn("[member/info] invalid id:", rawId, member);
+          nav("/", { replace: true });
+        }
+      } catch (e: any) {
+        if (cancelled) return;
+
+        const status = e?.response?.status;
+        if (status === 401 || status === 403) {
+          clearAuth();
+          nav("/", { replace: true });
+        } else {
+          console.error("[member/info] failed", status, e);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, userId, setUserId, clearAuth, nav]);
+
   const handleLogout = async () => {
     if (!confirm("로그아웃 하시겠습니까?")) return;
 
     await logout();
+    clearAuth();
     alert("로그아웃 되었습니다.");
     nav("/", { replace: true });
   };
@@ -30,13 +79,13 @@ export default function PublicLayout() {
             </div>
           </Link>
           {isAuthenticated && (
-            <button
+            <Button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-black hover:text-gray-600 transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-white hover:text-gray-500 cursor-pointer"
             >
               로그아웃
-            </button>
+            </Button>
           )}
         </div>
       </header>
