@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { Store } from "lucide-react";
-
 import StoreSettings from "../components/owner/StoreSettings";
 import MenuManagement from "../components/owner/MenuManagement";
 import { useParams } from "react-router-dom";
@@ -14,13 +12,9 @@ const OwnerPage: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 pt-3">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
-          <div className="text-lg text-gray-900 flex items-center gap-2 pb-4 border-b px-5">
-            <Store className="text-blue-600" size={24} />내 가게 관리
-          </div>
-
-          <nav className="flex gap-5 pt-4 px-5">
+          <nav className="flex gap-5 px-5">
             <button
               onClick={() => setActiveTab("dashboard")}
               className={`pb-4 px-2 text-md transition-all relative ${
