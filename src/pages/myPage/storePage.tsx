@@ -104,7 +104,13 @@ export default function StorePage() {
           </div>
         )}
 
-        {!isLoading && shops.length === 0 && (
+        {!isLoading && isError && (
+          <div className="py-14 text-center text-red-400">
+            가게 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
+          </div>
+        )}
+
+        {!isLoading && isError && shops.length === 0 && (
           <div className="py-14 text-center text-gray-500">
             등록된 가게가 없습니다. 우측 상단에서 새 가게를 등록해주세요.
           </div>
