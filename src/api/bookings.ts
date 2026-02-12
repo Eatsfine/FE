@@ -26,11 +26,11 @@ export interface BookingResponse {
 }
 
 
-export const getBookings = async (status?: ApiBookingStatus, page: number = 1) => {
+export const getBookings = async (status?: ApiBookingStatus, page: number = 1): Promise<BookingResponse> => {
   const params: any = { page };
   if (status) params.status = status;
 
-  const response = await api.get("/api/v1/users/bookings", { params });
+  const response = await api.get<{ result: BookingResponse }>("/api/v1/users/bookings", { params });
   return response.data.result as BookingResponse;
 };  
 

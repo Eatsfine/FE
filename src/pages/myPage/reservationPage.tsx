@@ -21,7 +21,9 @@ type Reservation = {
 
 export default function ReservationPage() {
   const [activeTab, setActiveTab] = useState<ReservationStatus>("전체");
-const [reservations, setReservations] = useState<Reservation[]>([]);  const [loading, setLoading] = useState(false);
+const [reservations, setReservations] = useState<Reservation[]>([]);  
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
 
 const fetchReservations = async () => {
     try {
@@ -43,10 +45,9 @@ const fetchReservations = async () => {
         apiStatus = undefined;
         break;
     }
-    console.log("fetchReservations status:", apiStatus);
-      const data = await getBookings(apiStatus as any);
+      const data = await getBookings(apiStatus);
 
-      const mapped: Reservation[] = data.bookingList.map((b) => ({
+      const mapped: Reservation[] = (data.bookingList ?? []).map((b) => ({
         id: b.bookingId,
         shopName: b.storeName,
         address: b.storeAddress,
@@ -73,6 +74,7 @@ const fetchReservations = async () => {
       setReservations(mapped);
     } catch (error) {
       console.error("예약 내역 조회 실패", error);
+      setError("예약 내역을 불러오는 데 실패했습니다. 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }
@@ -113,6 +115,8 @@ const fetchReservations = async () => {
 
       {loading ? (
         <div className="py-20 text-center text-gray-400 text-sm">로딩 중...</div>
+       ) : error ? (
+  <div className="py-20 text-center text-red-400 text-sm">{error}</div>
       ) : reservations.length > 0 ? (
         <div className="space-y-6">
           {reservations.map((res) => (
