@@ -10,6 +10,7 @@ import type { StoreInfoFormValues } from "@/components/store-registration/StoreI
 import { transformToRegister } from "@/components/store-registration/StoreTransform.utils";
 import { useMenuCreate, useMenuImage } from "@/hooks/queries/useMenu";
 import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
+import type { ApiError } from "@/types/api";
 import { getErrorMessage } from "@/utils/error";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -128,9 +129,14 @@ export default function StoreRegistrationPage() {
         await Promise.all(promises);
 
         setIsCompleteModalOpen(true);
-      } catch (error) {
+      } catch (error: any) {
         console.error("가게 등록 실패:", error);
-        alert(getErrorMessage(error));
+        const errorResponse = error.response?.data as ApiError;
+        if (errorResponse?.code === "REGION404") {
+          alert("현재 서울 지역만 등록 가능합니다.");
+        } else {
+          alert(getErrorMessage(error));
+        }
       }
     }
   };
