@@ -7,26 +7,26 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { logout as performLogout } from "@/api/auth";
 
-function isWithdrawBlockByBookings(e: any) {
-  const msg = e?.response?.data?.message;
-  const result = e?.response?.data?.result;
-  const code = e?.response?.data?.code;
+// function isWithdrawBlockByBookings(e: any) {
+//   const msg = e?.response?.data?.message;
+//   const result = e?.response?.data?.result;
+//   const code = e?.response?.data?.code;
 
-  const raw = `${msg ?? ""} ${result ?? ""}`;
+//   const raw = `${msg ?? ""} ${result ?? ""}`;
 
-  return (
-    code === "WITHDRAW_BLOCKED" ||
-    /foreign key constraint/i.test(raw) ||
-    /booking/i.test(raw) ||
-    /예약/i.test(raw)
-  );
-}
+//   return (
+//     code === "WITHDRAW_BLOCKED" ||
+//     /foreign key constraint/i.test(raw) ||
+//     /booking/i.test(raw) ||
+//     /예약/i.test(raw)
+//   );
+// }
 
 // 백엔드 배포완료되면
-// function isWithdrawBlockByBookings(e: any) {
-//   const code = e?.response?.data?.code;
-//   return code === "WITHDRAW_BLOCKED";
-// }
+function isWithdrawBlockByBookings(e: any) {
+  const code = e?.response?.data?.code;
+  return code === "WITHDRAW_BLOCKED";
+}
 
 export function WithdrawDialog({
   open,
@@ -130,14 +130,6 @@ export function WithdrawDialog({
         >
           {blocked ? (
             <>
-              <Button
-                type="button"
-                variant="outline"
-                className="cursor-pointer bg-gray-100 hover:bg-gray-200"
-                onClick={handleClose}
-              >
-                취소
-              </Button>
               <Button
                 type="button"
                 className="cursor-pointer bg-blue-500 hover:bg-blue-600"

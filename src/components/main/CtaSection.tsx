@@ -39,7 +39,7 @@ export default function CtaSection() {
             variant="outline"
             className="px-10 py-6 bg-white text-black font-bold border-black rounded-xl hover:text-white hover:bg-black transition-colors cursor-pointer"
           >
-            사장님으로 등록하기
+            사장님으로 가게 등록하기
           </Button>
         </div>
       </div>
