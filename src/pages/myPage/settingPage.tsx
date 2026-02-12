@@ -14,6 +14,56 @@ const defaultNotifications = {
   sms: false,
 };
 
+function ToggleButton({
+  label,
+  description,
+  enabled,
+  onClick,
+}: {
+  label: string;
+  description: string;
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div className="cursor-pointer flex items-center justify-between">
+      <div className="space-y-0.5">
+        <p className="font-medium text-gray-900">{label}</p>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <Switch enabled={enabled} onClick={onClick} />
+    </div>
+  );
+}
+
+function Switch({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      onClick={onClick}
+      className={cn(
+        "cursor-pointer relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+        enabled ? "bg-blue-600" : "bg-gray-200",
+      )}
+    >
+      <span
+        className={cn(
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+          enabled ? "translate-x-5" : "translate-x-0",
+        )}
+      />
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
@@ -25,9 +75,12 @@ export default function SettingsPage() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      setNotifications(parsed);
-      setSavedNotifications(parsed);
-    } catch {}
+      const merged = { ...defaultNotifications, ...parsed };
+      setNotifications(merged);
+      setSavedNotifications(merged);
+    } catch (e) {
+      console.warn("알림 설정 로드 실패, 기본값 사용", e);
+    }
   }, []);
 
   const isDirty = useMemo(() => {
@@ -47,56 +100,6 @@ export default function SettingsPage() {
     setSavedNotifications(notifications);
     alert("변경사항이 저장되었습니다.");
   };
-
-  function ToggleButton({
-    label,
-    description,
-    enabled,
-    onClick,
-  }: {
-    label: string;
-    description: string;
-    enabled: boolean;
-    onClick: () => void;
-  }) {
-    return (
-      <div className="cursor-pointer flex items-center justify-between">
-        <div className="space-y-0.5">
-          <p className="font-medium text-gray-900">{label}</p>
-          <p className="text-sm text-gray-500">{description}</p>
-        </div>
-        <Switch enabled={enabled} onClick={onClick} />
-      </div>
-    );
-  }
-
-  function Switch({
-    enabled,
-    onClick,
-  }: {
-    enabled: boolean;
-    onClick: () => void;
-  }) {
-    return (
-      <button
-        type="button"
-        role="switch"
-        aria-checked={enabled}
-        onClick={onClick}
-        className={cn(
-          "cursor-pointer relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-          enabled ? "bg-blue-600" : "bg-gray-200",
-        )}
-      >
-        <span
-          className={cn(
-            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-            enabled ? "translate-x-5" : "translate-x-0",
-          )}
-        />
-      </button>
-    );
-  }
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
