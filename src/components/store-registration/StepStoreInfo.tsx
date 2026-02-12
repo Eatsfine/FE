@@ -236,7 +236,10 @@ export default function StepStoreInfo({
         </div>
 
         <div>
-          <Label htmlFor="address" className="flex flex-wrap items-baseline block text-gray-700 mb-2">
+          <Label
+            htmlFor="address"
+            className="flex flex-wrap items-baseline block text-gray-700 mb-2"
+          >
             주소
             <span className="text-red-500 mr-2">*</span>
             <span className="text-xs text-blue-600 break-keep">
@@ -329,11 +332,6 @@ export default function StepStoreInfo({
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.closeTime && touchedFields.closeTime && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.closeTime.message}
-              </p>
-            )}
           </div>
         </div>
         <div>
