@@ -81,5 +81,5 @@ export function updateBusinessHours(
 
 export const getMyStores = async (): Promise<MyStore[]> => {
   const res = await api.get<MyStoreResponse>("/api/v1/stores/my");
-  return res.data.result.stores;
+  return res.data.result.stores ?? [];
 };

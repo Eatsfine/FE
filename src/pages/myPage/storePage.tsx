@@ -7,6 +7,7 @@ import { getMyStores, type MyStore } from "@/api/owner/stores";
 export default function StorePage() {
   const [shops, setShops] = useState<MyStore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -15,6 +16,8 @@ export default function StorePage() {
         setShops(data);
       } catch (error) {
         console.error("내 가게 조회 실패", error);
+        setIsError(true);
+        
       } finally {
         setIsLoading(false);
       }
