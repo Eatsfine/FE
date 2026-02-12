@@ -238,7 +238,7 @@ export default function StepStoreInfo({
         <div>
           <Label
             htmlFor="address"
-            className="flex flex-wrap items-baseline block text-gray-700 mb-2"
+            className="flex flex-wrap items-baseline text-gray-700 mb-2"
           >
             주소
             <span className="text-red-500 mr-2">*</span>
