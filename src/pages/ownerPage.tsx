@@ -12,7 +12,7 @@ const OwnerPage: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
+      <header className="border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
           <nav className="flex gap-5 px-5">
             <button
