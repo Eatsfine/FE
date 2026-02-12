@@ -38,7 +38,6 @@ export default function Header() {
 
   const navItems: NavItem[] = useMemo(
     () => [
-      { label: "소개", href: "/" },
       { label: "식당 예약", href: "/search" },
       { label: "내 가게 관리", href: "/mypage/store" },
       { label: "고객센터", href: "/customer-support" },
