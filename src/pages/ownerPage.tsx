@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TableDashboard from "../components/owner/tableDashboard";
 import { Store } from "lucide-react";
 import StoreSettings from "../components/owner/storeSettings";
-import MenuManagement from "../components/owner/menuManagement1";
+import MenuManagement from "../components/owner/MenuManagement";
 import { useParams } from "react-router-dom";
 import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 
@@ -12,7 +12,9 @@ const OwnerPage: React.FC = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
-  const selectedStore = MOCK_RESTAURANTS.find((store) => store.id === storeId);
+  const storeIdNumber = storeId ? Number(storeId) : undefined;
+
+  const selectedStore = MOCK_RESTAURANTS.find((store) => store.id === storeIdNumber);
 
   return (
     <div className="w-full min-h-screen bg-gray-50">
