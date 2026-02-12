@@ -2,6 +2,12 @@
 
 **Eatsfine 프론트엔드 레포지토리입니다.**
 
+🖇️**Service URL**
+https://www.eatsfine.co.kr
+
+📽️**데모 영상**
+https://www.youtube.com/watch?v=Nk1_28zSJaQ
+
 - Stack: **React + TypeScript + Vite + TailwindCSS + pnpm**
 - UI: **shadcn/ui**
 - Routing: **react-router-dom**
@@ -39,14 +45,13 @@ git commit -m "style: 식당리스트 카드디자인 수정"
 ```txt
 src/
   api/          # axios 인스턴스/요청 함수
-  assets/       # 정적 자원
   components/   # UI 컴포넌트 (도메인별 폴더 포함)
   hooks/        # 커스텀 훅
   layouts/      # 레이아웃
   lib/          # 공용 유틸 (cn 등)
-  mock/         # mock 데이터 / mock API (개발용)
   pages/        # 라우트 단위 페이지
   query/        # TanStack Query 설정
+  stores/       # 전역 상태관리
   styles/       # 전역 스타일
   types/        # 전역 타입 (UI 모델)
   utils/        # 공용 유틸 함수
