@@ -7,25 +7,19 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { logout as performLogout } from "@/api/auth";
 
-// function isWithdrawBlockByBookings(e: any) {
-//   const msg = e?.response?.data?.message;
-//   const result = e?.response?.data?.result;
-//   const code = e?.response?.data?.code;
-
-//   const raw = `${msg ?? ""} ${result ?? ""}`;
-
-//   return (
-//     code === "WITHDRAW_BLOCKED" ||
-//     /foreign key constraint/i.test(raw) ||
-//     /booking/i.test(raw) ||
-//     /예약/i.test(raw)
-//   );
-// }
-
-// 백엔드 배포완료되면
 function isWithdrawBlockByBookings(e: any) {
+  const msg = e?.response?.data?.message;
+  const result = e?.response?.data?.result;
   const code = e?.response?.data?.code;
-  return code === "WITHDRAW_BLOCKED";
+
+  const raw = `${msg ?? ""} ${result ?? ""}`;
+
+  return (
+    code === "WITHDRAW_BLOCKED" ||
+    /foreign key constraint/i.test(raw) ||
+    /booking/i.test(raw) ||
+    /예약/i.test(raw)
+  );
 }
 
 export function WithdrawDialog({
