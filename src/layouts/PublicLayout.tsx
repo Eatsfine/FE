@@ -89,7 +89,7 @@ export default function PublicLayout() {
           )}
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-4">
         <Outlet />
       </main>
     </div>

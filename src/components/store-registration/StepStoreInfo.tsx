@@ -42,6 +42,7 @@ export default function StepStoreInfo({
     control,
     watch,
     setValue,
+    trigger,
     getValues,
     formState: { errors, isValid, touchedFields },
   } = useForm({
@@ -147,7 +148,7 @@ export default function StepStoreInfo({
       fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
     }
 
-    setValue("address", fullAddress, { shouldValidate: true });
+    setValue("address", fullAddress);
 
     setValue("sido", data.sido);
     setValue("sigungu", data.sigungu);
@@ -163,15 +164,19 @@ export default function StepStoreInfo({
 
           setValue("latitude", lat, { shouldValidate: true });
           setValue("longitude", lng, { shouldValidate: true });
+
+          trigger("address");
         } else {
           setValue("latitude", 0, { shouldValidate: true });
           setValue("longitude", 0, { shouldValidate: true });
+          trigger("address");
         }
       });
     } else {
       alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setValue("latitude", 0, { shouldValidate: true });
       setValue("longitude", 0, { shouldValidate: true });
+      trigger("address");
     }
 
     setIsOpenPostcode(false);
@@ -231,9 +236,15 @@ export default function StepStoreInfo({
         </div>
 
         <div>
-          <Label htmlFor="address" className="block text-gray-700 mb-2">
+          <Label
+            htmlFor="address"
+            className="flex flex-wrap items-baseline text-gray-700 mb-2"
+          >
             주소
-            <span className="text-red-500">*</span>
+            <span className="text-red-500 mr-2">*</span>
+            <span className="text-xs text-blue-600 break-keep">
+              (현재 서울 지역만 등록 가능합니다)
+            </span>
           </Label>
           <div className="space-y-2">
             <div className="flex gap-2">
@@ -321,11 +332,6 @@ export default function StepStoreInfo({
               type="time"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.closeTime && touchedFields.closeTime && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.closeTime.message}
-              </p>
-            )}
           </div>
         </div>
         <div>

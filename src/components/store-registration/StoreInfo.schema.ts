@@ -85,18 +85,6 @@ export const StoreInfoSchema = z
     message:
       "선택하신 주소는 위치 확인이 어렵습니다. 정확한 주소를 다시 선택하세요.",
     path: ["address"],
-  })
-  .refine(
-    (data) => {
-      if (data.openTime && data.closeTime) {
-        return data.openTime < data.closeTime;
-      }
-      return true;
-    },
-    {
-      message: "영업 시작 시간은 마감 시간보다 빨라야 합니다.",
-      path: ["closeTime"],
-    },
-  );
+  });
 
 export type StoreInfoFormValues = z.infer<typeof StoreInfoSchema>;

@@ -178,7 +178,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSave}
             disabled={!isDirty}
-            className="crounded-lg bg-blue-500 px-6 py-3 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 enabled:cursor-pointer enabled:bg-blue-500 enabled:hover:bg-blue-700"
+            className="rounded-lg bg-blue-500 px-6 py-3 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 enabled:cursor-pointer enabled:bg-blue-500 enabled:hover:bg-blue-700"
           >
             저장하기
           </button>
