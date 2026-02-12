@@ -110,7 +110,7 @@ export default function StorePage() {
           </div>
         )}
 
-        {!isLoading && isError && shops.length === 0 && (
+        {!isLoading && !isError && shops.length === 0 && (
           <div className="py-14 text-center text-gray-500">
             등록된 가게가 없습니다. 우측 상단에서 새 가게를 등록해주세요.
           </div>
@@ -129,7 +129,15 @@ export default function StorePage() {
                     alt={store.storeName}
                     className="h-20 w-20 rounded-lg object-cover border"
                     onError={(e) => {
-                      e.currentTarget.style.display = "none";
+                      const parent = e.currentTarget.parentElement;
+                      e.currentTarget.remove();
+                      if (parent) {
+                        const fallback = document.createElement("div");
+                        fallback.className =
+                          "h-20 w-20 rounded-lg border bg-gray-100 flex items-center justify-center text-gray-400";
+                        fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><rect width="20" height="5" x="2" y="7"/></svg>`;
+                        parent.appendChild(fallback);
+                      }
                     }}
                   />
                 ) : (
