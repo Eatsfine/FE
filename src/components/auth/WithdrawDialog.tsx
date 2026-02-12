@@ -21,7 +21,6 @@ function isWithdrawBlockByBookings(e: any) {
     /예약/i.test(raw)
   );
 }
-
 export function WithdrawDialog({
   open,
   onOpenChange,
