@@ -22,11 +22,14 @@ type Props = {
   draft: ReservationDraft;
 };
 
-const CategoryLabel: Record<MenuCategory, string> = {
+const CategoryLabel: Record<UiCategory, string> = {
   MAIN: "메인 메뉴",
   SIDE: "사이드 메뉴",
   DRINK: "음료",
+  OTHER: "기타",
 };
+
+type UiCategory = MenuCategory | "OTHER";
 
 export default function ReservationMenuModal({
   open,
@@ -52,16 +55,36 @@ export default function ReservationMenuModal({
     return map;
   }, [selectedMenus]);
 
+  const mapMenuCategory = (raw: unknown): UiCategory => {
+    const cat = String(raw);
+    switch (cat) {
+      case "MAIN":
+      case "MAIN_MENU":
+        return "MAIN";
+
+      case "SIDE":
+        return "SIDE";
+      case "DRINK":
+      case "BEVERAGE":
+        return "DRINK";
+      default:
+        return "OTHER";
+    }
+  };
+
   const grouped = useMemo(() => {
-    const by: Record<MenuCategory, MenuItem[]> = {
+    const by: Record<UiCategory, MenuItem[]> = {
       MAIN: [],
       SIDE: [],
       DRINK: [],
+      OTHER: [],
     };
-    for (const m of activeMenus) by[m.category].push(m);
+    for (const m of activeMenus ?? []) {
+      const key = mapMenuCategory(m.category);
+      by[key].push(m);
+    }
     return by;
   }, [activeMenus]);
-
   const totalPrice = useMemo(() => {
     return calcMenuTotal(activeMenus, selectedMenus);
   }, [activeMenus, selectedMenus]);

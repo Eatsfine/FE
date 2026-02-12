@@ -1,6 +1,4 @@
-import { Store } from 'lucide-react';
-
-type TabType = 'dashboard' | 'settings' | 'menu';
+type TabType = "dashboard" | "settings" | "menu";
 
 interface Props {
   activeTab: TabType;
@@ -8,31 +6,26 @@ interface Props {
 }
 
 const tabs: { key: TabType; label: string }[] = [
-  { key: 'dashboard', label: '대시보드' },
-  { key: 'settings', label: '가게 설정' },
-  { key: 'menu', label: '메뉴 관리' },
+  { key: "dashboard", label: "대시보드" },
+  { key: "settings", label: "가게 설정" },
+  { key: "menu", label: "메뉴 관리" },
 ];
 
 const OwnerHeader: React.FC<Props> = ({ activeTab, onChangeTab }) => {
   return (
     <header className="bg-white border-b border-gray-200 pt-3">
       <div className="max-w-7xl mx-auto">
-        <div className="text-lg text-gray-900 flex items-center gap-2 pb-4 border-b px-5">
-          <Store className="text-blue-600" size={24} />
-          내 가게 관리
-        </div>
-
         <nav className="flex gap-5 pt-4 px-5">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <button
-             type='button'
-             aria-current={activeTab === tab.key ? 'page' : undefined}
+              type="button"
+              aria-current={activeTab === tab.key ? "page" : undefined}
               key={tab.key}
               onClick={() => onChangeTab(tab.key)}
               className={`pb-4 px-2 text-md transition-all relative ${
                 activeTab === tab.key
-                  ? 'text-blue-600'
-                  : 'text-gray-900 hover:text-gray-900'
+                  ? "text-blue-600"
+                  : "text-gray-900 hover:text-gray-900"
               }`}
             >
               {tab.label}
