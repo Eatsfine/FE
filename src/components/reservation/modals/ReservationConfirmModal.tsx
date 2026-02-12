@@ -156,6 +156,9 @@ export default function ReservationConfirmModal({
             <p className="text-xs text-muted-foreground mt-2">
               예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)
             </p>
+            <p className="text-xs text-red-500 font-medium mt-2">
+              예약 취소시 예약금은 환불이 어렵습니다.
+            </p>
           </div>
           <p className="text-gray-700 text-center">
             위 내용으로 예약을 진행할까요?

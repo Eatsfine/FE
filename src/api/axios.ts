@@ -15,19 +15,14 @@ function getAccessToken() {
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
-  const ownerApiPaths = [
-    "/owner",
-    "/stores/",
-  ];
+  const ownerApiPaths = ["/owner", "/stores/"];
 
-  const isOwnerApi = ownerApiPaths.some((path) =>
-    config.url?.includes(path)
-  );
+  const isOwnerApi = ownerApiPaths.some((path) => config.url?.includes(path));
 
   if (isOwnerApi) {
     if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    return config;
+      config.headers.Authorization = `Bearer ${token}`;
+      return config;
     }
   }
 
@@ -77,9 +72,7 @@ api.interceptors.response.use(
       });
     }
 
-
     if (apiError.status === 401 && originalRequest) {
-
       const isGuest = !useAuthStore.getState().accessToken;
       // 비회원이면 재발급x
       if (isGuest) {
@@ -95,7 +88,7 @@ api.interceptors.response.use(
         return Promise.reject(apiError);
       }
 
-      originalRequest._retry = true; 
+      originalRequest._retry = true;
 
       try {
         if (!refreshPromise) {

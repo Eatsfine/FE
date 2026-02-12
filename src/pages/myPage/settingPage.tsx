@@ -1,22 +1,104 @@
 import { Lock, Bell, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDiaLog";
 import { WithdrawDialog } from "@/components/auth/WithdrawDialog";
 
+const STORAGE_KEY = "settings.notifications.v1";
+
+const defaultNotifications = {
+  reservation: true,
+  promotion: true,
+  review: false,
+  email: true,
+  sms: false,
+};
+
+function ToggleButton({
+  label,
+  description,
+  enabled,
+  onClick,
+}: {
+  label: string;
+  description: string;
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div className="cursor-pointer flex items-center justify-between">
+      <div className="space-y-0.5">
+        <p className="font-medium text-gray-900">{label}</p>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <Switch enabled={enabled} onClick={onClick} />
+    </div>
+  );
+}
+
+function Switch({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      onClick={onClick}
+      className={cn(
+        "cursor-pointer relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+        enabled ? "bg-blue-600" : "bg-gray-200",
+      )}
+    >
+      <span
+        className={cn(
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+          enabled ? "translate-x-5" : "translate-x-0",
+        )}
+      />
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [notifications, setNotifications] = useState({
-    reservation: true,
-    promotion: true,
-    review: false,
-    email: true,
-    sms: false,
-  });
+  const [notifications, setNotifications] = useState(defaultNotifications);
+  const [savedNotifications, setSavedNotifications] = useState(notifications);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const merged = { ...defaultNotifications, ...parsed };
+      setNotifications(merged);
+      setSavedNotifications(merged);
+    } catch (e) {
+      console.warn("알림 설정 로드 실패, 기본값 사용", e);
+    }
+  }, []);
+
+  const isDirty = useMemo(() => {
+    return JSON.stringify(notifications) !== JSON.stringify(savedNotifications);
+  }, [notifications, savedNotifications]);
 
   const toggleNotification = (key: keyof typeof notifications) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSave = () => {
+    if (!isDirty) {
+      alert("변경사항이 없습니다.");
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+    setSavedNotifications(notifications);
+    alert("변경사항이 저장되었습니다.");
   };
 
   return (
@@ -92,7 +174,12 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <button className="cursor-pointer rounded-lg bg-blue-500 px-6 py-3 font-medium text-white hover:bg-blue-700 transition-colors">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!isDirty}
+            className="crounded-lg bg-blue-500 px-6 py-3 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 enabled:cursor-pointer enabled:bg-blue-500 enabled:hover:bg-blue-700"
+          >
             저장하기
           </button>
         </div>
@@ -120,55 +207,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </section>
-  );
-}
-
-function ToggleButton({
-  label,
-  description,
-  enabled,
-  onClick,
-}: {
-  label: string;
-  description: string;
-  enabled: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <div className="cursor-pointer flex items-center justify-between">
-      <div className="space-y-0.5">
-        <p className="font-medium text-gray-900">{label}</p>
-        <p className="text-sm text-gray-500">{description}</p>
-      </div>
-      <Switch enabled={enabled} onClick={onClick} />
-    </div>
-  );
-}
-
-function Switch({
-  enabled,
-  onClick,
-}: {
-  enabled: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={enabled}
-      onClick={onClick}
-      className={cn(
-        "cursor-pointer relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-        enabled ? "bg-blue-600" : "bg-gray-200",
-      )}
-    >
-      <span
-        className={cn(
-          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-          enabled ? "translate-x-5" : "translate-x-0",
-        )}
-      />
-    </button>
   );
 }
