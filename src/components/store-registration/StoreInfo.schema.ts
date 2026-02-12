@@ -46,12 +46,17 @@ export const StoreInfoSchema = z
 
     depositRate: DepositRateEnum,
 
-    bookingIntervalMinutes: z.preprocess((val) => {
-      if (val === "" || val === undefined || Number.isNaN(val)) {
-        return 0;
-      }
-      return Number(val);
-    }, z.number().min(0)),
+    bookingIntervalMinutes: z.preprocess(
+      (val) => {
+        if (val === "" || val === undefined || Number.isNaN(val)) {
+          return 0;
+        }
+        return Number(val);
+      },
+      z
+        .number()
+        .min(30, { message: "예약 시간 간격은 최소 30분이어야 합니다." }),
+    ),
 
     openTime: z.string().min(1),
     closeTime: z.string().min(1),
