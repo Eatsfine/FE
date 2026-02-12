@@ -1,6 +1,6 @@
 import { Store, Calendar, Star, Plus, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getMyStores, type MyStore } from "@/api/owner/stores";
 
@@ -8,6 +8,8 @@ export default function StorePage() {
   const [shops, setShops] = useState<MyStore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+
+  const nav = useNavigate();
 
   useEffect(() => {
     const fetchStores = async () => {
@@ -17,7 +19,6 @@ export default function StorePage() {
       } catch (error) {
         console.error("내 가게 조회 실패", error);
         setIsError(true);
-        
       } finally {
         setIsLoading(false);
       }
@@ -177,7 +178,10 @@ export default function StorePage() {
             </p>
           </div>
         </div>
-        <button className="mt-6 w-full sm:w-auto px-8 py-4 rounded-lg bg-blue-500 font-bold text-white hover:bg-blue-600 transition">
+        <button
+          onClick={() => nav("/mypage/subscription")}
+          className="mt-6 cursor-pointer w-full sm:w-auto px-8 py-4 rounded-lg bg-blue-500 font-bold text-white hover:bg-blue-600 transition"
+        >
           프리미엄 플랜 알아보기
         </button>
       </div>
