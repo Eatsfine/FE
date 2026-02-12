@@ -4,8 +4,11 @@
 
 - Stack: **React + TypeScript + Vite + TailwindCSS + pnpm**
 - UI: **shadcn/ui**
-- 라우팅: **react-router-dom**
-- 서버 상태: **TanStack Query**
+- Routing: **react-router-dom**
+- Server State: **TanStack Query**
+- Form Validation: **React Hook Form + Zod**
+- HTTP Client: **axios**
+- Client State: **Zustand**
 
 ## 🔥 Git Commit Convention (커밋 규칙)
 
@@ -35,14 +38,18 @@ git commit -m "style: 식당리스트 카드디자인 수정"
 
 ```txt
 src/
-  pages/        # 라우트 단위 페이지
-  components/   # 재사용 UI 컴포넌트
-  layouts/      # 레이아웃
   api/          # axios 인스턴스/요청 함수
+  assets/       # 정적 자원
+  components/   # UI 컴포넌트 (도메인별 폴더 포함)
   hooks/        # 커스텀 훅
+  layouts/      # 레이아웃
   lib/          # 공용 유틸 (cn 등)
-  styles/       # 전역 스타일(필요 시)
-
+  mock/         # mock 데이터 / mock API (개발용)
+  pages/        # 라우트 단위 페이지
+  query/        # TanStack Query 설정
+  styles/       # 전역 스타일
+  types/        # 전역 타입 (UI 모델)
+  utils/        # 공용 유틸 함수
 ```
 
 ## 🌿 Branch
@@ -50,10 +57,10 @@ src/
 - main : 배포/최종 안정 브랜치 **(직접 push 금지)**
 - develop: 개발 통합 브랜치 (기본 작업 브랜치)
 - 작업 브랜치 네이밍:
-  - `feat/feature-name`
-  - `fix/bug-name`
-  - `chore/task-name`
-  - `refactor/scope`
+  - `feat/mainPage`
+  - `fix/myPagePath`
+  - `chore/SearchPage`
+  - `refactor/Header`
 
 ## 🎯 작업 루틴
 
@@ -71,7 +78,7 @@ git pull --rebase origin develop
 ### 2. 작업 브랜치 생성
 
 ```bash
-git checkout -b feat/feature-name
+git checkout -b feat/featureName
 ```
 
 ### 3. 작업 후 커밋 & 푸시
@@ -79,12 +86,12 @@ git checkout -b feat/feature-name
 ```bash
 git add .     # 필요하면 git add file명 으로 특정 파일만 추가해도 됨
 git commit -m "feat: 자세한 내용 적기"
-git push -u origin feat/feature-name
+git push -u origin feat/featureName
 ```
 
 ### 4. PR 생성
 
-- feat/<feature-name> → develop 로 PR 생성
+- feat/<featureName> → develop 로 PR 생성
 - PR 본문에 Closes #이슈번호 작성해서 merge 시 이슈가 자동으로 닫히도록 설정
 
 ```md
@@ -107,18 +114,6 @@ Closes #이슈번호
 - PR은 가능한 작게 쪼개서 올리기
 - PR에 작업 요약 + 스크린샷/동작 설명 포함하기
 - 충돌 발생 시 브랜치에서 먼저 해결 후 PR 업데이트
-
-## 🧹 Scripts
-
-package.json 내에 정의된 명령어 단축키
-
-```bash
-pnpm dev       # 로컬 개발 서버
-pnpm build     # 빌드
-pnpm preview   # 빌드 결과 미리보기
-pnpm lint      # eslint
-pnpm format    # prettier
-```
 
 ## 🧩 UI (shadcn/ui)
 
