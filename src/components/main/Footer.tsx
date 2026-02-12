@@ -1,6 +1,9 @@
 import { Facebook, Instagram } from "lucide-react";
 
 export default function Footer() {
+  const prevent = (e: React.MouseEvent<HTMLAnchorElement>) =>
+    e.preventDefault();
+
   return (
     <footer className="py-16 px-6 text-white bg-black/95">
       <div className="mx-auto max-w-7xl">
@@ -32,12 +35,19 @@ export default function Footer() {
                 </a>
               </li>
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#"
+                  onClick={prevent}
+                  className="hover:text-white transition-colors"
+                >
                   리뷰 보기
                 </a>
               </li>
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="/mypage/store"
+                  className="hover:text-white transition-colors"
+                >
                   사장님 등록
                 </a>
               </li>
@@ -47,22 +57,38 @@ export default function Footer() {
             <h3 className="text-xl font-semibold">회사</h3>
             <ul className="space-y-3">
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#"
+                  onClick={prevent}
+                  className="hover:text-white transition-colors"
+                >
                   회사 소개
                 </a>
               </li>
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#"
+                  onClick={prevent}
+                  className="hover:text-white transition-colors"
+                >
                   채용
                 </a>
               </li>
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#"
+                  onClick={prevent}
+                  className="hover:text-white transition-colors"
+                >
                   공지사항
                 </a>
               </li>
               <li className="text-white/60">
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#"
+                  onClick={prevent}
+                  className="hover:text-white transition-colors"
+                >
                   문의하기
                 </a>
               </li>
@@ -73,6 +99,7 @@ export default function Footer() {
             <div className="flex gap-4">
               <a
                 href="#"
+                onClick={prevent}
                 aria-label="Instagram"
                 className="bg-white/10 p-2 rounded-full hover:bg-white/30 transition-colors"
               >
@@ -80,6 +107,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
+                onClick={prevent}
                 aria-label="Facebook"
                 className="bg-white/10 p-2 rounded-full hover:bg-white/30 transition-colors"
               >
@@ -89,15 +117,22 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* border 기준아래 */}
         <div className="border-t border-white/10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-white/60">
             <p>© 2026 잇츠파인. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors">
+              <a
+                href="#"
+                onClick={prevent}
+                className="hover:text-white transition-colors"
+              >
                 이용약관
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a
+                href="#"
+                onClick={prevent}
+                className="hover:text-white transition-colors"
+              >
                 개인정보처리방침
               </a>
             </div>
