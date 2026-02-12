@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { Store } from "lucide-react";
-<<<<<<< HEAD
-import StoreSettings from "../components/owner/storeSettings";
-=======
+
 import StoreSettings from "../components/owner/StoreSettings";
->>>>>>> dd0a53775938455f45c9d2e49e03fa7c91c1fb64
 import MenuManagement from "../components/owner/MenuManagement";
 import { useParams } from "react-router-dom";
 import TableDashboard from "@/components/owner/tableDashboard";
@@ -15,13 +12,6 @@ const OwnerPage: React.FC = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
 
-<<<<<<< HEAD
-  const storeIdNumber = storeId ? Number(storeId) : undefined;
-
-  const selectedStore = MOCK_RESTAURANTS.find((store) => store.id === storeIdNumber);
-
-=======
->>>>>>> dd0a53775938455f45c9d2e49e03fa7c91c1fb64
   return (
     <div className="w-full min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 pt-3">
