@@ -27,6 +27,27 @@ export interface Time {
   nano: number;
 }
 
+export interface MyStore {
+  storeId: number;
+  storeName: string;
+  address: string;
+  category: string;
+  rating: number;
+  totalBookingCount: number;
+  reviewCount: number;
+  mainImageUrl: string;
+  isOpenNow: boolean;
+}
+
+interface MyStoreResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    stores: MyStore[];
+  };
+}
+
 
 export function getStore(storeId: number | string) {
   return api.get<ApiResponse<StoreDetail>>(
@@ -57,3 +78,8 @@ export function updateBusinessHours(
     { businessHours },
   );
 }
+
+export const getMyStores = async (): Promise<MyStore[]> => {
+  const res = await api.get<MyStoreResponse>("/api/v1/stores/my");
+  return res.data.result.stores;
+};

@@ -1,19 +1,39 @@
 import { Store, Calendar, Star, Plus, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getMyStores, type MyStore } from "@/api/owner/stores";
 
 export default function StorePage() {
-  const shops: Array<{
-    id: string;
-    name: string;
-    isApproved: boolean;
-    address: string;
-    category: string;
-    totalReservations: string;
-    rating: string;
-    reviews: string;
-    notice?: string;
-  }> = [];
+  const [shops, setShops] = useState<MyStore[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        const data = await getMyStores();
+        setShops(data);
+      } catch (error) {
+        console.error("내 가게 조회 실패", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, []);
+
+  const totalReservations = shops.reduce(
+    (sum, store) => sum + store.totalBookingCount,
+    0,
+  );
+
+  const averageRating =
+    shops.length === 0
+      ? "-"
+      : (
+          shops.reduce((sum, store) => sum + store.rating, 0) / shops.length
+        ).toFixed(1);
 
   const stats = [
     {
@@ -25,14 +45,14 @@ export default function StorePage() {
     },
     {
       label: "총 예약 수",
-      value: "-",
+      value: totalReservations.toLocaleString(),
       icon: <Calendar size={20} />,
       bgColor: "bg-indigo-50",
       iconColor: "text-indigo-500",
     },
     {
       label: "평균 평점",
-      value: "-",
+      value: averageRating,
       icon: <Star size={20} />,
       bgColor: "bg-green-50",
       iconColor: "text-yellow-500",
@@ -50,7 +70,7 @@ export default function StorePage() {
         </div>
         <Link
           to="/mypage/store/register"
-          className="cursor-pointer flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-700 transition"
+          className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-700 transition"
         >
           <Plus size={18} /> 새 가게 등록
         </Link>
@@ -75,27 +95,72 @@ export default function StorePage() {
       </div>
 
       <div className="space-y-4 mb-8">
-        {shops.length === 0 && (
+        {isLoading && (
+          <div className="py-14 text-center text-gray-400">
+            가게 정보를 불러오는 중입니다...
+          </div>
+        )}
+
+        {!isLoading && shops.length === 0 && (
           <div className="py-14 text-center text-gray-500">
             등록된 가게가 없습니다. 우측 상단에서 새 가게를 등록해주세요.
           </div>
         )}
+
+        {!isLoading &&
+          shops.map((store) => (
+            <div
+              key={store.storeId}
+              className="flex items-center justify-between rounded-xl border p-5 hover:bg-gray-50 transition"
+            >
+              <div className="flex gap-4">
+                {store.mainImageUrl ? (
+                  <img
+                    src={store.mainImageUrl}
+                    alt={store.storeName}
+                    className="h-20 w-20 rounded-lg object-cover border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="h-20 w-20 rounded-lg border bg-gray-100 flex items-center justify-center text-gray-400">
+                    <Store size={28} />
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-medium">{store.storeName}</h3>
+                  <p className="text-sm text-gray-500">{store.address}</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    평점 {store.rating} · 리뷰 {store.reviewCount}
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to={`/mypage/store/${store.storeId}`}
+                className="text-sm font-medium text-blue-500 hover:underline"
+              >
+                대시보드 이동
+              </Link>
+            </div>
+          ))}
       </div>
 
-      <div className="rounded-2xl bg-blue-50/50 p-6 items-center border border-blue-100/50">
+      <div className="rounded-2xl bg-blue-50/50 p-6 border border-blue-100/50">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-white text-blue-500 shadow-sm border border-blue-50">
+          <div className="p-3 rounded-xl bg-white text-blue-500 shadow-sm border">
             <BarChart3 size={24} />
           </div>
           <div>
             <h4>더 많은 데이터가 필요하신가요?</h4>
-            <p className="text-sm text-gray-500 mt-1 ">
-              프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트, 상세 분석
+            <p className="text-sm text-gray-500 mt-1">
+              프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트와 상세 분석
               리포트를 받아보세요.
             </p>
           </div>
         </div>
-        <button className="cursor-pointer mt-6 w-full sm:w-auto px-8 py-4 rounded-lg bg-blue-500 font-bold text-white hover:bg-blue-600 shadow-sm transition">
+        <button className="mt-6 w-full sm:w-auto px-8 py-4 rounded-lg bg-blue-500 font-bold text-white hover:bg-blue-600 transition">
           프리미엄 플랜 알아보기
         </button>
       </div>
