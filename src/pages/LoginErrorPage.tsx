@@ -8,7 +8,6 @@ const LoginErrorPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full text-center">
-        {/* 아이콘 섹션 (Red Theme) */}
         <div className="relative mb-8">
           <div className="absolute inset-0 flex items-center justify-center animate-pulse">
             <div className="w-32 h-32 bg-red-100 rounded-full"></div>
@@ -17,8 +16,6 @@ const LoginErrorPage: React.FC = () => {
             <AlertCircle size={60} className="text-red-600" />
           </div>
         </div>
-
-        {/* 텍스트 섹션 */}
         <h1 className="text-5xl font-bold text-red-600 mb-4">Error</h1>
         <h2 className="text-2xl font-semibold text-gray-900 mb-3">
           로그인에 실패했습니다
@@ -28,8 +25,6 @@ const LoginErrorPage: React.FC = () => {
           <br />
           네트워크 상태를 확인하거나 다시 시도해 주세요.
         </p>
-
-        {/* 버튼 섹션 */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => navigate("/", { replace: true })}

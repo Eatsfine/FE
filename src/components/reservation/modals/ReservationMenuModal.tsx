@@ -1,4 +1,4 @@
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "../../ui/button";
 import type { SelectedMenu, MenuCategory, MenuItem } from "@/types/menus";
@@ -10,10 +10,12 @@ import { formatKrw } from "@/utils/money";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcDeposit } from "@/utils/payment";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { toDepositRate } from "@/utils/depositRate";
+import type { RestaurantDetail } from "@/types/store";
 
 type Props = {
   open: boolean;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   onConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
   onClose: () => void;
@@ -46,7 +48,7 @@ export default function ReservationMenuModal({
 
   const qtyMap = useMemo(() => {
     const map = new Map<number, number>();
-    for (const s of selectedMenus) map.set(s.menuId, s.quantity);
+    for (const s of selectedMenus) map.set(Number(s.menuId), s.quantity);
     return map;
   }, [selectedMenus]);
 
@@ -85,17 +87,18 @@ export default function ReservationMenuModal({
   };
 
   const inc = (menu: MenuItem) => {
-    const cur = qtyMap.get(menu.id) ?? 0;
+    const cur = qtyMap.get(Number(menu.id)) ?? 0;
     setQuantity(menu, cur + 1);
   };
   const dec = (menu: MenuItem) => {
-    const cur = qtyMap.get(menu.id) ?? 0;
+    const cur = qtyMap.get(Number(menu.id)) ?? 0;
     setQuantity(menu, cur - 1);
   };
 
   const { rate } = useDepositRate(restaurant.id);
+
   const depositAmount = useMemo(
-    () => calcDeposit(totalPrice, rate),
+    () => calcDeposit(totalPrice, toDepositRate(rate)),
     [totalPrice, rate],
   );
 
@@ -151,7 +154,7 @@ export default function ReservationMenuModal({
                   <div className="font-semibold">{safeLabel}</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {list.map((menu) => {
-                      const qty = qtyMap.get(menu.id) ?? 0;
+                      const qty = qtyMap.get(Number(menu.id)) ?? 0;
                       const img =
                         menu.imageUrl && menu.imageUrl.trim().length > 0
                           ? menu.imageUrl

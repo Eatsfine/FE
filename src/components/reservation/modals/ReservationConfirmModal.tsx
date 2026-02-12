@@ -6,6 +6,7 @@ import { useMenus } from "@/hooks/reservation/useMenus";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
+import { toDepositRate } from "@/utils/depositRate";
 import { calcMenuTotal } from "@/utils/menu";
 import { formatKrw } from "@/utils/money";
 import { calcDeposit } from "@/utils/payment";
@@ -36,14 +37,14 @@ export default function ReservationConfirmModal({
   const depositQuery = useDepositRate(restaurant.id);
   const handleRequestClose = useConfirmClose(onClose);
 
-  const { people, date, time, seatType, tablePref } = draft;
+  const { people, date, seatType, tablePref } = draft;
   const isSplitAccepted = tablePref === "split_ok";
 
   const menus = menusQuery.activeMenus ?? [];
   const selectedMenus = draft.selectedMenus ?? [];
   const menuTotal = calcMenuTotal(menus, selectedMenus);
   const rate = depositQuery.rate;
-  const depositAmount = calcDeposit(menuTotal, rate);
+  const depositAmount = calcDeposit(menuTotal, toDepositRate(rate));
 
   const isCalculating = menusQuery.isLoading || depositQuery.isLoading;
 

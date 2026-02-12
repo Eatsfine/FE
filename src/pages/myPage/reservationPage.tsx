@@ -4,61 +4,23 @@ import { cn } from "@/lib/utils";
 
 type ReservationStatus = "전체" | "예정된 예약" | "방문 완료" | "취소된 예약";
 
+type Reservation = {
+  id: number;
+  shopName: string;
+  status: "예약 확정" | "방문 완료" | "취소됨";
+  address: string;
+  date: string;
+  time: string;
+  people: string;
+  payment: string;
+  method: string;
+  step: string;
+};
+
 export default function ReservationPage() {
   const [activeTab, setActiveTab] = useState<ReservationStatus>("전체");
+  const [reservations] = useState<Reservation[]>([]);
 
-  const reservations = [
-    {
-      id: 1,
-      shopName: "더 플레이스 강남점",
-      status: "예약 확정",
-      address: "서울 강남구 테헤란로 123",
-      date: "2025-12-01",
-      time: "18:30",
-      people: "4명 / 테이블 A-05",
-      payment: "₩50,000",
-      method: "신한카드 (****1234)",
-      step: "결제 완료",
-    },
-    {
-      id: 2,
-      shopName: "이탈리안 키친",
-      status: "예약 확정",
-      address: "서울 서초구 서초대로 456",
-      date: "2025-11-28",
-      time: "19:00",
-      people: "2명 / 테이블 B-12",
-      payment: "₩80,000",
-      method: "카카오페이",
-      step: "결제 완료",
-    },
-    {
-      id: 3,
-      shopName: "스시 마스터",
-      status: "방문 완료",
-      address: "서울 강남구 논현로 789",
-      date: "2025-11-20",
-      time: "20:00",
-      people: "3명 / 테이블 C-03",
-      payment: "₩120,000",
-      method: "토스페이",
-      step: "결제 완료",
-    },
-    {
-      id: 4,
-      shopName: "한식당 정",
-      status: "취소됨",
-      address: "서울 종로구 인사동길 321",
-      date: "2025-11-15",
-      time: "12:30",
-      people: "5명 / 테이블 D-07",
-      payment: "₩90,000",
-      method: "신한카드 (****1234)",
-      step: "환불 완료",
-    },
-  ];
-
-  // 필터링 로직: 이 변수를 사용하여 렌더링합니다.
   const filteredReservations = reservations.filter((res) => {
     if (activeTab === "전체") return true;
     if (activeTab === "예정된 예약") return res.status === "예약 확정";
@@ -76,7 +38,6 @@ export default function ReservationPage() {
         </p>
       </div>
 
-      {/* 탭 메뉴 */}
       <div className="flex gap-6 border-b border-gray-100 mb-8">
         {["전체", "예정된 예약", "방문 완료", "취소된 예약"].map((tab) => (
           <button
@@ -95,7 +56,6 @@ export default function ReservationPage() {
         ))}
       </div>
 
-      {/* 예약 리스트: reservations 대신 filteredReservations를 사용합니다. */}
       <div className="space-y-6">
         {filteredReservations.length > 0 ? (
           filteredReservations.map((res) => (
@@ -125,7 +85,6 @@ export default function ReservationPage() {
                 </div>
               </div>
 
-              {/* 상세 정보 그리드 */}
               <div className="grid grid-cols-2 gap-y-4 gap-x-8 pb-6 border-b border-gray-200 mb-4">
                 <InfoItem
                   icon={<Calendar size={18} />}
@@ -150,7 +109,6 @@ export default function ReservationPage() {
                 />
               </div>
 
-              {/* 하단 버튼 영역 */}
               <div className="flex items-center justify-between">
                 <span
                   className={cn(
@@ -192,7 +150,6 @@ export default function ReservationPage() {
   );
 }
 
-// 정보 아이템 컴포넌트
 function InfoItem({
   icon,
   label,

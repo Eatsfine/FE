@@ -1,57 +1,43 @@
-import {
-  Store,
-  Calendar,
-  Star,
-  Plus,
-  ChevronRight,
-  BarChart3,
-} from "lucide-react";
+import { Store, Calendar, Star, Plus, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { MOCK_RESTAURANTS } from "@/mock/restaurants";
 
 export default function StorePage() {
+  const shops: Array<{
+    id: string;
+    name: string;
+    isApproved: boolean;
+    address: string;
+    category: string;
+    totalReservations: string;
+    rating: string;
+    reviews: string;
+    notice?: string;
+  }> = [];
+
   const stats = [
     {
       label: "총 가게 수",
-      value: "3개",
+      value: `${shops.length}개`,
       icon: <Store size={20} />,
       bgColor: "bg-blue-50",
       iconColor: "text-blue-500",
     },
     {
       label: "총 예약 수",
-      value: "2126건",
+      value: "-",
       icon: <Calendar size={20} />,
       bgColor: "bg-indigo-50",
       iconColor: "text-indigo-500",
     },
     {
       label: "평균 평점",
-      value: "4.8",
+      value: "-",
       icon: <Star size={20} />,
       bgColor: "bg-green-50",
       iconColor: "text-yellow-500",
     },
   ];
-
-  const shops = MOCK_RESTAURANTS.map((restaurant) => ({
-    id: restaurant.id,
-    name: restaurant.name,
-    isApproved: restaurant.isApproved,
-    address: restaurant.address,
-    category: restaurant.category,
-    totalReservations: "-",
-    rating: restaurant.rating.toFixed(1),
-    reviews: `${restaurant.reviewCount}개`,
-    notice: !restaurant.isApproved
-      ? "가게 승인 대기 중입니다. 영업일 기준 1-2일 내에 승인이 완료됩니다."
-      : undefined,
-  }));
-
-
-
-
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
@@ -70,7 +56,6 @@ export default function StorePage() {
         </Link>
       </div>
 
-      {/* 요약 통계 카드 */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {stats.map((stat, index) => (
           <div
@@ -89,90 +74,14 @@ export default function StorePage() {
         ))}
       </div>
 
-      {/* 가게 리스트 */}
       <div className="space-y-4 mb-8">
-        {shops.map((shop) => (
-          <Link
-          to={`/mypage/store/${shop.id}`}
-            key={shop.id}
-            className="block"
-            >
-            <div
-            className="group relative rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-all cursor-pointer"
-          >
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
-                  <Store size={30} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-xl font-medium">{shop.name}</h3>
-                    <span
-                      className={cn(
-
-                        "px-2 py-0.5 rounded-full text-sm",
-                        shop.isApproved
-
-                          ? "bg-green-50 text-green-600"
-                          : "bg-yellow-50 text-yellow-600",
-                      )}
-                    >
-                      {shop.isApproved ? "운영중" : "승인 대기"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-400 mb-2">{shop.address}</p>
-                  <span className="text-xs px-2 py-1 bg-gray-50 text-gray-600 font-medium rounded border border-none">
-                    {shop.category}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight
-                size={20}
-                className="text-gray-300 group-hover:text-gray-500 transition"
-              />
-            </div>
-
-            {/* 가게별 상세 수치: 승인 대기일 때는 아예 렌더링하지 않음 */}
-            {shop.isApproved&& (
-              <div className="grid grid-cols-3 py-4 border-t border-gray-100 text-center">
-                <div>
-                  <p className="text-sm text-gray-500 mb-2 font-medium">
-                    총 예약
-                  </p>
-                  <p className="text-lg">{shop.totalReservations}</p>
-                </div>
-                <div className="border-x border-gray-100">
-                  <p className="text-sm text-gray-500 mb-2 font-medium">평점</p>
-                  <p className="text-lg flex items-center justify-center gap-1">
-                    <Star
-                      size={14}
-                      className="fill-yellow-400 text-yellow-400"
-                    />{" "}
-                    {shop.rating}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-2 font-medium">리뷰</p>
-                  <p className="text-lg">{shop.reviews}</p>
-                </div>
-              </div>
-            )}
-
-            {/* 승인 대기 알림창: 승인 대기일 때만 표시 */}
-            {!shop.isApproved && shop.notice && (
-              <div className="mt-4 p-4 bg-yellow-50/50 rounded-xl border border-yellow-100/50">
-                <p className="text-yellow-700 leading-relaxed font-medium">
-                  {shop.notice}
-                </p>
-              </div>
-            )}
+        {shops.length === 0 && (
+          <div className="py-14 text-center text-gray-500">
+            등록된 가게가 없습니다. 우측 상단에서 새 가게를 등록해주세요.
           </div>
-          </Link>
-        ))}
+        )}
       </div>
 
-      {/* 하단 프리미엄 홍보 배너 */}
       <div className="rounded-2xl bg-blue-50/50 p-6 items-center border border-blue-100/50">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-xl bg-white text-blue-500 shadow-sm border border-blue-50">

@@ -9,7 +9,7 @@ export const queryClient = new QueryClient({
       staleTime: 30000,
       gcTime: 5 * 60000,
 
-      retry: (failureCount, error) => {
+      retry: (failureCount, _error) => {
         if (failureCount >= 2) return false;
         return true;
       },

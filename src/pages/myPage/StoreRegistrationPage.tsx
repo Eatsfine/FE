@@ -29,14 +29,11 @@ export default function StoreRegistrationPage() {
 
   const navigate = useNavigate();
 
-  //모달 상태 관리
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
-  //현재 진행 중인 단계 상태 관리
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
-  //결과 관리
   const [step1Data, setStep1Data] = useState<Step1Data>({
     businessNumber: "",
     startDate: "",
@@ -74,7 +71,10 @@ export default function StoreRegistrationPage() {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
-      const finalPayload = transformToRegister(step1Data, step2Data);
+      const finalPayload = transformToRegister(
+        step1Data as Required<typeof step1Data>,
+        step2Data as Required<typeof step2Data>,
+      );
 
       try {
         const res = await registerStore(finalPayload);
@@ -146,7 +146,6 @@ export default function StoreRegistrationPage() {
     }
   };
 
-  //현재 단계에 맞는 유효성 검사를 통과하지 못하면 버튼 비활성화
   const isNextDisabled =
     (currentStep === 1 && !isStep1Valid) ||
     (currentStep === 2 && !isStep2Valid) ||

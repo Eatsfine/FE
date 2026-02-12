@@ -1,6 +1,6 @@
-import type { ApiResponse } from '@/types/api';
-import { api } from '../axios'; // 기존 axios 인스턴스
-import type { SeatsType } from '@/types/table';
+import type { ApiResponse } from "@/types/api";
+import { api } from "../axios";
+import type { SeatsType } from "@/types/table";
 
 export interface LayoutTable {
   tableId: number;
@@ -41,19 +41,21 @@ export interface CreateTableResponse {
   tableImageUrl: string | null;
 }
 
-export const getActiveLayout = async (storeId: number): Promise<LayoutResponse | null> => {
+export const getActiveLayout = async (
+  storeId: number,
+): Promise<LayoutResponse | null> => {
   try {
     const res = await api.get(`/api/v1/stores/${storeId}/layouts`);
     if (res.status === 200 && res.data.isSuccess) {
       return res.data.result;
-    } 
+    }
     if (res.status === 204) {
       return null;
     }
     return null;
   } catch (e: any) {
     if (e.response?.status === 404) {
-      console.error('가게를 찾을 수 없음');
+      console.error("가게를 찾을 수 없음");
     } else {
       console.error(e);
     }
@@ -61,11 +63,15 @@ export const getActiveLayout = async (storeId: number): Promise<LayoutResponse |
   }
 };
 
-export const createLayout = async (storeId: number, gridCol: number, gridRow: number) => {
+export const createLayout = async (
+  storeId: number,
+  gridCol: number,
+  gridRow: number,
+) => {
   try {
     const res = await api.post<ApiResponse<LayoutResponse>>(
       `/api/v1/stores/${storeId}/layouts`,
-      { gridCol, gridRow }
+      { gridCol, gridRow },
     );
     if (res.status === 201 || (res.status === 200 && res.data.isSuccess)) {
       return res.data.result;
@@ -77,9 +83,15 @@ export const createLayout = async (storeId: number, gridCol: number, gridRow: nu
   }
 };
 
-export const createTable = async (storeId: number, data: CreateTableRequest) : Promise<CreateTableResponse | null> => {
+export const createTable = async (
+  storeId: number,
+  data: CreateTableRequest,
+): Promise<CreateTableResponse | null> => {
   try {
-    const res = await api.post<ApiResponse<CreateTableResponse>>(`/api/v1/stores/${storeId}/tables`, data);
+    const res = await api.post<ApiResponse<CreateTableResponse>>(
+      `/api/v1/stores/${storeId}/tables`,
+      data,
+    );
     if ((res.status === 201 || res.status === 200) && res.data.isSuccess) {
       return res.data.result;
     }
