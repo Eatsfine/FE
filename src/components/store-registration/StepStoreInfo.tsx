@@ -58,7 +58,7 @@ export default function StepStoreInfo({
       closeTime: "",
       holidays: [],
       depositRate: "TEN",
-      bookingIntervalMinutes: 0,
+      bookingIntervalMinutes: 30,
       sido: "",
       sigungu: "",
       bname: "",
@@ -403,7 +403,14 @@ export default function StepStoreInfo({
               type="number"
               {...register("bookingIntervalMinutes", {
                 valueAsNumber: true,
+                onChange: (e) => {
+                  const value = e.target.value;
+                  if (value.length > 1 && value.startsWith("0")) {
+                    e.target.value = Number(value).toString();
+                  }
+                },
               })}
+              min={30}
               placeholder="30"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
