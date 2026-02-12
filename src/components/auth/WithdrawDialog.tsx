@@ -22,12 +22,6 @@ function isWithdrawBlockByBookings(e: any) {
   );
 }
 
-// 백엔드 배포완료되면
-// function isWithdrawBlockByBookings(e: any) {
-//   const code = e?.response?.data?.code;
-//   return code === "WITHDRAW_BLOCKED";
-// }
-
 export function WithdrawDialog({
   open,
   onOpenChange,
@@ -130,14 +124,6 @@ export function WithdrawDialog({
         >
           {blocked ? (
             <>
-              <Button
-                type="button"
-                variant="outline"
-                className="cursor-pointer bg-gray-100 hover:bg-gray-200"
-                onClick={handleClose}
-              >
-                취소
-              </Button>
               <Button
                 type="button"
                 className="cursor-pointer bg-blue-500 hover:bg-blue-600"

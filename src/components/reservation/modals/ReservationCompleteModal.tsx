@@ -1,4 +1,5 @@
-import type { ReservationDraft, Restaurant } from "@/types/restaurant";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { toHHmm } from "@/utils/time";
 import { CircleCheck } from "lucide-react";
@@ -6,7 +7,7 @@ import { useEffect } from "react";
 
 type Props = {
   open: boolean;
-  restaurant: Restaurant;
+  restaurant: RestaurantDetail;
   draft: ReservationDraft;
   onClose: () => void;
   autoCloseMs?: number;
