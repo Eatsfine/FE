@@ -6,7 +6,11 @@ export default function RestaurantListSkeleton({
   count?: number;
 }) {
   return (
-    <div className="border rounded-xl bg-white overflow-hidden">
+    <div
+      className="border rounded-xl bg-white overflow-hidden"
+      role="status"
+      aria-label="검색 결과 로딩 중"
+    >
       {Array.from({ length: count }).map((_, idx) => (
         <div key={idx}>
           <RestaurantCardSkeleton />

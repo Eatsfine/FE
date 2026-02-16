@@ -124,6 +124,7 @@ export default function RestaurantDetailModal({
         <button
           type="button"
           className="absolute inset-0 bg-black/40"
+          aria-label="모달 닫기"
           onClick={() => onOpenChange(false)}
         />
         <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
