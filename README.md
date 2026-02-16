@@ -1,26 +1,16 @@
 # 🍽️ Eatsfine FE
 
-**Eatsfine 프론트엔드 레포지토리입니다.**
-
-Eatsfine은 **'자리(좌석)'를 기준으로 레스토랑을 탐색하고 원하는 시간에 간편하게 예약까지 이어지는** 지도 기반 레스토랑 예약 웹 서비스입니다.
+**Eatsfine은 '자리(좌석)'를 기준으로 레스토랑을 탐색하고 원하는 시간에 간편하게 예약까지 이어지는** 지도 기반 레스토랑 예약 웹 서비스입니다.
 
 <p align="center">
-  <img src="./public/MainPageImg.png" width="65%" />
+  <img src="./public/MainPageImg.png" width="49%" />
+  <img src="./public/MenuChoicePageImg.png" width="49%" />
 </p>
-
-<br/>
 
 <p align="center">
-  <img src="./public/MenuChoicePageImg.png" width="65%" />
+  <img src="./public/ReservationConfirmPageImg.png" width="49%" />
+  <img src="./public/ReservationPageImg.png" width="49%" />
 </p>
-
-<br/>
-
-<p align="center">
-  <img src="./public/ReservationPageImg.png" width="65%" />
-</p>
-
----
 
 🔗 **Service URL**
 https://www.eatsfine.co.kr
@@ -28,9 +18,7 @@ https://www.eatsfine.co.kr
 📽️ **데모 영상**
 https://www.youtube.com/watch?v=Nk1_28zSJaQ
 
----
-
-## 👥 팀 구성 (Frontend)
+## 👥 팀 소개
 
 | <div align="center"><strong>노바/박재선</strong></div>                                           | <div align="center"><strong>듀/함이슬</strong></div>                                                | <div align="center"><strong>서리/유설희</strong></div>                                               |
 | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
