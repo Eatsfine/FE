@@ -1,5 +1,4 @@
 import { categoryLabel, type RestaurantSummary } from "@/types/store";
-import { Star } from "lucide-react";
 
 type Props = {
   restaurant: RestaurantSummary;
@@ -22,11 +21,6 @@ export default function RestaurantCard({ restaurant, onClick }: Props) {
             {categoryLabel[restaurant.category]} • {restaurant.address}
           </p>
         </div>
-
-        <span className="flex items-center gap-2 text-sm text-gray-500 shrink-0 self-center">
-          <Star className="size-5 text-yellow-500 fill-yellow-500" />
-          {restaurant.rating.toFixed(1)}
-        </span>
       </div>
     </button>
   );
