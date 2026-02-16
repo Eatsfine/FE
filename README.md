@@ -2,16 +2,6 @@
 
 **Eatsfine은 '자리(좌석)'를 기준으로 레스토랑을 탐색하고 원하는 시간에 간편하게 예약까지 이어지는** 지도 기반 레스토랑 예약 웹 서비스입니다.
 
-<p align="center">
-  <img src="./public/MainPageImg.png" width="49%" />
-  <img src="./public/MenuChoicePageImg.png" width="49%" />
-</p>
-
-<p align="center">
-  <img src="./public/ReservationConfirmPageImg.png" width="49%" />
-  <img src="./public/ReservationPageImg.png" width="49%" />
-</p>
-
 🔗 **Service URL**
 https://www.eatsfine.co.kr
 
