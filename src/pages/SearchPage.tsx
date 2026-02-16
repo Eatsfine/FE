@@ -13,6 +13,7 @@ import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { toHHmm } from "@/utils/time";
+import RestaurantListSkeleton from "@/components/restaurant/RestaurantListSkeleton";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -269,11 +270,29 @@ export default function SearchPage() {
       />
 
       <div className="mt-6 w-full max-w-2xl mx-auto">
-        {searchError ? (
-          <p className="mt-2 text-sm text-red-500">{searchError}</p>
-        ) : null}
         {hasSearched ? (
-          <RestaurantList restaurants={results} onSelect={handleSelectStore} />
+          <>
+            {searchError ? (
+              <p className="mt-2 text-sm text-red-500">{searchError}</p>
+            ) : searchQuery.isFetching ? (
+              <>
+                <div className="mb-3 inline-flex items-center gap-2 border rounded-full px-3 py-1 text-xs text-gray-600">
+                  <span className="h-3 w-3 animate-spin border-2 border-gray-300 border-t-transparent rounded-full" />
+                  검색 중...
+                </div>
+                <RestaurantListSkeleton count={8} />
+              </>
+            ) : results.length === 0 ? (
+              <div className="rounded p-6 text-center text-md text-muted-foreground">
+                검색 결과가 없어요.
+              </div>
+            ) : (
+              <RestaurantList
+                restaurants={results}
+                onSelect={handleSelectStore}
+              />
+            )}
+          </>
         ) : null}
       </div>
 
