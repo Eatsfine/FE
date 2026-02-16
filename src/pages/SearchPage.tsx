@@ -35,6 +35,8 @@ export default function SearchPage() {
 
   const detailQuery = useRestaurantDetail(selectedStoreId);
 
+  const [isSearchingUI, setIsSearchingUI] = useState(false);
+
   const [searchParams, setSearchParams] = useState<{
     keyword: string;
     lat: number;
@@ -226,14 +228,25 @@ export default function SearchPage() {
 
     if (!keyword) {
       setSearchParams(null);
+      setIsSearchingUI(false);
       return;
     }
+    setIsSearchingUI(true);
 
     const c = coords ?? (await getCoords());
     setCoords(c);
     setMapCenter({ lat: c.lat, lng: c.lng });
     setSearchParams({ keyword, lat: c.lat, lng: c.lng });
   };
+
+  useEffect(() => {
+    if (!hasSearched) return;
+    if (!isSearchingUI) return;
+
+    if (searchQuery.isSuccess || searchQuery.isError) {
+      setIsSearchingUI(false);
+    }
+  }, [hasSearched, isSearchingUI, searchQuery.isSuccess, searchQuery.isError]);
 
   return (
     <>
@@ -274,7 +287,7 @@ export default function SearchPage() {
           <>
             {searchError ? (
               <p className="mt-2 text-sm text-red-500">{searchError}</p>
-            ) : searchQuery.isFetching ? (
+            ) : isSearchingUI || searchQuery.isFetching ? (
               <>
                 <div className="mb-3 inline-flex items-center gap-2 border rounded-full px-3 py-1 text-xs text-gray-600">
                   <span className="h-3 w-3 animate-spin border-2 border-gray-300 border-t-transparent rounded-full" />
