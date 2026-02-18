@@ -1,12 +1,21 @@
 # 🍽️ Eatsfine FE
 
-**Eatsfine 프론트엔드 레포지토리입니다.**
+**Eatsfine은 '자리(좌석)'를 기준으로 레스토랑을 탐색하고 원하는 시간에 간편하게 예약까지 이어지는** 지도 기반 레스토랑 예약 웹 서비스입니다.
 
-🖇️**Service URL**
+🔗 **Service URL**
 https://www.eatsfine.co.kr
 
-📽️**데모 영상**
+📽️ **데모 영상**
 https://www.youtube.com/watch?v=Nk1_28zSJaQ
+
+## 👥 팀 소개
+
+| <div align="center"><strong>노바/박재선</strong></div>                                           | <div align="center"><strong>듀/함이슬</strong></div>                                                | <div align="center"><strong>서리/유설희</strong></div>                                               |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| <div align="center"><img src="https://avatars.githubusercontent.com/jjjsun" width="160" /></div> | <div align="center"><img src="https://avatars.githubusercontent.com/dew102938" width="160" /></div> | <div align="center"><img src="https://avatars.githubusercontent.com/yooseolhee" width="160" /></div> |
+| <div align="center">[@jjjsun](https://github.com/jjjsun)</div>                                   | <div align="center">[@dew102938](https://github.com/dew102938)</div>                                | <div align="center">[@yooseolhee](https://github.com/yooseolhee)</div>                               |
+
+## 🛠️ Tech Stack
 
 - Stack: **React + TypeScript + Vite + TailwindCSS + pnpm**
 - UI: **shadcn/ui**
