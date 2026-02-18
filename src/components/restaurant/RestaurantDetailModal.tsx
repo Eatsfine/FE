@@ -1,5 +1,5 @@
 import type { Day, RestaurantDetail } from "@/types/store";
-import { Clock, Star, X } from "lucide-react";
+import { Clock, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -124,6 +124,7 @@ export default function RestaurantDetailModal({
         <button
           type="button"
           className="absolute inset-0 bg-black/40"
+          aria-label="모달 닫기"
           onClick={() => onOpenChange(false)}
         />
         <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
@@ -165,9 +166,6 @@ export default function RestaurantDetailModal({
   if (status !== "success") return null;
   if (!restaurant) return null;
 
-  const rating = typeof restaurant.rating === "number" ? restaurant.rating : 0;
-  const reviewCount =
-    typeof restaurant.reviewCount === "number" ? restaurant.reviewCount : 0;
   const tableImageUrls = Array.isArray(restaurant.tableImageUrls)
     ? restaurant.tableImageUrls
     : [];
@@ -213,12 +211,6 @@ export default function RestaurantDetailModal({
             </div>
           ) : null}
           <div className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="size-5 text-yellow-500 fill-yellow-500" />
-              <span>{rating.toFixed(1)}</span>
-              <span className="text-gray-500">({reviewCount}개 리뷰)</span>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="flex items-center gap-5">
                 <Clock className="size-5 text-gray-600 mt-1" />

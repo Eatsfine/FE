@@ -7,14 +7,6 @@ type Props = {
 };
 
 export default function RestaurantList({ restaurants, onSelect }: Props) {
-  if (restaurants.length === 0) {
-    return (
-      <div className="rounded p-6 text-center text-md text-muted-foreground">
-        검색 결과가 없어요.
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-xl border bg-white overflow-hidden">
       {restaurants.map((r, idx) => (
