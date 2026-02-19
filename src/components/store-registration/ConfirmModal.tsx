@@ -45,6 +45,7 @@ export default function ConfirmModal({
         </DialogHeader>
         <div className="flex flex-row items-center justify-center w-full gap-6 mt-4">
           <button
+            type="button"
             onClick={onConfirm}
             className={`flex-1 py-2 text-white rounded-lg transition-colors cursor-pointer ${
               variant === "danger"
@@ -55,6 +56,7 @@ export default function ConfirmModal({
             {confirmLabel}
           </button>
           <button
+            type="button"
             onClick={onClose}
             className="flex-1 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
           >

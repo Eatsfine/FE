@@ -162,10 +162,21 @@ export default function StepBusinessAuth({
               type="text"
               placeholder="대표자명을 입력해주세요."
               maxLength={20}
+              aria-required="true"
+              aria-describedby={
+                errors.name && touchedFields.name ? "name-error" : undefined
+              }
+              aria-invalid={!!(errors.name && touchedFields.name)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && touchedFields.name && (
-              <p className="text-red-500 text-xs mt-2">{errors.name.message}</p>
+              <p
+                id="name-error"
+                role="alert"
+                className="text-red-500 text-xs mt-2"
+              >
+                {errors.name.message}
+              </p>
             )}
           </div>
           <div>
@@ -194,10 +205,23 @@ export default function StepBusinessAuth({
               type="text"
               placeholder="10자리 숫자를 입력해주세요."
               maxLength={10}
+              aria-required="true"
+              aria-describedby={
+                errors.businessNumber && touchedFields.businessNumber
+                  ? "businessNumber-error"
+                  : undefined
+              }
+              aria-invalid={
+                !!(errors.businessNumber && touchedFields.businessNumber)
+              }
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.businessNumber && touchedFields.businessNumber && (
-              <p className="text-red-500 text-xs mt-2">
+              <p
+                id="businessNumber-error"
+                role="alert"
+                className="text-red-500 text-xs mt-2"
+              >
                 {errors.businessNumber.message}
               </p>
             )}
@@ -226,10 +250,21 @@ export default function StepBusinessAuth({
               inputMode="numeric"
               placeholder="8자리 숫자를 입력해주세요."
               maxLength={8}
+              aria-required="true"
+              aria-describedby={
+                errors.startDate && touchedFields.startDate
+                  ? "startDate-error"
+                  : undefined
+              }
+              aria-invalid={!!(errors.startDate && touchedFields.startDate)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
             {errors.startDate && touchedFields.startDate && (
-              <p className="text-red-500 text-xs mt-2">
+              <p
+                id="startDate-error"
+                role="alert"
+                className="text-red-500 text-xs mt-2"
+              >
                 {errors.startDate.message}
               </p>
             )}
