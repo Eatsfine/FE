@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Clock, ChevronDown } from "lucide-react";
-import { getStore, updateStore, updateBusinessHours } from "@/api/owner/stores";
+import { Mail, Phone, MapPin, Clock, ChevronDown, X } from "lucide-react";
+import {
+  getStore,
+  updateStore,
+  updateBusinessHours,
+  type TableImage,
+  deleteTableImages,
+  uploadTableImages,
+} from "@/api/owner/stores";
 
 interface StoreSettingsProps {
   storeId?: string;
@@ -45,6 +52,10 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const [minGuests, setMinGuests] = useState<number | string>(1);
   const [maxGuests, setMaxGuests] = useState<number | string>(20);
 
+  const [tableImages, setTableImages] = useState<TableImage[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [deletedIds, setDeletedIds] = useState<number[]>([]);
+
   useEffect(() => {
     if (!storeId) return;
 
@@ -70,6 +81,9 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
 
           setClosedDays(closed);
         }
+        if (store.tableImages) {
+          setTableImages(store.tableImages);
+        }
       })
       .catch(() => {
         alert("가게 정보를 불러오는 데 실패했습니다.");
@@ -80,6 +94,26 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     setClosedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+    setNewFiles((prev) => [...prev, ...files]);
+
+    e.target.value = "";
+  };
+
+  const handleDeleteImage = (tableId?: number, fileIndex?: number) => {
+    if (tableId) {
+      setTableImages((prev) => prev.filter((img) => img.tableId !== tableId));
+      setDeletedIds((prev) => [...prev, tableId]);
+    }
+
+    if (fileIndex !== undefined) {
+      setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
+    }
   };
 
   const inputStyle =
@@ -315,6 +349,69 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         </div>
       </section>
 
+      <section className={sectionStyle}>
+        <h3 className="text-lg mb-8">식당 테이블 이미지</h3>
+
+        <div className="mb-6">
+          <input
+            id="file-upload"
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <div className="mb-7">
+            <p>• 최대 용량: 1MB</p>
+            <p>• 형식: JPG(JPEG), PNG</p>
+          </div>
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer rounded-xl text-gray-700 border shadow-sm px-4 py-2  hover:bg-blue-100 hover:text-blue-600 transition-colors inline-block"
+          >
+            이미지 추가하기
+          </label>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {tableImages.map((img) => (
+            <div key={img.tableId} className="relative">
+              <img
+                src={img.tableImageUrl}
+                className="w-full h-32 object-cover rounded-lg"
+              />
+              <button
+                onClick={() => handleDeleteImage(img.tableId)}
+                className="absolute top-1 right-1 bg-black text-white text-xs px-2 py-1 rounded"
+              >
+                삭제
+              </button>
+            </div>
+          ))}
+
+          {newFiles.map((file, index) => {
+            const previewUrl = URL.createObjectURL(file);
+            return (
+              <div key={`new-${file.name}-${index}`} className="relative">
+                <img
+                  src={previewUrl}
+                  alt="미리보기"
+                  className="w-full h-32 object-cover rounded-lg"
+                  onLoad={() => URL.revokeObjectURL(previewUrl)}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(undefined, index)}
+                  className="cursor-pointer absolute top-1 right-1 bg-gray-500 text-white text-xs px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       <div className="flex justify-end mb-20">
         <button
           onClick={async () => {
@@ -352,6 +449,34 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 "영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.",
               );
               return;
+            }
+            try {
+              if (deletedIds.length > 0) {
+                await deleteTableImages(storeId, deletedIds);
+              }
+            } catch (e) {
+              alert("일부 이미지 삭제에 실패했습니다.");
+              return;
+            }
+            try {
+              if (newFiles.length > 0) {
+                for (const file of newFiles) {
+                  try {
+                    await uploadTableImages(storeId, [file]);
+                  } catch (e) {
+                    console.error(`${file.name} 업로드 실패`);
+                  }
+                }
+              }
+            } catch (e) {
+              alert("새 이미지 업로드에 실패했습니다.");
+              return;
+            }
+            setNewFiles([]);
+            setDeletedIds([]);
+            const res = await getStore(storeId);
+            if (res.data.result.tableImages) {
+              setTableImages(res.data.result.tableImages);
             }
             alert("설정이 저장되었습니다.");
           }}
