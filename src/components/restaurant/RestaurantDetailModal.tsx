@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useModalMotion } from "@/hooks/common/useModalMotion";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { cn } from "@/lib/utils";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
 
 type Props = {
   open: boolean;
@@ -70,7 +71,7 @@ export default function RestaurantDetailModal({
 }: Props) {
   const nav = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const { entered } = useModalMotion(open);
+  const { rendered, entered } = useModalPresence(open);
   const handleReserveClick = () => {
     if (!isAuthenticated) {
       alert("로그인이 필요한 서비스입니다.");
@@ -81,7 +82,7 @@ export default function RestaurantDetailModal({
     onClickReserve();
   };
 
-  if (!open) return null;
+  if (!rendered) return null;
 
   if (status === "idle" || status === "loading") {
     return (

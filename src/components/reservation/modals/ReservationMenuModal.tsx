@@ -12,6 +12,8 @@ import { calcDeposit } from "@/utils/payment";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { toDepositRate } from "@/utils/depositRate";
 import type { RestaurantDetail } from "@/types/store";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 
 type Props = {
   open: boolean;
@@ -126,8 +128,8 @@ export default function ReservationMenuModal({
   );
 
   const handleRequestClose = useConfirmClose(onClose);
-
-  if (!open) return null;
+  const { rendered, entered } = useModalPresence(open, 220);
+  if (rendered) return null;
 
   return (
     <div
@@ -138,11 +140,16 @@ export default function ReservationMenuModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className={cn(backdropMotionClass(entered), "z-0")}
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
-      <div className="flex flex-col relative z-10 w-[92vw] max-w-4xl max-h-[calc(100vh-96px)] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
+      <div
+        className={cn(
+          panelMotionClass(entered),
+          "flex flex-col relative z-10 w-[92vw] max-w-4xl max-h-[calc(100vh-96px)] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden",
+        )}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div className="min-w-0">
             <h2 className="text-xl truncate">{restaurant.name} 메뉴선택</h2>

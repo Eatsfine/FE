@@ -1,6 +1,9 @@
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { cn } from "@/lib/utils";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { toHHmm } from "@/utils/time";
 import { CircleCheck } from "lucide-react";
 import { useEffect } from "react";
@@ -28,7 +31,7 @@ export default function ReservationCompleteModal({
 
     return () => window.clearTimeout(t);
   }, [open, autoCloseMs, onClose]);
-
+  const { rendered, entered } = useModalPresence(open, 220);
   if (!open) return null;
 
   const { people, date, time } = draft;
@@ -44,11 +47,16 @@ export default function ReservationCompleteModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className={cn(backdropMotionClass(entered), "z-0")}
         aria-label="모달 닫기"
         onClick={onClose}
       />
-      <div className="relative z-10 w-[92vw] max-w-md rounded-2xl bg-white shadow-xl overflow-hidden">
+      <div
+        className={cn(
+          panelMotionClass(entered),
+          "relative z-10 w-[92vw] max-w-md rounded-2xl bg-white shadow-xl overflow-hidden",
+        )}
+      >
         <div className="flex flex-col items-center justify-between p-8 space-y-4">
           <CircleCheck className="h-25 w-25 text-green-400" />
           <p className="text-2xl mt-2">예약이 완료되었습니다!</p>

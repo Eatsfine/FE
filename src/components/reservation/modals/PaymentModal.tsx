@@ -13,6 +13,9 @@ import { requestPayment } from "@/api/endpoints/payments";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useNavigate } from "react-router-dom";
 import { useUserId } from "@/stores/useAuthStore";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { cn } from "@/lib/utils";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 
 type Props = {
   open: boolean;
@@ -179,7 +182,9 @@ export default function PaymentModal({
     onBack();
     onOpenChange(false);
   };
-  if (!open) return null;
+
+  const { rendered, entered } = useModalPresence(open, 220);
+  if (!rendered) return null;
   if (!restaurant || !draft) return null;
   if (!booking) return null;
 
@@ -192,11 +197,16 @@ export default function PaymentModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className={cn(backdropMotionClass(entered), "z-0")}
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
-      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden">
+      <div
+        className={cn(
+          panelMotionClass(entered),
+          "relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden",
+        )}
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약금 결제</h3>
           <button
