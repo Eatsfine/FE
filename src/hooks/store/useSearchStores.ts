@@ -23,9 +23,11 @@ type ApiStoreSummary = {
   category: RestaurantSummary["category"];
   rating: number | null;
   reviewCount: number | null;
-  distanceKm?: number | null;
-  thumbnailUrl?: string | null;
+  distance?: number | null;
+  mainImageUrl?: string | null;
   isOpenNow?: boolean | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
   lat: number;
   lng: number;
 };
@@ -46,7 +48,14 @@ type ApiResponse = {
   };
 };
 
+const toNum = (v: unknown) => {
+  const n = typeof v === "string" ? parseFloat(v) : Number(v);
+  return Number.isFinite(n) ? n : undefined;
+};
+
 function toSummary(s: ApiStoreSummary): RestaurantSummary {
+  const lat = toNum(s.latitude ?? s.lat);
+  const lng = toNum(s.longitude ?? s.lng);
   return {
     id: s.storeId,
     name: s.name,
@@ -54,10 +63,10 @@ function toSummary(s: ApiStoreSummary): RestaurantSummary {
     category: s.category,
     rating: typeof s.rating === "number" ? s.rating : 0,
     reviewCount: typeof s.reviewCount === "number" ? s.reviewCount : 0,
-    distanceKm: s.distanceKm ?? undefined,
-    thumbnailUrl: s.thumbnailUrl ?? undefined,
+    distanceKm: typeof s.distance === "number" ? s.distance : undefined,
+    thumbnailUrl: (s.mainImageUrl ?? undefined) || undefined,
     isOpenNow: s.isOpenNow ?? undefined,
-    location: { lat: s.lat, lng: s.lng },
+    location: { lat: lat ?? NaN, lng: lng ?? NaN },
   };
 }
 
