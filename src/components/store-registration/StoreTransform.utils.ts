@@ -44,7 +44,7 @@ const formatCoordinate = (
 };
 
 export const transformToRegister = (
-  step1Data: { businessNumber: string; startDate: string },
+  step1Data: { name: string; businessNumber: string; startDate: string },
   step2Data: StoreInfoFormValues,
 ): RequestStoreCreateDto => {
   const {
@@ -84,6 +84,7 @@ export const transformToRegister = (
   return {
     storeName: step2Data.storeName,
     businessNumberDto: {
+      name: step1Data.name,
       businessNumber: step1Data.businessNumber,
       startDate: step1Data.startDate,
     },

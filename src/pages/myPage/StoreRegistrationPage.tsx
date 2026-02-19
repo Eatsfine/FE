@@ -17,6 +17,7 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Step1Data = {
+  name: string;
   businessNumber: string;
   startDate: string;
   isVerified: boolean;
@@ -36,6 +37,7 @@ export default function StoreRegistrationPage() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   const [step1Data, setStep1Data] = useState<Step1Data>({
+    name: "",
     businessNumber: "",
     startDate: "",
     isVerified: false,

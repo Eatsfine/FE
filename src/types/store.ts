@@ -69,6 +69,7 @@ export const categoryLabel: Record<Category, string> = {
 export type DepositRate = "TEN" | "TWENTY" | "THIRTY" | "FORTY" | "FIFTY";
 
 export type BusinessNumberDto = {
+  name:string;
   businessNumber: string;
   startDate: string;
 };
