@@ -1,13 +1,16 @@
 import type { CreateBookingResult } from "@/api/endpoints/reservations.ts";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
 import { useCreateBooking } from "@/hooks/reservation/useCreateBooking";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
+import { cn } from "@/lib/utils";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { toDepositRate } from "@/utils/depositRate";
 import { calcMenuTotal } from "@/utils/menu";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { formatKrw } from "@/utils/money";
 import { calcDeposit } from "@/utils/payment";
 import { tablePrefLabel } from "@/utils/reservation";
@@ -47,8 +50,8 @@ export default function ReservationConfirmModal({
   const depositAmount = calcDeposit(menuTotal, toDepositRate(rate));
 
   const isCalculating = menusQuery.isLoading || depositQuery.isLoading;
-
-  if (!open) return null;
+  const { rendered, entered } = useModalPresence(open, 220);
+  if (!rendered) return null;
 
   const onClickConfirm = async () => {
     if (booking) {
@@ -96,12 +99,17 @@ export default function ReservationConfirmModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className={cn(backdropMotionClass(entered), "z-0")}
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
 
-      <div className="relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
+      <div
+        className={cn(
+          panelMotionClass(entered),
+          "relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl",
+        )}
+      >
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="text-lg">예약 내용 확인</h3>
