@@ -24,7 +24,7 @@ export type RestaurantSummary = {
   distanceKm?: number;
   thumbnailUrl?: string;
   isOpenNow?: boolean;
-  location: Location;
+  location?: Location;
 };
 
 export type BusinessHour = {
@@ -69,7 +69,7 @@ export const categoryLabel: Record<Category, string> = {
 export type DepositRate = "TEN" | "TWENTY" | "THIRTY" | "FORTY" | "FIFTY";
 
 export type BusinessNumberDto = {
-  name:string;
+  name: string;
   businessNumber: string;
   startDate: string;
 };

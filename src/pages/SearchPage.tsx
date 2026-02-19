@@ -102,6 +102,7 @@ export default function SearchPage() {
           resolve(null);
           return;
         }
+
         resolve({ lat, lng });
       });
     });
