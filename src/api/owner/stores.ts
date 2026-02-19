@@ -105,8 +105,9 @@ export const getTableImages = async (
 
   if (!res.data.isSuccess) throw new Error(res.data.message);
 
-  return res.data.result.tableImageUrls.map((url, index) => ({
-    tableId: index,
+  // ⚠️ API 응답에 tableId가 포함되지 않아 삭제용 ID로 사용할 수 없음
+  return res.data.result.tableImageUrls.map((url) => ({
+    tableId: -1, // placeholder — 삭제 기능에 사용 금지
     tableImageUrl: url,
   }));
 };

@@ -100,13 +100,25 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     if (!e.target.files) return;
 
     const files = Array.from(e.target.files);
+    const MAX_SIZE = 1 * 1024 * 1024;
+    const ALLOWED_TYPES = ["image/jpeg", "image/png"];
+
+    const invalid = files.filter(
+      (f) => f.size > MAX_SIZE || !ALLOWED_TYPES.includes(f.type),
+    );
+    if (invalid.length > 0) {
+      alert("1MB 이하의 JPG/PNG 파일만 업로드 가능합니다.");
+      e.target.value = "";
+      return;
+    }
+
     setNewFiles((prev) => [...prev, ...files]);
 
     e.target.value = "";
   };
 
   const handleDeleteImage = (tableId?: number, fileIndex?: number) => {
-    if (tableId) {
+    if (tableId !== undefined) {
       setTableImages((prev) => prev.filter((img) => img.tableId !== tableId));
       setDeletedIds((prev) => [...prev, tableId]);
     }
@@ -122,13 +134,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const sectionStyle = "bg-white border border-gray-200 rounded-lg p-8 mb-6";
 
   const isValid = () => {
-    return (
-      storeName.trim() &&
-      description.trim() &&
-      phone.trim() &&
-      email.trim() &&
-      address.trim()
-    );
+    return storeName.trim() && description.trim() && phone.trim();
   };
 
   return (
@@ -378,6 +384,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             <div key={img.tableId} className="relative">
               <img
                 src={img.tableImageUrl}
+                alt={`테이블 이미지 ${img.tableId + 1}`}
                 className="w-full h-32 object-cover rounded-lg"
               />
               <button
@@ -458,25 +465,24 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               alert("일부 이미지 삭제에 실패했습니다.");
               return;
             }
-            try {
-              if (newFiles.length > 0) {
-                for (const file of newFiles) {
-                  try {
-                    await uploadTableImages(storeId, [file]);
-                  } catch (e) {
-                    console.error(`${file.name} 업로드 실패`);
-                  }
+            if (newFiles.length > 0) {
+              for (const file of newFiles) {
+                try {
+                  await uploadTableImages(storeId, [file]);
+                } catch (e) {
+                  console.error(`${file.name} 업로드 실패`);
                 }
               }
-            } catch (e) {
-              alert("새 이미지 업로드에 실패했습니다.");
-              return;
             }
             setNewFiles([]);
             setDeletedIds([]);
-            const res = await getStore(storeId);
-            if (res.data.result.tableImages) {
-              setTableImages(res.data.result.tableImages);
+            try {
+              const res = await getStore(storeId);
+              if (res.data.result.tableImages) {
+                setTableImages(res.data.result.tableImages);
+              }
+            } catch (e) {
+              console.error("저장 후 데이터 갱신 실패", e);
             }
             alert("설정이 저장되었습니다.");
           }}
