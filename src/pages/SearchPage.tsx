@@ -92,14 +92,6 @@ export default function SearchPage() {
 
     return new Promise((resolve) => {
       geocoder.addressSearch(address, (res: any[], status: string) => {
-        console.log(
-          "[geocode] status:",
-          status,
-          "addresS:",
-          address,
-          "res:",
-          res,
-        );
         if (status !== kakao.maps.services.Status.OK || !res?.[0]) {
           resolve(null);
           return;
@@ -205,10 +197,6 @@ export default function SearchPage() {
         return;
       }
       const targets = results.filter((r) => !isValidLatLng(r.location));
-      console.log(
-        "[geocode targets]",
-        targets.map((t) => ({ id: t.id, name: t.name, address: t.address })),
-      );
       if (targets.length === 0) return;
       const next = new Map(geoMap);
 

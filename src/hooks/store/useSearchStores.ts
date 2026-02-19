@@ -1,5 +1,5 @@
 import { api } from "@/api/axios";
-import type { RestaurantSummary } from "@/types/store";
+import type { Category, RestaurantSummary } from "@/types/store";
 import { useQuery } from "@tanstack/react-query";
 
 type Params = {
@@ -20,7 +20,7 @@ type ApiStoreSummary = {
   storeId: number;
   name: string;
   address: string;
-  category: RestaurantSummary["category"];
+  category: Category;
   rating: number | null;
   reviewCount: number | null;
   distance?: number | null;
@@ -28,8 +28,8 @@ type ApiStoreSummary = {
   isOpenNow?: boolean | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
-  lat: number;
-  lng: number;
+  lat?: number | string | null;
+  lng?: number | string | null;
 };
 
 type ApiResponse = {
@@ -64,9 +64,9 @@ function toSummary(s: ApiStoreSummary): RestaurantSummary {
     rating: typeof s.rating === "number" ? s.rating : 0,
     reviewCount: typeof s.reviewCount === "number" ? s.reviewCount : 0,
     distanceKm: typeof s.distance === "number" ? s.distance : undefined,
-    thumbnailUrl: (s.mainImageUrl ?? undefined) || undefined,
+    thumbnailUrl: s.mainImageUrl ?? undefined,
     isOpenNow: s.isOpenNow ?? undefined,
-    location: { lat: lat ?? NaN, lng: lng ?? NaN },
+    ...(lat != null && lng != null ? { location: { lat, lng } } : {}),
   };
 }
 
