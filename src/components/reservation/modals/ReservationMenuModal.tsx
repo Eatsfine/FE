@@ -129,7 +129,7 @@ export default function ReservationMenuModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   const { rendered, entered } = useModalPresence(open, 220);
-  if (rendered) return null;
+  if (!rendered) return null;
 
   return (
     <div
@@ -140,7 +140,7 @@ export default function ReservationMenuModal({
     >
       <button
         type="button"
-        className={cn(backdropMotionClass(entered), "z-0")}
+        className={cn(backdropMotionClass(entered))}
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />

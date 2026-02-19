@@ -32,7 +32,7 @@ export default function ReservationCompleteModal({
     return () => window.clearTimeout(t);
   }, [open, autoCloseMs, onClose]);
   const { rendered, entered } = useModalPresence(open, 220);
-  if (!open) return null;
+  if (!rendered) return null;
 
   const { people, date, time } = draft;
   console.log("[complete] draft=", draft);
