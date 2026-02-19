@@ -1,5 +1,5 @@
-import { api } from '@/api/axios';
-import type { ApiResponse } from '@/types/api';
+import { api } from "@/api/axios";
+import type { ApiResponse } from "@/types/api";
 
 export interface StoreDetail {
   storeId: number;
@@ -11,12 +11,20 @@ export interface StoreDetail {
   isApproved: boolean;
   rating?: number;
   reviewCount?: number;
+  tableImages?: TableImage[];
 }
 
 export interface BusinessHour {
-  day: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-  openTime: string|null;
-  closeTime: string|null;
+  day:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
+  openTime: string | null;
+  closeTime: string | null;
   isClosed: boolean;
 }
 
@@ -48,11 +56,18 @@ interface MyStoreResponse {
   };
 }
 
+export interface TableImage {
+  tableId: number;
+  tableImageUrl: string;
+}
+
+export interface TableImagesResponse {
+  storeId: number;
+  tableImageUrls: string[];
+}
 
 export function getStore(storeId: number | string) {
-  return api.get<ApiResponse<StoreDetail>>(
-    `/api/v1/stores/${storeId}`
-  );
+  return api.get<ApiResponse<StoreDetail>>(`/api/v1/stores/${storeId}`);
 }
 
 export function updateStore(
@@ -61,17 +76,14 @@ export function updateStore(
     storeName: string;
     description: string;
     phoneNumber: string;
-  }
+  },
 ) {
-  return api.patch<ApiResponse<any>>(
-    `/api/v1/stores/${storeId}`,
-    body,
-  );
+  return api.patch<ApiResponse<any>>(`/api/v1/stores/${storeId}`, body);
 }
 
 export function updateBusinessHours(
   storeId: number | string,
-  businessHours: BusinessHour[]
+  businessHours: BusinessHour[],
 ) {
   return api.patch<ApiResponse<{ businessHours: BusinessHour[] }>>(
     `/api/v1/stores/${storeId}/business-hours`,
@@ -82,4 +94,64 @@ export function updateBusinessHours(
 export const getMyStores = async (): Promise<MyStore[]> => {
   const res = await api.get<MyStoreResponse>("/api/v1/stores/my");
   return res.data.result.stores ?? [];
+};
+
+export const getTableImages = async (
+  storeId: number | string,
+): Promise<TableImage[]> => {
+  const res = await api.get<
+    ApiResponse<{ storeId: number; tableImageUrls: string[] }>
+  >(`/api/v1/stores/${storeId}/table-images`);
+
+  if (!res.data.isSuccess) throw new Error(res.data.message);
+
+  // ⚠️ API 응답에 tableId가 포함되지 않아 삭제용 ID로 사용할 수 없음
+  return res.data.result.tableImageUrls.map((url) => ({
+    tableId: -1, // placeholder — 삭제 기능에 사용 금지
+    tableImageUrl: url,
+  }));
+};
+
+export const uploadTableImages = async (
+  storeId: number | string,
+  files: File[],
+): Promise<TableImage[]> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("file", file));
+
+  const response = await api.post<ApiResponse<TableImage | TableImage[]>>(
+    `/api/v1/stores/${storeId}/table-images`,
+    formData,
+  );
+
+  const data = response.data;
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  const result = data.result;
+
+  if (!result) return [];
+  if (Array.isArray(result)) return result;
+  return [result];
+};
+
+export const deleteTableImages = async (
+  storeId: number | string,
+  tableIds: number[],
+): Promise<ApiResponse<{ tableId: number }>> => {
+  const response = await api.delete<ApiResponse<{ tableId: number }>>(
+    `/api/v1/stores/${storeId}/table-images`,
+    {
+      data: tableIds,
+    },
+  );
+  const data = response.data;
+
+  if (!data.isSuccess) {
+    throw new Error(data.message);
+  }
+
+  return data;
 };
