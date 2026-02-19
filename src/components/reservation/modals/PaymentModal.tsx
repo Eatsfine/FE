@@ -105,7 +105,7 @@ export default function PaymentModal({
         const tossPayments = await loadTossPayments(clientKey);
 
         if (cancelled) return;
-        const customerKey = String(userId);
+        const customerKey = `user_${userId}`;
         const widgets = tossPayments.widgets({ customerKey });
         widgetsRef.current = widgets;
         initedRef.current = false;
