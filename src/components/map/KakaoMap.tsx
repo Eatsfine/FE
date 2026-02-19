@@ -3,6 +3,7 @@ import type { RestaurantSummary } from "@/types/store";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type LatLng = { lat: number; lng: number };
+type MarkerWithLocation = RestaurantSummary & { location: LatLng };
 
 type Props = {
   center: LatLng;
@@ -56,14 +57,14 @@ export default function KakaoMap({
     return { lat, lng };
   };
 
-  const safeMarkers = useMemo(() => {
+  const safeMarkers = useMemo<MarkerWithLocation[]>(() => {
     return markers
       .map((m) => {
         const norm = normalizeLatLng((m as any).location);
         if (!norm) return null;
-        return { ...m, location: norm };
+        return { ...m, location: norm } as MarkerWithLocation;
       })
-      .filter(Boolean) as RestaurantSummary[];
+      .filter(Boolean) as MarkerWithLocation[];
   }, [markers]);
 
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
