@@ -1,6 +1,11 @@
 import z from "zod";
 
 export const BusinessAuthSchema = z.object({
+  name: z
+    .string()
+    .min(1, "대표자명을 입력해주세요.")
+    .min(2, "2자 이상이어야 합니다.")
+    .max(20, "20자 이하이어야 합니다."),
   businessNumber: z
     .string()
     .regex(/^[0-9]+$/, "숫자만 입력해주세요.")

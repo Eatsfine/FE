@@ -1,6 +1,21 @@
 # 🍽️ Eatsfine FE
 
-**Eatsfine 프론트엔드 레포지토리입니다.**
+**Eatsfine은 '자리(좌석)'를 기준으로 레스토랑을 탐색하고 원하는 시간에 간편하게 예약까지 이어지는** 지도 기반 레스토랑 예약 웹 서비스입니다.
+
+🔗 **Service URL**
+https://www.eatsfine.co.kr
+
+📽️ **데모 영상**
+https://www.youtube.com/watch?v=Nk1_28zSJaQ
+
+## 👥 팀 소개
+
+| <div align="center"><strong>노바/박재선</strong></div>                                           | <div align="center"><strong>듀/함이슬</strong></div>                                                | <div align="center"><strong>서리/유설희</strong></div>                                               |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| <div align="center"><img src="https://avatars.githubusercontent.com/jjjsun" width="160" /></div> | <div align="center"><img src="https://avatars.githubusercontent.com/dew102938" width="160" /></div> | <div align="center"><img src="https://avatars.githubusercontent.com/yooseolhee" width="160" /></div> |
+| <div align="center">[@jjjsun](https://github.com/jjjsun)</div>                                   | <div align="center">[@dew102938](https://github.com/dew102938)</div>                                | <div align="center">[@yooseolhee](https://github.com/yooseolhee)</div>                               |
+
+## 🛠️ Tech Stack
 
 - Stack: **React + TypeScript + Vite + TailwindCSS + pnpm**
 - UI: **shadcn/ui**
@@ -39,14 +54,13 @@ git commit -m "style: 식당리스트 카드디자인 수정"
 ```txt
 src/
   api/          # axios 인스턴스/요청 함수
-  assets/       # 정적 자원
   components/   # UI 컴포넌트 (도메인별 폴더 포함)
   hooks/        # 커스텀 훅
   layouts/      # 레이아웃
   lib/          # 공용 유틸 (cn 등)
-  mock/         # mock 데이터 / mock API (개발용)
   pages/        # 라우트 단위 페이지
   query/        # TanStack Query 설정
+  stores/       # 전역 상태관리
   styles/       # 전역 스타일
   types/        # 전역 타입 (UI 모델)
   utils/        # 공용 유틸 함수
