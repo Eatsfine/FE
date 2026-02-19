@@ -48,7 +48,8 @@ type ApiResponse = {
   };
 };
 
-const toNum = (v: unknown) => {
+const toNum = (v: unknown): number | undefined => {
+  if (v == null) return undefined;
   const n = typeof v === "string" ? parseFloat(v) : Number(v);
   return Number.isFinite(n) ? n : undefined;
 };

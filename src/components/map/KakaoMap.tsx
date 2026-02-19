@@ -20,6 +20,28 @@ declare global {
   }
 }
 
+const toNum = (v: unknown) => {
+  const n = typeof v === "string" ? parseFloat(v) : Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const normalizeLatLng = (loc: any): LatLng | null => {
+  if (!loc) return null;
+
+  let lat = toNum(loc.lat);
+  let lng = toNum(loc.lng);
+
+  if (lat == null || lng == null) return null;
+
+  if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
+    const tmp = lat;
+    lat = lng;
+    lng = tmp;
+  }
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return { lat, lng };
+};
+
 export default function KakaoMap({
   center,
   markers,
@@ -34,28 +56,6 @@ export default function KakaoMap({
   const markersRef = useRef<Map<number, any>>(new Map());
   const infoRef = useRef<any>(null);
   const prevSelectedIdRef = useRef<number | null>(null);
-
-  const toNum = (v: unknown) => {
-    const n = typeof v === "string" ? parseFloat(v) : Number(v);
-    return Number.isFinite(n) ? n : null;
-  };
-
-  const normalizeLatLng = (loc: any): LatLng | null => {
-    if (!loc) return null;
-
-    let lat = toNum(loc.lat);
-    let lng = toNum(loc.lng);
-
-    if (lat == null || lng == null) return null;
-
-    if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
-      const tmp = lat;
-      lat = lng;
-      lng = tmp;
-    }
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-    return { lat, lng };
-  };
 
   const safeMarkers = useMemo<MarkerWithLocation[]>(() => {
     return markers
@@ -241,6 +241,8 @@ export default function KakaoMap({
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="레스토랑 위치 지도"
       className={
         className ??
         "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
