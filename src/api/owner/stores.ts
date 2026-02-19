@@ -66,6 +66,11 @@ export interface TableImagesResponse {
   tableImageUrls: string[];
 }
 
+// export interface TableImagesResponse {
+//   storeId: number;
+//   tableImages: TableImage[];
+// }
+
 export function getStore(storeId: number | string) {
   return api.get<ApiResponse<StoreDetail>>(`/api/v1/stores/${storeId}`);
 }
@@ -107,6 +112,18 @@ export const getTableImages = async (
 
   return res.data.result.tableImageUrls ?? [];
 };
+
+// export const getTableImages = async (
+//   storeId: number | string,
+// ): Promise<TableImage[]> => {
+//   const res = await api.get<ApiResponse<TableImagesResponse>>(
+//     `/api/v1/stores/${storeId}/table-images`,
+//   );
+
+//   if (!res.data.isSuccess) throw new Error(res.data.message);
+
+//   return res.data.result.tableImages ?? [];
+// };
 
 export const uploadTableImages = async (
   storeId: number | string,
