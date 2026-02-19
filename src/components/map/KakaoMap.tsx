@@ -3,6 +3,7 @@ import type { RestaurantSummary } from "@/types/store";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type LatLng = { lat: number; lng: number };
+type MarkerWithLocation = RestaurantSummary & { location: LatLng };
 
 type Props = {
   center: LatLng;
@@ -19,6 +20,28 @@ declare global {
   }
 }
 
+const toNum = (v: unknown) => {
+  const n = typeof v === "string" ? parseFloat(v) : Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const normalizeLatLng = (loc: any): LatLng | null => {
+  if (!loc) return null;
+
+  let lat = toNum(loc.lat);
+  let lng = toNum(loc.lng);
+
+  if (lat == null || lng == null) return null;
+
+  if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
+    const tmp = lat;
+    lat = lng;
+    lng = tmp;
+  }
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return { lat, lng };
+};
+
 export default function KakaoMap({
   center,
   markers,
@@ -34,36 +57,14 @@ export default function KakaoMap({
   const infoRef = useRef<any>(null);
   const prevSelectedIdRef = useRef<number | null>(null);
 
-  const toNum = (v: unknown) => {
-    const n = typeof v === "string" ? parseFloat(v) : Number(v);
-    return Number.isFinite(n) ? n : null;
-  };
-
-  const normalizeLatLng = (loc: any): LatLng | null => {
-    if (!loc) return null;
-
-    let lat = toNum(loc.lat);
-    let lng = toNum(loc.lng);
-
-    if (lat == null || lng == null) return null;
-
-    if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
-      const tmp = lat;
-      lat = lng;
-      lng = tmp;
-    }
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-    return { lat, lng };
-  };
-
-  const safeMarkers = useMemo(() => {
+  const safeMarkers = useMemo<MarkerWithLocation[]>(() => {
     return markers
       .map((m) => {
         const norm = normalizeLatLng((m as any).location);
         if (!norm) return null;
-        return { ...m, location: norm };
+        return { ...m, location: norm } as MarkerWithLocation;
       })
-      .filter(Boolean) as RestaurantSummary[];
+      .filter(Boolean) as MarkerWithLocation[];
   }, [markers]);
 
   const [sdkReady, setSdkReady] = useState(!!window.kakao?.maps);
@@ -240,6 +241,8 @@ export default function KakaoMap({
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="레스토랑 위치 지도"
       className={
         className ??
         "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
