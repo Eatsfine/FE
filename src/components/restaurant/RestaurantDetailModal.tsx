@@ -3,7 +3,6 @@ import { Clock, Star, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useModalMotion } from "@/hooks/common/useModalMotion";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { cn } from "@/lib/utils";
 import { useModalPresence } from "@/hooks/common/useModalPresence";
