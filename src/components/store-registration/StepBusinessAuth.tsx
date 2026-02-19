@@ -14,11 +14,13 @@ import { logout } from "@/api/auth";
 
 interface StepBusinessAuthProps {
   defaultValues: {
+    name: string;
     businessNumber: string;
     startDate: string;
     isVerified: boolean;
   };
   onComplete: (data: {
+    name: string;
     businessNumber: string;
     startDate: string;
     isVerified: boolean;
@@ -52,11 +54,13 @@ export default function StepBusinessAuth({
     resolver: zodResolver(BusinessAuthSchema),
     mode: "onChange",
     defaultValues: {
+      name: defaultValues.name,
       businessNumber: defaultValues.businessNumber,
       startDate: defaultValues.startDate,
     },
   });
 
+  const name = watch("name");
   const businessNumber = watch("businessNumber");
   const startDate = watch("startDate");
 
@@ -71,15 +75,22 @@ export default function StepBusinessAuth({
         const err = error as any;
         const serverCode = err.response?.data?.code || err.code;
         if (serverCode === "OWNER409") {
-          alert(
-            "이미 사장님 인증을 완료한 회원입니다. \n가게 정보 입력으로 이동해주세요.",
+          const isConfirmed = confirm(
+            "이미 인증된 계정입니다.\n\n" +
+              "지금 입력하신 사업자 정보로 가게 등록을 진행하시겠습니까?\n" +
+              "(정보가 정확하지 않으면 최종 등록이 되지 않을 수 있습니다.)",
           );
-          setIsVerified(true);
-          onComplete({
-            businessNumber: data.businessNumber,
-            startDate: data.startDate,
-            isVerified: true,
-          });
+          if (isConfirmed) {
+            setIsVerified(true);
+            onComplete({
+              name: data.name,
+              businessNumber: data.businessNumber,
+              startDate: data.startDate,
+              isVerified: true,
+            });
+          } else {
+            setIsVerified(false);
+          }
           return;
         }
         setIsVerified(false);
@@ -101,6 +112,34 @@ export default function StepBusinessAuth({
       </div>
       <div className="space-y-3">
         <div>
+          <Label htmlFor="name" className="block text-gray-700 mb-2">
+            대표자명 <span className="text-red-500">*</span>
+          </Label>
+          <input
+            id="name"
+            {...register("name", {
+              onChange: (e) => {
+                if (isVerified) {
+                  setIsVerified(false);
+                  onComplete({
+                    name: e.target.value,
+                    businessNumber,
+                    startDate,
+                    isVerified: false,
+                  });
+                }
+              },
+            })}
+            type="text"
+            placeholder="대표자명을 입력해주세요."
+            maxLength={20}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.name && touchedFields.name && (
+            <p className="text-red-500 text-xs mt-2">{errors.name.message}</p>
+          )}
+        </div>
+        <div>
           <Label htmlFor="businessNumber" className="block text-gray-700 mb-2">
             사업자등록번호 <span className="text-red-500">*</span>
           </Label>
@@ -112,6 +151,7 @@ export default function StepBusinessAuth({
                 if (isVerified) {
                   setIsVerified(false);
                   onComplete({
+                    name,
                     businessNumber: e.target.value,
                     startDate,
                     isVerified: false,
@@ -142,6 +182,7 @@ export default function StepBusinessAuth({
                 if (isVerified) {
                   setIsVerified(false);
                   onComplete({
+                    name,
                     businessNumber,
                     startDate: e.target.value,
                     isVerified: false,
