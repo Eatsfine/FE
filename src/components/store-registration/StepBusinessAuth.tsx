@@ -272,7 +272,12 @@ export default function StepBusinessAuth({
         </div>
 
         {!isPending && isVerified && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="bg-green-50 border border-green-200 rounded-lg p-4"
+          >
             <div className="flex items-center gap-2 text-green-800">
               <Check className="size-5" aria-hidden="true" />
               <span>사업자등록번호가 인증되었습니다.</span>
