@@ -3,6 +3,9 @@ import { Clock, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
+import { cn } from "@/lib/utils";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
 
 type Props = {
   open: boolean;
@@ -67,7 +70,7 @@ export default function RestaurantDetailModal({
 }: Props) {
   const nav = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
+  const { rendered, entered } = useModalPresence(open);
   const handleReserveClick = () => {
     if (!isAuthenticated) {
       alert("로그인이 필요한 서비스입니다.");
@@ -78,7 +81,7 @@ export default function RestaurantDetailModal({
     onClickReserve();
   };
 
-  if (!open) return null;
+  if (!rendered) return null;
 
   if (status === "idle" || status === "loading") {
     return (
@@ -90,11 +93,16 @@ export default function RestaurantDetailModal({
       >
         <button
           type="button"
-          className="absolute inset-0 bg-black/40"
+          className={backdropMotionClass(entered)}
           aria-label="모달 닫기"
           onClick={() => onOpenChange(false)}
         />
-        <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6">
+        <div
+          className={cn(
+            "relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl p-6",
+            panelMotionClass(entered),
+          )}
+        >
           <div className="flex items-center justify-between">
             <p className="text-lg">상세 정보 불러오는 중..</p>
             <button
@@ -182,11 +190,16 @@ export default function RestaurantDetailModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className={backdropMotionClass(entered)}
         aria-label="모달 닫기"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
+      <div
+        className={cn(
+          "relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col",
+          panelMotionClass(entered),
+        )}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
             <h2 className="text-xl truncate">{restaurant.name}</h2>

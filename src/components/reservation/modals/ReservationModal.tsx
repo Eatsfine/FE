@@ -19,6 +19,8 @@ import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
 import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
 import { seatsTypeToSeatType } from "@/utils/reservation";
 import type { RestaurantDetail } from "@/types/store";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 
 type Props = {
   open: boolean;
@@ -67,7 +69,7 @@ export default function ReservationModal({
       : null,
   );
   const { rate: depositRate } = useDepositRate(restaurant.id);
-
+  const { rendered, entered } = useModalPresence(open, 220);
   const didInitRef = useRef(false);
 
   useEffect(() => {
@@ -146,7 +148,8 @@ export default function ReservationModal({
       return { msg: "날짜를 먼저 선택해주세요", times: [] as string[] };
     if (timesQuery.isLoading)
       return { msg: "예약 가능시간 기다리는중..", times: [] };
-    if (timesQuery.isError) return { msg: "서버 조회 실패", times: [] };
+    if (timesQuery.isError)
+      return { msg: "휴무일 입니다. 다른 날짜를 선택해주세요", times: [] };
     if (times.length === 0)
       return { msg: "예약 가능한 시간이 없어요", times: [] };
     return { msg: null as string | null, times };
@@ -164,7 +167,7 @@ export default function ReservationModal({
     setSelectedTableId(null);
   }, [people, date, time]);
 
-  if (!open) return null;
+  if (!rendered) return null;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -174,12 +177,17 @@ export default function ReservationModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/50 z-0"
+        className={cn(backdropMotionClass(entered), "z-0")}
         aria-label="모달 닫기"
         onClick={handleRequestClose}
       />
 
-      <div className="relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col">
+      <div
+        className={cn(
+          "relative z-10 w-[92vw] max-w-4xl rounded-2xl bg-white shadow-xl overflow-hidden max-h-[calc(100vh-96px)] flex flex-col",
+          panelMotionClass(entered),
+        )}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
             <h2 className="text-xl truncate font-medium">{restaurant.name} </h2>
