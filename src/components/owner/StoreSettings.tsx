@@ -421,6 +421,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 />
                 <button
                   type="button"
+                  aria-label={`새 이미지 ${index + 1} 삭제`}
                   onClick={() => handleDeleteImage(index)}
                   className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-400 cursor-pointer transition"
                 >
