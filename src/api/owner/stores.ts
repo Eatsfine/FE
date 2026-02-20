@@ -11,7 +11,6 @@ export interface StoreDetail {
   isApproved: boolean;
   rating?: number;
   reviewCount?: number;
-  tableImages?: TableImage[];
 }
 
 export interface BusinessHour {
@@ -57,13 +56,13 @@ interface MyStoreResponse {
 }
 
 export interface TableImage {
-  tableId: number;
+  tableImageId: number;
   tableImageUrl: string;
 }
 
 export interface TableImagesResponse {
   storeId: number;
-  tableImageUrls: string[];
+  tableImages: TableImage[];
 }
 
 export function getStore(storeId: number | string) {
@@ -99,17 +98,13 @@ export const getMyStores = async (): Promise<MyStore[]> => {
 export const getTableImages = async (
   storeId: number | string,
 ): Promise<TableImage[]> => {
-  const res = await api.get<
-    ApiResponse<{ storeId: number; tableImageUrls: string[] }>
-  >(`/api/v1/stores/${storeId}/table-images`);
+  const res = await api.get<ApiResponse<TableImagesResponse>>(
+    `/api/v1/stores/${storeId}/table-images`,
+  );
 
   if (!res.data.isSuccess) throw new Error(res.data.message);
 
-  // ⚠️ API 응답에 tableId가 포함되지 않아 삭제용 ID로 사용할 수 없음
-  return res.data.result.tableImageUrls.map((url) => ({
-    tableId: -1, // placeholder — 삭제 기능에 사용 금지
-    tableImageUrl: url,
-  }));
+  return res.data.result?.tableImages ?? [];
 };
 
 export const uploadTableImages = async (
@@ -139,12 +134,12 @@ export const uploadTableImages = async (
 
 export const deleteTableImages = async (
   storeId: number | string,
-  tableIds: number[],
-): Promise<ApiResponse<{ tableId: number }>> => {
-  const response = await api.delete<ApiResponse<{ tableId: number }>>(
+  tableImageIds: number[],
+): Promise<ApiResponse<{ tableImageId: number }>> => {
+  const response = await api.delete<ApiResponse<{ tableImageId: number }>>(
     `/api/v1/stores/${storeId}/table-images`,
     {
-      data: tableIds,
+      data: tableImageIds,
     },
   );
   const data = response.data;
