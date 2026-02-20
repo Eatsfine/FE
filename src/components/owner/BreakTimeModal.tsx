@@ -73,11 +73,6 @@ const BreakTimeModal: React.FC<Props> = ({
             />
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
-            영업 시간: {openTime} ~ {closeTime}
-            <br />
-            설정할 브레이크 타임: {start} ~ {end}
-          </div>
         </div>
 
         <div className="flex gap-3 mt-6">

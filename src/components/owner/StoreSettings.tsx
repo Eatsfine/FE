@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Clock, ChevronDown } from "lucide-react";
+import { Phone, MapPin, Clock, ChevronDown } from "lucide-react";
 import {
   getStore,
   updateStore,
@@ -40,7 +40,6 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const [storeName, setStoreName] = useState("");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
 
   const [openTime, setOpenTime] = useState("11:00");
@@ -181,25 +180,6 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             </div>
           </div>
           <div>
-            <label htmlFor="store-email" className={labelStyle}>
-              이메일
-            </label>
-            <div className="relative">
-              <Mail
-                size={18}
-                className="absolute left-4 top-[26px] text-gray-400"
-              />
-              <input
-                id="store-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="이메일 주소를 입력하세요"
-                className={`${inputStyle} pl-12`}
-              />
-            </div>
-          </div>
-          <div>
             <label className={labelStyle}>주소</label>
             <div className="relative">
               <MapPin
@@ -207,10 +187,9 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 className="absolute left-4 top-[26px] text-gray-400"
               />
               <input
+                readOnly
                 type="text"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="가게 주소를 입력하세요"
                 className={`${inputStyle} pl-12`}
               />
             </div>
