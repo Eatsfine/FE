@@ -148,7 +148,8 @@ export default function ReservationModal({
       return { msg: "날짜를 먼저 선택해주세요", times: [] as string[] };
     if (timesQuery.isLoading)
       return { msg: "예약 가능시간 기다리는중..", times: [] };
-    if (timesQuery.isError) return { msg: "서버 조회 실패", times: [] };
+    if (timesQuery.isError)
+      return { msg: "휴무일 입니다. 다른 날짜를 선택해주세요", times: [] };
     if (times.length === 0)
       return { msg: "예약 가능한 시간이 없어요", times: [] };
     return { msg: null as string | null, times };
