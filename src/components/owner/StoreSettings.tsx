@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Clock, ChevronDown, X } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, ChevronDown } from "lucide-react";
 import {
   getStore,
   updateStore,
@@ -116,9 +116,9 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     e.target.value = "";
   };
 
-  const handleDeleteImage = (fileIndex: number) => {
-    setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
-  };
+  // const handleDeleteImage = (fileIndex: number) => {
+  //   setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
+  // };
 
   const inputStyle =
     "w-full border border-gray-200 rounded-lg p-4 mt-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400";
