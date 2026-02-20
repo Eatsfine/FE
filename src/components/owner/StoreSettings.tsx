@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Clock, ChevronDown } from "lucide-react";
+import { Phone, MapPin, Clock, ChevronDown } from "lucide-react";
 import {
   getStore,
   updateStore,
@@ -40,7 +40,6 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const [storeName, setStoreName] = useState("");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
 
   const [openTime, setOpenTime] = useState("11:00");
