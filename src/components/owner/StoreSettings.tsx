@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+
 import { Phone, MapPin, Clock, ChevronDown } from "lucide-react";
+
 import {
   getStore,
   updateStore,
@@ -40,6 +42,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const [storeName, setStoreName] = useState("");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
+
   const [address, setAddress] = useState("");
 
   const [openTime, setOpenTime] = useState("11:00");
@@ -175,6 +178,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="전화번호를 입력하세요"
+
                 className={`${inputStyle} pl-12`}
               />
             </div>
@@ -187,9 +191,11 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 className="absolute left-4 top-[26px] text-gray-400"
               />
               <input
+
                 readOnly
                 type="text"
                 value={address}
+
                 className={`${inputStyle} pl-12`}
               />
             </div>
