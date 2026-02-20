@@ -85,6 +85,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         setNewFiles([]);
       } catch (e) {
         alert("가게 정보를 불러오는데 실패했습니다.");
+        return;
       }
     })();
   }, [storeId]);
@@ -116,9 +117,9 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     e.target.value = "";
   };
 
-  // const handleDeleteImage = (fileIndex: number) => {
-  //   setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
-  // };
+  const handleDeleteImage = (fileIndex: number) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
+  };
 
   const inputStyle =
     "w-full border border-gray-200 rounded-lg p-4 mt-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400";
@@ -388,6 +389,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                 />
                 <button
                   type="button"
+                  aria-label={`테이블 이미지 ${idx + 1} 삭제`}
                   onClick={() => {
                     const ok = window.confirm(
                       "정말로 이 사진을 삭제하시겠습니까?\n(설정 저장을 눌러야 최종 반영됩니다)",
@@ -417,13 +419,13 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                   className="w-full h-32 object-cover rounded-lg"
                   onLoad={() => URL.revokeObjectURL(previewUrl)}
                 />
-                {/* <button
+                <button
                   type="button"
-                  onClick={() => handleDeleteImage(undefined, index)}
-                  className="cursor-pointer absolute top-1 right-1 bg-gray-500 text-white text-xs px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors"
+                  onClick={() => handleDeleteImage(index)}
+                  className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-400 cursor-pointer transition"
                 >
-                  <X className="size-4" />
-                </button> */}
+                  삭제
+                </button>
               </div>
             );
           })}
