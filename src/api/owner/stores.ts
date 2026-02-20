@@ -104,7 +104,7 @@ export const getTableImages = async (
 
   if (!res.data.isSuccess) throw new Error(res.data.message);
 
-  return res.data.result.tableImages ?? [];
+  return res.data.result?.tableImages ?? [];
 };
 
 export const uploadTableImages = async (
