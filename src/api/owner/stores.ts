@@ -11,7 +11,6 @@ export interface StoreDetail {
   isApproved: boolean;
   rating?: number;
   reviewCount?: number;
-  tableImageUrls?: string[];
 }
 
 export interface BusinessHour {
@@ -57,19 +56,14 @@ interface MyStoreResponse {
 }
 
 export interface TableImage {
-  tableId: number;
+  tableImageId: number;
   tableImageUrl: string;
 }
 
 export interface TableImagesResponse {
   storeId: number;
-  tableImageUrls: string[];
+  tableImages: TableImage[];
 }
-
-// export interface TableImagesResponse {
-//   storeId: number;
-//   tableImages: TableImage[];
-// }
 
 export function getStore(storeId: number | string) {
   return api.get<ApiResponse<StoreDetail>>(`/api/v1/stores/${storeId}`);
@@ -103,27 +97,15 @@ export const getMyStores = async (): Promise<MyStore[]> => {
 
 export const getTableImages = async (
   storeId: number | string,
-): Promise<string[]> => {
+): Promise<TableImage[]> => {
   const res = await api.get<ApiResponse<TableImagesResponse>>(
     `/api/v1/stores/${storeId}/table-images`,
   );
 
   if (!res.data.isSuccess) throw new Error(res.data.message);
 
-  return res.data.result.tableImageUrls ?? [];
+  return res.data.result.tableImages ?? [];
 };
-
-// export const getTableImages = async (
-//   storeId: number | string,
-// ): Promise<TableImage[]> => {
-//   const res = await api.get<ApiResponse<TableImagesResponse>>(
-//     `/api/v1/stores/${storeId}/table-images`,
-//   );
-
-//   if (!res.data.isSuccess) throw new Error(res.data.message);
-
-//   return res.data.result.tableImages ?? [];
-// };
 
 export const uploadTableImages = async (
   storeId: number | string,
@@ -152,12 +134,12 @@ export const uploadTableImages = async (
 
 export const deleteTableImages = async (
   storeId: number | string,
-  tableIds: number[],
-): Promise<ApiResponse<{ tableId: number }>> => {
-  const response = await api.delete<ApiResponse<{ tableId: number }>>(
+  tableImageIds: number[],
+): Promise<ApiResponse<{ tableImageId: number }>> => {
+  const response = await api.delete<ApiResponse<{ tableImageId: number }>>(
     `/api/v1/stores/${storeId}/table-images`,
     {
-      data: tableIds,
+      data: tableImageIds,
     },
   );
   const data = response.data;

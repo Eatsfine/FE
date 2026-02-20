@@ -6,6 +6,8 @@ import {
   updateBusinessHours,
   uploadTableImages,
   getTableImages,
+  type TableImage,
+  deleteTableImages,
 } from "@/api/owner/stores";
 
 interface StoreSettingsProps {
@@ -49,14 +51,9 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   const [minGuests, setMinGuests] = useState<number | string>(1);
   const [maxGuests, setMaxGuests] = useState<number | string>(20);
 
-  const [tableImageUrls, setTableImageUrls] = useState<string[]>([]);
+  const [tableImages, setTableImages] = useState<TableImage[]>([]);
+  const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set());
   const [newFiles, setNewFiles] = useState<File[]>([]);
-
-  const [deletedUrls, setDeletedUrls] = useState<Set<string>>(new Set());
-
-  // const [tableImages, setTableImages] = useState<TableImage[]>([]);
-  // const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set());
-  // const [newFiles, setNewFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!storeId) return;
@@ -65,14 +62,11 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
       try {
         const res = await getStore(storeId);
         const store = res.data.result;
-        setTableImageUrls(store.tableImageUrls ?? []);
-        setDeletedUrls(new Set());
 
         setStoreName(store.storeName);
         setDescription(store.description ?? "");
         setPhone(store.phone ?? "");
         setAddress(store.address ?? "");
-
         if (store.businessHours?.length) {
           const open = store.businessHours.find((b) => !b.isClosed);
           if (open?.openTime && open?.closeTime) {
@@ -84,45 +78,16 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             .map((b) => dayMapFromApi[b.day]);
           setClosedDays(closed);
         }
+
+        const imgs = await getTableImages(storeId);
+        setTableImages(imgs);
+        setDeletedIds(new Set());
+        setNewFiles([]);
       } catch (e) {
         alert("가게 정보를 불러오는데 실패했습니다.");
       }
     })();
   }, [storeId]);
-
-  // useEffect(() => {
-  //   if (!storeId) return;
-
-  //   (async () => {
-  //     try {
-  //       const res = await getStore(storeId);
-  //       const store = res.data.result;
-
-  //       setStoreName(store.storeName);
-  //       setDescription(store.description ?? "");
-  //       setPhone(store.phone ?? "");
-  //       setAddress(store.address ?? "");
-  //       if (store.businessHours?.length) {
-  //         const open = store.businessHours.find((b) => !b.isClosed);
-  //         if (open?.openTime && open?.closeTime) {
-  //           setOpenTime(open.openTime);
-  //           setCloseTime(open.closeTime);
-  //         }
-  //         const closed = store.businessHours
-  //           .filter((b) => b.isClosed)
-  //           .map((b) => dayMapFromApi[b.day]);
-  //         setClosedDays(closed);
-  //       }
-
-  //       const imgs = await getTableImages(storeId);
-  //       setTableImages(imgs);
-  //       setDeletedIds(new Set());
-  //       setNewFiles([]);
-  //     } catch (e) {
-  //       alert("가게 정보를 불러오는데 실패했습니다.");
-  //     }
-  //   })();
-  // }, [storeId]);
 
   const toggleDay = (day: string) => {
     setClosedDays((prev) =>
@@ -151,10 +116,8 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     e.target.value = "";
   };
 
-  const handleDeleteImage = (_tableId?: number, fileIndex?: number) => {
-    if (fileIndex !== undefined) {
-      setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
-    }
+  const handleDeleteImage = (fileIndex: number) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== fileIndex));
   };
 
   const inputStyle =
@@ -414,39 +377,10 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {tableImageUrls
-            .filter((url) => !deletedUrls.has(url))
-            .map((url, idx) => (
-              <div key={`${url}-${idx}`} className="relative">
-                <img
-                  src={url}
-                  alt={`테이블 이미지 ${idx + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <button
-                  onClick={() => {
-                    const ok = window.confirm(
-                      "정말로 이 사진을 삭제하시겠습니까?\n(설정 저장을 눌러야 최종 반영됩니다)",
-                    );
-                    if (!ok) return;
-                    // 현재 가게 관리 화면에서만 안보이게 처리
-                    setDeletedUrls((prev) => {
-                      const next = new Set(prev);
-                      next.add(url);
-                      return next;
-                    });
-                  }}
-                  className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-400 cursor-pointer transition"
-                >
-                  삭제
-                </button>
-              </div>
-            ))}
-          {/* 
           {tableImages
-            .filter((img) => !deletedIds.has(img.tableId))
+            .filter((img) => !deletedIds.has(img.tableImageId))
             .map((img, idx) => (
-              <div key={img.tableId} className="relative">
+              <div key={img.tableImageId} className="relative">
                 <img
                   src={img.tableImageUrl}
                   alt={`테이블 이미지 ${idx + 1}`}
@@ -462,7 +396,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
 
                     setDeletedIds((prev) => {
                       const next = new Set(prev);
-                      next.add(img.tableId);
+                      next.add(img.tableImageId);
                       return next;
                     });
                   }}
@@ -471,7 +405,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                   삭제
                 </button>
               </div>
-            ))} */}
+            ))}
 
           {newFiles.map((file, index) => {
             const previewUrl = URL.createObjectURL(file);
@@ -483,13 +417,13 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
                   className="w-full h-32 object-cover rounded-lg"
                   onLoad={() => URL.revokeObjectURL(previewUrl)}
                 />
-                <button
+                {/* <button
                   type="button"
                   onClick={() => handleDeleteImage(undefined, index)}
                   className="cursor-pointer absolute top-1 right-1 bg-gray-500 text-white text-xs px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   <X className="size-4" />
-                </button>
+                </button> */}
               </div>
             );
           })}
@@ -534,33 +468,28 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               );
               return;
             }
-
-            if (deletedUrls.size > 0) {
-              alert(
-                "현재 API 스펙에서는 기존 이미지 삭제를 서버에 반영할 수 없습니다.",
-              );
-              // await deleteTableImages(storeId, Array.from(deletedIds));
-            }
-            if (newFiles.length > 0) {
-              try {
-                await uploadTableImages(storeId, newFiles);
-              } catch (e) {
-                alert("이미지 업로드에 실패했습니다.");
-                return;
+            try {
+              if (deletedIds.size > 0) {
+                await deleteTableImages(storeId, Array.from(deletedIds));
               }
-              // await uploadTableImages(storeId, newFiles);
+            } catch (e) {
+              alert("이미지 삭제에 실패했습니다.");
+              return;
             }
-            const urls = await getTableImages(storeId);
-            setTableImageUrls(urls);
-            setNewFiles([]);
-            setDeletedUrls(new Set());
-            alert("설정이 저장되었습니다.");
+            try {
+              if (newFiles.length > 0) {
+                await uploadTableImages(storeId, newFiles);
+              }
+            } catch (e) {
+              alert("이미지 업로드에 실패했습니다.");
+              return;
+            }
 
-            // const imgs = await getTableImages(storeId);
-            // setTableImages(imgs);
-            // setDeletedIds(new Set());
-            // setNewFiles([]);
-            // alert("설정이 저장되었습니다.");
+            const imgs = await getTableImages(storeId);
+            setTableImages(imgs);
+            setDeletedIds(new Set());
+            setNewFiles([]);
+            alert("설정이 저장되었습니다.");
           }}
           className="cursor-pointer bg-blue-600 text-white px-12 py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-lg"
         >
