@@ -5,7 +5,7 @@
 🔗 **Service URL**
 https://www.eatsfine.co.kr
 
-📽️ **데모 영상**
+🎬 **데모 영상**
 https://www.youtube.com/watch?v=Nk1_28zSJaQ
 
 ## 👥 팀 소개
@@ -33,20 +33,19 @@ https://www.youtube.com/watch?v=Nk1_28zSJaQ
 
 | 커밋 타입     | 설명                           |
 | ------------- | ------------------------------ |
-| 🎉 `feat`     | 새로운 기능 추가               |
-| 🐛 `fix`      | 버그/오류 수정                 |
-| 🛠 `chore`    | 코드/내부 파일/설정 수정       |
-| 📝 `docs`     | 문서 수정 (README 등)          |
-| 🔄 `refactor` | 코드 리팩토링 (기능 변경 없음) |
-| 🧪 `test`     | 테스트 코드 추가/수정          |
-| 🎨 `style`    | 스타일 변경(포맷, 세미콜론 등) |
+| ✨ `Feat`     | 새로운 기능 추가               |
+| 🐞 `Bugfix`   | 버그/오류 수정                 |
+| 📃 `Docs`     | 문서 수정 (README 등)          |
+| 🔨 `Refactor` | 코드 리팩토링 (기능 변경 없음) |
+| 🧪 `Test`     | 테스트 코드 추가/수정          |
+| 🎨 `UI/UX`    | 디자인 및 사용성 수정          |
+| ⚙️ `Setting`  | 기본 세팅 작업                 |
 
 💻 **예시**
 
 ```bash
 git commit -m "feat: restaurant card 컴포넌트 추가"
 git commit -m "fix: 네이버페이 결제수단 오류 수정"
-git commit -m "style: 식당리스트 카드디자인 수정"
 ```
 
 ## 📁 폴더 구조
@@ -71,10 +70,10 @@ src/
 - main : 배포/최종 안정 브랜치 **(직접 push 금지)**
 - develop: 개발 통합 브랜치 (기본 작업 브랜치)
 - 작업 브랜치 네이밍:
-  - `feat/mainPage`
-  - `fix/myPagePath`
-  - `chore/SearchPage`
-  - `refactor/Header`
+  - `feat/#이슈번호`
+  - `fix/#13`
+  - `refactor/#77`
+  - `docs/#1`
 
 ## 🎯 작업 루틴
 
@@ -92,7 +91,7 @@ git pull --rebase origin develop
 ### 2. 작업 브랜치 생성
 
 ```bash
-git checkout -b feat/featureName
+git checkout -b feat/#이슈번호
 ```
 
 ### 3. 작업 후 커밋 & 푸시
@@ -100,12 +99,12 @@ git checkout -b feat/featureName
 ```bash
 git add .     # 필요하면 git add file명 으로 특정 파일만 추가해도 됨
 git commit -m "feat: 자세한 내용 적기"
-git push -u origin feat/featureName
+git push -u origin feat/#이슈번호
 ```
 
 ### 4. PR 생성
 
-- feat/<featureName> → develop 로 PR 생성
+- feat/#이슈번호 → develop 로 PR 생성
 - PR 본문에 Closes #이슈번호 작성해서 merge 시 이슈가 자동으로 닫히도록 설정
 
 ```md
@@ -128,11 +127,6 @@ Closes #이슈번호
 - PR은 가능한 작게 쪼개서 올리기
 - PR에 작업 요약 + 스크린샷/동작 설명 포함하기
 - 충돌 발생 시 브랜치에서 먼저 해결 후 PR 업데이트
-
-## 🧩 UI (shadcn/ui)
-
-- 컴포넌트는 src/components/ui에 생성됩니다.
-- className 병합 유틸은 src/lib/utils.ts의 cn()을 사용합니다.
 
 ## 💡 시작 방법
 
