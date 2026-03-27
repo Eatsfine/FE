@@ -5,7 +5,7 @@
     [Refactor/#127] 마이페이지 UX 개선 리팩토링
 
 사용 타입:
-    Feature | Bugfix | Docs | Refactor | Test | UI/UX | Setting
+    Feature | Bugfix | Docs | Refactor | Test | Setting
 -->
 
 ## 🔢 관련 이슈 링크
