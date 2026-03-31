@@ -3,6 +3,7 @@ import {
   patchMemberInfo,
   putProfileImage,
 } from "@/api/endpoints/member";
+import ProfileAvatar from "@/components/profile/profileAvatar";
 import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -220,9 +221,7 @@ export default function MyInfoPage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="text-3xl text-gray-500">
-                {draft.nickname?.[0] ?? "맛"}
-              </span>
+              <ProfileAvatar name={draft.nickname || "맛"} />
             )}
           </div>
 
