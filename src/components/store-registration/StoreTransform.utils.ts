@@ -1,7 +1,7 @@
 import type { BusinessHour, Day, RequestStoreCreateDto } from "@/types/store";
 import type { StoreInfoFormValues } from "./StoreInfo.schema";
 
-export const formatSido = (sido: string): string => {
+const formatSido = (sido: string): string => {
   const mapping: Record<string, string> = {
     서울: "서울특별시",
     부산: "부산광역시",
@@ -24,7 +24,7 @@ export const formatSido = (sido: string): string => {
   return mapping[sido] || sido;
 };
 
-export const formatTimeToBackend = (timeStr: string | undefined): string => {
+const formatTimeToBackend = (timeStr: string | undefined): string => {
   if (!timeStr) {
     throw new Error("영업 시간은 필수입니다.");
   }
