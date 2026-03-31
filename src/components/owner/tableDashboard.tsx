@@ -13,7 +13,7 @@ import {
 } from "@/api/owner/storeLayout";
 import { patchTableInfo, type UpdatedTable } from "@/api/owner/table";
 import { patchBreakTime } from "@/api/owner/reservation";
-import type { SeatsType } from "@/types/table";
+import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
 import TableDetailModal from "./tableDetailModal";
 
 interface TableDashboardProps {
@@ -562,14 +562,6 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
         );
       }
     }
-  };
-
-  const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
-    GENERAL: "일반석",
-    WINDOW: "창가석",
-    ROOM: "룸",
-    BAR: "바 좌석",
-    OUTDOOR: "야외석",
   };
 
   return (
