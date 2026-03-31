@@ -21,7 +21,7 @@ interface TableDashboardProps {
   storeName?: string;
 }
 
-export interface TableInfo {
+interface TableInfo {
   tableId: number;
   numValue: number;
   minCapacity: number;

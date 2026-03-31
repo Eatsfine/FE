@@ -8,7 +8,7 @@ type ApiEnvelope<T> = {
   result: T;
 };
 
-export type MemberInfo = {
+type MemberInfo = {
   id: number;
   profileImage: string | null;
   email: string;
@@ -23,7 +23,7 @@ export async function getMemberInfo() {
   return res.data.result;
 }
 
-export type PatchMemberInfo = {
+type PatchMemberInfo = {
   name: string;
   phoneNumber: string;
 };
@@ -46,13 +46,13 @@ export async function putProfileImage(file: File) {
   return res.data.result;
 }
 
-export type ChangePasswordRequest = {
+type ChangePasswordRequest = {
   currentPassword: string;
   newPassword: string;
   newPasswordConfirm: string;
 };
 
-export type ChangePasswordResponse = {
+type ChangePasswordResponse = {
   change: boolean;
   changeAt: string;
   message: string;

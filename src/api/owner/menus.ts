@@ -1,7 +1,7 @@
 import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 
-export interface ServerMenu {
+interface ServerMenu {
   menuId: number;
   name: string;
   description?: string | null;
@@ -56,7 +56,7 @@ export interface DeleteMenusRequest {
   menuIds: number[];
 }
 
-export interface DeleteMenusResponse {
+interface DeleteMenusResponse {
   isSuccess: boolean;
   code: string;
   result: { deletedMenuIds: number[] };

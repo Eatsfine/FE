@@ -1,7 +1,7 @@
 import { api } from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
 
-export interface StoreDetail {
+interface StoreDetail {
   storeId: number;
   storeName: string;
   description: string;
@@ -13,7 +13,7 @@ export interface StoreDetail {
   reviewCount?: number;
 }
 
-export interface BusinessHour {
+interface BusinessHour {
   day:
     | "MONDAY"
     | "TUESDAY"
@@ -60,7 +60,7 @@ export interface TableImage {
   tableImageUrl: string;
 }
 
-export interface TableImagesResponse {
+interface TableImagesResponse {
   storeId: number;
   tableImages: TableImage[];
 }

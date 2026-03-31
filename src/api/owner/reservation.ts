@@ -20,18 +20,18 @@ export interface UpdateSlotRequest {
   status: SlotStatus;
 }
 
-export interface UpdateSlotResult {
+interface UpdateSlotResult {
   targetDate: string;
   startTime: string;  
   status: SlotStatus;
 }
 
-export interface PatchBreakTimeRequest {
+interface PatchBreakTimeRequest {
   breakStartTime: string; 
   breakEndTime: string; 
 }
 
-export interface BookingDetailResult {
+interface BookingDetailResult {
   bookerName: string;
   partySize: number;
   amount: number;
