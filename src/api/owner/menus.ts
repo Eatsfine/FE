@@ -52,10 +52,6 @@ interface MenuCreateResult {
   }[];
 }
 
-export interface DeleteMenusRequest {
-  menuIds: number[];
-}
-
 interface DeleteMenusResponse {
   isSuccess: boolean;
   code: string;

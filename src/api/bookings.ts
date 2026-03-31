@@ -1,7 +1,5 @@
 import { api } from "./axios";
 
-export type BookingStatus = "예약 확정" | "방문 완료" | "취소됨";
-
 type ApiBookingStatus = "CONFIRMED" | "COMPLETED" | "CANCELED";
 
 interface Booking {

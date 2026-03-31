@@ -27,13 +27,6 @@ interface BusinessHour {
   isClosed: boolean;
 }
 
-export interface Time {
-  hour: number;
-  minute: number;
-  second: number;
-  nano: number;
-}
-
 export interface MyStore {
   storeId: number;
   storeName: string;
