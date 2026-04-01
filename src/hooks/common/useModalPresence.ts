@@ -6,28 +6,31 @@ export function useModalPresence(open: boolean, durationMs = 220) {
   const timeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (open) {
-      if (timeRef.current) {
-        window.clearTimeout(timeRef.current);
-        timeRef.current = null;
-      }
-      setRendered(true);
-      const raf = requestAnimationFrame(() => setEntered(true));
-      return () => cancelAnimationFrame(raf);
-    }
-    setEntered(false);
-
-    timeRef.current = window.setTimeout(() => {
-      setRendered(false);
+    if (timeRef.current) {
+      window.clearTimeout(timeRef.current);
       timeRef.current = null;
-    }, durationMs);
-
-    return () => {
-      if (timeRef.current) {
-        window.clearTimeout(timeRef.current);
+    }
+    if (open) {
+      const raf = requestAnimationFrame(() => {
+        setRendered(true);
+        setEntered(true);
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      const raf = requestAnimationFrame(() => {
+        setEntered((prev) => (prev ? false : prev));
+      });
+      timeRef.current = window.setTimeout(() => {
+        setRendered(false);
         timeRef.current = null;
-      }
-    };
+      }, durationMs);
+      return () => {
+        cancelAnimationFrame(raf);
+        if (timeRef.current) {
+          window.clearTimeout(timeRef.current);
+        }
+      };
+    }
   }, [open, durationMs]);
 
   return { rendered, entered };

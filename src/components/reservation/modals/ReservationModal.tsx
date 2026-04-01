@@ -79,22 +79,25 @@ export default function ReservationModal({
     }
     if (didInitRef.current) return;
     didInitRef.current = true;
-    if (initialDraft) {
-      setPeople(initialDraft.people);
-      setDate(initialDraft.date);
-      setTime(initialDraft.time);
-      setSeatType(initialDraft.seatType);
-      setTablePref(initialDraft.tablePref);
-      setSelectedTableId(initialDraft.tableId);
-    } else {
-      setPeople(2);
-      setDate(undefined);
-      setTime("");
-      setSeatType(null);
-      setTablePref("split_ok");
-      setSelectedTableId(null);
-    }
-  }, [open]);
+    const raf = requestAnimationFrame(() => {
+      if (initialDraft) {
+        setPeople(initialDraft.people);
+        setDate(initialDraft.date);
+        setTime(initialDraft.time);
+        setSeatType(initialDraft.seatType);
+        setTablePref(initialDraft.tablePref);
+        setSelectedTableId(initialDraft.tableId);
+      } else {
+        setPeople(2);
+        setDate(undefined);
+        setTime("");
+        setSeatType(null);
+        setTablePref("split_ok");
+        setSelectedTableId(null);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [open, initialDraft]);
 
   const todayKst = startOfTodayInKst();
 
@@ -163,8 +166,11 @@ export default function ReservationModal({
   const handleRequestClose = useConfirmClose(onClose);
 
   useEffect(() => {
-    setSeatType(null);
-    setSelectedTableId(null);
+    const raf = requestAnimationFrame(() => {
+      setSeatType(null);
+      setSelectedTableId(null);
+    });
+    return () => cancelAnimationFrame(raf);
   }, [people, date, time]);
 
   if (!rendered) return null;

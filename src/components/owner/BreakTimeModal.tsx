@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { X, Clock } from 'lucide-react';
+import React, { useState } from "react";
+import { X, Clock } from "lucide-react";
 
 export interface BreakTime {
   start: string;
-  end: string; 
+  end: string;
 }
 
 interface Props {
@@ -13,30 +13,30 @@ interface Props {
   onConfirm: (breakTime: BreakTime) => void;
 }
 
-
 const BreakTimeModal: React.FC<Props> = ({
   openTime,
   closeTime,
   onClose,
   onConfirm,
 }) => {
-  const [start, setStart] = useState('14:00');
-  const [end, setEnd] = useState('15:00');
+  const [start, setStart] = useState("14:00");
+  const [end, setEnd] = useState("15:00");
 
-  const isInvalid =
-  start >= end ||
-  start < openTime ||
-  end > closeTime;
-
+  const isInvalid = start >= end || start < openTime || end > closeTime;
 
   return (
     <div
       className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
       onClick={onClose}
     >
-      <div className="bg-white w-[420px] rounded-2xl p-6 relative"
-      onClick={(e)=>e.stopPropagation()}>
-        <button onClick={onClose} className="absolute right-4 top-4 hover:text-gray-500 cursor-pointer">
+      <div
+        className="bg-white w-[420px] rounded-2xl p-6 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 hover:text-gray-500 cursor-pointer"
+        >
           <X />
         </button>
 
@@ -72,7 +72,6 @@ const BreakTimeModal: React.FC<Props> = ({
               className="w-full mt-1 border rounded-lg p-2 cursor-pointer"
             />
           </div>
-
         </div>
 
         <div className="flex gap-3 mt-6">
@@ -91,8 +90,8 @@ const BreakTimeModal: React.FC<Props> = ({
             }}
             className={`flex-1 rounded-lg py-2 font-bold ${
               isInvalid
-                ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-orange-500 hover:bg-orange-300 text-white'
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-300 text-white"
             }`}
           >
             브레이크 타임 추가

@@ -1,5 +1,5 @@
 import { Lock, Bell, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDiaLog";
 import { WithdrawDialog } from "@/components/auth/WithdrawDialog";
@@ -64,30 +64,35 @@ function Switch({
   );
 }
 
+const getInitialNotifications = () => {
+  if (typeof window === "undefined") return defaultNotifications;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultNotifications;
+    const parsed = JSON.parse(raw);
+    return { ...defaultNotifications, ...parsed };
+  } catch (e) {
+    console.warn("알림 설정 로드 실패, 기본값 사용", e);
+    return defaultNotifications;
+  }
+};
+type NotificationSettings = typeof defaultNotifications;
+
 export default function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [notifications, setNotifications] = useState(defaultNotifications);
-  const [savedNotifications, setSavedNotifications] = useState(notifications);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      const merged = { ...defaultNotifications, ...parsed };
-      setNotifications(merged);
-      setSavedNotifications(merged);
-    } catch (e) {
-      console.warn("알림 설정 로드 실패, 기본값 사용", e);
-    }
-  }, []);
+  const [notifications, setNotifications] = useState<NotificationSettings>(
+    getInitialNotifications,
+  );
+  const [savedNotifications, setSavedNotifications] =
+    useState<NotificationSettings>(notifications);
 
   const isDirty = useMemo(() => {
     return JSON.stringify(notifications) !== JSON.stringify(savedNotifications);
   }, [notifications, savedNotifications]);
 
-  const toggleNotification = (key: keyof typeof notifications) => {
+  const toggleNotification = (key: keyof NotificationSettings) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 

@@ -48,7 +48,16 @@ export default function ReservationMenuModal({
   );
 
   useEffect(() => {
-    setSelectedMenus(draft.selectedMenus ?? []);
+    const nextMenus = draft.selectedMenus ?? [];
+    const raf = requestAnimationFrame(() => {
+      setSelectedMenus((prev) => {
+        if (JSON.stringify(prev) !== JSON.stringify(nextMenus)) {
+          return prev;
+        }
+        return nextMenus;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
   }, [open, draft.selectedMenus]);
 
   const qtyMap = useMemo(() => {

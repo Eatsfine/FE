@@ -71,7 +71,9 @@ export default function KakaoMap({
   const [sdkError, setSdkError] = useState<string | null>(null);
 
   const centerRef = useRef(center);
-  centerRef.current = center;
+  useEffect(() => {
+    centerRef.current = center;
+  }, [center]);
 
   const relayout = () => {
     const kakao = window.kakao;
