@@ -27,7 +27,7 @@ export default function MyInfoPage() {
 
   const shownFile = isEditing ? draftImageFile : originalImageFile;
 
-  const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
+  const [serverProfileUrl] = useState<string | null>(null);
 
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
@@ -58,18 +58,6 @@ export default function MyInfoPage() {
     }
     return serverProfileUrl;
   }, [shownFile, serverProfileUrl]);
-
-  const toAbsolute = (url: string | null) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
-
-    const apiBase =
-      (import.meta.env.VITE_API_URL as string | undefined)?.replace(
-        /\/api\/?$/,
-        "",
-      ) ?? "";
-    return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: patchMemberInfo,
