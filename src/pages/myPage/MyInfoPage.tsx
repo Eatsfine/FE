@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Save } from "lucide-react";
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -27,7 +27,7 @@ export default function MyInfoPage() {
 
   const shownFile = isEditing ? draftImageFile : originalImageFile;
 
-  const [serverProfileUrl] = useState<string | null>(null);
+  const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
 
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
@@ -37,20 +37,25 @@ export default function MyInfoPage() {
     refetchOnWindowFocus: false,
   });
 
-  const [original, setOriginal] = useState<Form>(() => {
-    if (!data)
-      return {
-        email: "",
-        nickname: "",
-        phone: "",
-      };
-    return {
-      email: data.email ?? "",
-      nickname: data.name ?? "",
-      phone: phoneNumber(data.phoneNumber ?? ""),
-    };
+  const [original, setOriginal] = useState<Form>({
+    email: "",
+    nickname: "",
+    phone: "",
   });
   const [draft, setDraft] = useState<Form>(original);
+
+  useEffect(() => {
+    if (data) {
+      const newForm = {
+        email: data.email ?? "",
+        nickname: data.name ?? "",
+        phone: phoneNumber(data.phoneNumber ?? ""),
+      };
+      setOriginal(newForm);
+      setDraft(newForm);
+      setServerProfileUrl(data.profileImage ?? null);
+    }
+  }, [data]);
 
   const displayProfileSrc = useMemo(() => {
     if (shownFile) {

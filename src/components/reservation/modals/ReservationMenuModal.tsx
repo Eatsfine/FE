@@ -51,7 +51,7 @@ export default function ReservationMenuModal({
     const nextMenus = draft.selectedMenus ?? [];
     const raf = requestAnimationFrame(() => {
       setSelectedMenus((prev) => {
-        if (JSON.stringify(prev) !== JSON.stringify(nextMenus)) {
+        if (JSON.stringify(prev) === JSON.stringify(nextMenus)) {
           return prev;
         }
         return nextMenus;

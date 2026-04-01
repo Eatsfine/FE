@@ -11,8 +11,8 @@ export function useModalPresence(open: boolean, durationMs = 220) {
       timeRef.current = null;
     }
     if (open) {
+      setRendered(true);
       const raf = requestAnimationFrame(() => {
-        setRendered(true);
         setEntered(true);
       });
       return () => cancelAnimationFrame(raf);

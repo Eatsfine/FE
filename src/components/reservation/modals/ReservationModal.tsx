@@ -165,7 +165,12 @@ export default function ReservationModal({
     (availableTablesQuery.data?.tables?.length ?? 0) === 0;
   const handleRequestClose = useConfirmClose(onClose);
 
+  const prevDepsRef = useRef({ people, date, time });
   useEffect(() => {
+    const prev = prevDepsRef.current;
+    const changed =
+      prev.people !== people || prev.date !== date || prev.time != time;
+    if (!changed) return;
     const raf = requestAnimationFrame(() => {
       setSeatType(null);
       setSelectedTableId(null);

@@ -22,7 +22,14 @@ const BreakTimeModal: React.FC<Props> = ({
   const [start, setStart] = useState("14:00");
   const [end, setEnd] = useState("15:00");
 
-  const isInvalid = start >= end || start < openTime || end > closeTime;
+  const toMinutes = (t: string) => {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  };
+  const isInvalid =
+    toMinutes(start) >= toMinutes(end) ||
+    toMinutes(start) < toMinutes(openTime) ||
+    toMinutes(end) > toMinutes(closeTime);
 
   return (
     <div
