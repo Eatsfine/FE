@@ -15,7 +15,7 @@ export interface LayoutTable {
   seatsType: SeatsType;
 }
 
-export interface LayoutResponse {
+interface LayoutResponse {
   layoutId: number;
   totalTableCount: number;
   gridInfo: { gridCol: number; gridRow: number };
@@ -30,7 +30,7 @@ export interface CreateTableRequest {
   seatsType: SeatsType;
 }
 
-export interface CreateTableResponse {
+interface CreateTableResponse {
   tableId: number;
   tableNumber: string;
   minSeatCount: number;

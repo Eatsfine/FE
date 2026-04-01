@@ -30,7 +30,7 @@ import {
   uploadTableImage,
 } from "@/api/owner/table";
 import { cancelBookingByOwner } from "@/api/owner/reservation";
-import type { SeatsType } from "@/types/table";
+import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
 
 interface TableInfo {
   minCapacity: number;
@@ -379,14 +379,6 @@ const TableDetailModal: React.FC<Props> = ({
     } finally {
       setDetailLoading(false);
     }
-  };
-
-  const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
-    GENERAL: "일반석",
-    WINDOW: "창가석",
-    ROOM: "룸",
-    BAR: "바 좌석",
-    OUTDOOR: "야외석",
   };
 
   const capacityText = `${tableInfo.minCapacity}~${tableInfo.maxCapacity}인`;

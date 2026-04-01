@@ -7,7 +7,7 @@ type ApiResult<T> = {
   result: T;
 };
 
-export type GetAvailableTimesParams = {
+type GetAvailableTimesParams = {
   storeId: string | number;
   date: string;
   partySize: number;
@@ -38,9 +38,9 @@ export async function getAvailableTimes(
   return data.result?.availableTimes ?? [];
 }
 
-export type SeatsTypes = "WINDOW" | "GENERAL" | string;
+type SeatsTypes = "WINDOW" | "GENERAL" | string;
 
-export type AvailableTable = {
+type AvailableTable = {
   tableId: number;
   tableNumber: string;
   tableSeats: number;

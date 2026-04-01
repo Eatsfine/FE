@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const StoreCategoryEnum = z.enum([
+const StoreCategoryEnum = z.enum([
   "KOREAN",
   "CHINESE",
   "JAPANESE",
@@ -8,7 +8,7 @@ export const StoreCategoryEnum = z.enum([
   "CAFE",
 ]);
 
-export const DepositRateEnum = z.enum([
+const DepositRateEnum = z.enum([
   "TEN",
   "TWENTY",
   "THIRTY",

@@ -2,7 +2,7 @@ import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 import type { AxiosProgressEvent } from "axios";
 
-export interface UploadTableImageResult {
+interface UploadTableImageResult {
   tableId: number;
   tableImageUrl: string;
 }
@@ -11,7 +11,7 @@ interface DeleteTableImageResult {
   tableId: number;
 }
 
-export interface PatchTableRequest {
+interface PatchTableRequest {
   tableNumber?: string;    
   minSeatCount?: number;
   maxSeatCount?: number;
