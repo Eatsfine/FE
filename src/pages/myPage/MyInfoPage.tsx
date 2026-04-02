@@ -63,8 +63,8 @@ export default function MyInfoPage() {
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: patchMemberInfo,
     onSuccess: async () => {
-      setOriginalImageFile(draftImageFile);
       await qc.invalidateQueries({ queryKey: ["memberInfo"] });
+      setOriginalImageFile(null);
       setIsEditing(false);
     },
     onError: () => {
