@@ -15,7 +15,6 @@ import { useMutation } from "@tanstack/react-query";
 import { postInquiry } from "@/api/inquiry";
 import { getErrorMessage } from "@/utils/error";
 
-
 interface SupportModalProps {
   isOpen: boolean;
   onClose: () => void;

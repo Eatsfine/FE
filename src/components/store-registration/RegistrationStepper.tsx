@@ -17,7 +17,10 @@ export default function RegistrationStepper({
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         <div className="flex items-start justify-between max-w-2xl mx-auto">
           {steps.map((step, index) => (
-            <div key={step.number} className={`flex items-start ${index !== steps.length - 1 ? "flex-1" : ""}`}>
+            <div
+              key={step.number}
+              className={`flex items-start ${index !== steps.length - 1 ? "flex-1" : ""}`}
+            >
               <div className="flex flex-col items-center">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
@@ -32,7 +35,9 @@ export default function RegistrationStepper({
                     <span className="font-medium">{step.number}</span>
                   )}
                 </div>
-                <span className="text-xs sm:text-sm text-gray-600 mt-2 break-keep text-center">{step.label}</span>
+                <span className="text-xs sm:text-sm text-gray-600 mt-2 break-keep text-center">
+                  {step.label}
+                </span>
               </div>
               {index !== steps.length - 1 && (
                 <div

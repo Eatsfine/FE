@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Save } from "lucide-react";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -26,21 +26,10 @@ export default function MyInfoPage() {
   const [draftImageFile, setDraftImageFile] = useState<File | null>(null);
 
   const shownFile = isEditing ? draftImageFile : originalImageFile;
-  const [shownUrl, setShownUrl] = useState<string | null>(null);
 
   const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
 
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!shownFile) {
-      setShownUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(shownFile);
-    setShownUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [shownFile]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["memberInfo"],
@@ -55,30 +44,25 @@ export default function MyInfoPage() {
   });
   const [draft, setDraft] = useState<Form>(original);
 
-  const toAbsolute = (url: string | null) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
-
-    const apiBase =
-      (import.meta.env.VITE_API_URL as string | undefined)?.replace(
-        /\/api\/?$/,
-        "",
-      ) ?? "";
-    return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
-
   useEffect(() => {
-    if (!data) return;
-
-    const nextOriginal: Form = {
-      email: data.email ?? "",
-      nickname: data.name ?? "",
-      phone: phoneNumber(data.phoneNumber ?? ""),
-    };
-    setOriginal(nextOriginal);
-    setDraft(nextOriginal);
-    setServerProfileUrl(toAbsolute(data.profileImage ?? null));
+    if (data) {
+      const newForm = {
+        email: data.email ?? "",
+        nickname: data.name ?? "",
+        phone: phoneNumber(data.phoneNumber ?? ""),
+      };
+      setOriginal(newForm);
+      setDraft(newForm);
+      setServerProfileUrl(data.profileImage ?? null);
+    }
   }, [data]);
+
+  const displayProfileSrc = useMemo(() => {
+    if (shownFile) {
+      return URL.createObjectURL(shownFile);
+    }
+    return serverProfileUrl;
+  }, [shownFile, serverProfileUrl]);
 
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: patchMemberInfo,
@@ -134,7 +118,6 @@ export default function MyInfoPage() {
     setImageUploadError(null);
     setDraftImageFile(file);
     uploadImage(file);
-
   };
 
   const isValidPhone = (value: string) => {
@@ -174,8 +157,6 @@ export default function MyInfoPage() {
       </section>
     );
   }
-
-  const displayProfileSrc = shownUrl ?? serverProfileUrl ?? null;
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">

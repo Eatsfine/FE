@@ -245,7 +245,10 @@ export default function SearchPage() {
     if (!isSearchingUI) return;
 
     if (searchQuery.isSuccess || searchQuery.isError) {
-      setIsSearchingUI(false);
+      const raf = requestAnimationFrame(() => {
+        setIsSearchingUI((prev) => (prev === false ? prev : false));
+      });
+      return () => cancelAnimationFrame(raf);
     }
   }, [hasSearched, isSearchingUI, searchQuery.isSuccess, searchQuery.isError]);
 
