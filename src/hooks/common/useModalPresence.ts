@@ -11,6 +11,8 @@ export function useModalPresence(open: boolean, durationMs = 220) {
       timeRef.current = null;
     }
     if (open) {
+      //모달 진입 애니메이션을 위해 열릴 때 즉시 랜더 상태를 켜야함
+      //eslint-disable-next-line react-hooks/set-state-in-effect
       setRendered(true);
       const raf = requestAnimationFrame(() => {
         setEntered(true);
@@ -26,7 +28,7 @@ export function useModalPresence(open: boolean, durationMs = 220) {
       }, durationMs);
       return () => {
         cancelAnimationFrame(raf);
-        if (timeRef.current) {
+        if (timeRef.current !== null) {
           window.clearTimeout(timeRef.current);
         }
       };
