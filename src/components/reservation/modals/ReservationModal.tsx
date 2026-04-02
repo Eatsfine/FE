@@ -169,7 +169,8 @@ export default function ReservationModal({
   useEffect(() => {
     const prev = prevDepsRef.current;
     const changed =
-      prev.people !== people || prev.date !== date || prev.time != time;
+      prev.people !== people || prev.date !== date || prev.time !== time;
+    prevDepsRef.current = { people, date, time };
     if (!changed) return;
     const raf = requestAnimationFrame(() => {
       setSeatType(null);

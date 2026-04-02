@@ -42,6 +42,7 @@ const BreakTimeModal: React.FC<Props> = ({
       >
         <button
           onClick={onClose}
+          aria-label="모달 닫기"
           className="absolute right-4 top-4 hover:text-gray-500 cursor-pointer"
         >
           <X />
