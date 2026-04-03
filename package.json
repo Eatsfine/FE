@@ -13,6 +13,7 @@
     "format:check": "prettier . --check",
     "prepare": "husky"
   },
+  "packageManager": "pnpm@10.0.0",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
