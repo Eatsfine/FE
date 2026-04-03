@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Save } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -27,8 +27,6 @@ export default function MyInfoPage() {
 
   const shownFile = isEditing ? draftImageFile : originalImageFile;
 
-  const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
-
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -37,25 +35,23 @@ export default function MyInfoPage() {
     refetchOnWindowFocus: false,
   });
 
-  const [original, setOriginal] = useState<Form>({
+  const original = useMemo<Form>(
+    () => ({
+      email: data?.email ?? "",
+      nickname: data?.name ?? "",
+      phone: phoneNumber(data?.phoneNumber ?? ""),
+    }),
+    [data],
+  );
+
+  const serverProfileUrl = data?.profileImage ?? null;
+  const [draft, setDraft] = useState<Form>({
     email: "",
     nickname: "",
     phone: "",
   });
-  const [draft, setDraft] = useState<Form>(original);
 
-  useEffect(() => {
-    if (data) {
-      const newForm = {
-        email: data.email ?? "",
-        nickname: data.name ?? "",
-        phone: phoneNumber(data.phoneNumber ?? ""),
-      };
-      setOriginal(newForm);
-      setDraft(newForm);
-      setServerProfileUrl(data.profileImage ?? null);
-    }
-  }, [data]);
+  const currentForm = isEditing ? draft : original;
 
   const displayProfileSrc = useMemo(() => {
     if (shownFile) {
@@ -67,7 +63,6 @@ export default function MyInfoPage() {
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: patchMemberInfo,
     onSuccess: async () => {
-      setOriginal(draft);
       setOriginalImageFile(draftImageFile);
       setIsEditing(false);
       await qc.invalidateQueries({ queryKey: ["memberInfo"] });
@@ -202,7 +197,7 @@ export default function MyInfoPage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <ProfileAvatar name={draft.nickname || "맛"} />
+              <ProfileAvatar name={currentForm.nickname || "맛"} />
             )}
           </div>
 
@@ -232,7 +227,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-gray-600">이메일</label>
             <input
               disabled
-              value={draft.email}
+              value={currentForm.email}
               className={
                 "w-full rounded-lg border border-gray-200 bg-gray-50 text-gray-500 px-4 py-3"
               }
@@ -251,7 +246,7 @@ export default function MyInfoPage() {
             <input
               id="nickname"
               disabled={!isEditing || isSaving}
-              value={draft.nickname}
+              value={currentForm.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 ${
                 isEditing
@@ -265,7 +260,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-gray-600">전화번호</label>
             <input
               disabled={!isEditing || isSaving}
-              value={draft.phone}
+              value={currentForm.phone}
               onChange={(e) =>
                 handleChange("phone", phoneNumber(e.target.value))
               }
