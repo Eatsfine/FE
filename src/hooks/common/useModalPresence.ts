@@ -6,7 +6,7 @@ export function useModalPresence(open: boolean, durationMs = 220) {
   const timeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (timeRef.current) {
+    if (timeRef.current !== null) {
       window.clearTimeout(timeRef.current);
       timeRef.current = null;
     }
@@ -30,6 +30,7 @@ export function useModalPresence(open: boolean, durationMs = 220) {
         cancelAnimationFrame(raf);
         if (timeRef.current !== null) {
           window.clearTimeout(timeRef.current);
+          timeRef.current = null;
         }
       };
     }
