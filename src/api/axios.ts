@@ -36,15 +36,20 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 let refreshPromise: ReturnType<typeof postRefresh> | null = null;
 
+type ApiResponseWithFlags = {
+  code?: string;
+  message?: string;
+  success?: boolean;
+  isSuccess?: boolean;
+};
+
 api.interceptors.response.use(
   (res) => {
     const data = res.data;
     if (isApiResponse(data)) {
+      const responseData: ApiResponseWithFlags = data;
       const failed =
-        (typeof (data as any).success === "boolean" &&
-          (data as any).success === false) ||
-        (typeof (data as any).isSuccess === "boolean" &&
-          (data as any).isSuccess === false);
+        responseData.success === false || responseData.isSuccess === false;
 
       if (failed) {
         return Promise.reject({

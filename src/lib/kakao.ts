@@ -1,6 +1,12 @@
+type Kakao = {
+  maps: {
+    load: (callback: () => void) => void;
+  };
+};
+
 declare global {
   interface Window {
-    kakao: any;
+    kakao: Kakao;
   }
 }
 
