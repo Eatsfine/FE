@@ -139,20 +139,22 @@ export default function PaymentModal({
       try {
         paymentMethodWidgetRef.current?.destroy?.();
         agreementWidgetRef.current?.destroy?.();
-      } catch {}
+      } catch (error: unknown) {
+        console.error("토스 위젯 정리중 오류발생", error);
+      }
 
-      paymentMethodWidgetRef.current = null;
-      agreementWidgetRef.current = null;
+      const paymentContainer = paymentMethodContainerRef.current;
+      const agreementContainer = agreementContainerRef.current;
 
       widgetsRef.current = null;
       initedRef.current = false;
       payOrderRef.current = null;
 
-      if (paymentMethodContainerRef.current) {
-        paymentMethodContainerRef.current.innerHTML = "";
+      if (paymentContainer) {
+        paymentContainer.innerHTML = "";
       }
-      if (agreementContainerRef.current) {
-        agreementContainerRef.current.innerHTML = "";
+      if (agreementContainer) {
+        agreementContainer.innerHTML = "";
       }
     };
   }, [open, booking, nav, userId]);
