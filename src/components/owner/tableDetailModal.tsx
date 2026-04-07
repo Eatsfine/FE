@@ -512,7 +512,7 @@ const TableDetailModal: React.FC<Props> = ({
               </div>
 
               <div className="grid grid-cols-1">
-                <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-[95px] flex flex-col justify-center transition-all">
+                <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-24 flex flex-col justify-center transition-all">
                   <div className="flex items-center gap-1.5 text-gray-600 mb-1.5 text-md">
                     <User size={14} color="purple" /> 인원
                   </div>
@@ -833,7 +833,7 @@ const TableDetailModal: React.FC<Props> = ({
                   날짜 변경
                 </button>
               </div>
-              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+              <div className="space-y-2 max-h-87 overflow-y-auto pr-1 custom-scrollbar">
                 {slots.map((slot) => {
                   const isBreak = isBreakTime(slot.time, breakTimes);
                   const isAvailable = !isBreak && slot.status === "AVAILABLE";

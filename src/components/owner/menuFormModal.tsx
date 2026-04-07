@@ -7,13 +7,14 @@ import {
   type MenuUpdateItem,
 } from "@/api/owner/menus";
 import { deleteMenuImage } from "@/api/owner/menus";
+import type { MenuCategory, MenuItem } from "@/types/menus";
 
 interface MenuFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (menuData: any) => void;
+  onSubmit: (menuData: MenuItem) => void;
   categories: { id: string; label: string }[];
-  editingMenu?: any;
+  editingMenu?: MenuItem;
   storeId: string;
   onImageDelete?: () => void;
 }
@@ -27,7 +28,12 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
   storeId,
   onImageDelete,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    category: MenuCategory;
+    price: string;
+    description: string;
+  }>({
     name: "",
     category: "MAIN",
     price: "",
@@ -91,18 +97,20 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
         payload.imageKey = editingMenu.imageKey;
       }
 
-      if (isEditing) {
+      if (isEditing && editingMenu) {
         const res = await updateMenu(storeId, editingMenu.id, payload);
         if (res.isSuccess) {
           alert("메뉴가 성공적으로 수정되었습니다.");
           onSubmit({
-            ...formData,
             id: String(editingMenu.id),
-            imageUrl: res.result.imageUrl ?? null,
-            imageKey: imageKey ?? null,
+            restaurantId: storeId,
+            name: formData.name,
+            category: formData.category,
+            price: Number(formData.price),
+            imageUrl: res.result.imageUrl ?? undefined,
+            imageKey: imageKey ?? editingMenu.imageKey ?? undefined,
             isActive: editingMenu?.isActive ?? true,
             isSoldOut: editingMenu?.isSoldOut ?? false,
-            price: Number(formData.price),
           });
           onClose();
         } else {
@@ -113,10 +121,13 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
         if (res.isSuccess) {
           alert("메뉴 등록 성공!");
           onSubmit({
-            ...formData,
             id: String(res.result.menus[0].menuId),
+            restaurantId: storeId,
+            name: formData.name,
+            category: formData.category,
+            price: Number(formData.price),
             imageUrl: res.result.menus[0].imageUrl,
-            imageKey: res.result.menus[0].imageKey || null,
+            imageKey: res.result.menus[0].imageKey ?? undefined,
             isActive: true,
             isSoldOut: false,
           });
@@ -269,7 +280,10 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
                 className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 bg-white"
                 value={formData.category}
                 onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
+                  setFormData({
+                    ...formData,
+                    category: e.target.value as MenuCategory,
+                  })
                 }
               >
                 {categories

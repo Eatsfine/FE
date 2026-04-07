@@ -58,7 +58,7 @@ export type RestaurantDetail = {
   depositRate?: number;
 };
 
-export const categoryLabel: Record<Category, string> = {
+export const storeCategoryLabel: Record<Category, string> = {
   KOREAN: "한식",
   CHINESE: "중식",
   JAPANESE: "일식",
@@ -100,4 +100,11 @@ export type RequestMainImageDto = {
 export type ResponseMainImageDto = {
   storeId: number;
   mainImageUrl: string;
+};
+
+export type UpdateStoreResponse = {
+  storeId: number;
+  storeName: string;
+  description: string;
+  phoneNumber: string;
 };

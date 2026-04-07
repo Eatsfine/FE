@@ -41,7 +41,7 @@ export default function RegistrationStepper({
               </div>
               {index !== steps.length - 1 && (
                 <div
-                  className={`hidden sm:block flex-1 h-1 mx-8 mt-[24px] transition-colors ${
+                  className={`hidden sm:block flex-1 h-1 mx-8 mt-6 transition-colors ${
                     currentStep > step.number ? "bg-blue-500" : "bg-gray-200"
                   }`}
                   style={{ minWidth: "80px" }}

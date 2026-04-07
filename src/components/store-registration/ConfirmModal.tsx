@@ -36,7 +36,7 @@ export default function ConfirmModal({
 }: ConfirmModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent showCloseButton={false} className="sm:max-w-[440px]">
+      <DialogContent showCloseButton={false} className="sm:max-w-110">
         <DialogHeader className="flex flex-col items-center justify-center text-center">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="text-center mt-2">

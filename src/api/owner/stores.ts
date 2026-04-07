@@ -1,5 +1,6 @@
 import { api } from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
+import type { UpdateStoreResponse } from "@/types/store";
 
 interface StoreDetail {
   storeId: number;
@@ -70,7 +71,10 @@ export function updateStore(
     phoneNumber: string;
   },
 ) {
-  return api.patch<ApiResponse<any>>(`/api/v1/stores/${storeId}`, body);
+  return api.patch<ApiResponse<UpdateStoreResponse>>(
+    `/api/v1/stores/${storeId}`,
+    body,
+  );
 }
 
 export function updateBusinessHours(

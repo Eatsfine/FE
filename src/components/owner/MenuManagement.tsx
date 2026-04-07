@@ -3,28 +3,30 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import MenuFormModal from "./menuFormModal";
 import { deleteMenus } from "@/api/owner/menus";
 import { getMenus, updateMenuSoldOut } from "@/api/owner/menus";
+import type { MenuCategory, MenuItem } from "@/types/menus";
 
 interface MenuManagementProps {
   storeId?: string;
 }
 
 interface Category {
-  id: string;
+  id: CategoryType;
   label: string;
 }
 
-interface LocalMenu {
-  id: string;
-  name: string;
+type ServerMenu = {
+  menuId?: number | string;
+  name?: string;
   description?: string;
-  price: number;
+  price?: number;
   category?: string;
-  imageUrl?: string | null;
+  imageUrl?: string;
+  imageKey?: string;
   isSoldOut?: boolean;
   isActive?: boolean;
-}
+};
 
-type CategoryType = string;
+type CategoryType = "ALL" | MenuCategory;
 
 const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const restaurantId = storeId;
@@ -37,24 +39,27 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
     { id: "ALCOHOL", label: "주류" },
   ];
 
-  const [menus, setMenus] = useState<any[]>([]);
-
+  const [menus, setMenus] = useState<MenuItem[]>([]);
   const [categories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState<CategoryType>("ALL");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingMenu, setEditingMenu] = useState<any>(null);
+  const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
 
-  const mapServerToLocal = (s: any): LocalMenu => ({
+  const mapServerToLocal = (
+    s: ServerMenu,
+    restaurantId?: string,
+  ): MenuItem => ({
     id: String(s.menuId ?? `MENU_${Date.now()}`),
+    restaurantId: restaurantId ?? "",
     name: s.name ?? "",
     description: s.description ?? "",
     price: s.price ?? 0,
-    category: s.category ?? undefined,
-    imageUrl: s.imageUrl ?? null,
-    isSoldOut: !!s.isSoldOut,
-    isActive: true,
+    category: (s.category as MenuCategory) ?? "MAIN",
+    imageUrl: s.imageUrl ?? undefined,
+    isSoldOut: s.isSoldOut ?? false,
+    isActive: s.isActive ?? true,
   });
 
   useEffect(() => {
@@ -63,9 +68,13 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
       : "menu-items-temp";
 
     const savedMenus = localStorage.getItem(STORAGE_KEY_MENU);
+
+    let parsedSavedMenus: MenuItem[] = [];
+
     if (savedMenus) {
       try {
-        setMenus(JSON.parse(savedMenus));
+        parsedSavedMenus = JSON.parse(savedMenus) as MenuItem[];
+        setMenus(parsedSavedMenus);
       } catch {
         setMenus([]);
       }
@@ -81,9 +90,13 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
       try {
         const res = await getMenus(restaurantId);
         if (res.isSuccess && res.result && Array.isArray(res.result.menus)) {
-          const serverMenus = res.result.menus.map(mapServerToLocal);
+          const serverMenus = (res.result.menus as ServerMenu[]).map((menu) =>
+            mapServerToLocal(menu, restaurantId),
+          );
 
-          const localTempMenus = menus.filter((m) => m.id.startsWith("MENU_"));
+          const localTempMenus = parsedSavedMenus.filter((m) =>
+            m.id.startsWith("MENU_"),
+          );
 
           const mergedMenus = [...serverMenus, ...localTempMenus];
 
@@ -92,7 +105,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
         } else {
           setError(res.message || "메뉴를 가져오는 중 문제가 발생했습니다.");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("getMenus error", err);
         setError("메뉴를 불러오는 데 실패했습니다. 네트워크를 확인해주세요.");
       } finally {
@@ -108,7 +121,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
     }
   }, [menus, restaurantId]);
 
-  const handleFormSubmit = (menuData: any) => {
+  const handleFormSubmit = (menuData: MenuItem) => {
     setMenus((prev) => {
       const incomingId = menuData.id ? String(menuData.id) : null;
 
@@ -130,7 +143,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
     setEditingMenu(null);
   };
 
-  const handleEditClick = (menu: any) => {
+  const handleEditClick = (menu: MenuItem) => {
     setEditingMenu(menu);
     setIsModalOpen(true);
   };
@@ -196,7 +209,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
       } else {
         alert("품절 상태 변경 실패: " + res.message);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("updateMenuSoldOut error", err);
       alert("품절 상태 변경 중 오류가 발생했습니다.");
     }
@@ -332,14 +345,14 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         categories={categories}
-        editingMenu={editingMenu}
+        editingMenu={editingMenu ?? undefined}
         storeId={storeId!}
         onImageDelete={() => {
           if (!editingMenu) return;
           setMenus((prev) =>
             prev.map((m) =>
               m.id === editingMenu.id
-                ? { ...m, imageUrl: null, imageKey: null }
+                ? { ...m, imageUrl: undefined, imageKey: undefined }
                 : m,
             ),
           );

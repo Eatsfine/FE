@@ -272,7 +272,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     };
 
     fetchLayout();
-  }, [storeId]);
+  }, [storeId, tableData]);
 
   const handleCreateLayout = async (columns: number, rows: number) => {
     if (!storeId) return;
@@ -858,7 +858,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                                     e.stopPropagation();
                                     startEditingCapacity(id);
                                   }}
-                                  className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-[60px] text-center transition-transform active:scale-95`}
+                                  className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-15 text-center transition-transform active:scale-95`}
                                 >
                                   {table.minCapacity}~{table.maxCapacity}인
                                 </div>

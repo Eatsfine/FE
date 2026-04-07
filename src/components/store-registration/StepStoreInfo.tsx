@@ -499,7 +499,7 @@ export default function StepStoreInfo({
           aria-modal="true"
         >
           <div
-            className="bg-white w-full h-full md:h-[500px] md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
+            className="bg-white w-full h-full md:h-125 md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <button

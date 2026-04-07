@@ -37,7 +37,7 @@ const BreakTimeModal: React.FC<Props> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white w-[420px] rounded-2xl p-6 relative"
+        className="bg-white w-105 rounded-2xl p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -25,11 +25,12 @@ const toNum = (v: unknown) => {
   return Number.isFinite(n) ? n : null;
 };
 
-const normalizeLatLng = (loc: any): LatLng | null => {
-  if (!loc) return null;
+const normalizeLatLng = (loc: unknown): LatLng | null => {
+  if (!loc || typeof loc !== "object") return null;
+  const maybeLoc = loc as { lat?: unknown; lng?: unknown };
 
-  let lat = toNum(loc.lat);
-  let lng = toNum(loc.lng);
+  let lat = toNum(maybeLoc.lat);
+  let lng = toNum(maybeLoc.lng);
 
   if (lat == null || lng == null) return null;
 
@@ -112,7 +113,7 @@ export default function KakaoMap({
     return () => {
       cancelled = true;
     };
-  }, [defaultLevel]);
+  }, [defaultLevel, center.lat, center.lng]);
 
   // 2. 컨테이너 사이즈 변하면 relayout
   useEffect(() => {

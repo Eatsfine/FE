@@ -6,9 +6,9 @@ import { Link } from "react-router-dom";
 
 export default function CustomerSupportPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16 py-6 flex items-center justify-center gap-3">
+        <div className="max-w-480 mx-auto px-4 sm:px-8 lg:px-16 py-6 flex items-center justify-center gap-3">
           <Link
             to="/"
             aria-label="메인으로 이동"
@@ -26,7 +26,7 @@ export default function CustomerSupportPage() {
       <SupportContact />
 
       <footer className="bg-gray-900 text-gray-400">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16 py-8">
+        <div className="max-w-480 mx-auto px-4 sm:px-8 lg:px-16 py-8">
           <p className="text-center break-keep">
             © 2026 Eatsfine. All rights reserved.
           </p>
