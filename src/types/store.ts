@@ -108,3 +108,12 @@ export type UpdateStoreResponse = {
   description: string;
   phoneNumber: string;
 };
+
+export type AddressSearchResult = {
+  address: string;
+  addressType: string;
+  bname: string;
+  buildingName: string;
+  sido: string;
+  sigungu: string;
+};

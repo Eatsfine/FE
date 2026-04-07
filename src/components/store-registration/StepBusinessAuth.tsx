@@ -12,6 +12,7 @@ import { getErrorMessage } from "@/utils/error";
 import { useNavigate } from "react-router-dom";
 import { logout } from "@/api/auth";
 import ConfirmModal from "./ConfirmModal";
+import axios from "axios";
 
 interface StepBusinessAuthProps {
   defaultValues: {
@@ -53,7 +54,7 @@ export default function StepBusinessAuth({
   const {
     register,
     handleSubmit,
-    watch,
+    getValues,
     formState: { isValid, errors, touchedFields },
   } = useForm<BusinessAuthFormValues>({
     resolver: zodResolver(BusinessAuthSchema),
@@ -65,10 +66,6 @@ export default function StepBusinessAuth({
     },
   });
 
-  const name = watch("name");
-  const businessNumber = watch("businessNumber");
-  const startDate = watch("startDate");
-
   const onSubmit = async (data: BusinessAuthFormValues) => {
     verifyOwner(data, {
       onSuccess: async () => {
@@ -77,8 +74,9 @@ export default function StepBusinessAuth({
         nav("/", { replace: true });
       },
       onError: (error) => {
-        const err = error as any;
-        const serverCode = err.response?.data?.code || err.code;
+        const serverCode = axios.isAxiosError(error)
+          ? error.response?.data?.code
+          : undefined;
         if (serverCode === "OWNER409") {
           setPendingData(data);
           return;
@@ -130,7 +128,9 @@ export default function StepBusinessAuth({
         variant="primary"
       />
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e);
+        }}
         className="max-w-md mx-auto space-y-6 sm:space-y-8"
       >
         <div>
@@ -149,10 +149,11 @@ export default function StepBusinessAuth({
               {...register("name", {
                 onChange: (e) => {
                   if (isVerified) {
+                    const { name, startDate } = getValues();
                     setIsVerified(false);
                     onComplete({
-                      name: e.target.value,
-                      businessNumber,
+                      name,
+                      businessNumber: e.target.value,
                       startDate,
                       isVerified: false,
                     });
@@ -192,6 +193,7 @@ export default function StepBusinessAuth({
               {...register("businessNumber", {
                 onChange: (e) => {
                   if (isVerified) {
+                    const { name, startDate } = getValues();
                     setIsVerified(false);
                     onComplete({
                       name,
@@ -236,11 +238,12 @@ export default function StepBusinessAuth({
               {...register("startDate", {
                 onChange: (e) => {
                   if (isVerified) {
+                    const { name, startDate } = getValues();
                     setIsVerified(false);
                     onComplete({
                       name,
-                      businessNumber,
-                      startDate: e.target.value,
+                      businessNumber: e.target.value,
+                      startDate,
                       isVerified: false,
                     });
                   }

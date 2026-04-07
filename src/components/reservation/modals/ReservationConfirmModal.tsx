@@ -9,6 +9,7 @@ import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { toDepositRate } from "@/utils/depositRate";
+import { getErrorMessage } from "@/utils/error";
 import { calcMenuTotal } from "@/utils/menu";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { formatKrw } from "@/utils/money";
@@ -84,9 +85,9 @@ export default function ReservationConfirmModal({
         body,
       });
       onConfirm(result);
-    } catch (err) {
-      const msg = (err as any)?.message ?? "예약 생성에 실패했습니다.";
-      alert(msg);
+    } catch (error) {
+      const message = getErrorMessage(error) || "예약 생성에 실패했습니다";
+      alert(message);
     }
   };
 

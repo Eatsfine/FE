@@ -32,6 +32,7 @@ import {
 import { cancelBookingByOwner } from "@/api/owner/reservation";
 import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
 import axios, { type AxiosProgressEvent } from "axios";
+import { getErrorMessage } from "@/utils/error";
 
 interface TableInfo {
   minCapacity: number;
@@ -67,21 +68,6 @@ type ApiErrorResponse = {
   message?: string;
 };
 
-const getErrorMessage = (
-  error: unknown,
-  fallback: string,
-): { message: string; status?: number } => {
-  if (axios.isAxiosError<ApiErrorResponse>(error)) {
-    return {
-      message: error.response?.data?.message ?? fallback,
-      status: error.response?.status,
-    };
-  }
-  if (error instanceof Error) {
-    return { message: error.message || fallback };
-  }
-  return { message: fallback };
-};
 const TableDetailModal: React.FC<Props> = ({
   storeId,
   tableNumber,
@@ -180,10 +166,8 @@ const TableDetailModal: React.FC<Props> = ({
       onUpdateCapacity(Number(tempMin), Number(tempMax));
       setIsEditing(false);
     } catch (error: unknown) {
-      const { message } = getErrorMessage(
-        error,
-        "테이블 정보 수정에 실패했습니다",
-      );
+      const message =
+        getErrorMessage(error) || "테이블 정보 수정에 실패했습니다";
       alert(message);
     }
   };
@@ -209,10 +193,8 @@ const TableDetailModal: React.FC<Props> = ({
       const res = await getTableSlots(storeId, tableId, formatDate(date));
       setSlots(res.data.result.slots);
     } catch (error: unknown) {
-      const { message } = getErrorMessage(
-        error,
-        "예약 정보를 불러오지 못했습니다.",
-      );
+      const message =
+        getErrorMessage(error) || "예약 정보를 불러오지 못했습니다";
       setError(message);
     } finally {
       setLoading(false);
@@ -239,13 +221,13 @@ const TableDetailModal: React.FC<Props> = ({
         amount: result.amount,
       });
     } catch (error: unknown) {
-      const { message, status } = getErrorMessage(
-        error,
-        "예약 상세 내용을 불러오지 못했습니다",
-      );
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      const message = getErrorMessage(error);
       if (status === 403) setDetailError("접근 권한이 없습니다.");
       else if (status === 404) setDetailError("해당 예약을 찾을 수 없습니다.");
-      else setDetailError(message);
+      else setDetailError(message || "예약 상세 내용을 불러오지 못했습니다");
       setBookingDetail(null);
       setBookingDetailBookingId(null);
     } finally {
@@ -281,15 +263,15 @@ const TableDetailModal: React.FC<Props> = ({
 
       await fetchSlots(selectedFullDate);
     } catch (error: unknown) {
-      const { message, status } = getErrorMessage(
-        error,
-        "슬롯 상태 변경에 실패했습니다",
-      );
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
       if (status === 404 && nextStatus === "AVAILABLE") {
         await fetchSlots(selectedFullDate);
         return;
       }
-      alert(message);
+      const message = getErrorMessage(error);
+      alert(message || "슬롯 상태 변경에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -339,10 +321,7 @@ const TableDetailModal: React.FC<Props> = ({
       if (onImageUpload) onImageUpload(tableId, newUrl);
       alert("이미지 업로드에 성공했습니다.");
     } catch (error: unknown) {
-      const { message } = getErrorMessage(
-        error,
-        "이미지 업로드에 실패했습니다",
-      );
+      const message = getErrorMessage(error) || "이미지 업로드에 실패했습니다";
       alert(message);
     } finally {
       setUploading(false);
@@ -372,10 +351,8 @@ const TableDetailModal: React.FC<Props> = ({
         alert("이미지 삭제 실패: " + (res.data.message ?? "알 수 없는 오류"));
       }
     } catch (error: unknown) {
-      const { message } = getErrorMessage(
-        error,
-        "이미지 삭제 중 오류가 발생했습니다",
-      );
+      const message =
+        getErrorMessage(error) || "이미지 삭제 중 오류가 발생했습니다";
       alert(message);
     }
   };
@@ -399,13 +376,14 @@ const TableDetailModal: React.FC<Props> = ({
       setBookingDetail(null);
       if (selectedFullDate) fetchSlots(selectedFullDate);
     } catch (error: unknown) {
-      const { message, status } = getErrorMessage(
-        error,
-        "예약 취소에 실패했습니다",
-      );
-      if (status === 403) alert("접근 권한이 없습니다.");
-      else if (status === 404) alert("예약 정보를 찾을 수 없습니다.");
-      else alert(message);
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+
+      if (status === 403) alert("접근 권한이 없습니다");
+      else if (status === 404) alert("예약 정보를 찾을 수 없습니다");
+      const message = getErrorMessage(error);
+      alert(message || "예약 취소에 실패했습니다");
     } finally {
       setDetailLoading(false);
     }
