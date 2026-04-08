@@ -11,14 +11,16 @@ import {
   type TableImage,
   deleteTableImages,
 } from "@/api/owner/stores";
+import type { Day } from "@/types/store";
 
 interface StoreSettingsProps {
   storeId?: string;
 }
 
-const days = ["월", "화", "수", "목", "금", "토", "일"];
+const days = ["월", "화", "수", "목", "금", "토", "일"] as const;
+type DayKor = (typeof days)[number];
 
-const dayMapFromApi: Record<string, string> = {
+const dayMapFromApi: Record<Day, DayKor> = {
   MONDAY: "월",
   TUESDAY: "화",
   WEDNESDAY: "수",
@@ -28,7 +30,7 @@ const dayMapFromApi: Record<string, string> = {
   SUNDAY: "일",
 };
 
-const dayMapToApi: Record<string, any> = {
+const dayMapToApi: Record<DayKor, Day> = {
   월: "MONDAY",
   화: "TUESDAY",
   수: "WEDNESDAY",
@@ -47,7 +49,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
 
   const [openTime, setOpenTime] = useState("11:00");
   const [closeTime, setCloseTime] = useState("22:00");
-  const [closedDays, setClosedDays] = useState<string[]>([]);
+  const [closedDays, setClosedDays] = useState<DayKor[]>([]);
 
   const [reservationPeriod, setReservationPeriod] = useState("1주일 전까지");
   const [minGuests, setMinGuests] = useState<number | string>(1);
@@ -87,12 +89,13 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         setNewFiles([]);
       } catch (e) {
         alert("가게 정보를 불러오는데 실패했습니다.");
+        console.error(e);
         return;
       }
     })();
   }, [storeId]);
 
-  const toggleDay = (day: string) => {
+  const toggleDay = (day: DayKor) => {
     setClosedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
@@ -170,7 +173,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             <div className="relative">
               <Phone
                 size={18}
-                className="absolute left-4 top-[26px] text-gray-400"
+                className="absolute left-4 top-6 text-gray-400"
               />
               <input
                 id="store-phone"
@@ -187,7 +190,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             <div className="relative">
               <MapPin
                 size={18}
-                className="absolute left-4 top-[26px] text-gray-400"
+                className="absolute left-4 top-6 text-gray-400"
               />
               <input
                 readOnly
@@ -208,7 +211,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             <div className="relative">
               <Clock
                 size={18}
-                className="absolute left-4 top-[26px] text-gray-400"
+                className="absolute left-4 top-6 text-gray-400"
               />
               <input
                 type="time"
@@ -223,7 +226,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
             <div className="relative">
               <Clock
                 size={18}
-                className="absolute left-4 top-[26px] text-gray-400"
+                className="absolute left-4 top-6 text-gray-400"
               />
               <input
                 type="time"
@@ -435,6 +438,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               });
             } catch (e) {
               alert("기본 정보 저장에 실패했습니다.");
+              console.error(e);
               return;
             }
 
@@ -451,6 +455,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               alert(
                 "영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.",
               );
+              console.error(e);
               return;
             }
             try {
@@ -459,6 +464,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               }
             } catch (e) {
               alert("이미지 삭제에 실패했습니다.");
+              console.error(e);
               return;
             }
             try {
@@ -467,6 +473,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               }
             } catch (e) {
               alert("이미지 업로드에 실패했습니다.");
+              console.error(e);
               return;
             }
 

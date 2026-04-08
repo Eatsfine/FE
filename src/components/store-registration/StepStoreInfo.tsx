@@ -1,18 +1,17 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Label } from "../ui/label";
 import { StoreInfoSchema, type StoreInfoFormValues } from "./StoreInfo.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { phoneNumber } from "@/utils/phoneNumber";
 import DaumPostcodeEmbed from "react-daum-postcode";
 import { loadKakaoMapSdk } from "@/lib/kakao";
 import { Upload, X } from "lucide-react";
-
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
+import type { AddressSearchResult } from "@/types/store";
+import type {
+  KakaoAddressSearchResult,
+  KakaoAddressSearchStatus,
+} from "@/types/kakao";
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>;
@@ -33,19 +32,15 @@ export default function StepStoreInfo({
   onChange,
 }: StepStoreInfoProps) {
   const [isOpenPostcode, setIsOpenPostcode] = useState(false);
-
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     control,
-    watch,
     setValue,
     trigger,
-    getValues,
     formState: { errors, isValid, touchedFields },
-  } = useForm({
+  } = useForm<StoreInfoFormValues>({
     resolver: zodResolver(StoreInfoSchema),
     mode: "onChange",
     defaultValues: {
@@ -68,22 +63,27 @@ export default function StepStoreInfo({
     },
   });
 
-  const watchedMainImage = watch("mainImage");
+  const watchedMainImage = useWatch({
+    control,
+    name: "mainImage",
+  });
+
+  const formValues = useWatch({ control });
+
+  const previewUrl = useMemo(() => {
+    if (watchedMainImage instanceof File) {
+      return URL.createObjectURL(watchedMainImage);
+    }
+    return null;
+  }, [watchedMainImage]);
 
   useEffect(() => {
-    if (watchedMainImage && watchedMainImage instanceof File) {
-      const url = URL.createObjectURL(watchedMainImage);
-      setPreviewUrl(url);
-
-      return () => {
-        URL.revokeObjectURL(url);
-      };
-    } else if (typeof watchedMainImage === "string") {
-      setPreviewUrl(watchedMainImage);
-    } else {
-      setPreviewUrl(null);
-    }
-  }, [watchedMainImage]);
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,7 +99,7 @@ export default function StepStoreInfo({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    setValue("mainImage", null, { shouldValidate: true });
+    setValue("mainImage", undefined, { shouldValidate: true });
   };
 
   useEffect(() => {
@@ -123,20 +123,11 @@ export default function StepStoreInfo({
     loadKakaoMapSdk().catch((err) => console.error("카카오맵 로드 실패:", err));
   }, []);
 
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
-
   useEffect(() => {
-    const subscription = watch((value) => {
-      onChangeRef.current(isValid, value as StoreInfoFormValues);
-    });
+    onChange(isValid, formValues as StoreInfoFormValues);
+  }, [formValues, isValid, onChange]);
 
-    onChangeRef.current(isValid, getValues() as StoreInfoFormValues);
-
-    return () => subscription.unsubscribe();
-  }, [watch, isValid, getValues]);
-
-  const handleAddressComplete = (data: any) => {
+  const handleAddressComplete = (data: AddressSearchResult) => {
     let fullAddress = data.address;
     let extraAddress = "";
 
@@ -155,23 +146,30 @@ export default function StepStoreInfo({
     setValue("bname", data.bname);
 
     if (window.kakao?.maps?.services) {
+      const maps = window.kakao.maps;
       const geocoder = new window.kakao.maps.services.Geocoder();
 
-      geocoder.addressSearch(fullAddress, (result: any, status: any) => {
-        if (status === window.kakao.maps.services.Status.OK) {
-          const lat = parseFloat(result[0].y);
-          const lng = parseFloat(result[0].x);
+      geocoder.addressSearch(
+        fullAddress,
+        (
+          result: KakaoAddressSearchResult[],
+          status: KakaoAddressSearchStatus,
+        ) => {
+          if (status === maps.services.Status.OK) {
+            const lat = parseFloat(result[0].y);
+            const lng = parseFloat(result[0].x);
 
-          setValue("latitude", lat, { shouldValidate: true });
-          setValue("longitude", lng, { shouldValidate: true });
+            setValue("latitude", lat, { shouldValidate: true });
+            setValue("longitude", lng, { shouldValidate: true });
 
-          trigger("address");
-        } else {
-          setValue("latitude", 0, { shouldValidate: true });
-          setValue("longitude", 0, { shouldValidate: true });
-          trigger("address");
-        }
-      });
+            trigger("address");
+          } else {
+            setValue("latitude", 0, { shouldValidate: true });
+            setValue("longitude", 0, { shouldValidate: true });
+            trigger("address");
+          }
+        },
+      );
     } else {
       alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setValue("latitude", 0, { shouldValidate: true });
@@ -181,6 +179,12 @@ export default function StepStoreInfo({
 
     setIsOpenPostcode(false);
   };
+
+  const mainImageError = errors.mainImage;
+  const mainImageErrorMessage =
+    typeof mainImageError?.message === "string"
+      ? mainImageError.message
+      : undefined;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -465,9 +469,9 @@ export default function StepStoreInfo({
             <div className="flex-1 text-gray-500">
               <p>• 최대 용량: 1MB</p>
               <p>• 형식: JPG(JPEG), PNG</p>
-              {errors.mainImage && (
+              {mainImageErrorMessage && (
                 <p className="text-red-500 text-xs mt-1">
-                  • {(errors.mainImage as any).message}
+                  • {mainImageErrorMessage}
                 </p>
               )}
             </div>
@@ -499,7 +503,7 @@ export default function StepStoreInfo({
           aria-modal="true"
         >
           <div
-            className="bg-white w-full h-full md:h-[500px] md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
+            className="bg-white w-full h-full md:h-125 md:max-w-lg rounded-none md:rounded-lg shadow-xl overflow-hidden relative cursor-default flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <button

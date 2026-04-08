@@ -14,6 +14,54 @@ import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { toHHmm } from "@/utils/time";
 import RestaurantListSkeleton from "@/components/restaurant/RestaurantListSkeleton";
+import type {
+  KakaoAddressSearchResult,
+  KakaoAddressSearchStatus,
+} from "@/types/kakao";
+import type { LatLng } from "@/types/map";
+
+function isValidLatLng(loc: unknown): loc is LatLng {
+  return (
+    typeof loc === "object" &&
+    loc !== null &&
+    "lat" in loc &&
+    "lng" in loc &&
+    typeof loc.lat === "number" &&
+    typeof loc.lng === "number" &&
+    Number.isFinite(loc.lat) &&
+    Number.isFinite(loc.lng)
+  );
+}
+
+async function geocodeAddress(address: string): Promise<LatLng | null> {
+  const maps = window.kakao?.maps;
+  const services = maps?.services;
+  if (!services) {
+    return null;
+  }
+
+  const geocoder = new services.Geocoder();
+
+  return new Promise((resolve) => {
+    geocoder.addressSearch(
+      address,
+      (res: KakaoAddressSearchResult[], status: KakaoAddressSearchStatus) => {
+        if (status !== services.Status.OK || !res[0]) {
+          resolve(null);
+          return;
+        }
+        const lng = parseFloat(res[0].x);
+        const lat = parseFloat(res[0].y);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          resolve(null);
+          return;
+        }
+
+        resolve({ lat, lng });
+      },
+    );
+  });
+}
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -48,7 +96,7 @@ export default function SearchPage() {
       : null,
   );
 
-  const results = searchQuery.data ?? [];
+  const results = useMemo(() => searchQuery.data ?? [], [searchQuery.data]);
 
   const searchError = searchQuery.isError
     ? searchQuery.error instanceof Error
@@ -57,6 +105,7 @@ export default function SearchPage() {
     : null;
 
   const [booking, setBooking] = useState<CreateBookingResult | null>(null);
+  const [geoMap, setGeoMap] = useState<Map<number, LatLng>>(new Map());
 
   const normalizeDraft = (d: ReservationDraft): ReservationDraft => {
     const normalizedTime = toHHmm(d.time);
@@ -67,46 +116,9 @@ export default function SearchPage() {
 
     return {
       ...d,
-      time: safeTime as any,
+      time: safeTime,
     };
   };
-  type LatLng = { lat: number; lng: number };
-  const [geoMap, setGeoMap] = useState<Map<number, LatLng>>(new Map());
-
-  function isValidLatLng(loc: any): loc is LatLng {
-    return (
-      loc &&
-      typeof loc.lat === "number" &&
-      typeof loc.lng === "number" &&
-      Number.isFinite(loc.lat) &&
-      Number.isFinite(loc.lng)
-    );
-  }
-  async function geocodeAddress(address: string): Promise<LatLng | null> {
-    const kakao = window.kakao;
-    if (!kakao?.maps?.services) {
-      return null;
-    }
-
-    const geocoder = new kakao.maps.services.Geocoder();
-
-    return new Promise((resolve) => {
-      geocoder.addressSearch(address, (res: any[], status: string) => {
-        if (status !== kakao.maps.services.Status.OK || !res?.[0]) {
-          resolve(null);
-          return;
-        }
-        const lng = parseFloat(res[0].x);
-        const lat = parseFloat(res[0].y);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          resolve(null);
-          return;
-        }
-
-        resolve({ lat, lng });
-      });
-    });
-  }
 
   const openDetail = async (restaurant: RestaurantSummary) => {
     const storeId = restaurant.id;
@@ -186,6 +198,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     let cancelled = false;
+
     const run = async () => {
       if (!results || results.length === 0) return;
 
@@ -198,6 +211,7 @@ export default function SearchPage() {
       }
       const targets = results.filter((r) => !isValidLatLng(r.location));
       if (targets.length === 0) return;
+
       const next = new Map(geoMap);
 
       for (const r of targets) {
@@ -205,13 +219,15 @@ export default function SearchPage() {
         const loc = await geocodeAddress(r.address);
         if (loc) next.set(r.id, loc);
       }
-      setGeoMap(next);
+      if (!cancelled) {
+        setGeoMap(next);
+      }
     };
-    run();
+    void run();
     return () => {
       cancelled = true;
     };
-  }, [results]);
+  }, [results, geoMap]);
 
   const geocodedResults = useMemo(() => {
     return results

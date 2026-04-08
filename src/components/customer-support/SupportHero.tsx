@@ -9,7 +9,7 @@ export default function SupportHero() {
 
   return (
     <>
-      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+      <section className="bg-linear-to-r from-blue-600 to-blue-700 text-white">
         <div className="max-w-[1920px] mx-auto p-8 md:p-16 text-center">
           <h2 className="text-white mb-4">무엇을 도와드릴까요?</h2>
           <p className="text-blue-100 max-w-2xl mx-auto mb-6 break-keep">

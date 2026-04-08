@@ -1,3 +1,4 @@
+/* global.css 안써서 지웠습니다. 추후에 디자인 완료후 공통스타일 설정해서 global.css 정리후 여기에만 있는 스타일만 사용할 예정입니다. */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";

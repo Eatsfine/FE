@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 const StoreCategoryEnum = z.enum([
   "KOREAN",
@@ -8,13 +8,7 @@ const StoreCategoryEnum = z.enum([
   "CAFE",
 ]);
 
-const DepositRateEnum = z.enum([
-  "TEN",
-  "TWENTY",
-  "THIRTY",
-  "FORTY",
-  "FIFTY",
-]);
+const DepositRateEnum = z.enum(["TEN", "TWENTY", "THIRTY", "FORTY", "FIFTY"]);
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 
@@ -63,24 +57,15 @@ export const StoreInfoSchema = z
     holidays: z.array(z.string()).optional(),
 
     mainImage: z
-      .any()
-      .refine((file) => file instanceof File, {
-        message: "식당 대표 이미지를 등록해주세요.",
+      .custom<File | undefined>((file) => file instanceof File, {
+        message: "식당 대표 이미지를 등록해주세요",
+      })
+      .refine((file) => file === undefined || file.size <= MAX_FILE_SIZE, {
+        message: "이미지 크기는 1MB 이하여야 합니다.",
       })
       .refine(
-        (file) => {
-          if (!(file instanceof File)) return false;
-          return file.size <= MAX_FILE_SIZE;
-        },
-        {
-          message: "이미지 크기는 1MB 이하여야 합니다.",
-        },
-      )
-      .refine(
-        (file) => {
-          if (!(file instanceof File)) return false;
-          return ACCEPTED_IMAGE_TYPES.includes(file.type);
-        },
+        (file) =>
+          file === undefined || ACCEPTED_IMAGE_TYPES.includes(file.type),
         {
           message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
         },
@@ -92,4 +77,4 @@ export const StoreInfoSchema = z
     path: ["address"],
   });
 
-export type StoreInfoFormValues = z.infer<typeof StoreInfoSchema>;
+export type StoreInfoFormValues = z.input<typeof StoreInfoSchema>;

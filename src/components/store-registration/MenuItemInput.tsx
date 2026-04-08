@@ -17,6 +17,7 @@ import {
 } from "react";
 import { Trash2, Upload, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { MenuCategoryLabel } from "@/types/menus";
 
 interface MenuItemInputProps {
   index: number;
@@ -27,13 +28,6 @@ interface MenuItemInputProps {
   setValue: UseFormSetValue<MenuFormValues>;
   trigger: UseFormTrigger<MenuFormValues>;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  MAIN: "메인 메뉴",
-  SIDE: "사이드 메뉴",
-  BEVERAGE: "음료",
-  ALCOHOL: "주류",
-};
 
 export default function MenuItemInput({
   index,
@@ -81,6 +75,10 @@ export default function MenuItemInput({
     }
     setValue(`menus.${index}.imageKey`, undefined, { shouldValidate: true });
   };
+
+  const imageError = errors.menus?.[index]?.imageKey;
+  const imageErrorMessage =
+    typeof imageError?.message === "string" ? imageError.message : undefined;
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 space-y-4 bg-white">
@@ -149,10 +147,8 @@ export default function MenuItemInput({
           <div className="flex-1 text-gray-500">
             <p>• 최대 용량: 1MB</p>
             <p>• 형식: JPG(JPEG), PNG</p>
-            {errors.menus?.[index]?.imageKey && (
-              <p className="text-red-500 text-xs mt-1">
-                • {(errors.menus[index]?.imageKey as any).message}
-              </p>
+            {imageErrorMessage && (
+              <p className="text-red-500 text-xs mt-1">• {imageErrorMessage}</p>
             )}
           </div>
         </div>
@@ -225,7 +221,7 @@ export default function MenuItemInput({
               {...field}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             >
-              {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+              {Object.entries(MenuCategoryLabel).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>

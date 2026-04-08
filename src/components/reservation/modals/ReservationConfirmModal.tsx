@@ -9,6 +9,7 @@ import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { toDepositRate } from "@/utils/depositRate";
+import { getErrorMessage } from "@/utils/error";
 import { calcMenuTotal } from "@/utils/menu";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { formatKrw } from "@/utils/money";
@@ -59,16 +60,21 @@ export default function ReservationConfirmModal({
       return;
     }
     const tableId = draft.tableId;
+    const time = draft.time;
     if (!restaurant.id) return;
     if (createBookingMutation.isPending) return;
+
+    if (!time) {
+      alert("예약 시간을 먼저 선택해주세요");
+      return;
+    }
     if (typeof tableId !== "number" || tableId <= 0) {
       alert("테이블을 먼저 선택해주세요");
       return;
     }
     const body = {
       date: toYmd(draft.date),
-      time: draft.time,
-
+      time,
       partySize: draft.people,
       tableIds: [tableId],
       menuItems: (draft.selectedMenus ?? []).map((m) => ({
@@ -84,9 +90,9 @@ export default function ReservationConfirmModal({
         body,
       });
       onConfirm(result);
-    } catch (err) {
-      const msg = (err as any)?.message ?? "예약 생성에 실패했습니다.";
-      alert(msg);
+    } catch (error) {
+      const message = getErrorMessage(error) || "예약 생성에 실패했습니다";
+      alert(message);
     }
   };
 

@@ -83,7 +83,7 @@ export default function ReservationModal({
       if (initialDraft) {
         setPeople(initialDraft.people);
         setDate(initialDraft.date);
-        setTime(initialDraft.time);
+        setTime(initialDraft.time ?? "");
         setSeatType(initialDraft.seatType);
         setTablePref(initialDraft.tablePref);
         setSelectedTableId(initialDraft.tableId);
@@ -264,7 +264,7 @@ export default function ReservationModal({
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="w-auto p-2 z-[9999]" align="start">
+              <PopoverContent className="w-auto p-2 z-50" align="start">
                 <Calendar
                   mode="single"
                   selected={date}

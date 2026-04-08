@@ -1,6 +1,6 @@
 import { api } from "./axios";
 
-type ApiBookingStatus = "CONFIRMED" | "COMPLETED" | "CANCELED";
+type ApiBookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELED";
 
 interface Booking {
   bookingId: number;
@@ -9,7 +9,8 @@ interface Booking {
   bookingDate: string;
   bookingTime: string;
   partySize: number;
-  amount: number;
+  tableNumbers: string;
+  amount: number | null;
   paymentMethod: string;
   status: ApiBookingStatus;
 }
@@ -23,11 +24,16 @@ interface BookingResponse {
   isLast: boolean;
 }
 
+type GetBookingParams = {
+  page: number;
+  status?: ApiBookingStatus;
+};
+
 export const getBookings = async (
   status?: ApiBookingStatus,
   page: number = 1,
 ): Promise<BookingResponse> => {
-  const params: any = { page };
+  const params: GetBookingParams = { page };
   if (status) params.status = status;
 
   const response = await api.get<{ result: BookingResponse }>(

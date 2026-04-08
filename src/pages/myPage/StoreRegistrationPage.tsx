@@ -10,8 +10,8 @@ import type { StoreInfoFormValues } from "@/components/store-registration/StoreI
 import { transformToRegister } from "@/components/store-registration/StoreTransform.utils";
 import { useMenuCreate, useMenuImage } from "@/hooks/queries/useMenu";
 import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
-import type { ApiError } from "@/types/api";
 import { getErrorMessage } from "@/utils/error";
+import axios from "axios";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -131,13 +131,15 @@ export default function StoreRegistrationPage() {
         await Promise.all(promises);
 
         setIsCompleteModalOpen(true);
-      } catch (error: any) {
-        console.error("가게 등록 실패:", error);
-        const errorResponse = error.response?.data as ApiError;
-        if (errorResponse?.code === "REGION404") {
+      } catch (error: unknown) {
+        const errorCode = axios.isAxiosError<{ code?: string }>(error)
+          ? error.response?.data?.code
+          : undefined;
+        if (errorCode === "REGION404") {
           alert("현재 서울 지역만 등록 가능합니다.");
         } else {
-          alert(getErrorMessage(error));
+          const message = getErrorMessage(error);
+          alert(message || "가게 등록 실패");
         }
       }
     }

@@ -16,7 +16,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white w-[400px] rounded-3xl p-8 relative"
+        className="bg-white w-full rounded-3xl p-8 relative"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

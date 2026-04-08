@@ -1,5 +1,5 @@
 import { Calendar, Clock, User, CreditCard, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { getBookings } from "@/api/bookings";
 import { cancelBooking } from "@/api/bookings";
@@ -25,9 +25,10 @@ export default function ReservationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
       let apiStatus: "CONFIRMED" | "COMPLETED" | "CANCELED" | undefined;
       switch (activeTab) {
@@ -77,11 +78,11 @@ export default function ReservationPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   useEffect(() => {
-    fetchReservations();
-  }, [activeTab]);
+    void fetchReservations();
+  }, [fetchReservations]);
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">

@@ -1,5 +1,6 @@
 import { getUserBookings } from "@/api/endpoints/bookings";
 import ReservationCompleteModal from "@/components/reservation/modals/ReservationCompleteModal";
+import type { UserBookingItem } from "@/types/booking";
 import { toHHmm } from "@/utils/time";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -11,7 +12,7 @@ export default function ReservationCompletePage() {
   const bookingId = bookingIdStr ? Number(bookingIdStr) : NaN;
 
   const [open, setOpen] = useState(true);
-  const [item, setItem] = useState<any>(null);
+  const [item, setItem] = useState<UserBookingItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,13 +55,13 @@ export default function ReservationCompletePage() {
   };
 
   const restaurant = useMemo(() => {
-    return { id: 0, name: item?.storeName ?? "예약완료" } as any;
+    return { id: 0, name: item?.storeName ?? "예약완료" };
   }, [item]);
   const draft = useMemo(() => {
-    if (!item) return { people: 0, date: new Date(), time: "" } as any;
+    if (!item) return { people: 0, date: new Date(), time: "" };
     const date = new Date(`${item.bookingDate}T00:00:00`);
     const time = toHHmm(item.bookingTime) ?? "";
-    return { people: item.partySize, date, time } as any;
+    return { people: item.partySize, date, time };
   }, [item]);
 
   return (

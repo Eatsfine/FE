@@ -51,7 +51,7 @@ export default function FailPage() {
   };
 
   return (
-    <div className="min-h-[100vh] flex items-center justify-center p-4 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-xl border rounded-2xl bg-white shadow-sm overflow-hidden p-6">
         <div className="flex items-start gap-3">
           <div className="shrink-0">
