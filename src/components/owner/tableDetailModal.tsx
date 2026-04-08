@@ -162,8 +162,7 @@ const TableDetailModal: React.FC<Props> = ({
       onUpdateCapacity(Number(tempMin), Number(tempMax));
       setIsEditing(false);
     } catch (error: unknown) {
-      const message =
-        getErrorMessage(error) || "테이블 정보 수정에 실패했습니다";
+      const message = getErrorMessage(error);
       alert(message);
     }
   };
@@ -382,6 +381,12 @@ const TableDetailModal: React.FC<Props> = ({
       }
       if (status === 404) {
         alert("예약 정보를 찾을 수 없습니다");
+        setShowBookingDetail(false);
+        setBookingDetail(null);
+        setBookingDetailBookingId(null);
+        if (selectedFullDate) {
+          await fetchSlots(selectedFullDate);
+        }
         return;
       }
       const message = getErrorMessage(error);
