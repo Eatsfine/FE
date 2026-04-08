@@ -1,9 +1,13 @@
 import { loadKakaoMapSdk } from "@/lib/kakao";
+import type {
+  KakaoInfoWindowInstance,
+  KaKaoMapInstance,
+  KakaoMarkerInstance,
+  LatLng,
+  MarkerWithLocation,
+} from "@/types/map";
 import type { RestaurantSummary } from "@/types/store";
 import { useEffect, useMemo, useRef, useState } from "react";
-
-type LatLng = { lat: number; lng: number };
-type MarkerWithLocation = RestaurantSummary & { location: LatLng };
 
 type Props = {
   center: LatLng;
@@ -14,12 +18,6 @@ type Props = {
   defaultLevel?: number;
   selectedLevel?: number;
 };
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
-
 const toNum = (v: unknown) => {
   const n = typeof v === "string" ? parseFloat(v) : Number(v);
   return Number.isFinite(n) ? n : null;
@@ -53,17 +51,17 @@ export default function KakaoMap({
   selectedLevel,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const markersRef = useRef<Map<number, any>>(new Map());
-  const infoRef = useRef<any>(null);
+  const mapRef = useRef<KaKaoMapInstance | null>(null);
+  const markersRef = useRef<Map<number, KakaoMarkerInstance>>(new Map());
+  const infoRef = useRef<KakaoInfoWindowInstance | null>(null);
   const prevSelectedIdRef = useRef<number | null>(null);
 
   const safeMarkers = useMemo<MarkerWithLocation[]>(() => {
     return markers
-      .map((m) => {
-        const norm = normalizeLatLng((m as any).location);
+      .map((marker) => {
+        const norm = normalizeLatLng((marker as MarkerWithLocation).location);
         if (!norm) return null;
-        return { ...m, location: norm } as MarkerWithLocation;
+        return { ...marker, location: norm } as MarkerWithLocation;
       })
       .filter(Boolean) as MarkerWithLocation[];
   }, [markers]);
@@ -77,7 +75,9 @@ export default function KakaoMap({
 
     try {
       mapRef.current.relayout();
-    } catch {}
+    } catch {
+      //지도 초기화 타이밍에서 발생 가능
+    }
   };
 
   //1. 지도 최초 1회 생성
@@ -88,10 +88,11 @@ export default function KakaoMap({
       try {
         await loadKakaoMapSdk();
         if (cancelled) return;
+
         setSdkReady(true);
 
         const kakao = window.kakao;
-        if (!containerRef.current) return;
+        if (!kakao?.maps || !containerRef.current) return;
         if (mapRef.current) return;
 
         const options = {
@@ -161,21 +162,22 @@ export default function KakaoMap({
   //5. 마커 바뀌면 마커 재생성
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps || !mapRef.current) return;
+    const maps = kakao?.maps;
+    if (!maps || !mapRef.current) return;
 
     markersRef.current.forEach((mk) => mk.setMap(null));
     markersRef.current.clear();
 
     safeMarkers.forEach((store) => {
-      const pos = new kakao.maps.LatLng(store.location.lat, store.location.lng);
-      const marker = new kakao.maps.Marker({
+      const pos = new maps.LatLng(store.location.lat, store.location.lng);
+      const marker = new maps.Marker({
         map: mapRef.current,
         position: pos,
         clickable: true,
         zIndex: 1,
       });
 
-      kakao.maps.event.addListener(marker, "click", () => {
+      maps.event.addListener(marker, "click", () => {
         mapRef.current?.panTo(pos);
         if (selectedLevel != null) {
           mapRef.current?.setLevel(selectedLevel);
@@ -193,7 +195,7 @@ export default function KakaoMap({
       markersRef.current.set(store.id, marker);
     });
     relayout();
-  }, [safeMarkers, onSelectMarker]);
+  }, [safeMarkers, onSelectMarker, selectedLevel]);
 
   //6. 선택변경시 zIndex 처리
   useEffect(() => {
@@ -213,22 +215,22 @@ export default function KakaoMap({
   //7. 선택 없으면 bounds 맞추기
   useEffect(() => {
     const kakao = window.kakao;
-    if (!kakao?.maps || !mapRef.current) return;
-    if (selectedId != null) return;
-    if (safeMarkers.length === 0) return;
-    const bounds = new kakao.maps.LatLngBounds();
+    const maps = kakao?.maps;
+    if (!maps || !mapRef.current) return;
+    if (selectedId != null || safeMarkers.length === 0) return;
 
+    const bounds = new maps.LatLngBounds();
     safeMarkers.forEach((store) => {
-      bounds.extend(
-        new kakao.maps.LatLng(store.location.lat, store.location.lng),
-      );
+      bounds.extend(new maps.LatLng(store.location.lat, store.location.lng));
     });
 
     requestAnimationFrame(() => {
       try {
-        mapRef.current.relayout();
-        mapRef.current.setBounds(bounds);
-      } catch {}
+        mapRef.current?.relayout();
+        mapRef.current?.setBounds(bounds);
+      } catch {
+        //지도 초기화 타이밍 이슈무시
+      }
     });
 
     if (safeMarkers.length === 1 && defaultLevel != null) {

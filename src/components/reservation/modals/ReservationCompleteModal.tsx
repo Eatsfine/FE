@@ -10,8 +10,8 @@ import { useEffect } from "react";
 
 type Props = {
   open: boolean;
-  restaurant: RestaurantDetail;
-  draft: ReservationDraft;
+  restaurant: Pick<RestaurantDetail, "name">;
+  draft: Pick<ReservationDraft, "people" | "date" | "time">;
   onClose: () => void;
   autoCloseMs?: number;
 };

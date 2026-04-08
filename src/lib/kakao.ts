@@ -1,15 +1,3 @@
-type Kakao = {
-  maps: {
-    load: (callback: () => void) => void;
-  };
-};
-
-declare global {
-  interface Window {
-    kakao: Kakao;
-  }
-}
-
 let loadingPromise: Promise<void> | null = null;
 
 export function loadKakaoMapSdk(): Promise<void> {

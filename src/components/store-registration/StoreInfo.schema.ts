@@ -57,15 +57,19 @@ export const StoreInfoSchema = z
     holidays: z.array(z.string()).optional(),
 
     mainImage: z
-      .custom<File>((file) => file instanceof File, {
+      .custom<File | undefined>((file) => file instanceof File, {
         message: "식당 대표 이미지를 등록해주세요",
       })
-      .refine((file) => file.size <= MAX_FILE_SIZE, {
+      .refine((file) => file === undefined || file.size <= MAX_FILE_SIZE, {
         message: "이미지 크기는 1MB 이하여야 합니다.",
       })
-      .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-        message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
-      }),
+      .refine(
+        (file) =>
+          file === undefined || ACCEPTED_IMAGE_TYPES.includes(file.type),
+        {
+          message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
+        },
+      ),
   })
   .refine((data) => data.latitude !== 0 && data.longitude !== 0, {
     message:

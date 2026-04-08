@@ -54,15 +54,3 @@ export type ResponseMenuImageDto = {
   imageKey: string;
   imageUrl: string;
 };
-
-export type MenuResponseItem = {
-  menuId?: number | string;
-  name?: string;
-  description?: string;
-  price?: number;
-  category?: string;
-  imageUrl?: string;
-  imageKey?: string;
-  isSoldOut?: boolean;
-  isActive?: boolean;
-};

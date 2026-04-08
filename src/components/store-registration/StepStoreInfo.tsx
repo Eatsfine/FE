@@ -8,12 +8,10 @@ import DaumPostcodeEmbed from "react-daum-postcode";
 import { loadKakaoMapSdk } from "@/lib/kakao";
 import { Upload, X } from "lucide-react";
 import type { AddressSearchResult } from "@/types/store";
-
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
+import type {
+  KakaoAddressSearchResult,
+  KakaoAddressSearchStatus,
+} from "@/types/kakao";
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>;
@@ -101,7 +99,7 @@ export default function StepStoreInfo({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    setValue("mainImage", null, { shouldValidate: true });
+    setValue("mainImage", undefined, { shouldValidate: true });
   };
 
   useEffect(() => {
@@ -148,23 +146,30 @@ export default function StepStoreInfo({
     setValue("bname", data.bname);
 
     if (window.kakao?.maps?.services) {
+      const maps = window.kakao.maps;
       const geocoder = new window.kakao.maps.services.Geocoder();
 
-      geocoder.addressSearch(fullAddress, (result: any, status: any) => {
-        if (status === window.kakao.maps.services.Status.OK) {
-          const lat = parseFloat(result[0].y);
-          const lng = parseFloat(result[0].x);
+      geocoder.addressSearch(
+        fullAddress,
+        (
+          result: KakaoAddressSearchResult[],
+          status: KakaoAddressSearchStatus,
+        ) => {
+          if (status === maps.services.Status.OK) {
+            const lat = parseFloat(result[0].y);
+            const lng = parseFloat(result[0].x);
 
-          setValue("latitude", lat, { shouldValidate: true });
-          setValue("longitude", lng, { shouldValidate: true });
+            setValue("latitude", lat, { shouldValidate: true });
+            setValue("longitude", lng, { shouldValidate: true });
 
-          trigger("address");
-        } else {
-          setValue("latitude", 0, { shouldValidate: true });
-          setValue("longitude", 0, { shouldValidate: true });
-          trigger("address");
-        }
-      });
+            trigger("address");
+          } else {
+            setValue("latitude", 0, { shouldValidate: true });
+            setValue("longitude", 0, { shouldValidate: true });
+            trigger("address");
+          }
+        },
+      );
     } else {
       alert("지도 서비스 로딩에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setValue("latitude", 0, { shouldValidate: true });
