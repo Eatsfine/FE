@@ -83,7 +83,7 @@ export default function ReservationModal({
       if (initialDraft) {
         setPeople(initialDraft.people);
         setDate(initialDraft.date);
-        setTime(initialDraft.time);
+        setTime(initialDraft.time ?? "");
         setSeatType(initialDraft.seatType);
         setTablePref(initialDraft.tablePref);
         setSelectedTableId(initialDraft.tableId);

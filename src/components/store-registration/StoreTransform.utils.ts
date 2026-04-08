@@ -98,7 +98,7 @@ export const transformToRegister = (
     phoneNumber: step2Data.phoneNumber,
     category: step2Data.category,
     depositRate: step2Data.depositRate,
-    bookingIntervalMinutes: step2Data.bookingIntervalMinutes || 0,
+    bookingIntervalMinutes: Number(step2Data.bookingIntervalMinutes || 0),
     businessHours,
   };
 };

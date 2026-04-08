@@ -60,16 +60,21 @@ export default function ReservationConfirmModal({
       return;
     }
     const tableId = draft.tableId;
+    const time = draft.time;
     if (!restaurant.id) return;
     if (createBookingMutation.isPending) return;
+
+    if (!time) {
+      alert("예약 시간을 먼저 선택해주세요");
+      return;
+    }
     if (typeof tableId !== "number" || tableId <= 0) {
       alert("테이블을 먼저 선택해주세요");
       return;
     }
     const body = {
       date: toYmd(draft.date),
-      time: draft.time,
-
+      time,
       partySize: draft.people,
       tableIds: [tableId],
       menuItems: (draft.selectedMenus ?? []).map((m) => ({
