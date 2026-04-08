@@ -417,7 +417,7 @@ const TableDetailModal: React.FC<Props> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-25 p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
       onClick={() => {
         if (!uploading && !detailLoading) onClose();
       }}

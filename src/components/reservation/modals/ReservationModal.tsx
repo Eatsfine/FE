@@ -264,7 +264,7 @@ export default function ReservationModal({
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="w-auto p-2 z-1000" align="start">
+              <PopoverContent className="w-auto p-2 z-50" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
