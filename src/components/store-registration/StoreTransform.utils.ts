@@ -81,6 +81,11 @@ export const transformToRegister = (
     };
   });
 
+  const bookingIntervalMinutes = Number(step2Data.bookingIntervalMinutes ?? 0);
+  if (!Number.isFinite(bookingIntervalMinutes) || bookingIntervalMinutes < 30) {
+    throw new Error("예약 시간 간격 값이 올바르지 않습니다");
+  }
+
   return {
     storeName: step2Data.storeName,
     businessNumberDto: {
@@ -98,7 +103,7 @@ export const transformToRegister = (
     phoneNumber: step2Data.phoneNumber,
     category: step2Data.category,
     depositRate: step2Data.depositRate,
-    bookingIntervalMinutes: Number(step2Data.bookingIntervalMinutes || 0),
+    bookingIntervalMinutes,
     businessHours,
   };
 };

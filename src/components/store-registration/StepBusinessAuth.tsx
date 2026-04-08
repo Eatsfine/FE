@@ -149,11 +149,11 @@ export default function StepBusinessAuth({
               {...register("name", {
                 onChange: (e) => {
                   if (isVerified) {
-                    const { name, startDate } = getValues();
+                    const { businessNumber, startDate } = getValues();
                     setIsVerified(false);
                     onComplete({
-                      name,
-                      businessNumber: e.target.value,
+                      name: e.target.value,
+                      businessNumber,
                       startDate,
                       isVerified: false,
                     });
@@ -193,12 +193,12 @@ export default function StepBusinessAuth({
               {...register("businessNumber", {
                 onChange: (e) => {
                   if (isVerified) {
-                    const { name, startDate } = getValues();
+                    const { name, businessNumber } = getValues();
                     setIsVerified(false);
                     onComplete({
                       name,
-                      businessNumber: e.target.value,
-                      startDate,
+                      businessNumber,
+                      startDate: e.target.value,
                       isVerified: false,
                     });
                   }

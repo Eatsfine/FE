@@ -376,8 +376,14 @@ const TableDetailModal: React.FC<Props> = ({
         ? error.response?.status
         : undefined;
 
-      if (status === 403) alert("접근 권한이 없습니다");
-      else if (status === 404) alert("예약 정보를 찾을 수 없습니다");
+      if (status === 403) {
+        alert("접근 권한이 없습니다");
+        return;
+      }
+      if (status === 404) {
+        alert("예약 정보를 찾을 수 없습니다");
+        return;
+      }
       const message = getErrorMessage(error);
       alert(message || "예약 취소에 실패했습니다");
     } finally {

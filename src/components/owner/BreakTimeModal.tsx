@@ -37,8 +37,11 @@ const BreakTimeModal: React.FC<Props> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white w-105 rounded-2xl p-6 relative"
+        className="bg-white w-96 rounded-2xl p-6 relative"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="breaktime-modal-title"
       >
         <button
           onClick={onClose}
@@ -48,7 +51,10 @@ const BreakTimeModal: React.FC<Props> = ({
           <X />
         </button>
 
-        <div className="flex items-center gap-2 font-bold text-lg mb-4">
+        <div
+          id="breaktime-modal-title"
+          className="flex items-center gap-2 font-bold text-lg mb-4"
+        >
           <Clock className="text-orange-500" /> 브레이크 타임 설정
         </div>
 

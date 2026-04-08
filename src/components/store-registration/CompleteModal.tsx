@@ -34,7 +34,7 @@ export default function CompleteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-110">
+      <DialogContent className="sm:max-w-[440px]">
         <DialogHeader className="flex flex-col items-center justify-center text-center">
           <Check className="size-8 p-1 text-white bg-green-500 rounded-full mb-2" />
           <DialogTitle>가게 등록 완료!</DialogTitle>
@@ -52,7 +52,7 @@ export default function CompleteModal({
           <div className="flex justify-between items-start gap-4">
             <span className="text-gray-500 shrink-0">음식 종류</span>
             <span className="text-gray-900 text-right">
-              {data.category ? storeCategoryLabel[data.category] : "-"}
+              {data.category ? (storeCategoryLabel[data.category] ?? "-") : "-"}
             </span>
           </div>
           <div className="flex justify-between items-start gap-4">

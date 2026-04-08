@@ -22,12 +22,15 @@ export type MenuCategory = "MAIN" | "SIDE" | "BEVERAGE" | "ALCOHOL";
 
 export type UiCategory = MenuCategory | "OTHER";
 
-export const MenuCategoryLabel: Record<UiCategory, string> = {
+export const MenuCategoryLabel: Record<MenuCategory, string> = {
   MAIN: "메인 메뉴",
   SIDE: "사이드 메뉴",
   BEVERAGE: "음료",
-  OTHER: "기타",
   ALCOHOL: "주류",
+};
+export const UiMenuCategoryLabel: Record<UiCategory, string> = {
+  ...MenuCategoryLabel,
+  OTHER: "기타",
 };
 
 export type MenuCreateItemDto = {

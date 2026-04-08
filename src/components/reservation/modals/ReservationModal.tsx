@@ -264,7 +264,7 @@ export default function ReservationModal({
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="w-auto p-2 z-2500" align="start">
+              <PopoverContent className="w-auto p-2 z-1000" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -355,7 +355,7 @@ export default function ReservationModal({
             )}
             {layout && canQueryTables && !noAvailableSeats && (
               <div className="overflow-x-auto">
-                <div className="min-w-125">
+                <div className="min-w-[500px]">
                   <TableMap
                     layout={layout}
                     availableIds={availableIds}

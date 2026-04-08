@@ -34,7 +34,7 @@ export default function SupportFAQ() {
   };
 
   return (
-    <main className="max-w-480 mx-auto py-6 px-4 md:p-8 lg:p-16">
+    <main className="max-w-[1920px] mx-auto py-6 px-4 md:p-8 lg:p-16">
       <div className="mb-8">
         <h2 className="text-gray-900 mb-6">자주 묻는 질문</h2>
 
@@ -87,7 +87,7 @@ export default function SupportFAQ() {
       </div>
 
       {/* 질문 리스트 */}
-      <div className="space-y-3 min-h-50">
+      <div className="space-y-3 min-h-[200px]">
         {filteredFaqs.length > 0 ? (
           filteredFaqs.map((faq) => (
             <div

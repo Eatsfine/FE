@@ -70,7 +70,7 @@ export function LoginDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-110 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[440px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             잇츠파인에 오신 것을 환영합니다
