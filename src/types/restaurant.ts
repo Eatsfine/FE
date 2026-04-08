@@ -13,7 +13,7 @@ export type TablePref = "split_ok" | "one_table";
 export type ReservationDraft = {
   people: number;
   date: Date;
-  time: string;
+  time?: string;
   seatType: SeatType;
   tablePref: TablePref;
   tableId: number;

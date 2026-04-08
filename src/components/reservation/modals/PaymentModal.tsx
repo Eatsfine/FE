@@ -26,6 +26,16 @@ type Props = {
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
 };
+type TossPaymentsInstance = Awaited<ReturnType<typeof loadTossPayments>>;
+type TossWidgetsInstance = ReturnType<TossPaymentsInstance["widgets"]>;
+
+type PaymentMethodWidgetInstance = Awaited<
+  ReturnType<TossWidgetsInstance["renderPaymentMethods"]>
+>;
+
+type AgreementWidgetInstance = Awaited<
+  ReturnType<TossWidgetsInstance["renderAgreement"]>
+>;
 
 export default function PaymentModal({
   open,
@@ -48,10 +58,12 @@ export default function PaymentModal({
 
   const amount = booking?.totalDeposit ?? 0;
 
-  const paymentMethodWidgetRef = useRef<any>(null);
-  const agreementWidgetRef = useRef<any>(null);
+  const paymentMethodWidgetRef = useRef<PaymentMethodWidgetInstance | null>(
+    null,
+  );
+  const agreementWidgetRef = useRef<AgreementWidgetInstance | null>(null);
 
-  const widgetsRef = useRef<any>(null);
+  const widgetsRef = useRef<TossWidgetsInstance | null>(null);
   const initedRef = useRef(false);
 
   const payOrderRef = useRef<{
@@ -78,14 +90,17 @@ export default function PaymentModal({
     if (!booking) return;
     let cancelled = false;
 
-    (async () => {
+    const paymentContainer = paymentMethodContainerRef.current;
+    const agreementContainer = agreementContainerRef.current;
+
+    void (async () => {
       try {
         setLoading(true);
-        if (paymentMethodContainerRef.current) {
-          paymentMethodContainerRef.current.innerHTML = "";
+        if (paymentContainer) {
+          paymentContainer.innerHTML = "";
         }
-        if (agreementContainerRef.current) {
-          agreementContainerRef.current.innerHTML = "";
+        if (agreementContainer) {
+          agreementContainer.innerHTML = "";
         }
         const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
           | string
@@ -108,6 +123,7 @@ export default function PaymentModal({
         const tossPayments = await loadTossPayments(clientKey);
 
         if (cancelled) return;
+
         const customerKey = `user_${userId}`;
         const widgets = tossPayments.widgets({ customerKey });
         widgetsRef.current = widgets;
@@ -142,10 +158,8 @@ export default function PaymentModal({
       } catch (error: unknown) {
         console.error("토스 위젯 정리중 오류발생", error);
       }
-
-      const paymentContainer = paymentMethodContainerRef.current;
-      const agreementContainer = agreementContainerRef.current;
-
+      paymentMethodWidgetRef.current = null;
+      agreementWidgetRef.current = null;
       widgetsRef.current = null;
       initedRef.current = false;
       payOrderRef.current = null;

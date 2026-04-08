@@ -11,7 +11,7 @@ interface DeleteTableImageResult {
   tableId: number;
 }
 
-interface PatchTableRequest {
+export interface PatchTableRequest {
   tableNumber?: string;
   minSeatCount?: number;
   maxSeatCount?: number;

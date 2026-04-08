@@ -41,6 +41,6 @@ export default function SuccessPage() {
         nav("/payment/fail", { replace: true });
       }
     })();
-  }, [sp.toString(), nav]);
+  }, [sp, nav]);
   return <div className="p-6">결제 승인 처리중..</div>;
 }

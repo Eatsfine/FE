@@ -14,6 +14,7 @@ import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { toHHmm } from "@/utils/time";
 import RestaurantListSkeleton from "@/components/restaurant/RestaurantListSkeleton";
+import type { KakaoAddressSearchResult } from "@/types/map";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -67,21 +68,27 @@ export default function SearchPage() {
 
     return {
       ...d,
-      time: safeTime as any,
+      time: safeTime,
     };
   };
   type LatLng = { lat: number; lng: number };
   const [geoMap, setGeoMap] = useState<Map<number, LatLng>>(new Map());
 
-  function isValidLatLng(loc: any): loc is LatLng {
+  function isValidLatLng(loc: unknown): loc is LatLng {
     return (
-      loc &&
+      typeof loc === "object" &&
+      loc !== null &&
+      "lat" in loc &&
+      "lng" in loc &&
       typeof loc.lat === "number" &&
       typeof loc.lng === "number" &&
       Number.isFinite(loc.lat) &&
       Number.isFinite(loc.lng)
     );
   }
+
+  const kakao = window.kakao;
+  const services = kakao?.maps?.services;
   async function geocodeAddress(address: string): Promise<LatLng | null> {
     const kakao = window.kakao;
     if (!kakao?.maps?.services) {
@@ -91,20 +98,23 @@ export default function SearchPage() {
     const geocoder = new kakao.maps.services.Geocoder();
 
     return new Promise((resolve) => {
-      geocoder.addressSearch(address, (res: any[], status: string) => {
-        if (status !== kakao.maps.services.Status.OK || !res?.[0]) {
-          resolve(null);
-          return;
-        }
-        const lng = parseFloat(res[0].x);
-        const lat = parseFloat(res[0].y);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          resolve(null);
-          return;
-        }
+      geocoder.addressSearch(
+        address,
+        (res: KakaoAddressSearchResult[], status: string) => {
+          if (status !== kakao.maps.services.Status.OK || !res?.[0]) {
+            resolve(null);
+            return;
+          }
+          const lng = parseFloat(res[0].x);
+          const lat = parseFloat(res[0].y);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            resolve(null);
+            return;
+          }
 
-        resolve({ lat, lng });
-      });
+          resolve({ lat, lng });
+        },
+      );
     });
   }
 

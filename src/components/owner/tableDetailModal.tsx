@@ -64,10 +64,6 @@ type BookingDetail = {
   amount: number;
 };
 
-type ApiErrorResponse = {
-  message?: string;
-};
-
 const TableDetailModal: React.FC<Props> = ({
   storeId,
   tableNumber,
