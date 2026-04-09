@@ -1,7 +1,8 @@
+import axios from "axios";
 import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 
-export interface ServerMenu {
+interface ServerMenu {
   menuId: number;
   name: string;
   description?: string | null;
@@ -52,11 +53,7 @@ interface MenuCreateResult {
   }[];
 }
 
-export interface DeleteMenusRequest {
-  menuIds: number[];
-}
-
-export interface DeleteMenusResponse {
+interface DeleteMenusResponse {
   isSuccess: boolean;
   code: string;
   result: { deletedMenuIds: number[] };
@@ -100,12 +97,20 @@ export const deleteMenuImage = async (
       `/api/v1/stores/${storeId}/menus/${menuId}/image`,
     );
     return res.data;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("deleteMenuImage error", err);
+    if (axios.isAxiosError(err)) {
+      return {
+        isSuccess: false,
+        code: "_MENU_IMAGE_DELETE_FAILED",
+        message: err?.response?.data?.message || "이미지 삭제 실패",
+        result: { deletedImageKey: "" },
+      };
+    }
     return {
       isSuccess: false,
       code: "_MENU_IMAGE_DELETE_FAILED",
-      message: err?.response?.data?.message || "이미지 삭제 실패",
+      message: "이미지 삭제 실패",
       result: { deletedImageKey: "" },
     };
   }

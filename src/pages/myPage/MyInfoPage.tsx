@@ -3,11 +3,12 @@ import {
   patchMemberInfo,
   putProfileImage,
 } from "@/api/endpoints/member";
+import ProfileAvatar from "@/components/profile/profileAvatar";
 import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Save } from "lucide-react";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -25,21 +26,8 @@ export default function MyInfoPage() {
   const [draftImageFile, setDraftImageFile] = useState<File | null>(null);
 
   const shownFile = isEditing ? draftImageFile : originalImageFile;
-  const [shownUrl, setShownUrl] = useState<string | null>(null);
-
-  const [serverProfileUrl, setServerProfileUrl] = useState<string | null>(null);
 
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!shownFile) {
-      setShownUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(shownFile);
-    setShownUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [shownFile]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["memberInfo"],
@@ -47,45 +35,37 @@ export default function MyInfoPage() {
     refetchOnWindowFocus: false,
   });
 
-  const [original, setOriginal] = useState<Form>({
+  const original = useMemo<Form>(
+    () => ({
+      email: data?.email ?? "",
+      nickname: data?.name ?? "",
+      phone: phoneNumber(data?.phoneNumber ?? ""),
+    }),
+    [data],
+  );
+
+  const serverProfileUrl = data?.profileImage ?? null;
+  const [draft, setDraft] = useState<Form>({
     email: "",
     nickname: "",
     phone: "",
   });
-  const [draft, setDraft] = useState<Form>(original);
 
-  const toAbsolute = (url: string | null) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
+  const currentForm = isEditing ? draft : original;
 
-    const apiBase =
-      (import.meta.env.VITE_API_URL as string | undefined)?.replace(
-        /\/api\/?$/,
-        "",
-      ) ?? "";
-    return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
-
-  useEffect(() => {
-    if (!data) return;
-
-    const nextOriginal: Form = {
-      email: data.email ?? "",
-      nickname: data.name ?? "",
-      phone: phoneNumber(data.phoneNumber ?? ""),
-    };
-    setOriginal(nextOriginal);
-    setDraft(nextOriginal);
-    setServerProfileUrl(toAbsolute(data.profileImage ?? null));
-  }, [data]);
+  const displayProfileSrc = useMemo(() => {
+    if (shownFile) {
+      return URL.createObjectURL(shownFile);
+    }
+    return serverProfileUrl;
+  }, [shownFile, serverProfileUrl]);
 
   const { mutate: saveMutate, isPending: isSaving } = useMutation({
     mutationFn: patchMemberInfo,
     onSuccess: async () => {
-      setOriginal(draft);
-      setOriginalImageFile(draftImageFile);
-      setIsEditing(false);
       await qc.invalidateQueries({ queryKey: ["memberInfo"] });
+      setOriginalImageFile(null);
+      setIsEditing(false);
     },
     onError: () => {
       alert("저장에 실패했습니다. 다시 시도해주세요");
@@ -133,7 +113,6 @@ export default function MyInfoPage() {
     setImageUploadError(null);
     setDraftImageFile(file);
     uploadImage(file);
-
   };
 
   const isValidPhone = (value: string) => {
@@ -173,8 +152,6 @@ export default function MyInfoPage() {
       </section>
     );
   }
-
-  const displayProfileSrc = shownUrl ?? serverProfileUrl ?? null;
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
@@ -220,9 +197,7 @@ export default function MyInfoPage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="text-3xl text-gray-500">
-                {draft.nickname?.[0] ?? "맛"}
-              </span>
+              <ProfileAvatar name={currentForm.nickname || "맛"} />
             )}
           </div>
 
@@ -252,7 +227,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-gray-600">이메일</label>
             <input
               disabled
-              value={draft.email}
+              value={currentForm.email}
               className={
                 "w-full rounded-lg border border-gray-200 bg-gray-50 text-gray-500 px-4 py-3"
               }
@@ -271,7 +246,7 @@ export default function MyInfoPage() {
             <input
               id="nickname"
               disabled={!isEditing || isSaving}
-              value={draft.nickname}
+              value={currentForm.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 ${
                 isEditing
@@ -285,7 +260,7 @@ export default function MyInfoPage() {
             <label className="mb-1 block text-gray-600">전화번호</label>
             <input
               disabled={!isEditing || isSaving}
-              value={draft.phone}
+              value={currentForm.phone}
               onChange={(e) =>
                 handleChange("phone", phoneNumber(e.target.value))
               }

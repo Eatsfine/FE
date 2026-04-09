@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    kakao: any;
-  }
-}
-
 let loadingPromise: Promise<void> | null = null;
 
 export function loadKakaoMapSdk(): Promise<void> {

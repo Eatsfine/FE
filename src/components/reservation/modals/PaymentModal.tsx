@@ -26,6 +26,16 @@ type Props = {
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
 };
+type TossPaymentsInstance = Awaited<ReturnType<typeof loadTossPayments>>;
+type TossWidgetsInstance = ReturnType<TossPaymentsInstance["widgets"]>;
+
+type PaymentMethodWidgetInstance = Awaited<
+  ReturnType<TossWidgetsInstance["renderPaymentMethods"]>
+>;
+
+type AgreementWidgetInstance = Awaited<
+  ReturnType<TossWidgetsInstance["renderAgreement"]>
+>;
 
 export default function PaymentModal({
   open,
@@ -48,10 +58,12 @@ export default function PaymentModal({
 
   const amount = booking?.totalDeposit ?? 0;
 
-  const paymentMethodWidgetRef = useRef<any>(null);
-  const agreementWidgetRef = useRef<any>(null);
+  const paymentMethodWidgetRef = useRef<PaymentMethodWidgetInstance | null>(
+    null,
+  );
+  const agreementWidgetRef = useRef<AgreementWidgetInstance | null>(null);
 
-  const widgetsRef = useRef<any>(null);
+  const widgetsRef = useRef<TossWidgetsInstance | null>(null);
   const initedRef = useRef(false);
 
   const payOrderRef = useRef<{
@@ -78,14 +90,17 @@ export default function PaymentModal({
     if (!booking) return;
     let cancelled = false;
 
-    (async () => {
+    const paymentContainer = paymentMethodContainerRef.current;
+    const agreementContainer = agreementContainerRef.current;
+
+    void (async () => {
       try {
         setLoading(true);
-        if (paymentMethodContainerRef.current) {
-          paymentMethodContainerRef.current.innerHTML = "";
+        if (paymentContainer) {
+          paymentContainer.innerHTML = "";
         }
-        if (agreementContainerRef.current) {
-          agreementContainerRef.current.innerHTML = "";
+        if (agreementContainer) {
+          agreementContainer.innerHTML = "";
         }
         const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
           | string
@@ -108,6 +123,7 @@ export default function PaymentModal({
         const tossPayments = await loadTossPayments(clientKey);
 
         if (cancelled) return;
+
         const customerKey = `user_${userId}`;
         const widgets = tossPayments.widgets({ customerKey });
         widgetsRef.current = widgets;
@@ -139,20 +155,20 @@ export default function PaymentModal({
       try {
         paymentMethodWidgetRef.current?.destroy?.();
         agreementWidgetRef.current?.destroy?.();
-      } catch {}
-
+      } catch (error: unknown) {
+        console.error("토스 위젯 정리중 오류발생", error);
+      }
       paymentMethodWidgetRef.current = null;
       agreementWidgetRef.current = null;
-
       widgetsRef.current = null;
       initedRef.current = false;
       payOrderRef.current = null;
 
-      if (paymentMethodContainerRef.current) {
-        paymentMethodContainerRef.current.innerHTML = "";
+      if (paymentContainer) {
+        paymentContainer.innerHTML = "";
       }
-      if (agreementContainerRef.current) {
-        agreementContainerRef.current.innerHTML = "";
+      if (agreementContainer) {
+        agreementContainer.innerHTML = "";
       }
     };
   }, [open, booking, nav, userId]);
@@ -193,7 +209,7 @@ export default function PaymentModal({
       className="fixed inset-0 z-60 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="예약 내용 확인모달"
+      aria-label="예약금 결제 모달"
     >
       <button
         type="button"
@@ -204,10 +220,10 @@ export default function PaymentModal({
       <div
         className={cn(
           panelMotionClass(entered),
-          "relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden",
+          "relative z-10 flex w-[92vw] max-w-md max-h-[90vh] flex-col rounded-2xl bg-white shadow-xl",
         )}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b">
+        <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
           <h3 className="text-lg">예약금 결제</h3>
           <button
             type="button"
@@ -219,7 +235,7 @@ export default function PaymentModal({
             <X />
           </button>
         </div>
-        <div className="px-6 py-5 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4">
           <div className="border rounded-xl p-4">
             <div className="text-sm text-muted-foreground">매장</div>
             <div className="mt-1 text-base truncate">{restaurant.name}</div>

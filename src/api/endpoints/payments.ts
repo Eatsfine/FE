@@ -8,7 +8,7 @@ type ApiEnvelope<T> = {
   result: T;
 };
 
-export type PaymentRequestResult = {
+type PaymentRequestResult = {
   paymentId: number;
   bookingId: number;
   orderId: string;
@@ -31,7 +31,7 @@ export async function requestPayment(body: { bookingId: number }) {
   return res.data.result;
 }
 
-export type PaymentConfirmResult = {
+type PaymentConfirmResult = {
   paymentId: number;
   status: string;
   approvedAt: string;

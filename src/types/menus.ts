@@ -1,5 +1,3 @@
-export type MenuCategory = "MAIN" | "SIDE" | "DRINK";
-
 export type MenuItem = {
   id: string;
   restaurantId: string;
@@ -20,13 +18,26 @@ export type SelectedMenu = {
   quantity: number;
 };
 
-export type ApiMenuCategory = "MAIN" | "SIDE" | "BEVERAGE" | "ALCOHOL";
+export type MenuCategory = "MAIN" | "SIDE" | "BEVERAGE" | "ALCOHOL";
+
+export type UiCategory = MenuCategory | "OTHER";
+
+export const MenuCategoryLabel: Record<MenuCategory, string> = {
+  MAIN: "메인 메뉴",
+  SIDE: "사이드 메뉴",
+  BEVERAGE: "음료",
+  ALCOHOL: "주류",
+};
+export const UiMenuCategoryLabel: Record<UiCategory, string> = {
+  ...MenuCategoryLabel,
+  OTHER: "기타",
+};
 
 export type MenuCreateItemDto = {
   name: string;
   description?: string;
   price: number;
-  category: ApiMenuCategory;
+  category: MenuCategory;
   imageKey?: string;
 };
 

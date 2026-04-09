@@ -6,28 +6,34 @@ export function useModalPresence(open: boolean, durationMs = 220) {
   const timeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (open) {
-      if (timeRef.current) {
-        window.clearTimeout(timeRef.current);
-        timeRef.current = null;
-      }
-      setRendered(true);
-      const raf = requestAnimationFrame(() => setEntered(true));
-      return () => cancelAnimationFrame(raf);
-    }
-    setEntered(false);
-
-    timeRef.current = window.setTimeout(() => {
-      setRendered(false);
+    if (timeRef.current !== null) {
+      window.clearTimeout(timeRef.current);
       timeRef.current = null;
-    }, durationMs);
-
-    return () => {
-      if (timeRef.current) {
-        window.clearTimeout(timeRef.current);
+    }
+    if (open) {
+      //모달 진입 애니메이션을 위해 열릴 때 즉시 랜더 상태를 켜야함
+      //eslint-disable-next-line react-hooks/set-state-in-effect
+      setRendered(true);
+      const raf = requestAnimationFrame(() => {
+        setEntered(true);
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      const raf = requestAnimationFrame(() => {
+        setEntered((prev) => (prev ? false : prev));
+      });
+      timeRef.current = window.setTimeout(() => {
+        setRendered(false);
         timeRef.current = null;
-      }
-    };
+      }, durationMs);
+      return () => {
+        cancelAnimationFrame(raf);
+        if (timeRef.current !== null) {
+          window.clearTimeout(timeRef.current);
+          timeRef.current = null;
+        }
+      };
+    }
   }, [open, durationMs]);
 
   return { rendered, entered };

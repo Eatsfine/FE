@@ -1,7 +1,7 @@
 import type { BusinessHour, Day, RequestStoreCreateDto } from "@/types/store";
 import type { StoreInfoFormValues } from "./StoreInfo.schema";
 
-export const formatSido = (sido: string): string => {
+const formatSido = (sido: string): string => {
   const mapping: Record<string, string> = {
     서울: "서울특별시",
     부산: "부산광역시",
@@ -24,7 +24,7 @@ export const formatSido = (sido: string): string => {
   return mapping[sido] || sido;
 };
 
-export const formatTimeToBackend = (timeStr: string | undefined): string => {
+const formatTimeToBackend = (timeStr: string | undefined): string => {
   if (!timeStr) {
     throw new Error("영업 시간은 필수입니다.");
   }
@@ -81,6 +81,11 @@ export const transformToRegister = (
     };
   });
 
+  const bookingIntervalMinutes = Number(step2Data.bookingIntervalMinutes ?? 0);
+  if (!Number.isFinite(bookingIntervalMinutes) || bookingIntervalMinutes < 30) {
+    throw new Error("예약 시간 간격 값이 올바르지 않습니다");
+  }
+
   return {
     storeName: step2Data.storeName,
     businessNumberDto: {
@@ -98,7 +103,7 @@ export const transformToRegister = (
     phoneNumber: step2Data.phoneNumber,
     category: step2Data.category,
     depositRate: step2Data.depositRate,
-    bookingIntervalMinutes: step2Data.bookingIntervalMinutes || 0,
+    bookingIntervalMinutes,
     businessHours,
   };
 };

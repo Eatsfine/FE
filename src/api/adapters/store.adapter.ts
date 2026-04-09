@@ -1,29 +1,5 @@
-import type {
-  BreakTime,
-  RestaurantDetail,
-  RestaurantSummary,
-} from "@/types/store";
-import type {
-  StoreDetailDataDTO,
-  StoreSearchItemDTO,
-} from "@/api/dto/store.dto";
-
-export function toRestaurantSummary(
-  dto: StoreSearchItemDTO,
-): RestaurantSummary {
-  return {
-    id: Number(dto.storeId),
-    name: dto.name,
-    address: dto.address,
-    category: dto.category,
-    rating: dto.rating,
-    reviewCount: dto.reviewCount,
-    distanceKm: dto.distance,
-    thumbnailUrl: dto.mainImageUrl,
-    isOpenNow: dto.isOpenNow,
-    location: { lat: dto.latitude, lng: dto.longitude },
-  };
-}
+import type { BreakTime, RestaurantDetail } from "@/types/store";
+import type { StoreDetailDataDTO } from "@/api/dto/store.dto";
 
 export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);

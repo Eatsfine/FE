@@ -30,7 +30,7 @@ export const postLogin = async (
   return data.result;
 };
 
-export const postLogout = async (): Promise<ResponseLogoutDto> => {
+const postLogout = async (): Promise<ResponseLogoutDto> => {
   const { data } =
     await api.delete<ApiResponse<ResponseLogoutDto>>("/api/auth/logout");
   return data.result;

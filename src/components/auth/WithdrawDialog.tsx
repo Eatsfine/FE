@@ -6,8 +6,10 @@ import { Button } from "../ui/button";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { logout as performLogout } from "@/api/auth";
+import axios from "axios";
 
-function isWithdrawBlockByBookings(e: any) {
+function isWithdrawBlockByBookings(e: unknown) {
+  if (!axios.isAxiosError(e)) return false;
   const msg = e?.response?.data?.message;
   const result = e?.response?.data?.result;
   const code = e?.response?.data?.code;
@@ -56,12 +58,16 @@ export function WithdrawDialog({
       onOpenChange(false);
       nav("/", { replace: true });
     },
-    onError: (e: any) => {
+    onError: (e: unknown) => {
       if (isWithdrawBlockByBookings(e)) {
         setBlocked(true);
         return;
       }
-      alert(e?.response?.data?.message ?? "회원 탈퇴에 실패했습니다.");
+      let msg = "회원 탈퇴에 실패했습니다";
+      if (axios.isAxiosError(e)) {
+        msg = e?.response?.data?.message ?? msg;
+      }
+      alert(msg);
     },
   });
 

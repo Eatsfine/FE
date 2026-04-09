@@ -2,7 +2,7 @@ import { api } from "../axios";
 import type { ApiResponse } from "@/types/api";
 import type { AxiosProgressEvent } from "axios";
 
-export interface UploadTableImageResult {
+interface UploadTableImageResult {
   tableId: number;
   tableImageUrl: string;
 }
@@ -12,10 +12,10 @@ interface DeleteTableImageResult {
 }
 
 export interface PatchTableRequest {
-  tableNumber?: string;    
+  tableNumber?: string;
   minSeatCount?: number;
   maxSeatCount?: number;
-  seatsType?: 'GENERAL' | 'WINDOW' | 'ROOM' | 'BAR' | 'OUTDOOR';
+  seatsType?: "GENERAL" | "WINDOW" | "ROOM" | "BAR" | "OUTDOOR";
 }
 
 export interface UpdatedTable {
@@ -30,7 +30,7 @@ export const uploadTableImage = (
   storeId: number,
   tableId: number,
   file: File,
-  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
 ) => {
   const formData = new FormData();
   formData.append("tableImage", file);
@@ -38,17 +38,23 @@ export const uploadTableImage = (
   return api.post<ApiResponse<UploadTableImageResult>>(
     `/api/v1/stores/${storeId}/tables/${tableId}/table-image`,
     formData,
-    {onUploadProgress,}
+    { onUploadProgress },
   );
 };
 
-export const deleteTableImage = (storeId: number, tableId: number) : Promise<{ data: ApiResponse<DeleteTableImageResult> }> => {
+export const deleteTableImage = (
+  storeId: number,
+  tableId: number,
+): Promise<{ data: ApiResponse<DeleteTableImageResult> }> => {
   return api.delete(`/api/v1/stores/${storeId}/tables/${tableId}/table-image`);
 };
 
-
-export const patchTableInfo = (storeId: number, tableId: number, body: PatchTableRequest) =>
+export const patchTableInfo = (
+  storeId: number,
+  tableId: number,
+  body: PatchTableRequest,
+) =>
   api.patch<ApiResponse<{ updatedTables?: UpdatedTable[] }>>(
     `/api/v1/stores/${storeId}/tables/${tableId}`,
-    body
-);
+    body,
+  );

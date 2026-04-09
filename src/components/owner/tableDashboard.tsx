@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from "lucide-react";
 import TableCreateModal from "./TableCreateModal";
 import BreakTimeModal, { type BreakTime } from "./BreakTimeModal";
@@ -11,17 +11,23 @@ import {
   type CreateTableRequest,
   type LayoutTable,
 } from "@/api/owner/storeLayout";
-import { patchTableInfo, type UpdatedTable } from "@/api/owner/table";
+import {
+  patchTableInfo,
+  type PatchTableRequest,
+  type UpdatedTable,
+} from "@/api/owner/table";
 import { patchBreakTime } from "@/api/owner/reservation";
-import type { SeatsType } from "@/types/table";
+import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
 import TableDetailModal from "./tableDetailModal";
+import { getErrorMessage } from "@/utils/error";
+import axios from "axios";
 
 interface TableDashboardProps {
   storeId: number;
   storeName?: string;
 }
 
-export interface TableInfo {
+interface TableInfo {
   tableId: number;
   numValue: number;
   minCapacity: number;
@@ -89,7 +95,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     ? `table-dashboard-state-${storeId}`
     : "table-dashboard-state-temp";
 
-  const getSavedData = () => {
+  const initialData = (() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       return saved ? JSON.parse(saved) : null;
@@ -97,9 +103,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       console.error("로컬스토리지 파싱 실패", e);
       return null;
     }
-  };
-
-  const initialData = useMemo(() => getSavedData(), []);
+  })();
 
   const [config, setConfig] = useState<{ columns: number; rows: number }>(
     initialData?.config ?? { columns: 0, rows: 0 },
@@ -241,7 +245,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                 isEditingNum: false,
                 isSaved: true,
                 tableImageUrl:
-                  (t as any).tableImageUrl ??
+                  t.tableImageUrl ??
                   tableData[t.gridY * layout.gridInfo.gridCol + t.gridX + 1]
                     ?.tableImageUrl ??
                   null,
@@ -272,7 +276,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     };
 
     fetchLayout();
-  }, [storeId]);
+  }, [storeId, tableData]);
 
   const handleCreateLayout = async (columns: number, rows: number) => {
     if (!storeId) return;
@@ -311,8 +315,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       ]);
 
       const slotId = (data.gridY - 1) * config.columns + data.gridX;
-      const extractedNum =
-        extractLeadingNumber((newTable as any).tableNumber) ?? slotId;
+      const extractedNum = extractLeadingNumber(newTable.tableNumber) ?? slotId;
 
       setTableData((prev) => ({
         ...prev,
@@ -370,17 +373,25 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
 
       setSelectedTable(null);
       alert("테이블이 삭제되었습니다.");
-    } catch (e: any) {
-      const status = e?.response?.status;
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      const message = getErrorMessage(error);
       if (status === 400) {
-        alert("미래 예약이 있어 삭제할 수 없습니다. 예약을 먼저 취소해주세요.");
+        alert(
+          message ||
+            "미래 예약이 있어 삭제할 수 없습니다. 예약을 먼저 취소해주세요.",
+        );
       } else if (status === 404) {
         alert(
-          "가게 또는 테이블을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.",
+          message ||
+            "가게 또는 테이블을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.",
         );
       } else {
-        console.error(e);
-        alert("테이블 삭제 중 오류가 발생했습니다. 콘솔을 확인하세요.");
+        alert(
+          message || "테이블 삭제 중 오류가 발생했습니다. 콘솔을 확인하세요.",
+        );
       }
     }
   };
@@ -389,9 +400,9 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     tableNumber?: number | null;
     min?: number | null;
     max?: number | null;
-    seatsType?: string | null;
+    seatsType?: PatchTableRequest["seatsType"] | null;
   }) => {
-    const body: any = {};
+    const body: PatchTableRequest = {};
     if (opts.tableNumber !== null && opts.tableNumber !== undefined)
       body.tableNumber = String(opts.tableNumber);
     if (opts.min !== null && opts.min !== undefined)
@@ -417,7 +428,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       tableNumber?: number;
       min?: number;
       max?: number;
-      seatsType?: string;
+      seatsType?: PatchTableRequest["seatsType"];
     },
   ) => {
     if (!storeId) {
@@ -433,8 +444,9 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
         max: changes.max ?? null,
         seatsType: changes.seatsType ?? null,
       });
-    } catch (err: any) {
-      alert(err.message);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      alert(message);
       return;
     }
 
@@ -479,10 +491,8 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
               ...pt,
               tableInfo: {
                 ...pt.tableInfo,
-                minCapacity:
-                  (match as any).minSeatCount ?? pt.tableInfo.minCapacity,
-                maxCapacity:
-                  (match as any).maxSeatCount ?? pt.tableInfo.maxCapacity,
+                minCapacity: match.minSeatCount ?? pt.tableInfo.minCapacity,
+                maxCapacity: match.maxSeatCount ?? pt.tableInfo.maxCapacity,
                 numValue:
                   extractLeadingNumber(match.tableNumber) ??
                   pt.tableInfo.numValue,
@@ -494,15 +504,19 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       );
 
       alert("테이블 정보가 업데이트 되었습니다.");
-    } catch (e: any) {
-      const status = e?.response?.status;
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      const message = getErrorMessage(error);
       if (status === 400) {
         alert("잘못된 요청입니다. (좌석 범위 오류 또는 수정 필드 없음)");
       } else if (status === 404) {
         alert("가게 또는 테이블을 찾을 수 없습니다.");
       } else {
-        console.error(e);
-        alert("테이블 수정 중 오류가 발생했습니다. 콘솔을 확인하세요.");
+        alert(
+          message || "테이블 수정 중 오류가 발생했습니다. 콘솔을 확인하세요",
+        );
       }
     }
   };
@@ -546,30 +560,22 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       }
 
       alert("브레이크 타임이 설정되었습니다.");
-    } catch (err: any) {
-      console.error("브레이크타임 설정 실패", err?.response?.data ?? err);
-      const status = err?.response?.status;
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      const message = getErrorMessage(error);
+
       if (status === 400) {
-        alert(
-          err?.response?.data?.message ?? "잘못된 브레이크타임 요청입니다.",
-        );
+        alert(message || "잘못된 브레이크타임 요청입니다.");
       } else if (status === 404) {
         alert("가게를 찾을 수 없습니다.");
       } else {
         alert(
-          err?.response?.data?.message ??
-            "브레이크타임 설정에 실패했습니다. 콘솔을 확인하세요.",
+          message || "브레이크타임 설정에 실패했습니다. 콘솔을 확인하세요.",
         );
       }
     }
-  };
-
-  const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
-    GENERAL: "일반석",
-    WINDOW: "창가석",
-    ROOM: "룸",
-    BAR: "바 좌석",
-    OUTDOOR: "야외석",
   };
 
   return (
@@ -689,7 +695,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                   }}
                 >
                   {Array.from({ length: config.columns * config.rows }).map(
-                    (_: any, i: number) => {
+                    (_, i: number) => {
                       const id = i + 1;
                       const table = getTableData(id);
                       const style = getTableStyle(table.maxCapacity);
@@ -866,7 +872,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                                     e.stopPropagation();
                                     startEditingCapacity(id);
                                   }}
-                                  className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-[60px] text-center transition-transform active:scale-95`}
+                                  className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-15 text-center transition-transform active:scale-95`}
                                 >
                                   {table.minCapacity}~{table.maxCapacity}인
                                 </div>

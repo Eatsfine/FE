@@ -1,6 +1,7 @@
 import type { ApiResponse } from "@/types/api";
 import { api } from "../axios";
 import type { SeatsType } from "@/types/table";
+import axios from "axios";
 
 export interface LayoutTable {
   tableId: number;
@@ -15,7 +16,7 @@ export interface LayoutTable {
   seatsType: SeatsType;
 }
 
-export interface LayoutResponse {
+interface LayoutResponse {
   layoutId: number;
   totalTableCount: number;
   gridInfo: { gridCol: number; gridRow: number };
@@ -30,7 +31,7 @@ export interface CreateTableRequest {
   seatsType: SeatsType;
 }
 
-export interface CreateTableResponse {
+interface CreateTableResponse {
   tableId: number;
   tableNumber: string;
   minSeatCount: number;
@@ -53,8 +54,8 @@ export const getActiveLayout = async (
       return null;
     }
     return null;
-  } catch (e: any) {
-    if (e.response?.status === 404) {
+  } catch (e: unknown) {
+    if (axios.isAxiosError(e) && e.response?.status === 404) {
       console.error("가게를 찾을 수 없음");
     } else {
       console.error(e);
@@ -97,8 +98,13 @@ export const createTable = async (
     }
     console.error("테이블 생성 실패 응답:", res.data);
     return null;
-  } catch (e: any) {
-    console.error("테이블 생성 실패:", e?.response?.data ?? e);
+  } catch (e: unknown) {
+    if (axios.isAxiosError(e)) {
+      console.error("테이블 생성 실패:", e?.response?.data ?? e);
+    } else {
+      console.error("테이블 생성 실패:", e);
+    }
+
     return null;
   }
 };

@@ -30,7 +30,9 @@ import {
   uploadTableImage,
 } from "@/api/owner/table";
 import { cancelBookingByOwner } from "@/api/owner/reservation";
-import type { SeatsType } from "@/types/table";
+import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
+import axios, { type AxiosProgressEvent } from "axios";
+import { getErrorMessage } from "@/utils/error";
 
 interface TableInfo {
   minCapacity: number;
@@ -159,9 +161,9 @@ const TableDetailModal: React.FC<Props> = ({
 
       onUpdateCapacity(Number(tempMin), Number(tempMax));
       setIsEditing(false);
-    } catch (e: any) {
-      console.error("테이블 정보 수정 실패", e?.response?.data ?? e);
-      alert(e?.response?.data?.message ?? "테이블 정보 수정에 실패했습니다.");
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      alert(message);
     }
   };
 
@@ -185,11 +187,10 @@ const TableDetailModal: React.FC<Props> = ({
       setError(null);
       const res = await getTableSlots(storeId, tableId, formatDate(date));
       setSlots(res.data.result.slots);
-    } catch (e: any) {
-      console.error("슬롯 조회 실패", e?.response?.data ?? e);
-      setError(
-        e?.response?.data?.message ?? "예약 정보를 불러오지 못했습니다.",
-      );
+    } catch (error: unknown) {
+      const message =
+        getErrorMessage(error) || "예약 정보를 불러오지 못했습니다";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -214,15 +215,14 @@ const TableDetailModal: React.FC<Props> = ({
         partySize: result.partySize,
         amount: result.amount,
       });
-    } catch (e: any) {
-      console.error("예약 상세 조회 실패", e?.response?.data ?? e);
-      const status = e?.response?.status;
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      const message = getErrorMessage(error);
       if (status === 403) setDetailError("접근 권한이 없습니다.");
       else if (status === 404) setDetailError("해당 예약을 찾을 수 없습니다.");
-      else
-        setDetailError(
-          e?.response?.data?.message ?? "예약 상세를 불러오지 못했습니다.",
-        );
+      else setDetailError(message || "예약 상세 내용을 불러오지 못했습니다");
       setBookingDetail(null);
       setBookingDetailBookingId(null);
     } finally {
@@ -257,15 +257,16 @@ const TableDetailModal: React.FC<Props> = ({
       await updateTableSlotStatus(storeId, tableId, payload);
 
       await fetchSlots(selectedFullDate);
-    } catch (e: any) {
-      const statusCode = e?.response?.status;
-      if (statusCode === 404 && nextStatus === "AVAILABLE") {
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+      if (status === 404 && nextStatus === "AVAILABLE") {
         await fetchSlots(selectedFullDate);
         return;
       }
-
-      console.error("슬롯 상태 변경 실패", e?.response?.data ?? e);
-      alert(e?.response?.data?.message ?? "슬롯 상태 변경에 실패했습니다.");
+      const message = getErrorMessage(error);
+      alert(message || "슬롯 상태 변경에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -301,7 +302,7 @@ const TableDetailModal: React.FC<Props> = ({
         storeId,
         tableId,
         selectedFile,
-        (ev) => {
+        (ev: AxiosProgressEvent) => {
           if (ev.total)
             setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
         },
@@ -314,9 +315,9 @@ const TableDetailModal: React.FC<Props> = ({
 
       if (onImageUpload) onImageUpload(tableId, newUrl);
       alert("이미지 업로드에 성공했습니다.");
-    } catch (err: any) {
-      console.error("이미지 업로드 실패", err?.response?.data ?? err);
-      alert(err?.response?.data?.message ?? "이미지 업로드에 실패했습니다.");
+    } catch (error: unknown) {
+      const message = getErrorMessage(error) || "이미지 업로드에 실패했습니다";
+      alert(message);
     } finally {
       setUploading(false);
     }
@@ -344,11 +345,10 @@ const TableDetailModal: React.FC<Props> = ({
       } else {
         alert("이미지 삭제 실패: " + (res.data.message ?? "알 수 없는 오류"));
       }
-    } catch (err: any) {
-      console.error("이미지 삭제 실패", err?.response?.data ?? err);
-      alert(
-        err?.response?.data?.message ?? "이미지 삭제 중 오류가 발생했습니다.",
-      );
+    } catch (error: unknown) {
+      const message =
+        getErrorMessage(error) || "이미지 삭제 중 오류가 발생했습니다";
+      alert(message);
     }
   };
 
@@ -370,23 +370,30 @@ const TableDetailModal: React.FC<Props> = ({
       setShowBookingDetail(false);
       setBookingDetail(null);
       if (selectedFullDate) fetchSlots(selectedFullDate);
-    } catch (err: any) {
-      console.error("예약 취소 실패", err?.response?.data ?? err);
-      const status = err?.response?.status;
-      if (status === 403) alert("접근 권한이 없습니다.");
-      else if (status === 404) alert("예약 정보를 찾을 수 없습니다.");
-      else alert(err?.response?.data?.message ?? "예약 취소에 실패했습니다.");
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
+
+      if (status === 403) {
+        alert("접근 권한이 없습니다");
+        return;
+      }
+      if (status === 404) {
+        alert("예약 정보를 찾을 수 없습니다");
+        setShowBookingDetail(false);
+        setBookingDetail(null);
+        setBookingDetailBookingId(null);
+        if (selectedFullDate) {
+          await fetchSlots(selectedFullDate);
+        }
+        return;
+      }
+      const message = getErrorMessage(error);
+      alert(message || "예약 취소에 실패했습니다");
     } finally {
       setDetailLoading(false);
     }
-  };
-
-  const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
-    GENERAL: "일반석",
-    WINDOW: "창가석",
-    ROOM: "룸",
-    BAR: "바 좌석",
-    OUTDOOR: "야외석",
   };
 
   const capacityText = `${tableInfo.minCapacity}~${tableInfo.maxCapacity}인`;
@@ -424,7 +431,7 @@ const TableDetailModal: React.FC<Props> = ({
         className="bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 flex-shrink-0">
+        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-3">
             {step !== "DETAIL" && (
               <button
@@ -520,7 +527,7 @@ const TableDetailModal: React.FC<Props> = ({
               </div>
 
               <div className="grid grid-cols-1">
-                <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-[95px] flex flex-col justify-center transition-all">
+                <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg min-h-24 flex flex-col justify-center transition-all">
                   <div className="flex items-center gap-1.5 text-gray-600 mb-1.5 text-md">
                     <User size={14} color="purple" /> 인원
                   </div>
@@ -841,7 +848,7 @@ const TableDetailModal: React.FC<Props> = ({
                   날짜 변경
                 </button>
               </div>
-              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+              <div className="space-y-2 max-h-87 overflow-y-auto pr-1 custom-scrollbar">
                 {slots.map((slot) => {
                   const isBreak = isBreakTime(slot.time, breakTimes);
                   const isAvailable = !isBreak && slot.status === "AVAILABLE";

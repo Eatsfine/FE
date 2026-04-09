@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const MenuCategoryEnum = z.enum(["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"]);
+const MenuCategoryEnum = z.enum(["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"]);
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 

@@ -1,4 +1,4 @@
-import { categoryLabel, type RestaurantSummary } from "@/types/store";
+import { storeCategoryLabel, type RestaurantSummary } from "@/types/store";
 
 type Props = {
   restaurant: RestaurantSummary;
@@ -18,7 +18,7 @@ export default function RestaurantCard({ restaurant, onClick }: Props) {
             {restaurant.name}
           </p>
           <p className="mt-1 text-sm text-gray-500 truncate">
-            {categoryLabel[restaurant.category]} • {restaurant.address}
+            {storeCategoryLabel[restaurant.category]} • {restaurant.address}
           </p>
         </div>
       </div>

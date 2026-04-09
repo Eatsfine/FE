@@ -7,6 +7,7 @@ import {
   useIsAuthenticated,
   useUserId,
 } from "@/stores/useAuthStore";
+import { isAxiosError } from "axios";
 import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
@@ -37,15 +38,18 @@ export default function PublicLayout() {
           console.warn("[member/info] invalid id:", rawId, member);
           nav("/", { replace: true });
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-
-        const status = e?.response?.status;
-        if (status === 401 || status === 403) {
-          clearAuth();
-          nav("/", { replace: true });
+        if (isAxiosError(e)) {
+          const status = e.response?.status;
+          if (status === 401 || status === 403) {
+            clearAuth();
+            nav("/", { replace: true });
+          } else {
+            console.error("[member/info] failed", status, e);
+          }
         } else {
-          console.error("[member/info] failed", status, e);
+          console.error("[member/info] unexpected error", e);
         }
       }
     })();

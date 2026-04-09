@@ -8,7 +8,7 @@ type APiResult<T> = {
   result: T;
 };
 
-export type BookingListItem = {
+type BookingListItem = {
   bookingId: number;
   storeName: string;
   storeAddress: string;
@@ -26,7 +26,7 @@ export type BookingListItem = {
   status: string;
 };
 
-export type UserBookingsResult = {
+type UserBookingsResult = {
   bookingList: BookingListItem[];
   listSize: number;
   totalPage: number;

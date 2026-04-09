@@ -79,22 +79,25 @@ export default function ReservationModal({
     }
     if (didInitRef.current) return;
     didInitRef.current = true;
-    if (initialDraft) {
-      setPeople(initialDraft.people);
-      setDate(initialDraft.date);
-      setTime(initialDraft.time);
-      setSeatType(initialDraft.seatType);
-      setTablePref(initialDraft.tablePref);
-      setSelectedTableId(initialDraft.tableId);
-    } else {
-      setPeople(2);
-      setDate(undefined);
-      setTime("");
-      setSeatType(null);
-      setTablePref("split_ok");
-      setSelectedTableId(null);
-    }
-  }, [open]);
+    const raf = requestAnimationFrame(() => {
+      if (initialDraft) {
+        setPeople(initialDraft.people);
+        setDate(initialDraft.date);
+        setTime(initialDraft.time ?? "");
+        setSeatType(initialDraft.seatType);
+        setTablePref(initialDraft.tablePref);
+        setSelectedTableId(initialDraft.tableId);
+      } else {
+        setPeople(2);
+        setDate(undefined);
+        setTime("");
+        setSeatType(null);
+        setTablePref("split_ok");
+        setSelectedTableId(null);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [open, initialDraft]);
 
   const todayKst = startOfTodayInKst();
 
@@ -162,9 +165,18 @@ export default function ReservationModal({
     (availableTablesQuery.data?.tables?.length ?? 0) === 0;
   const handleRequestClose = useConfirmClose(onClose);
 
+  const prevDepsRef = useRef({ people, date, time });
   useEffect(() => {
-    setSeatType(null);
-    setSelectedTableId(null);
+    const prev = prevDepsRef.current;
+    const changed =
+      prev.people !== people || prev.date !== date || prev.time !== time;
+    prevDepsRef.current = { people, date, time };
+    if (!changed) return;
+    const raf = requestAnimationFrame(() => {
+      setSeatType(null);
+      setSelectedTableId(null);
+    });
+    return () => cancelAnimationFrame(raf);
   }, [people, date, time]);
 
   if (!rendered) return null;
@@ -252,7 +264,7 @@ export default function ReservationModal({
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="w-auto p-2 z-[9999]" align="start">
+              <PopoverContent className="w-auto p-2 z-50" align="start">
                 <Calendar
                   mode="single"
                   selected={date}

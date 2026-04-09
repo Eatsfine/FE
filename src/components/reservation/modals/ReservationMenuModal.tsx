@@ -1,7 +1,13 @@
 import type { ReservationDraft } from "@/types/restaurant";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "../../ui/button";
-import type { SelectedMenu, MenuCategory, MenuItem } from "@/types/menus";
+import {
+  type SelectedMenu,
+  type MenuItem,
+  type MenuCategory,
+  type UiCategory,
+  MenuCategoryLabel,
+} from "@/types/menus";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { useEffect, useMemo, useState } from "react";
 import { calcMenuTotal } from "@/utils/menu";
@@ -24,15 +30,6 @@ type Props = {
   draft: ReservationDraft;
 };
 
-const CategoryLabel: Record<UiCategory, string> = {
-  MAIN: "메인 메뉴",
-  SIDE: "사이드 메뉴",
-  DRINK: "음료",
-  OTHER: "기타",
-};
-
-type UiCategory = MenuCategory | "OTHER";
-
 export default function ReservationMenuModal({
   open,
   restaurant,
@@ -48,7 +45,16 @@ export default function ReservationMenuModal({
   );
 
   useEffect(() => {
-    setSelectedMenus(draft.selectedMenus ?? []);
+    const nextMenus = draft.selectedMenus ?? [];
+    const raf = requestAnimationFrame(() => {
+      setSelectedMenus((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(nextMenus)) {
+          return prev;
+        }
+        return nextMenus;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
   }, [open, draft.selectedMenus]);
 
   const qtyMap = useMemo(() => {
@@ -68,7 +74,9 @@ export default function ReservationMenuModal({
         return "SIDE";
       case "DRINK":
       case "BEVERAGE":
-        return "DRINK";
+        return "BEVERAGE";
+      case "ALCOHOL":
+        return "ALCOHOL";
       default:
         return "OTHER";
     }
@@ -78,7 +86,8 @@ export default function ReservationMenuModal({
     const by: Record<UiCategory, MenuItem[]> = {
       MAIN: [],
       SIDE: [],
-      DRINK: [],
+      BEVERAGE: [],
+      ALCOHOL: [],
       OTHER: [],
     };
     for (const m of activeMenus ?? []) {
@@ -174,116 +183,118 @@ export default function ReservationMenuModal({
               아직 등록된 메뉴가 없어요
             </div>
           ) : (
-            (["MAIN", "SIDE", "DRINK"] as MenuCategory[]).map((cat) => {
-              const list = grouped[cat];
-              if (list.length === 0) return null;
-              const safeLabel = CategoryLabel[cat] ?? "기타";
+            (["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"] as MenuCategory[]).map(
+              (cat) => {
+                const list = grouped[cat];
+                if (list.length === 0) return null;
+                const safeLabel = MenuCategoryLabel[cat] ?? "기타";
 
-              return (
-                <section key={cat} className="space-y-3">
-                  <div className="font-semibold">{safeLabel}</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {list.map((menu) => {
-                      const qty = qtyMap.get(Number(menu.id)) ?? 0;
-                      const img =
-                        menu.imageUrl && menu.imageUrl.trim().length > 0
-                          ? menu.imageUrl
-                          : "/modernKoreaRestaurant.jpg";
-                      return (
-                        <div
-                          key={menu.id}
-                          className={cn(
-                            "rounded-2xl border overflow-hidden bg-white transition",
-                            menu.isSoldOut
-                              ? "opacity-50 cursor-not-allowed"
-                              : "hover:shadow-sm",
-                          )}
-                          aria-disabled={menu.isSoldOut}
-                        >
-                          <div className="flex gap-4 p-4">
-                            {/* 음식사진 */}
-                            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
-                              <img
-                                src={img}
-                                alt={menu.name}
-                                className={cn(
-                                  "h-full w-full object-cover",
-                                  menu.isSoldOut && "grayscale",
+                return (
+                  <section key={cat} className="space-y-3">
+                    <div className="font-semibold">{safeLabel}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {list.map((menu) => {
+                        const qty = qtyMap.get(Number(menu.id)) ?? 0;
+                        const img =
+                          menu.imageUrl && menu.imageUrl.trim().length > 0
+                            ? menu.imageUrl
+                            : "/modernKoreaRestaurant.jpg";
+                        return (
+                          <div
+                            key={menu.id}
+                            className={cn(
+                              "rounded-2xl border overflow-hidden bg-white transition",
+                              menu.isSoldOut
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:shadow-sm",
+                            )}
+                            aria-disabled={menu.isSoldOut}
+                          >
+                            <div className="flex gap-4 p-4">
+                              {/* 음식사진 */}
+                              <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
+                                <img
+                                  src={img}
+                                  alt={menu.name}
+                                  className={cn(
+                                    "h-full w-full object-cover",
+                                    menu.isSoldOut && "grayscale",
+                                  )}
+                                />
+                                {menu.isSoldOut && (
+                                  <div className="absolute inset-0 grid place-items-center bg-black/40">
+                                    <span className="rounded-sm bg-black/70 px-3 py-1 font-semibold text-white">
+                                      품절
+                                    </span>
+                                  </div>
                                 )}
-                              />
-                              {menu.isSoldOut && (
-                                <div className="absolute inset-0 grid place-items-center bg-black/40">
-                                  <span className="rounded-sm bg-black/70 px-3 py-1 font-semibold text-white">
-                                    품절
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            {/* 내용 */}
-                            <div className="flex-1 p-4 min-w-0 flex flex-col justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0">
-                                    <p className="font-medium truncate">
-                                      {menu.name}
-                                    </p>
-                                    {menu.description ? (
-                                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                        {menu.description}
+                              </div>
+                              {/* 내용 */}
+                              <div className="flex-1 p-4 min-w-0 flex flex-col justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <p className="font-medium truncate">
+                                        {menu.name}
                                       </p>
+                                      {menu.description ? (
+                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                          {menu.description}
+                                        </p>
+                                      ) : null}
+                                    </div>
+                                    {qty > 0 ? (
+                                      <span className="shrink-0 rounded-md bg-blue-50 text-blue-600 px-2 py-1 text-md">
+                                        {qty}개
+                                      </span>
                                     ) : null}
                                   </div>
-                                  {qty > 0 ? (
-                                    <span className="shrink-0 rounded-md bg-blue-50 text-blue-600 px-2 py-1 text-md">
-                                      {qty}개
-                                    </span>
-                                  ) : null}
+                                  <p className="mt-2 text-sm font-semibold">
+                                    {formatKrw(menu.price)}원
+                                  </p>
                                 </div>
-                                <p className="mt-2 text-sm font-semibold">
-                                  {formatKrw(menu.price)}원
-                                </p>
-                              </div>
-                              {/* 수량 조절 */}
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    className={cn(
-                                      "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
-                                      (qty === 0 || menu.isSoldOut) &&
-                                        "opacity-40 cursor-not-allowed",
-                                    )}
-                                    onClick={() => dec(menu)}
-                                    disabled={qty === 0 || menu.isSoldOut}
-                                    aria-label={`${menu.name} 수량 감소`}
-                                  >
-                                    <Minus className="h-4 w-4" />
-                                  </button>
-                                  <span>{qty}</span>
-                                  <button
-                                    type="button"
-                                    className={cn(
-                                      "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
-                                      (menu.isSoldOut || qty >= 20) &&
-                                        "opacity-40 cursor-not-allowed",
-                                    )}
-                                    onClick={() => inc(menu)}
-                                    disabled={menu.isSoldOut || qty >= 20}
-                                    aria-label={`${menu.name} 수량증가`}
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                  </button>
+                                {/* 수량 조절 */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      className={cn(
+                                        "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
+                                        (qty === 0 || menu.isSoldOut) &&
+                                          "opacity-40 cursor-not-allowed",
+                                      )}
+                                      onClick={() => dec(menu)}
+                                      disabled={qty === 0 || menu.isSoldOut}
+                                      aria-label={`${menu.name} 수량 감소`}
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                    </button>
+                                    <span>{qty}</span>
+                                    <button
+                                      type="button"
+                                      className={cn(
+                                        "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
+                                        (menu.isSoldOut || qty >= 20) &&
+                                          "opacity-40 cursor-not-allowed",
+                                      )}
+                                      onClick={() => inc(menu)}
+                                      disabled={menu.isSoldOut || qty >= 20}
+                                      aria-label={`${menu.name} 수량증가`}
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              );
-            })
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              },
+            )
           )}
         </div>
 

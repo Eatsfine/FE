@@ -1,5 +1,5 @@
 import { Calendar, Clock, User, CreditCard, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { getBookings } from "@/api/bookings";
 import { cancelBooking } from "@/api/bookings";
@@ -21,30 +21,31 @@ type Reservation = {
 
 export default function ReservationPage() {
   const [activeTab, setActiveTab] = useState<ReservationStatus>("전체");
-const [reservations, setReservations] = useState<Reservation[]>([]);  
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
       let apiStatus: "CONFIRMED" | "COMPLETED" | "CANCELED" | undefined;
       switch (activeTab) {
-      case "예정된 예약":
-        apiStatus = "CONFIRMED";
-        break;
-      case "방문 완료":
-        apiStatus = "COMPLETED";
-        break;
-      case "취소된 예약":
-        apiStatus = "CANCELED";
-        break;
-      case "전체":
-      default:
-        apiStatus = undefined;
-        break;
-    }
+        case "예정된 예약":
+          apiStatus = "CONFIRMED";
+          break;
+        case "방문 완료":
+          apiStatus = "COMPLETED";
+          break;
+        case "취소된 예약":
+          apiStatus = "CANCELED";
+          break;
+        case "전체":
+        default:
+          apiStatus = undefined;
+          break;
+      }
       const data = await getBookings(apiStatus);
 
       const mapped: Reservation[] = (data.bookingList ?? []).map((b) => ({
@@ -52,7 +53,7 @@ const fetchReservations = async () => {
         shopName: b.storeName,
         address: b.storeAddress,
         date: b.bookingDate,
-        time: b.bookingTime ?? "--:--", 
+        time: b.bookingTime ?? "--:--",
         people: b.partySize?.toString() ?? "0",
         payment: `${b.amount?.toLocaleString() ?? 0}원`,
         method: b.paymentMethod ?? "-",
@@ -60,16 +61,15 @@ const fetchReservations = async () => {
           b.status === "CONFIRMED"
             ? "예약 확정"
             : b.status === "COMPLETED"
-            ? "방문 완료"
-            : "취소됨",
+              ? "방문 완료"
+              : "취소됨",
         step:
           b.status === "CONFIRMED"
             ? "예약 진행중"
             : b.status === "COMPLETED"
-            ? "방문 완료"
-            : "취소됨",
+              ? "방문 완료"
+              : "취소됨",
       }));
-
 
       setReservations(mapped);
     } catch (error) {
@@ -78,13 +78,11 @@ const fetchReservations = async () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchReservations();
   }, [activeTab]);
 
-  
+  useEffect(() => {
+    void fetchReservations();
+  }, [fetchReservations]);
 
   return (
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
@@ -114,23 +112,37 @@ const fetchReservations = async () => {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-gray-400 text-sm">로딩 중...</div>
-       ) : error ? (
-  <div className="py-20 text-center text-red-400 text-sm">{error}</div>
+        <div className="py-20 text-center text-gray-400 text-sm">
+          로딩 중...
+        </div>
+      ) : error ? (
+        <div className="py-20 text-center text-red-400 text-sm">{error}</div>
       ) : reservations.length > 0 ? (
         <div className="space-y-6">
           {reservations.map((res) => (
-            <ReservationCard key={res.id} res={res} onCancel={fetchReservations} />
+            <ReservationCard
+              key={res.id}
+              res={res}
+              onCancel={fetchReservations}
+            />
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center text-gray-400 text-sm">해당 내역이 없습니다.</div>
+        <div className="py-20 text-center text-gray-400 text-sm">
+          해당 내역이 없습니다.
+        </div>
       )}
     </section>
   );
 }
 
-function ReservationCard({ res, onCancel }: { res: Reservation; onCancel: () => void }) {
+function ReservationCard({
+  res,
+  onCancel,
+}: {
+  res: Reservation;
+  onCancel: () => void;
+}) {
   const [loading, setLoading] = useState(false);
 
   const handleCancel = async () => {
@@ -160,8 +172,8 @@ function ReservationCard({ res, onCancel }: { res: Reservation; onCancel: () => 
                 res.status === "예약 확정"
                   ? "bg-blue-50 text-blue-600"
                   : res.status === "방문 완료"
-                  ? "bg-green-50 text-green-600"
-                  : "bg-gray-100 text-gray-500",
+                    ? "bg-green-50 text-green-600"
+                    : "bg-gray-100 text-gray-500",
               )}
             >
               {res.status}
@@ -172,8 +184,16 @@ function ReservationCard({ res, onCancel }: { res: Reservation; onCancel: () => 
       </div>
 
       <div className="grid grid-cols-2 gap-y-4 gap-x-8 pb-6">
-        <InfoItem icon={<Calendar size={18} />} label="예약 날짜" value={res.date} />
-        <InfoItem icon={<Clock size={18} />} label="예약 시간" value={res.time} />
+        <InfoItem
+          icon={<Calendar size={18} />}
+          label="예약 날짜"
+          value={res.date}
+        />
+        <InfoItem
+          icon={<Clock size={18} />}
+          label="예약 시간"
+          value={res.time}
+        />
         <InfoItem icon={<User size={18} />} label="인원" value={res.people} />
         <InfoItem
           icon={<CreditCard size={18} />}
@@ -184,39 +204,54 @@ function ReservationCard({ res, onCancel }: { res: Reservation; onCancel: () => 
       </div>
 
       <div className="flex items-center justify-between">
-        <span className={cn("font-medium", res.status === "취소됨" ? "text-gray-400" : "text-green-600")}>
+        <span
+          className={cn(
+            "font-medium",
+            res.status === "취소됨" ? "text-gray-400" : "text-green-600",
+          )}
+        >
           {res.step}
         </span>
         <div className="flex gap-3">
           {res.status === "예약 확정" && (
-              <button
-                className={cn(
-                  "cursor-pointer flex items-center gap-1 px-5 py-3 rounded-lg text-sm font-medium transition tracking-wide",
-                  loading
-                    ? "bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed"
-                    : "border border-red-500 text-red-500 hover:bg-red-100"
-                )}
-                onClick={handleCancel}
-                disabled={loading}
-              >
-                <X size={16} /> 취소
-              </button>
+            <button
+              className={cn(
+                "cursor-pointer flex items-center gap-1 px-5 py-3 rounded-lg text-sm font-medium transition tracking-wide",
+                loading
+                  ? "bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed"
+                  : "border border-red-500 text-red-500 hover:bg-red-100",
+              )}
+              onClick={handleCancel}
+              disabled={loading}
+            >
+              <X size={16} /> 취소
+            </button>
           )}
         </div>
       </div>
     </div>
-
-      
   );
 }
 
-function InfoItem({ icon, label, value, isMultiLine = false }: { icon: React.ReactNode; label: string; value: string; isMultiLine?: boolean }) {
+function InfoItem({
+  icon,
+  label,
+  value,
+  isMultiLine = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  isMultiLine?: boolean;
+}) {
   return (
     <div className="flex items-start gap-3">
       <div className="p-2 rounded-full bg-blue-100 text-blue-500">{icon}</div>
       <div>
         <p className="text-sm text-gray-400 mb-0.5">{label}</p>
-        <p className={cn("", isMultiLine ? "whitespace-pre-line" : "")}>{value}</p>
+        <p className={cn("", isMultiLine ? "whitespace-pre-line" : "")}>
+          {value}
+        </p>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
+import axios from "axios";
 
 const schema = z
   .object({
@@ -43,8 +44,12 @@ export function ChangePasswordDialog({
       form.reset();
       onOpenChange(false);
     },
-    onError: (e: any) => {
-      const msg = e?.response?.data?.message ?? "비밀번호 변경에 실패했습니다.";
+    onError: (e: unknown) => {
+      let msg = "비밀번호 변경에 실패했습니다.";
+
+      if (axios.isAxiosError(e)) {
+        msg = e.response?.data?.message ?? msg;
+      }
       if (typeof msg === "string" && /현재|기존|일치|틀렸/.test(msg)) {
         form.setError("currentPassword", { type: "server", message: msg });
         return;

@@ -1,7 +1,8 @@
 import { api } from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
+import type { UpdateStoreResponse } from "@/types/store";
 
-export interface StoreDetail {
+interface StoreDetail {
   storeId: number;
   storeName: string;
   description: string;
@@ -13,7 +14,7 @@ export interface StoreDetail {
   reviewCount?: number;
 }
 
-export interface BusinessHour {
+interface BusinessHour {
   day:
     | "MONDAY"
     | "TUESDAY"
@@ -25,13 +26,6 @@ export interface BusinessHour {
   openTime: string | null;
   closeTime: string | null;
   isClosed: boolean;
-}
-
-export interface Time {
-  hour: number;
-  minute: number;
-  second: number;
-  nano: number;
 }
 
 export interface MyStore {
@@ -60,7 +54,7 @@ export interface TableImage {
   tableImageUrl: string;
 }
 
-export interface TableImagesResponse {
+interface TableImagesResponse {
   storeId: number;
   tableImages: TableImage[];
 }
@@ -77,7 +71,10 @@ export function updateStore(
     phoneNumber: string;
   },
 ) {
-  return api.patch<ApiResponse<any>>(`/api/v1/stores/${storeId}`, body);
+  return api.patch<ApiResponse<UpdateStoreResponse>>(
+    `/api/v1/stores/${storeId}`,
+    body,
+  );
 }
 
 export function updateBusinessHours(

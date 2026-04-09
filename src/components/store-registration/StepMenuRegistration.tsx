@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { MenuSchema, type MenuFormValues } from "./Menu.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MenuItemInput from "./MenuItemInput";
@@ -18,9 +18,7 @@ export default function StepMenuRegistration({
     register,
     control,
     setValue,
-    watch,
     trigger,
-    getValues,
     formState: { errors, isValid },
   } = useForm<MenuFormValues>({
     resolver: zodResolver(MenuSchema),
@@ -35,13 +33,11 @@ export default function StepMenuRegistration({
     name: "menus",
   });
 
+  const menus = useWatch({ control, name: "menus" });
+
   useEffect(() => {
-    const subscription = watch((value) => {
-      onChange(isValid, value as MenuFormValues);
-    });
-    onChange(isValid, getValues());
-    return () => subscription.unsubscribe();
-  }, [watch, isValid, onChange, getValues]);
+    onChange(isValid, { menus: menus ?? [] });
+  }, [menus, isValid, onChange]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
