@@ -209,7 +209,7 @@ export default function PaymentModal({
       className="fixed inset-0 z-60 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="예약 내용 확인모달"
+      aria-label="예약금 결제 모달"
     >
       <button
         type="button"
@@ -220,10 +220,10 @@ export default function PaymentModal({
       <div
         className={cn(
           panelMotionClass(entered),
-          "relative z-10 w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl overflow-hidden",
+          "relative z-10 flex w-[92vw] max-w-md max-h-[90vh] flex-col rounded-2xl bg-white shadow-xl",
         )}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b">
+        <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
           <h3 className="text-lg">예약금 결제</h3>
           <button
             type="button"
@@ -235,7 +235,7 @@ export default function PaymentModal({
             <X />
           </button>
         </div>
-        <div className="px-6 py-5 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4">
           <div className="border rounded-xl p-4">
             <div className="text-sm text-muted-foreground">매장</div>
             <div className="mt-1 text-base truncate">{restaurant.name}</div>
