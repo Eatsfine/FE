@@ -15,14 +15,7 @@ interface StoreDetail {
 }
 
 interface BusinessHour {
-  day:
-    | "MONDAY"
-    | "TUESDAY"
-    | "WEDNESDAY"
-    | "THURSDAY"
-    | "FRIDAY"
-    | "SATURDAY"
-    | "SUNDAY";
+  day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
   openTime: string | null;
   closeTime: string | null;
   isClosed: boolean;
@@ -71,16 +64,10 @@ export function updateStore(
     phoneNumber: string;
   },
 ) {
-  return api.patch<ApiResponse<UpdateStoreResponse>>(
-    `/api/v1/stores/${storeId}`,
-    body,
-  );
+  return api.patch<ApiResponse<UpdateStoreResponse>>(`/api/v1/stores/${storeId}`, body);
 }
 
-export function updateBusinessHours(
-  storeId: number | string,
-  businessHours: BusinessHour[],
-) {
+export function updateBusinessHours(storeId: number | string, businessHours: BusinessHour[]) {
   return api.patch<ApiResponse<{ businessHours: BusinessHour[] }>>(
     `/api/v1/stores/${storeId}/business-hours`,
     { businessHours },
@@ -92,9 +79,7 @@ export const getMyStores = async (): Promise<MyStore[]> => {
   return res.data.result.stores ?? [];
 };
 
-export const getTableImages = async (
-  storeId: number | string,
-): Promise<TableImage[]> => {
+export const getTableImages = async (storeId: number | string): Promise<TableImage[]> => {
   const res = await api.get<ApiResponse<TableImagesResponse>>(
     `/api/v1/stores/${storeId}/table-images`,
   );

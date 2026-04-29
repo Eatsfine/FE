@@ -1,8 +1,7 @@
 import { Facebook, Instagram } from "lucide-react";
 
 export default function Footer() {
-  const prevent = (e: React.MouseEvent<HTMLAnchorElement>) =>
-    e.preventDefault();
+  const prevent = (e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault();
 
   return (
     <footer className="py-16 px-6 text-white bg-black/95">
@@ -19,35 +18,22 @@ export default function Footer() {
             <h3 className="text-xl font-semibold">서비스</h3>
             <ul className="space-y-3">
               <li className="text-white/60">
-                <a
-                  href="/search"
-                  className="hover:text-white transition-colors"
-                >
+                <a href="/search" className="hover:text-white transition-colors">
                   자리 예약
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="/search"
-                  className="hover:text-white transition-colors"
-                >
+                <a href="/search" className="hover:text-white transition-colors">
                   식당 검색
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="#"
-                  onClick={prevent}
-                  className="hover:text-white transition-colors"
-                >
+                <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                   리뷰 보기
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="/mypage/store"
-                  className="hover:text-white transition-colors"
-                >
+                <a href="/mypage/store" className="hover:text-white transition-colors">
                   사장님 등록
                 </a>
               </li>
@@ -57,38 +43,22 @@ export default function Footer() {
             <h3 className="text-xl font-semibold">회사</h3>
             <ul className="space-y-3">
               <li className="text-white/60">
-                <a
-                  href="#"
-                  onClick={prevent}
-                  className="hover:text-white transition-colors"
-                >
+                <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                   회사 소개
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="#"
-                  onClick={prevent}
-                  className="hover:text-white transition-colors"
-                >
+                <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                   채용
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="#"
-                  onClick={prevent}
-                  className="hover:text-white transition-colors"
-                >
+                <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                   공지사항
                 </a>
               </li>
               <li className="text-white/60">
-                <a
-                  href="#"
-                  onClick={prevent}
-                  className="hover:text-white transition-colors"
-                >
+                <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                   문의하기
                 </a>
               </li>
@@ -121,18 +91,10 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-white/60">
             <p>© 2026 잇츠파인. All rights reserved.</p>
             <div className="flex gap-6">
-              <a
-                href="#"
-                onClick={prevent}
-                className="hover:text-white transition-colors"
-              >
+              <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                 이용약관
               </a>
-              <a
-                href="#"
-                onClick={prevent}
-                className="hover:text-white transition-colors"
-              >
+              <a href="#" onClick={prevent} className="hover:text-white transition-colors">
                 개인정보처리방침
               </a>
             </div>

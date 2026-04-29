@@ -1,26 +1,24 @@
+import axios from "axios";
+import { Check, Clock, Lightbulb, Pencil, Plus, Store, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Store, Plus, Clock, Pencil, Check, X, Lightbulb } from "lucide-react";
-import TableCreateModal from "./TableCreateModal";
-import BreakTimeModal, { type BreakTime } from "./BreakTimeModal";
-import AddTableModal from "./AddTableModal";
+
+import { patchBreakTime } from "@/api/owner/reservation";
 import {
   createLayout,
   createTable,
+  type CreateTableRequest,
   deleteTable,
   getActiveLayout,
-  type CreateTableRequest,
   type LayoutTable,
 } from "@/api/owner/storeLayout";
-import {
-  patchTableInfo,
-  type PatchTableRequest,
-  type UpdatedTable,
-} from "@/api/owner/table";
-import { patchBreakTime } from "@/api/owner/reservation";
+import { patchTableInfo, type PatchTableRequest, type UpdatedTable } from "@/api/owner/table";
 import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
-import TableDetailModal from "./tableDetailModal";
 import { getErrorMessage } from "@/utils/error";
-import axios from "axios";
+
+import AddTableModal from "./AddTableModal";
+import BreakTimeModal, { type BreakTime } from "./BreakTimeModal";
+import TableCreateModal from "./TableCreateModal";
+import TableDetailModal from "./tableDetailModal";
 
 interface TableDashboardProps {
   storeId: number;
@@ -57,8 +55,7 @@ const mapTablesFromApi = (
   tables.forEach((t) => {
     const slotId = t.gridY * columns + t.gridX + 1;
     const displayNum = extractLeadingNumber(t.tableNumber) ?? slotId;
-    const imageUrl =
-      t.tableImageUrl ?? prevTableData?.[slotId]?.tableImageUrl ?? null;
+    const imageUrl = t.tableImageUrl ?? prevTableData?.[slotId]?.tableImageUrl ?? null;
 
     result[slotId] = {
       tableId: t.tableId,
@@ -84,16 +81,9 @@ const extractLeadingNumber = (s?: string | null): number | null => {
   return m ? Number(m[1]) : null;
 };
 
-const TableDashboard: React.FC<TableDashboardProps> = ({
-  storeId,
-  storeName,
-}) => {
-  const SETTINGS_STORAGE_KEY = storeId
-    ? `store-settings-${storeId}`
-    : "store-settings-temp";
-  const STORAGE_KEY = storeId
-    ? `table-dashboard-state-${storeId}`
-    : "table-dashboard-state-temp";
+const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) => {
+  const SETTINGS_STORAGE_KEY = storeId ? `store-settings-${storeId}` : "store-settings-temp";
+  const STORAGE_KEY = storeId ? `table-dashboard-state-${storeId}` : "table-dashboard-state-temp";
 
   const initialData = (() => {
     try {
@@ -111,12 +101,8 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
   const [tableData, setTableData] = useState<Record<number, TableInfo>>(
     initialData?.tableData ?? {},
   );
-  const [breakTimes, setBreakTimes] = useState<BreakTime[]>(
-    initialData?.breakTimes ?? [],
-  );
-  const [closedDays, setClosedDays] = useState<string[]>(
-    initialData?.closedDays ?? [],
-  );
+  const [breakTimes, setBreakTimes] = useState<BreakTime[]>(initialData?.breakTimes ?? []);
+  const [closedDays, setClosedDays] = useState<string[]>(initialData?.closedDays ?? []);
 
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -169,16 +155,10 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       const current = prev[id] ?? getDefaultTableData(id);
       const next = { ...current, ...updates };
 
-      if (
-        updates.minCapacity !== undefined &&
-        next.minCapacity >= next.maxCapacity
-      ) {
+      if (updates.minCapacity !== undefined && next.minCapacity >= next.maxCapacity) {
         next.minCapacity = Math.max(1, next.maxCapacity - 1);
       }
-      if (
-        updates.maxCapacity !== undefined &&
-        next.maxCapacity <= next.minCapacity
-      ) {
+      if (updates.maxCapacity !== undefined && next.maxCapacity <= next.minCapacity) {
         next.maxCapacity = next.minCapacity + 1;
       }
 
@@ -246,8 +226,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                 isSaved: true,
                 tableImageUrl:
                   t.tableImageUrl ??
-                  tableData[t.gridY * layout.gridInfo.gridCol + t.gridX + 1]
-                    ?.tableImageUrl ??
+                  tableData[t.gridY * layout.gridInfo.gridCol + t.gridX + 1]?.tableImageUrl ??
                   null,
                 seatsType: t.seatsType ?? "GENERAL",
               },
@@ -262,9 +241,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
             })),
           );
 
-          setTableData(
-            mapTablesFromApi(layout.tables, layout.gridInfo.gridCol, tableData),
-          );
+          setTableData(mapTablesFromApi(layout.tables, layout.gridInfo.gridCol, tableData));
           setCreateModalOpen(false);
         } else {
           setCreateModalOpen(true);
@@ -287,9 +264,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
         columns: newLayout.gridInfo.gridCol,
         rows: newLayout.gridInfo.gridRow,
       });
-      setTableData(
-        mapTablesFromApi(newLayout.tables, newLayout.gridInfo.gridCol),
-      );
+      setTableData(mapTablesFromApi(newLayout.tables, newLayout.gridInfo.gridCol));
       setCreateModalOpen(false);
     } catch (e) {
       console.error("배치도 생성 실패", e);
@@ -306,8 +281,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
         gridY: data.gridY - 1,
       };
       const newTable = await createTable(storeId, payload);
-      if (!newTable)
-        throw new Error("서버에서 테이블 정보를 반환하지 않았습니다.");
+      if (!newTable) throw new Error("서버에서 테이블 정보를 반환하지 않았습니다.");
 
       setExistingTables((prev) => [
         ...prev,
@@ -343,18 +317,11 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
   const handleDeleteTable = async (tableId?: number, slotId?: number) => {
     if (!storeId) return;
     if (tableId == null || slotId == null) {
-      alert(
-        "삭제할 테이블 정보를 찾을 수 없습니다. 새로고침 후 다시 시도하세요.",
-      );
+      alert("삭제할 테이블 정보를 찾을 수 없습니다. 새로고침 후 다시 시도하세요.");
       return;
     }
 
-    if (
-      !confirm(
-        "정말 이 테이블을 삭제하시겠습니까? (삭제는 soft-delete로 기록됩니다)",
-      )
-    )
-      return;
+    if (!confirm("정말 이 테이블을 삭제하시겠습니까? (삭제는 soft-delete로 기록됩니다)")) return;
 
     try {
       await deleteTable(storeId, tableId);
@@ -374,24 +341,14 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       setSelectedTable(null);
       alert("테이블이 삭제되었습니다.");
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       const message = getErrorMessage(error);
       if (status === 400) {
-        alert(
-          message ||
-            "미래 예약이 있어 삭제할 수 없습니다. 예약을 먼저 취소해주세요.",
-        );
+        alert(message || "미래 예약이 있어 삭제할 수 없습니다. 예약을 먼저 취소해주세요.");
       } else if (status === 404) {
-        alert(
-          message ||
-            "가게 또는 테이블을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.",
-        );
+        alert(message || "가게 또는 테이블을 찾을 수 없습니다. 새로고침 후 다시 시도하세요.");
       } else {
-        alert(
-          message || "테이블 삭제 중 오류가 발생했습니다. 콘솔을 확인하세요.",
-        );
+        alert(message || "테이블 삭제 중 오류가 발생했습니다. 콘솔을 확인하세요.");
       }
     }
   };
@@ -405,13 +362,10 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     const body: PatchTableRequest = {};
     if (opts.tableNumber !== null && opts.tableNumber !== undefined)
       body.tableNumber = String(opts.tableNumber);
-    if (opts.min !== null && opts.min !== undefined)
-      body.minSeatCount = opts.min;
-    if (opts.max !== null && opts.max !== undefined)
-      body.maxSeatCount = opts.max;
+    if (opts.min !== null && opts.min !== undefined) body.minSeatCount = opts.min;
+    if (opts.max !== null && opts.max !== undefined) body.maxSeatCount = opts.max;
     if (opts.seatsType) body.seatsType = opts.seatsType;
-    if (Object.keys(body).length === 0)
-      throw new Error("수정할 필드를 하나 이상 지정하세요.");
+    if (Object.keys(body).length === 0) throw new Error("수정할 필드를 하나 이상 지정하세요.");
     if (
       body.minSeatCount !== undefined &&
       body.maxSeatCount !== undefined &&
@@ -453,15 +407,12 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
     try {
       const res = await patchTableInfo(storeId, tableId, payload);
 
-      const updatedTables: UpdatedTable[] =
-        res.data?.result?.updatedTables ?? [];
+      const updatedTables: UpdatedTable[] = res.data?.result?.updatedTables ?? [];
 
       setTableData((prev) => {
         const next = { ...prev };
         updatedTables.forEach((ut) => {
-          const slotKeyStr = Object.keys(next).find(
-            (k) => next[Number(k)]?.tableId === ut.tableId,
-          );
+          const slotKeyStr = Object.keys(next).find((k) => next[Number(k)]?.tableId === ut.tableId);
           const slotKey = slotKeyStr ? Number(slotKeyStr) : undefined;
           const displayNum = extractLeadingNumber(ut.tableNumber) ?? slotKey;
 
@@ -483,9 +434,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
 
       setPlacedTables((prev) =>
         prev.map((pt) => {
-          const match = updatedTables.find(
-            (ut) => ut.tableId === pt.tableInfo.tableId,
-          );
+          const match = updatedTables.find((ut) => ut.tableId === pt.tableInfo.tableId);
           if (match) {
             return {
               ...pt,
@@ -493,9 +442,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                 ...pt.tableInfo,
                 minCapacity: match.minSeatCount ?? pt.tableInfo.minCapacity,
                 maxCapacity: match.maxSeatCount ?? pt.tableInfo.maxCapacity,
-                numValue:
-                  extractLeadingNumber(match.tableNumber) ??
-                  pt.tableInfo.numValue,
+                numValue: extractLeadingNumber(match.tableNumber) ?? pt.tableInfo.numValue,
               },
             };
           }
@@ -505,18 +452,14 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
 
       alert("테이블 정보가 업데이트 되었습니다.");
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       const message = getErrorMessage(error);
       if (status === 400) {
         alert("잘못된 요청입니다. (좌석 범위 오류 또는 수정 필드 없음)");
       } else if (status === 404) {
         alert("가게 또는 테이블을 찾을 수 없습니다.");
       } else {
-        alert(
-          message || "테이블 수정 중 오류가 발생했습니다. 콘솔을 확인하세요",
-        );
+        alert(message || "테이블 수정 중 오류가 발생했습니다. 콘솔을 확인하세요");
       }
     }
   };
@@ -561,9 +504,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
 
       alert("브레이크 타임이 설정되었습니다.");
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       const message = getErrorMessage(error);
 
       if (status === 400) {
@@ -571,9 +512,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
       } else if (status === 404) {
         alert("가게를 찾을 수 없습니다.");
       } else {
-        alert(
-          message || "브레이크타임 설정에 실패했습니다. 콘솔을 확인하세요.",
-        );
+        alert(message || "브레이크타임 설정에 실패했습니다. 콘솔을 확인하세요.");
       }
     }
   };
@@ -586,9 +525,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
             <h2 className="text-xl text-gray-900 mb-1">
               테이블 관리
               {storeName && (
-                <span className="text-sm text-gray-500 font-normal">
-                  · {storeName}
-                </span>
+                <span className="text-sm text-gray-500 font-normal">· {storeName}</span>
               )}
             </h2>
             <p className="text-gray-500 text-base">
@@ -621,9 +558,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
         {breakTimes.length > 0 && (
           <div className="mb-8">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-4">
-                브레이크 타임 목록
-              </div>
+              <div className="flex items-center gap-2 mb-4">브레이크 타임 목록</div>
 
               <div className="flex flex-wrap gap-3">
                 {breakTimes.map((bt, idx) => (
@@ -636,11 +571,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                       {bt.start} ~ {bt.end}
                     </span>
                     <button
-                      onClick={() =>
-                        setBreakTimes((prev) =>
-                          prev.filter((_, i) => i !== idx),
-                        )
-                      }
+                      onClick={() => setBreakTimes((prev) => prev.filter((_, i) => i !== idx))}
                       className="ml-auto text-orange-400 hover:text-red-500 transition-colors"
                     >
                       삭제
@@ -662,9 +593,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
             </div>
 
             <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
-              <div className="flex items-center gap-2 mb-2 text-base">
-                📅 총 테이블 수
-              </div>
+              <div className="flex items-center gap-2 mb-2 text-base">📅 총 테이블 수</div>
               <p className="text-lg">{config.columns * config.rows}개</p>
             </div>
           </div>
@@ -694,46 +623,50 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                     gridTemplateColumns: `repeat(${config.columns}, minmax(150px, 1fr))`,
                   }}
                 >
-                  {Array.from({ length: config.columns * config.rows }).map(
-                    (_, i: number) => {
-                      const id = i + 1;
-                      const table = getTableData(id);
-                      const style = getTableStyle(table.maxCapacity);
+                  {Array.from({ length: config.columns * config.rows }).map((_, i: number) => {
+                    const id = i + 1;
+                    const table = getTableData(id);
+                    const style = getTableStyle(table.maxCapacity);
 
-                      const extraStyle = table.isSaved
-                        ? ""
-                        : "opacity-50 border-dashed";
+                    const extraStyle = table.isSaved ? "" : "opacity-50 border-dashed";
 
-                      return (
-                        <div
-                          key={id}
-                          onClick={() => {
-                            if (!table.isSaved) return;
-                            if (!table.isEditingCapacity) {
-                              setSelectedTable(id);
-                            }
-                          }}
-                          className={`border-2 ${style.border} ${extraStyle} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
-                        >
-                          <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
-                            {table.isEditingCapacity ? (
-                              <span className="text-[#4A5568]">인원 설정</span>
-                            ) : table.isEditingNum ? (
-                              <div
-                                className="flex items-center"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <input
-                                  autoFocus
-                                  type="number"
-                                  className="bg-white/60 border-b border-orange-400 outline-none text-center w-8 font-bold"
-                                  value={table.numValue}
-                                  onChange={(e) =>
-                                    updateTable(id, {
-                                      numValue: Number(e.target.value),
-                                    })
+                    return (
+                      <div
+                        key={id}
+                        onClick={() => {
+                          if (!table.isSaved) return;
+                          if (!table.isEditingCapacity) {
+                            setSelectedTable(id);
+                          }
+                        }}
+                        className={`border-2 ${style.border} ${extraStyle} rounded-lg p-4 ${style.bg} flex flex-col items-center cursor-pointer ${style.hover} transition-all relative group aspect-square justify-center w-36 md:w-40`}
+                      >
+                        <div className="flex items-center gap-1.5 mb-3 text-gray-800 text-sm h-6">
+                          {table.isEditingCapacity ? (
+                            <span className="text-[#4A5568]">인원 설정</span>
+                          ) : table.isEditingNum ? (
+                            <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                autoFocus
+                                type="number"
+                                className="bg-white/60 border-b border-orange-400 outline-none text-center w-8 font-bold"
+                                value={table.numValue}
+                                onChange={(e) =>
+                                  updateTable(id, {
+                                    numValue: Number(e.target.value),
+                                  })
+                                }
+                                onBlur={() => {
+                                  updateTable(id, { isEditingNum: false });
+                                  const tableId = getTableData(id).tableId;
+                                  if (tableId > 0) {
+                                    handlePatchTableInfo(tableId, {
+                                      tableNumber: table.numValue,
+                                    });
                                   }
-                                  onBlur={() => {
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
                                     updateTable(id, { isEditingNum: false });
                                     const tableId = getTableData(id).tableId;
                                     if (tableId > 0) {
@@ -741,177 +674,150 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
                                         tableNumber: table.numValue,
                                       });
                                     }
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      updateTable(id, { isEditingNum: false });
-                                      const tableId = getTableData(id).tableId;
-                                      if (tableId > 0) {
-                                        handlePatchTableInfo(tableId, {
-                                          tableNumber: table.numValue,
-                                        });
-                                      }
-                                    }
-                                  }}
-                                />
-                                <span className="ml-1">번</span>
-                              </div>
-                            ) : (
-                              <>
-                                {table.numValue}번 테이블
-                                <Pencil
-                                  size={12}
-                                  className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateTable(id, { isEditingNum: true });
-                                  }}
-                                  aria-label="테이블 번호 수정"
-                                  role="button"
-                                  tabIndex={0}
-                                />
-                              </>
-                            )}
-                          </div>
+                                  }
+                                }}
+                              />
+                              <span className="ml-1">번</span>
+                            </div>
+                          ) : (
+                            <>
+                              {table.numValue}번 테이블
+                              <Pencil
+                                size={12}
+                                className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateTable(id, { isEditingNum: true });
+                                }}
+                                aria-label="테이블 번호 수정"
+                                role="button"
+                                tabIndex={0}
+                              />
+                            </>
+                          )}
+                        </div>
 
-                          <div className="relative w-full flex flex-col items-center">
-                            {table.isEditingCapacity ? (
-                              <div
-                                className="flex flex-col items-center"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="flex items-center gap-1 mb-2">
-                                  <div className="bg-white rounded-md border border-blue-200 p-1 flex items-center shadow-sm">
-                                    <span className="text-xs px-1">
-                                      {table.minCapacity}
-                                    </span>
-                                    <div className="flex flex-col border-l pl-0.5 text-[6px]">
-                                      <button
-                                        aria-label="최소 인원 증가"
-                                        onClick={() =>
-                                          updateTable(id, {
-                                            minCapacity: table.minCapacity + 1,
-                                          })
-                                        }
-                                        className="hover:text-blue-500"
-                                      >
-                                        ▲
-                                      </button>
-                                      <button
-                                        aria-label="최소 인원 감소"
-                                        onClick={() =>
-                                          updateTable(id, {
-                                            minCapacity: Math.max(
-                                              1,
-                                              table.minCapacity - 1,
-                                            ),
-                                          })
-                                        }
-                                        className="hover:text-blue-500"
-                                      >
-                                        ▼
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <span className="text-xs text-gray-400">
-                                    ~
-                                  </span>
-                                  <div className="bg-white rounded-md border border-blue-200 p-1 w-8 text-center shadow-sm">
-                                    <input
-                                      type="number"
-                                      className="w-full text-xs outline-none text-center bg-transparent"
-                                      value={table.maxCapacity}
-                                      onChange={(e) =>
+                        <div className="relative w-full flex flex-col items-center">
+                          {table.isEditingCapacity ? (
+                            <div
+                              className="flex flex-col items-center"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center gap-1 mb-2">
+                                <div className="bg-white rounded-md border border-blue-200 p-1 flex items-center shadow-sm">
+                                  <span className="text-xs px-1">{table.minCapacity}</span>
+                                  <div className="flex flex-col border-l pl-0.5 text-[6px]">
+                                    <button
+                                      aria-label="최소 인원 증가"
+                                      onClick={() =>
                                         updateTable(id, {
-                                          maxCapacity: Number(e.target.value),
+                                          minCapacity: table.minCapacity + 1,
                                         })
                                       }
-                                      onBlur={(e) => {
-                                        const val = Number(e.target.value);
-                                        if (val <= table.minCapacity) {
-                                          updateTable(id, {
-                                            maxCapacity: table.minCapacity + 1,
-                                          });
-                                        }
-                                      }}
-                                    />
+                                      className="hover:text-blue-500"
+                                    >
+                                      ▲
+                                    </button>
+                                    <button
+                                      aria-label="최소 인원 감소"
+                                      onClick={() =>
+                                        updateTable(id, {
+                                          minCapacity: Math.max(1, table.minCapacity - 1),
+                                        })
+                                      }
+                                      className="hover:text-blue-500"
+                                    >
+                                      ▼
+                                    </button>
                                   </div>
                                 </div>
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() =>
+                                <span className="text-xs text-gray-400">~</span>
+                                <div className="bg-white rounded-md border border-blue-200 p-1 w-8 text-center shadow-sm">
+                                  <input
+                                    type="number"
+                                    className="w-full text-xs outline-none text-center bg-transparent"
+                                    value={table.maxCapacity}
+                                    onChange={(e) =>
                                       updateTable(id, {
-                                        isEditingCapacity: false,
+                                        maxCapacity: Number(e.target.value),
                                       })
                                     }
-                                    className="bg-[#6BCB77] p-1 rounded-sm text-white active:scale-90 shadow-sm"
-                                  >
-                                    <Check size={12} />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      updateTable(id, {
-                                        isEditingCapacity: false,
-                                        minCapacity:
-                                          tableData[id]?.originalMinCapacity ??
-                                          table.minCapacity,
-                                        maxCapacity:
-                                          tableData[id]?.originalMaxCapacity ??
-                                          table.maxCapacity,
-                                      })
-                                    }
-                                  >
-                                    <X size={14} />
-                                  </button>
+                                    onBlur={(e) => {
+                                      const val = Number(e.target.value);
+                                      if (val <= table.minCapacity) {
+                                        updateTable(id, {
+                                          maxCapacity: table.minCapacity + 1,
+                                        });
+                                      }
+                                    }}
+                                  />
                                 </div>
                               </div>
-                            ) : (
-                              <>
-                                <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    startEditingCapacity(id);
-                                  }}
-                                  className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-15 text-center transition-transform active:scale-95`}
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() =>
+                                    updateTable(id, {
+                                      isEditingCapacity: false,
+                                    })
+                                  }
+                                  className="bg-[#6BCB77] p-1 rounded-sm text-white active:scale-90 shadow-sm"
                                 >
-                                  {table.minCapacity}~{table.maxCapacity}인
-                                </div>
-                                <div className="mt-3 text-[11px] text-gray-600">
-                                  {SEATS_TYPE_LABEL[table.seatsType]}
-                                </div>
-                              </>
-                            )}
-                          </div>
+                                  <Check size={12} />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    updateTable(id, {
+                                      isEditingCapacity: false,
+                                      minCapacity:
+                                        tableData[id]?.originalMinCapacity ?? table.minCapacity,
+                                      maxCapacity:
+                                        tableData[id]?.originalMaxCapacity ?? table.maxCapacity,
+                                    })
+                                  }
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  startEditingCapacity(id);
+                                }}
+                                className={`${style.badge} text-white px-2 py-2 rounded-sm text-xs shadow-md min-w-15 text-center transition-transform active:scale-95`}
+                              >
+                                {table.minCapacity}~{table.maxCapacity}인
+                              </div>
+                              <div className="mt-3 text-[11px] text-gray-600">
+                                {SEATS_TYPE_LABEL[table.seatsType]}
+                              </div>
+                            </>
+                          )}
                         </div>
-                      );
-                    },
-                  )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="bg-gray-50 border border-gray-100 rounded-[28px] p-7 mt-8">
                 <div className="flex items-center gap-3 text-sm text-gray-600 mb-5">
-                  <Lightbulb
-                    size={20}
-                    className="text-yellow-400 fill-yellow-400"
-                  />
+                  <Lightbulb size={20} className="text-yellow-400 fill-yellow-400" />
                   <span>
-                    Tip: 테이블을 클릭하면 상세 정보를 확인하고 예약 시간대를
-                    관리할 수 있습니다.
+                    Tip: 테이블을 클릭하면 상세 정보를 확인하고 예약 시간대를 관리할 수 있습니다.
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-10 text-sm text-gray-600 pl-8 uppercase tracking-wider">
                   <div className="flex items-center gap-1">
-                    <div className="w-5 h-5 rounded-sm bg-[#D4A017]" /> 소형
-                    (4인 이하)
+                    <div className="w-5 h-5 rounded-sm bg-[#D4A017]" /> 소형 (4인 이하)
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-5 h-5 rounded-sm bg-blue-500" /> 중형
-                    (5~8인)
+                    <div className="w-5 h-5 rounded-sm bg-blue-500" /> 중형 (5~8인)
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-5 h-5 rounded-sm bg-purple-500" /> 단체석
-                    (9인 이상)
+                    <div className="w-5 h-5 rounded-sm bg-purple-500" /> 단체석 (9인 이상)
                   </div>
                 </div>
               </div>
@@ -921,12 +827,8 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
               <div className="p-6 rounded-2xl mb-6">
                 <Store size={64} className="text-gray-300" />
               </div>
-              <h3 className="text-xl text-gray-900 mb-2">
-                등록된 테이블이 없습니다
-              </h3>
-              <p className="text-gray-500 mb-8">
-                테이블을 생성하여 가게 관리를 시작하세요
-              </p>
+              <h3 className="text-xl text-gray-900 mb-2">등록된 테이블이 없습니다</h3>
+              <p className="text-gray-500 mb-8">테이블을 생성하여 가게 관리를 시작하세요</p>
               <button
                 onClick={() => setCreateModalOpen(true)}
                 className="bg-blue-600 text-white px-8 py-3 rounded-xl flex items-center gap-2 text-lg font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
@@ -969,9 +871,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({
           onImageUpload={(tableId, url) => {
             setTableData((prev) => {
               const next = { ...prev };
-              const slotIdStr = Object.keys(prev).find(
-                (k) => prev[Number(k)]?.tableId === tableId,
-              );
+              const slotIdStr = Object.keys(prev).find((k) => prev[Number(k)]?.tableId === tableId);
               if (slotIdStr) {
                 const key = Number(slotIdStr);
                 next[key] = { ...next[key], tableImageUrl: url || null };

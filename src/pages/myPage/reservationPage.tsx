@@ -1,8 +1,8 @@
-import { Calendar, Clock, User, CreditCard, X } from "lucide-react";
+import { Calendar, Clock, CreditCard, User, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+
+import { cancelBooking, getBookings } from "@/api/bookings";
 import { cn } from "@/lib/utils";
-import { getBookings } from "@/api/bookings";
-import { cancelBooking } from "@/api/bookings";
 
 type ReservationStatus = "전체" | "예정된 예약" | "방문 완료" | "취소된 예약";
 
@@ -88,9 +88,7 @@ export default function ReservationPage() {
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="mb-6">
         <h2 className="text-xl font-medium">예약 현황</h2>
-        <p className="mt-0.5 text-sm text-gray-600">
-          내 예약 내역을 확인하고 관리하세요
-        </p>
+        <p className="mt-0.5 text-sm text-gray-600">내 예약 내역을 확인하고 관리하세요</p>
       </div>
 
       <div className="flex gap-6 border-b border-gray-100 mb-8">
@@ -112,37 +110,23 @@ export default function ReservationPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-gray-400 text-sm">
-          로딩 중...
-        </div>
+        <div className="py-20 text-center text-gray-400 text-sm">로딩 중...</div>
       ) : error ? (
         <div className="py-20 text-center text-red-400 text-sm">{error}</div>
       ) : reservations.length > 0 ? (
         <div className="space-y-6">
           {reservations.map((res) => (
-            <ReservationCard
-              key={res.id}
-              res={res}
-              onCancel={fetchReservations}
-            />
+            <ReservationCard key={res.id} res={res} onCancel={fetchReservations} />
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center text-gray-400 text-sm">
-          해당 내역이 없습니다.
-        </div>
+        <div className="py-20 text-center text-gray-400 text-sm">해당 내역이 없습니다.</div>
       )}
     </section>
   );
 }
 
-function ReservationCard({
-  res,
-  onCancel,
-}: {
-  res: Reservation;
-  onCancel: () => void;
-}) {
+function ReservationCard({ res, onCancel }: { res: Reservation; onCancel: () => void }) {
   const [loading, setLoading] = useState(false);
 
   const handleCancel = async () => {
@@ -184,16 +168,8 @@ function ReservationCard({
       </div>
 
       <div className="grid grid-cols-2 gap-y-4 gap-x-8 pb-6">
-        <InfoItem
-          icon={<Calendar size={18} />}
-          label="예약 날짜"
-          value={res.date}
-        />
-        <InfoItem
-          icon={<Clock size={18} />}
-          label="예약 시간"
-          value={res.time}
-        />
+        <InfoItem icon={<Calendar size={18} />} label="예약 날짜" value={res.date} />
+        <InfoItem icon={<Clock size={18} />} label="예약 시간" value={res.time} />
         <InfoItem icon={<User size={18} />} label="인원" value={res.people} />
         <InfoItem
           icon={<CreditCard size={18} />}
@@ -249,9 +225,7 @@ function InfoItem({
       <div className="p-2 rounded-full bg-blue-100 text-blue-500">{icon}</div>
       <div>
         <p className="text-sm text-gray-400 mb-0.5">{label}</p>
-        <p className={cn("", isMultiLine ? "whitespace-pre-line" : "")}>
-          {value}
-        </p>
+        <p className={cn("", isMultiLine ? "whitespace-pre-line" : "")}>{value}</p>
       </div>
     </div>
   );

@@ -1,25 +1,27 @@
-import type { ReservationDraft } from "@/types/restaurant";
 import { Minus, Plus, X } from "lucide-react";
-import { Button } from "../../ui/button";
-import {
-  type SelectedMenu,
-  type MenuItem,
-  type MenuCategory,
-  type UiCategory,
-  MenuCategoryLabel,
-} from "@/types/menus";
-import { useMenus } from "@/hooks/reservation/useMenus";
 import { useEffect, useMemo, useState } from "react";
-import { calcMenuTotal } from "@/utils/menu";
-import { cn } from "@/lib/utils";
-import { formatKrw } from "@/utils/money";
-import { useDepositRate } from "@/hooks/reservation/useDepositRate";
-import { calcDeposit } from "@/utils/payment";
+
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
-import { toDepositRate } from "@/utils/depositRate";
-import type { RestaurantDetail } from "@/types/store";
 import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { useMenus } from "@/hooks/reservation/useMenus";
+import { cn } from "@/lib/utils";
+import {
+  type MenuCategory,
+  MenuCategoryLabel,
+  type MenuItem,
+  type SelectedMenu,
+  type UiCategory,
+} from "@/types/menus";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantDetail } from "@/types/store";
+import { toDepositRate } from "@/utils/depositRate";
+import { calcMenuTotal } from "@/utils/menu";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
+import { formatKrw } from "@/utils/money";
+import { calcDeposit } from "@/utils/payment";
+
+import { Button } from "../../ui/button";
 
 type Props = {
   open: boolean;
@@ -40,9 +42,7 @@ export default function ReservationMenuModal({
 }: Props) {
   const { activeMenus } = useMenus(restaurant.id);
 
-  const [selectedMenus, setSelectedMenus] = useState<SelectedMenu[]>(
-    draft.selectedMenus ?? [],
-  );
+  const [selectedMenus, setSelectedMenus] = useState<SelectedMenu[]>(draft.selectedMenus ?? []);
 
   useEffect(() => {
     const nextMenus = draft.selectedMenus ?? [];
@@ -111,9 +111,7 @@ export default function ReservationMenuModal({
       if (q === 0) return prev.filter((p) => p.menuId !== menu.id);
 
       if (exists) {
-        return prev.map((p) =>
-          p.menuId === menu.id ? { ...p, quantity: q } : p,
-        );
+        return prev.map((p) => (p.menuId === menu.id ? { ...p, quantity: q } : p));
       }
 
       return [...prev, { menuId: menu.id, quantity: q }];
@@ -163,8 +161,7 @@ export default function ReservationMenuModal({
           <div className="min-w-0">
             <h2 className="text-xl truncate">{restaurant.name} 메뉴선택</h2>
             <p className="text-sm text-muted-foreground truncate">
-              원하시는 메뉴를 미리 선택할 수 있어요. 메뉴당 최대수량은
-              20개입니다.
+              원하시는 메뉴를 미리 선택할 수 있어요. 메뉴당 최대수량은 20개입니다.
             </p>
           </div>
           <button
@@ -183,118 +180,112 @@ export default function ReservationMenuModal({
               아직 등록된 메뉴가 없어요
             </div>
           ) : (
-            (["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"] as MenuCategory[]).map(
-              (cat) => {
-                const list = grouped[cat];
-                if (list.length === 0) return null;
-                const safeLabel = MenuCategoryLabel[cat] ?? "기타";
+            (["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"] as MenuCategory[]).map((cat) => {
+              const list = grouped[cat];
+              if (list.length === 0) return null;
+              const safeLabel = MenuCategoryLabel[cat] ?? "기타";
 
-                return (
-                  <section key={cat} className="space-y-3">
-                    <div className="font-semibold">{safeLabel}</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {list.map((menu) => {
-                        const qty = qtyMap.get(Number(menu.id)) ?? 0;
-                        const img =
-                          menu.imageUrl && menu.imageUrl.trim().length > 0
-                            ? menu.imageUrl
-                            : "/modernKoreaRestaurant.jpg";
-                        return (
-                          <div
-                            key={menu.id}
-                            className={cn(
-                              "rounded-2xl border overflow-hidden bg-white transition",
-                              menu.isSoldOut
-                                ? "opacity-50 cursor-not-allowed"
-                                : "hover:shadow-sm",
-                            )}
-                            aria-disabled={menu.isSoldOut}
-                          >
-                            <div className="flex gap-4 p-4">
-                              {/* 음식사진 */}
-                              <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
-                                <img
-                                  src={img}
-                                  alt={menu.name}
-                                  className={cn(
-                                    "h-full w-full object-cover",
-                                    menu.isSoldOut && "grayscale",
-                                  )}
-                                />
-                                {menu.isSoldOut && (
-                                  <div className="absolute inset-0 grid place-items-center bg-black/40">
-                                    <span className="rounded-sm bg-black/70 px-3 py-1 font-semibold text-white">
-                                      품절
-                                    </span>
-                                  </div>
+              return (
+                <section key={cat} className="space-y-3">
+                  <div className="font-semibold">{safeLabel}</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {list.map((menu) => {
+                      const qty = qtyMap.get(Number(menu.id)) ?? 0;
+                      const img =
+                        menu.imageUrl && menu.imageUrl.trim().length > 0
+                          ? menu.imageUrl
+                          : "/modernKoreaRestaurant.jpg";
+                      return (
+                        <div
+                          key={menu.id}
+                          className={cn(
+                            "rounded-2xl border overflow-hidden bg-white transition",
+                            menu.isSoldOut ? "opacity-50 cursor-not-allowed" : "hover:shadow-sm",
+                          )}
+                          aria-disabled={menu.isSoldOut}
+                        >
+                          <div className="flex gap-4 p-4">
+                            {/* 음식사진 */}
+                            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
+                              <img
+                                src={img}
+                                alt={menu.name}
+                                className={cn(
+                                  "h-full w-full object-cover",
+                                  menu.isSoldOut && "grayscale",
                                 )}
-                              </div>
-                              {/* 내용 */}
-                              <div className="flex-1 p-4 min-w-0 flex flex-col justify-between gap-3">
-                                <div className="min-w-0">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="min-w-0">
-                                      <p className="font-medium truncate">
-                                        {menu.name}
+                              />
+                              {menu.isSoldOut && (
+                                <div className="absolute inset-0 grid place-items-center bg-black/40">
+                                  <span className="rounded-sm bg-black/70 px-3 py-1 font-semibold text-white">
+                                    품절
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            {/* 내용 */}
+                            <div className="flex-1 p-4 min-w-0 flex flex-col justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <p className="font-medium truncate">{menu.name}</p>
+                                    {menu.description ? (
+                                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                        {menu.description}
                                       </p>
-                                      {menu.description ? (
-                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                          {menu.description}
-                                        </p>
-                                      ) : null}
-                                    </div>
-                                    {qty > 0 ? (
-                                      <span className="shrink-0 rounded-md bg-blue-50 text-blue-600 px-2 py-1 text-md">
-                                        {qty}개
-                                      </span>
                                     ) : null}
                                   </div>
-                                  <p className="mt-2 text-sm font-semibold">
-                                    {formatKrw(menu.price)}원
-                                  </p>
+                                  {qty > 0 ? (
+                                    <span className="shrink-0 rounded-md bg-blue-50 text-blue-600 px-2 py-1 text-md">
+                                      {qty}개
+                                    </span>
+                                  ) : null}
                                 </div>
-                                {/* 수량 조절 */}
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
-                                        (qty === 0 || menu.isSoldOut) &&
-                                          "opacity-40 cursor-not-allowed",
-                                      )}
-                                      onClick={() => dec(menu)}
-                                      disabled={qty === 0 || menu.isSoldOut}
-                                      aria-label={`${menu.name} 수량 감소`}
-                                    >
-                                      <Minus className="h-4 w-4" />
-                                    </button>
-                                    <span>{qty}</span>
-                                    <button
-                                      type="button"
-                                      className={cn(
-                                        "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
-                                        (menu.isSoldOut || qty >= 20) &&
-                                          "opacity-40 cursor-not-allowed",
-                                      )}
-                                      onClick={() => inc(menu)}
-                                      disabled={menu.isSoldOut || qty >= 20}
-                                      aria-label={`${menu.name} 수량증가`}
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </button>
-                                  </div>
+                                <p className="mt-2 text-sm font-semibold">
+                                  {formatKrw(menu.price)}원
+                                </p>
+                              </div>
+                              {/* 수량 조절 */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    className={cn(
+                                      "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
+                                      (qty === 0 || menu.isSoldOut) &&
+                                        "opacity-40 cursor-not-allowed",
+                                    )}
+                                    onClick={() => dec(menu)}
+                                    disabled={qty === 0 || menu.isSoldOut}
+                                    aria-label={`${menu.name} 수량 감소`}
+                                  >
+                                    <Minus className="h-4 w-4" />
+                                  </button>
+                                  <span>{qty}</span>
+                                  <button
+                                    type="button"
+                                    className={cn(
+                                      "h-9 w-9 border rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100",
+                                      (menu.isSoldOut || qty >= 20) &&
+                                        "opacity-40 cursor-not-allowed",
+                                    )}
+                                    onClick={() => inc(menu)}
+                                    disabled={menu.isSoldOut || qty >= 20}
+                                    aria-label={`${menu.name} 수량증가`}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </button>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                );
-              },
-            )
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })
           )}
         </div>
 
@@ -303,9 +294,7 @@ export default function ReservationMenuModal({
             <div>
               <div className="text-muted-foreground">
                 메뉴 총액: {""}
-                <span className="text-lg font-semibold">
-                  {formatKrw(totalPrice)}
-                </span>
+                <span className="text-lg font-semibold">{formatKrw(totalPrice)}</span>
               </div>
 
               <div className="mt-1 text-xl text-blue-600 font-semibold">
@@ -333,9 +322,7 @@ export default function ReservationMenuModal({
               </Button>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            실제 결제는 다음 단계에서 진행됩니다
-          </p>
+          <p className="text-xs text-muted-foreground">실제 결제는 다음 단계에서 진행됩니다</p>
         </div>
       </div>
     </div>

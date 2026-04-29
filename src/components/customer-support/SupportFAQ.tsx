@@ -1,5 +1,6 @@
 import { ChevronDown, Search, X } from "lucide-react";
 import { useState } from "react";
+
 import { faqData } from "./faqData";
 
 export default function SupportFAQ() {
@@ -12,14 +13,12 @@ export default function SupportFAQ() {
 
   const filteredFaqs = faqData.filter((item) => {
     // 카테고리 매칭 여부
-    const matchCategory =
-      selectedCategory === "전체" || item.category === selectedCategory;
+    const matchCategory = selectedCategory === "전체" || item.category === selectedCategory;
 
     // 검색어 매칭 여부
     const query = searchTerm.toLowerCase().trim();
     const matchSearch =
-      item.question.toLowerCase().includes(query) ||
-      item.answer.toLowerCase().includes(query);
+      item.question.toLowerCase().includes(query) || item.answer.toLowerCase().includes(query);
 
     // 둘다 매칭되는 항목만 반환
     return matchCategory && matchSearch;
@@ -135,8 +134,7 @@ export default function SupportFAQ() {
       </div>
 
       <div className="mt-6 text-center text-gray-600 break-keep">
-        총 <span className="text-blue-600">{filteredFaqs.length}</span>개의
-        질문이 있습니다.
+        총 <span className="text-blue-600">{filteredFaqs.length}</span>개의 질문이 있습니다.
       </div>
     </main>
   );

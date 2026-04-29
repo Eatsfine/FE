@@ -1,24 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import RestaurantList from "@/components/restaurant/RestaurantList";
-import type { ReservationDraft } from "@/types/restaurant";
-import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
-import ReservationModal from "@/components/reservation/modals/ReservationModal";
-import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
-import PaymentModal from "@/components/reservation/modals/PaymentModal";
-import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
-import type { RestaurantSummary } from "@/types/store";
+import { useEffect, useMemo, useState } from "react";
+
+import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import KakaoMap from "@/components/map/KakaoMap";
+import PaymentModal from "@/components/reservation/modals/PaymentModal";
+import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
+import ReservationMenuModal from "@/components/reservation/modals/ReservationMenuModal";
+import ReservationModal from "@/components/reservation/modals/ReservationModal";
+import RestaurantDetailModal from "@/components/restaurant/RestaurantDetailModal";
+import RestaurantList from "@/components/restaurant/RestaurantList";
+import RestaurantListSkeleton from "@/components/restaurant/RestaurantListSkeleton";
 import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
-import type { CreateBookingResult } from "@/api/endpoints/reservations";
-import { toHHmm } from "@/utils/time";
-import RestaurantListSkeleton from "@/components/restaurant/RestaurantListSkeleton";
-import type {
-  KakaoAddressSearchResult,
-  KakaoAddressSearchStatus,
-} from "@/types/kakao";
+import type { KakaoAddressSearchResult, KakaoAddressSearchStatus } from "@/types/kakao";
 import type { LatLng } from "@/types/map";
+import type { ReservationDraft } from "@/types/restaurant";
+import type { RestaurantSummary } from "@/types/store";
+import { toHHmm } from "@/utils/time";
 
 function isValidLatLng(loc: unknown): loc is LatLng {
   return (
@@ -74,9 +72,7 @@ export default function SearchPage() {
   const [draft, setDraft] = useState<ReservationDraft | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null,
-  );
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const FALLBACK_COORDS = { lat: 37.5665, lng: 126.978 };
   const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
@@ -91,9 +87,7 @@ export default function SearchPage() {
     lng: number;
   } | null>(null);
   const searchQuery = useSearchStores(
-    searchParams
-      ? { ...searchParams, radius: 50, sort: "DISTANCE", page: 1, limit: 20 }
-      : null,
+    searchParams ? { ...searchParams, radius: 50, sort: "DISTANCE", page: 1, limit: 20 } : null,
   );
 
   const results = useMemo(() => searchQuery.data ?? [], [searchQuery.data]);
@@ -110,9 +104,7 @@ export default function SearchPage() {
   const normalizeDraft = (d: ReservationDraft): ReservationDraft => {
     const normalizedTime = toHHmm(d.time);
     const safeTime =
-      !normalizedTime || normalizedTime.includes("undefined")
-        ? undefined
-        : normalizedTime;
+      !normalizedTime || normalizedTime.includes("undefined") ? undefined : normalizedTime;
 
     return {
       ...d,
@@ -188,8 +180,7 @@ export default function SearchPage() {
         return;
       }
       navigator.geolocation.getCurrentPosition(
-        (pos) =>
-          resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
         () => resolve(FALLBACK_COORDS),
         { enableHighAccuracy: false, timeout: 5000 },
       );
@@ -320,10 +311,7 @@ export default function SearchPage() {
                 검색 결과가 없어요.
               </div>
             ) : (
-              <RestaurantList
-                restaurants={results}
-                onSelect={handleSelectStore}
-              />
+              <RestaurantList restaurants={results} onSelect={handleSelectStore} />
             )}
           </>
         ) : null}
@@ -390,21 +378,17 @@ export default function SearchPage() {
         />
       )}
 
-      {selectedStoreId &&
-        draft &&
-        paymentOpen &&
-        booking &&
-        detailQuery.data && (
-          <PaymentModal
-            open={paymentOpen}
-            onClose={closeModalsOnly}
-            onOpenChange={setPaymentOpen}
-            onBack={backToConfirm}
-            restaurant={detailQuery.data}
-            draft={draft}
-            booking={booking}
-          />
-        )}
+      {selectedStoreId && draft && paymentOpen && booking && detailQuery.data && (
+        <PaymentModal
+          open={paymentOpen}
+          onClose={closeModalsOnly}
+          onOpenChange={setPaymentOpen}
+          onBack={backToConfirm}
+          restaurant={detailQuery.data}
+          draft={draft}
+          booking={booking}
+        />
+      )}
     </>
   );
 }

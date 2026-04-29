@@ -1,23 +1,19 @@
+import { Trash2, Upload, X } from "lucide-react";
+import { type ChangeEvent, type MouseEvent, useEffect, useMemo, useRef } from "react";
 import {
-  Controller,
-  useWatch,
   type Control,
+  Controller,
   type FieldErrors,
   type UseFormRegister,
   type UseFormSetValue,
   type UseFormTrigger,
+  useWatch,
 } from "react-hook-form";
-import type { MenuFormValues } from "./Menu.schema";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  type ChangeEvent,
-  type MouseEvent,
-} from "react";
-import { Trash2, Upload, X } from "lucide-react";
+
 import { Label } from "@/components/ui/label";
 import { MenuCategoryLabel } from "@/types/menus";
+
+import type { MenuFormValues } from "./Menu.schema";
 
 interface MenuItemInputProps {
   index: number;
@@ -95,10 +91,7 @@ export default function MenuItemInput({
       </div>
 
       <div>
-        <Label
-          htmlFor={`menus.${index}.imageKey`}
-          className="block text-gray-700 mb-2"
-        >
+        <Label htmlFor={`menus.${index}.imageKey`} className="block text-gray-700 mb-2">
           메뉴 이미지
         </Label>
         <div className="flex items-start gap-4">
@@ -137,9 +130,7 @@ export default function MenuItemInput({
             ) : (
               <>
                 <Upload className="size-8 text-gray-400" aria-hidden="true" />
-                <span className="text-xs text-gray-500 mt-2">
-                  이미지 업로드
-                </span>
+                <span className="text-xs text-gray-500 mt-2">이미지 업로드</span>
               </>
             )}
           </Label>
@@ -156,10 +147,7 @@ export default function MenuItemInput({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label
-            htmlFor={`menus.${index}.name`}
-            className="block text-gray-700 mb-2"
-          >
+          <Label htmlFor={`menus.${index}.name`} className="block text-gray-700 mb-2">
             메뉴명
             <span className="text-red-500">*</span>
           </Label>
@@ -171,16 +159,11 @@ export default function MenuItemInput({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.menus?.[index]?.name && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.menus[index]?.name?.message}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{errors.menus[index]?.name?.message}</p>
           )}
         </div>
         <div>
-          <Label
-            htmlFor={`menus.${index}.price`}
-            className="block text-gray-700 mb-2"
-          >
+          <Label htmlFor={`menus.${index}.price`} className="block text-gray-700 mb-2">
             가격
             <span className="text-red-500">*</span>
           </Label>
@@ -199,17 +182,12 @@ export default function MenuItemInput({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.menus?.[index]?.price && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.menus[index]?.price?.message}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{errors.menus[index]?.price?.message}</p>
           )}
         </div>
       </div>
       <div>
-        <Label
-          htmlFor={`menus.${index}.category`}
-          className="block text-gray-700 mb-2"
-        >
+        <Label htmlFor={`menus.${index}.category`} className="block text-gray-700 mb-2">
           카테고리 <span className="text-red-500">*</span>
         </Label>
         <Controller
@@ -231,10 +209,7 @@ export default function MenuItemInput({
         />
       </div>
       <div>
-        <Label
-          htmlFor={`menus.${index}.description`}
-          className="block text-gray-700 mb-2"
-        >
+        <Label htmlFor={`menus.${index}.description`} className="block text-gray-700 mb-2">
           메뉴 설명
         </Label>
         <textarea

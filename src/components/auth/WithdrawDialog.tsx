@@ -1,12 +1,14 @@
-import { deleteWithDraw } from "@/api/endpoints/member";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
+import axios from "axios";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { logout as performLogout } from "@/api/auth";
-import axios from "axios";
+import { deleteWithDraw } from "@/api/endpoints/member";
+import { useAuthStore } from "@/stores/useAuthStore";
+
+import { Button } from "../ui/button";
 
 function isWithdrawBlockByBookings(e: unknown) {
   if (!axios.isAxiosError(e)) return false;
@@ -105,9 +107,7 @@ export function WithdrawDialog({
         >
           {blocked ? (
             <>
-              <p className="text-red-500">
-                예약 내역이 있어 탈퇴가 불가능합니다.
-              </p>
+              <p className="text-red-500">예약 내역이 있어 탈퇴가 불가능합니다.</p>
               <p className="text-muted-foreground">
                 예약 현황에서 예약을 취소한 후에 다시 시도해주세요.
               </p>
@@ -117,9 +117,7 @@ export function WithdrawDialog({
               <p className="text-muted-foreground">
                 탈퇴하면 계정이 비활성화되며 서비스 이용이 불가합니다.
               </p>
-              <p className="text-red-500">
-                탈퇴후에는 동일 계정으로 다시 로그인할 수 없습니다.
-              </p>
+              <p className="text-red-500">탈퇴후에는 동일 계정으로 다시 로그인할 수 없습니다.</p>
             </>
           )}
         </div>

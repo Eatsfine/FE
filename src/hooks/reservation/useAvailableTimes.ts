@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { getAvailableTimes } from "@/api/endpoints/reservations";
 import { queryKeys } from "@/query/keys";
-import { useQuery } from "@tanstack/react-query";
 
 type AvailableTimesInput = {
   storeId?: string | number;

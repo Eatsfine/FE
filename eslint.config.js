@@ -5,6 +5,9 @@ import prettierConfig from "eslint-config-prettier";
 import globals from "globals";
 import react from "eslint-plugin-react";
 
+import importPlugin from "eslint-plugin-import";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+
 export default [
   {
     languageOptions: {
@@ -28,6 +31,8 @@ export default [
     files: ["**/*.{ts,tsx}"],
     plugins: {
       "react-hooks": reactHooks,
+      "import": importPlugin,
+      "simple-import-sort": simpleImportSort,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -40,6 +45,12 @@ export default [
 
       // 추가: 빈 블록({}) 허용
       "no-empty": "warn",
+
+      /*import 규칙 추가*/
+      "simple-import-sort/imports": "warn", // import 구문 정렬 검사
+      "simple-import-sort/exports": "warn", // export 구문 순서 정리
+      "import/newline-after-import": "warn", // import 구문 다음에 코드 한줄 띄워줌(빈 줄 추가)
+      "import/no-duplicates": "warn", // 중복된 import 구문 있으면 하나로 합쳐줌(중복제거)
     },
   },
   prettierConfig,

@@ -24,12 +24,8 @@ export default function StateSection() {
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
           )}
         >
-          <h2 className="text-white text-4xl text-center sm:text-5xl">
-            숫자로 보는 잇츠파인
-          </h2>
-          <p className="text-white/90 text-xl">
-            많은 사람들이 이미 잇츠파인과 함께하고 있습니다.
-          </p>
+          <h2 className="text-white text-4xl text-center sm:text-5xl">숫자로 보는 잇츠파인</h2>
+          <p className="text-white/90 text-xl">많은 사람들이 이미 잇츠파인과 함께하고 있습니다.</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((s, idx) => (
@@ -38,9 +34,7 @@ export default function StateSection() {
               className={cn(
                 "text-center",
                 "transition-all duration-900 ease-out",
-                inView
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-20",
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20",
               )}
               style={{ transitionDelay: inView ? `${idx * 120}ms` : "0ms" }}
             >

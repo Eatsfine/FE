@@ -1,15 +1,14 @@
+import { ChevronDown, Clock, MapPin, Phone } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import { Phone, MapPin, Clock, ChevronDown } from "lucide-react";
-
 import {
+  deleteTableImages,
   getStore,
-  updateStore,
-  updateBusinessHours,
-  uploadTableImages,
   getTableImages,
   type TableImage,
-  deleteTableImages,
+  updateBusinessHours,
+  updateStore,
+  uploadTableImages,
 } from "@/api/owner/stores";
 import type { Day } from "@/types/store";
 
@@ -96,9 +95,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
   }, [storeId]);
 
   const toggleDay = (day: DayKor) => {
-    setClosedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-    );
+    setClosedDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,9 +105,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
     const MAX_SIZE = 1 * 1024 * 1024;
     const ALLOWED_TYPES = ["image/jpeg", "image/png"];
 
-    const invalid = files.filter(
-      (f) => f.size > MAX_SIZE || !ALLOWED_TYPES.includes(f.type),
-    );
+    const invalid = files.filter((f) => f.size > MAX_SIZE || !ALLOWED_TYPES.includes(f.type));
     if (invalid.length > 0) {
       alert("1MB 이하의 JPG/PNG 파일만 업로드 가능합니다.");
       e.target.value = "";
@@ -171,10 +166,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
               전화번호
             </label>
             <div className="relative">
-              <Phone
-                size={18}
-                className="absolute left-4 top-6 text-gray-400"
-              />
+              <Phone size={18} className="absolute left-4 top-6 text-gray-400" />
               <input
                 id="store-phone"
                 type="text"
@@ -188,16 +180,8 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
           <div>
             <label className={labelStyle}>주소</label>
             <div className="relative">
-              <MapPin
-                size={18}
-                className="absolute left-4 top-6 text-gray-400"
-              />
-              <input
-                readOnly
-                type="text"
-                value={address}
-                className={`${inputStyle} pl-12`}
-              />
+              <MapPin size={18} className="absolute left-4 top-6 text-gray-400" />
+              <input readOnly type="text" value={address} className={`${inputStyle} pl-12`} />
             </div>
           </div>
         </div>
@@ -209,10 +193,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
           <div>
             <label className={labelStyle}>오픈 시간</label>
             <div className="relative">
-              <Clock
-                size={18}
-                className="absolute left-4 top-6 text-gray-400"
-              />
+              <Clock size={18} className="absolute left-4 top-6 text-gray-400" />
               <input
                 type="time"
                 value={openTime}
@@ -224,10 +205,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
           <div>
             <label className={labelStyle}>마감 시간</label>
             <div className="relative">
-              <Clock
-                size={18}
-                className="absolute left-4 top-6 text-gray-400"
-              />
+              <Clock size={18} className="absolute left-4 top-6 text-gray-400" />
               <input
                 type="time"
                 value={closeTime}
@@ -336,12 +314,8 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
       <section className={sectionStyle}>
         <div className="flex items-center justify-between gap-4 mb-6">
           <div>
-            <h3 className="text-lg text-black font-medium">
-              식당 테이블 이미지
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              • 최대 용량: 1MB • 형식: JPG(JPEG), PNG
-            </p>
+            <h3 className="text-lg text-black font-medium">식당 테이블 이미지</h3>
+            <p className="mt-2 text-sm text-gray-600">• 최대 용량: 1MB • 형식: JPG(JPEG), PNG</p>
           </div>
 
           <div className="shrink-0">
@@ -422,9 +396,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         <button
           onClick={async () => {
             if (!isValid()) {
-              alert(
-                "가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.",
-              );
+              alert("가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.");
               return;
             }
 
@@ -452,9 +424,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
 
               await updateBusinessHours(storeId, businessHours);
             } catch (e) {
-              alert(
-                "영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.",
-              );
+              alert("영업시간 저장에 실패했습니다. 기본 정보는 저장되었습니다.");
               console.error(e);
               return;
             }

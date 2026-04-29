@@ -1,6 +1,7 @@
+import { Check, X } from "lucide-react";
+
 import { useInView } from "@/hooks/common/useInView";
 import { cn } from "@/lib/utils";
-import { Check, X } from "lucide-react";
 
 export default function ProblemSection() {
   const { ref: sectionRef, inView } = useInView<HTMLElement>({
@@ -21,9 +22,7 @@ export default function ProblemSection() {
             className={cn(
               "bg-[#F8F9FA] rounded-3xl p-12",
               "transition-all duration-900 ease-out",
-              inView
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-20",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-20",
             )}
           >
             <div className="flex items-center gap-3 mb-8">

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import { X } from "lucide-react";
+import React, { useState } from "react";
 
 interface Props {
   onClose: () => void;
@@ -35,10 +35,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
 
         <div className="space-y-4 mb-6">
           <div>
-            <label
-              htmlFor="table-cols"
-              className="block text-sm font-medium mb-1"
-            >
+            <label htmlFor="table-cols" className="block text-sm font-medium mb-1">
               가로 줄 수 (Columns)
             </label>
             <input
@@ -55,10 +52,7 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             />
           </div>
           <div>
-            <label
-              htmlFor="table-rows"
-              className="block text-sm font-medium mb-1"
-            >
+            <label htmlFor="table-rows" className="block text-sm font-medium mb-1">
               세로 줄 수 (Rows)
             </label>
             <input
@@ -87,14 +81,8 @@ const TableCreateModal: React.FC<Props> = ({ onClose, onConfirm }) => {
             onClick={() => {
               const safeCols = Number.isFinite(cols) ? cols : 1;
               const safeRows = Number.isFinite(rows) ? rows : 1;
-              const colClamped = Math.min(
-                Math.max(Math.trunc(safeCols), 1),
-                10,
-              );
-              const rowClamped = Math.min(
-                Math.max(Math.trunc(safeRows), 1),
-                10,
-              );
+              const colClamped = Math.min(Math.max(Math.trunc(safeCols), 1), 10);
+              const rowClamped = Math.min(Math.max(Math.trunc(safeRows), 1), 10);
               onConfirm(colClamped, rowClamped);
             }}
             className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold cursor-pointer"

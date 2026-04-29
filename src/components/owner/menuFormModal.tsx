@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import {
-  createMenus,
-  updateMenu,
-  uploadMenuImage,
-  type MenuUpdateItem,
-} from "@/api/owner/menus";
+import React, { useEffect, useState } from "react";
+
+import { createMenus, type MenuUpdateItem, updateMenu, uploadMenuImage } from "@/api/owner/menus";
 import { deleteMenuImage } from "@/api/owner/menus";
 import type { MenuCategory, MenuItem } from "@/types/menus";
 
@@ -41,9 +37,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
   });
 
   const [_imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(
-    editingMenu?.imageUrl || null,
-  );
+  const [imageUrl, setImageUrl] = useState<string | null>(editingMenu?.imageUrl || null);
   const [imageKey, setImageKey] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -141,9 +135,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
     } catch (err) {
       console.error(err);
       alert(
-        editingMenu
-          ? "메뉴 수정 중 오류가 발생했습니다."
-          : "메뉴 등록 중 오류가 발생했습니다.",
+        editingMenu ? "메뉴 수정 중 오류가 발생했습니다." : "메뉴 등록 중 오류가 발생했습니다.",
       );
     }
   };
@@ -158,9 +150,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center px-8 py-6 border-b border-gray-50 shrink-0">
-          <h3 className="text-xl text-gray-900">
-            {editingMenu ? "메뉴 수정" : "새 메뉴 등록"}
-          </h3>
+          <h3 className="text-xl text-gray-900">{editingMenu ? "메뉴 수정" : "새 메뉴 등록"}</h3>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -269,9 +259,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
               placeholder="메뉴명을 입력하세요"
               className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
 
@@ -329,9 +317,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({
               placeholder="메뉴에 대한 설명을 입력하세요"
               className="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-700 resize-none"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </div>
 

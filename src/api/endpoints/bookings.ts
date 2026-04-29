@@ -36,8 +36,6 @@ type UserBookingsResult = {
 };
 
 export async function getUserBookings(page = 1) {
-  const res = await api.get<APiResult<UserBookingsResult>>(
-    `/api/v1/users/bookings?page=${page}`,
-  );
+  const res = await api.get<APiResult<UserBookingsResult>>(`/api/v1/users/bookings?page=${page}`);
   return res.data.result;
 }

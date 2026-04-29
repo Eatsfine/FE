@@ -1,38 +1,32 @@
+import axios from "axios";
+
+import { useAuthStore } from "@/stores/useAuthStore";
 import type { ApiResponse } from "@/types/api";
 import type {
-  RequestSignupDto,
-  ResponseSignupDto,
   RequestLoginDto,
+  RequestSignupDto,
+  RequestVerifyOwnerDto,
   ResponseLoginDto,
   ResponseLogoutDto,
   ResponseRefreshDto,
-  RequestVerifyOwnerDto,
+  ResponseSignupDto,
   ResponseVerifyOwnerDto,
 } from "@/types/auth";
-import { api } from "./axios";
-import { useAuthStore } from "@/stores/useAuthStore";
-import axios from "axios";
 
-export const postSignup = async (
-  body: RequestSignupDto,
-): Promise<ResponseSignupDto> => {
+import { api } from "./axios";
+
+export const postSignup = async (body: RequestSignupDto): Promise<ResponseSignupDto> => {
   const { data } = await api.post<ResponseSignupDto>("/api/auth/signup", body);
   return data;
 };
 
-export const postLogin = async (
-  body: RequestLoginDto,
-): Promise<ResponseLoginDto> => {
-  const { data } = await api.post<ApiResponse<ResponseLoginDto>>(
-    "/api/auth/login",
-    body,
-  );
+export const postLogin = async (body: RequestLoginDto): Promise<ResponseLoginDto> => {
+  const { data } = await api.post<ApiResponse<ResponseLoginDto>>("/api/auth/login", body);
   return data.result;
 };
 
 const postLogout = async (): Promise<ResponseLogoutDto> => {
-  const { data } =
-    await api.delete<ApiResponse<ResponseLogoutDto>>("/api/auth/logout");
+  const { data } = await api.delete<ApiResponse<ResponseLogoutDto>>("/api/auth/logout");
   return data.result;
 };
 

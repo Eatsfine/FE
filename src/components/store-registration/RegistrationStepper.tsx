@@ -3,9 +3,7 @@ import { Check } from "lucide-react";
 interface RegistrationStepperProps {
   currentStep: 1 | 2 | 3;
 }
-export default function RegistrationStepper({
-  currentStep,
-}: RegistrationStepperProps) {
+export default function RegistrationStepper({ currentStep }: RegistrationStepperProps) {
   const steps = [
     { number: 1, label: "사업자 인증" },
     { number: 2, label: "가게 정보" },

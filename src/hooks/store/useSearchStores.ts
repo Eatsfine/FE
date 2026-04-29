@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { api } from "@/api/axios";
 import type { Category, RestaurantSummary } from "@/types/store";
-import { useQuery } from "@tanstack/react-query";
 
 type Params = {
   keyword: string;

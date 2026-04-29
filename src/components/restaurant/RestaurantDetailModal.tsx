@@ -1,11 +1,13 @@
-import type { Day, RestaurantDetail } from "@/types/store";
 import { Clock, X } from "lucide-react";
-import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
-import { cn } from "@/lib/utils";
+
 import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/useAuthStore";
+import type { Day, RestaurantDetail } from "@/types/store";
+import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
+
+import { Button } from "../ui/button";
 
 type Props = {
   open: boolean;
@@ -52,9 +54,7 @@ function formatBusinessHours(
     return `${DAY_LABEL[day]}: ${open} - ${close}`;
   });
 
-  const breakLine = breakTime
-    ? `브레이크타임: ${breakTime.start} - ${breakTime.end}`
-    : null;
+  const breakLine = breakTime ? `브레이크타임: ${breakTime.start} - ${breakTime.end}` : null;
 
   return { lines, breakLine };
 }
@@ -114,9 +114,7 @@ export default function RestaurantDetailModal({
               <X />
             </button>
           </div>
-          <div className="mt-6 text-sm text-gray-500">
-            잠시만 기다려 주세요..
-          </div>
+          <div className="mt-6 text-sm text-gray-500">잠시만 기다려 주세요..</div>
         </div>
       </div>
     );
@@ -174,9 +172,7 @@ export default function RestaurantDetailModal({
   if (status !== "success") return null;
   if (!restaurant) return null;
 
-  const tableImageUrls = Array.isArray(restaurant.tableImageUrls)
-    ? restaurant.tableImageUrls
-    : [];
+  const tableImageUrls = Array.isArray(restaurant.tableImageUrls) ? restaurant.tableImageUrls : [];
   const { lines: hourLines, breakLine } = formatBusinessHours(
     restaurant.businessHours,
     restaurant.breakTime,
@@ -233,9 +229,7 @@ export default function RestaurantDetailModal({
                     {hourLines.map((t) => (
                       <p key={t}>{t}</p>
                     ))}
-                    {breakLine ? (
-                      <p className="text-sm text-gray-500 mt-2">{breakLine}</p>
-                    ) : null}
+                    {breakLine ? <p className="text-sm text-gray-500 mt-2">{breakLine}</p> : null}
                   </div>
                 </div>
               </div>
@@ -258,10 +252,7 @@ export default function RestaurantDetailModal({
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {tableImageUrls.map((url, idx) => (
-                    <div
-                      key={`${url}-${idx}`}
-                      className="aspect-square rounded-lg overflow-hidden"
-                    >
+                    <div key={`${url}-${idx}`} className="aspect-square rounded-lg overflow-hidden">
                       <img
                         src={url}
                         alt={`테이블 ${idx + 1}`}

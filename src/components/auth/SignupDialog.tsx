@@ -1,22 +1,24 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
-  DialogHeader,
   DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, type SignupFormValues } from "./Signup.schema";
-import { useEffect } from "react";
-import { phoneNumber } from "@/utils/phoneNumber";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useEmailSignup } from "@/hooks/queries/useAuth";
 import { getErrorMessage } from "@/utils/error";
+import { phoneNumber } from "@/utils/phoneNumber";
+
+import { type SignupFormValues, signupSchema } from "./Signup.schema";
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -35,11 +37,7 @@ const defaultValues: SignupFormValues = {
   marketingConsent: false,
 };
 
-export function SignupDialog({
-  isOpen,
-  onClose,
-  onSwitchToLogin,
-}: SignupDialogProps) {
+export function SignupDialog({ isOpen, onClose, onSwitchToLogin }: SignupDialogProps) {
   const signupMutation = useEmailSignup();
 
   const {
@@ -84,9 +82,7 @@ export function SignupDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-125 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">
-            회원가입
-          </DialogTitle>
+          <DialogTitle className="text-center text-2xl font-bold">회원가입</DialogTitle>
           <DialogDescription className="sr-only">
             이메일과 소셜 계정으로 회원가입을 할 수 있는 폼
           </DialogDescription>
@@ -100,11 +96,7 @@ export function SignupDialog({
               className="w-full h-12 text-base cursor-pointer"
               onClick={() => handleSocialLogin("google")}
             >
-              <img
-                src="/icons/google.svg"
-                alt="Google Logo"
-                className="w-5 h-5 mr-3"
-              />
+              <img src="/icons/google.svg" alt="Google Logo" className="w-5 h-5 mr-3" />
               구글로 가입하기
             </Button>
 
@@ -114,11 +106,7 @@ export function SignupDialog({
               className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
               onClick={() => handleSocialLogin("kakao")}
             >
-              <img
-                src="/icons/kakao.svg"
-                alt="Kakao Logo"
-                className="w-5 h-5 mr-3"
-              />
+              <img src="/icons/kakao.svg" alt="Kakao Logo" className="w-5 h-5 mr-3" />
               카카오톡으로 가입하기
             </Button>
           </div>
@@ -139,9 +127,7 @@ export function SignupDialog({
                 className="h-12"
                 {...register("name")}
               />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -153,9 +139,7 @@ export function SignupDialog({
                 className="h-12"
                 {...register("email")}
               />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -178,9 +162,7 @@ export function SignupDialog({
                 )}
               />
               {errors.phoneNumber && (
-                <p className="text-sm text-red-500">
-                  {errors.phoneNumber.message}
-                </p>
+                <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>
               )}
             </div>
 
@@ -193,11 +175,7 @@ export function SignupDialog({
                 className="h-12"
                 {...register("password")}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -210,9 +188,7 @@ export function SignupDialog({
                 {...register("passwordConfirm")}
               />
               {errors.passwordConfirm && (
-                <p className="text-sm text-red-500">
-                  {errors.passwordConfirm.message}
-                </p>
+                <p className="text-sm text-red-500">{errors.passwordConfirm.message}</p>
               )}
             </div>
 
@@ -235,9 +211,7 @@ export function SignupDialog({
                 </Label>
               </div>
               {errors.tosConsent && (
-                <p className="text-sm text-red-500 pl-9">
-                  {errors.tosConsent.message}
-                </p>
+                <p className="text-sm text-red-500 pl-9">{errors.tosConsent.message}</p>
               )}
 
               <div className="flex items-center space-x-2">
@@ -254,14 +228,11 @@ export function SignupDialog({
                   )}
                 />
                 <Label htmlFor="privacy" className="text-sm cursor-pointer">
-                  <span className="text-red-500">*</span> 개인정보 처리방침에
-                  동의합니다
+                  <span className="text-red-500">*</span> 개인정보 처리방침에 동의합니다
                 </Label>
               </div>
               {errors.privacyConsent && (
-                <p className="text-sm text-red-500 pl-9">
-                  {errors.privacyConsent.message}
-                </p>
+                <p className="text-sm text-red-500 pl-9">{errors.privacyConsent.message}</p>
               )}
 
               <div className="flex items-center space-x-2">

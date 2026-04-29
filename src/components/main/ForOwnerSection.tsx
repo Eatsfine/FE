@@ -1,6 +1,7 @@
+import { CircleCheck } from "lucide-react";
+
 import { useInView } from "@/hooks/common/useInView";
 import { cn } from "@/lib/utils";
-import { CircleCheck } from "lucide-react";
 
 export default function ForOwnerSection() {
   const items = [
@@ -25,9 +26,7 @@ export default function ForOwnerSection() {
             className={cn(
               "relative",
               "transition-all duration-900 ease-out w-full h-full object-contain rounded-3xl",
-              inView
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-20",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-20",
             )}
             loading="lazy"
           />
@@ -57,9 +56,7 @@ export default function ForOwnerSection() {
                   className={cn(
                     "flex gap-4",
                     "transition-all duration-900 ease-out",
-                    inView
-                      ? "opacity-100 translate-x-0"
-                      : "opacity-0 translate-x-20",
+                    inView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20",
                   )}
                   style={{
                     transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",

@@ -1,4 +1,5 @@
 import type { AxiosError } from "axios";
+
 import type { ApiError, ApiResponse } from "@/types/api";
 
 export function isApiResponse(data: unknown): data is ApiResponse<unknown> {

@@ -1,6 +1,8 @@
 import axios from "axios";
-import { api } from "../axios";
+
 import type { ApiResponse } from "@/types/api";
+
+import { api } from "../axios";
 
 interface ServerMenu {
   menuId: number;
@@ -61,20 +63,14 @@ interface DeleteMenusResponse {
 }
 
 export async function getMenus(storeId: string | number) {
-  const res = await api.get<ApiResponse<GetMenusResult>>(
-    `/api/v1/stores/${storeId}/menus`,
-  );
+  const res = await api.get<ApiResponse<GetMenusResult>>(`/api/v1/stores/${storeId}/menus`);
   return res.data;
 }
 
-export async function createMenus(
-  storeId: string | number,
-  menus: MenuCreateItem[],
-) {
-  const res = await api.post<ApiResponse<MenuCreateResult>>(
-    `/api/v1/stores/${storeId}/menus`,
-    { menus },
-  );
+export async function createMenus(storeId: string | number, menus: MenuCreateItem[]) {
+  const res = await api.post<ApiResponse<MenuCreateResult>>(`/api/v1/stores/${storeId}/menus`, {
+    menus,
+  });
   return res.data;
 }
 
@@ -82,9 +78,10 @@ export async function uploadMenuImage(storeId: string | number, file: File) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const res = await api.post<
-    ApiResponse<{ imageKey: string; imageUrl: string }>
-  >(`/api/v1/stores/${storeId}/menus/images`, formData);
+  const res = await api.post<ApiResponse<{ imageKey: string; imageUrl: string }>>(
+    `/api/v1/stores/${storeId}/menus/images`,
+    formData,
+  );
   return res.data;
 }
 
@@ -145,8 +142,9 @@ export async function updateMenuSoldOut(
   isSoldOut: boolean,
 ) {
   const body = { isSoldOut };
-  const res = await api.patch<
-    ApiResponse<{ menuId: number; isSoldOut: boolean }>
-  >(`/api/v1/stores/${storeId}/menus/${menuId}/sold-out`, body);
+  const res = await api.patch<ApiResponse<{ menuId: number; isSoldOut: boolean }>>(
+    `/api/v1/stores/${storeId}/menus/${menuId}/sold-out`,
+    body,
+  );
   return res.data;
 }

@@ -20,13 +20,10 @@ export const queryKeys = {
     list: (params?: Params) => ["restaurant", "list", params ?? {}] as const,
 
     details: () => ["restaurant", "detail"] as const,
-    detail: (restaurantId: string | number) =>
-      ["restaurant", "detail", restaurantId] as const,
+    detail: (restaurantId: string | number) => ["restaurant", "detail", restaurantId] as const,
 
-    menus: (restaurantId: string | number) =>
-      ["restaurant", restaurantId, "menus"] as const,
-    seats: (restaurantId: string | number) =>
-      ["restaurant", restaurantId, "seats"] as const,
+    menus: (restaurantId: string | number) => ["restaurant", restaurantId, "menus"] as const,
+    seats: (restaurantId: string | number) => ["restaurant", restaurantId, "seats"] as const,
   },
   reservation: {
     all: ["reservation"] as const,
@@ -35,8 +32,7 @@ export const queryKeys = {
     list: (params?: Params) => ["reservation", "list", params ?? {}] as const,
 
     details: () => ["reservation", "detail"] as const,
-    detail: (reservationId: string | number) =>
-      ["reservation", "detail", reservationId] as const,
+    detail: (reservationId: string | number) => ["reservation", "detail", reservationId] as const,
 
     availableTimes: (storeId: string | number, params?: Params) =>
       ["reservation", "availableTimes", storeId, params ?? {}] as const,
@@ -46,24 +42,20 @@ export const queryKeys = {
   },
   payment: {
     all: ["payment"] as const,
-    detail: (paymentId: string | number) =>
-      ["payment", "detail", paymentId] as const,
+    detail: (paymentId: string | number) => ["payment", "detail", paymentId] as const,
   },
   owner: {
     all: ["owner"] as const,
     restaurants: () => ["owner", "restaurants"] as const,
-    restaurant: (restaurantId: string | number) =>
-      ["owner", "restaurant", restaurantId] as const,
+    restaurant: (restaurantId: string | number) => ["owner", "restaurant", restaurantId] as const,
 
     menus: () => ["owner", "menus"] as const,
-    menuList: (restaurantId: string | number) =>
-      ["owner", "menus", restaurantId] as const,
+    menuList: (restaurantId: string | number) => ["owner", "menus", restaurantId] as const,
 
     reservations: () => ["owner", "reservations"] as const,
     reservationList: (restaurantId: string | number, params?: Params) =>
       ["owner", "reservations", restaurantId, params ?? {}] as const,
 
-    seats: (restaurantId: string | number) =>
-      ["owner", "seats", restaurantId] as const,
+    seats: (restaurantId: string | number) => ["owner", "seats", restaurantId] as const,
   },
 } as const;

@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+
 import { loadKakaoMapSdk } from "@/lib/kakao";
 import type {
   KakaoInfoWindowInstance,
@@ -7,7 +9,6 @@ import type {
   MarkerWithLocation,
 } from "@/types/map";
 import type { RestaurantSummary } from "@/types/store";
-import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   center: LatLng;
@@ -148,10 +149,7 @@ export default function KakaoMap({
     const target = safeMarkers.find((m) => m.id === selectedId);
     if (!target) return;
 
-    const next = new kakao.maps.LatLng(
-      target.location.lat,
-      target.location.lng,
-    );
+    const next = new kakao.maps.LatLng(target.location.lat, target.location.lng);
 
     mapRef.current.panTo(next);
     if (selectedLevel != null) {
@@ -184,8 +182,7 @@ export default function KakaoMap({
         }
         if (infoRef.current) {
           const el = document.createElement("div");
-          el.style.cssText =
-            "padding: 6px 8px; font-size:12px;line-height:1.2;";
+          el.style.cssText = "padding: 6px 8px; font-size:12px;line-height:1.2;";
           el.textContent = store.name;
           infoRef.current.setContent(el);
           infoRef.current.open(mapRef.current, marker);
@@ -243,10 +240,7 @@ export default function KakaoMap({
       ref={containerRef}
       role="region"
       aria-label="레스토랑 위치 지도"
-      className={
-        className ??
-        "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"
-      }
+      className={className ?? "relative w-full h-125 bg-gray-100 rounded-xl overflow-hidden"}
     >
       {sdkError ? (
         <div

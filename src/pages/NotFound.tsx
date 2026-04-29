@@ -1,6 +1,6 @@
+import { ArrowLeft, Home, Search } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Home, ArrowLeft } from "lucide-react";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -25,9 +25,7 @@ const NotFound: React.FC = () => {
           </div>
         </div>
         <h1 className="text-7xl font-bold text-blue-600 mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-          페이지를 찾을 수 없습니다
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-3">페이지를 찾을 수 없습니다</h2>
         <p className="text-gray-500 mb-10 leading-relaxed">
           요청하신 페이지가 삭제되었거나 주소가 올바르지 않습니다.
           <br />

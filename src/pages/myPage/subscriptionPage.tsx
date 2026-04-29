@@ -1,11 +1,10 @@
 import { Check, Crown } from "lucide-react";
 import { useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 export default function SubscriptionPage() {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [selectedPlan, setSelectedPlan] = useState("무료");
 
   const getNextBillingDate = () => {
@@ -18,12 +17,7 @@ export default function SubscriptionPage() {
     {
       name: "무료",
       price: 0,
-      features: [
-        "기본 예약 기능",
-        "월 3회 예약 가능",
-        "일반 리뷰 작성",
-        "기본 알림",
-      ],
+      features: ["기본 예약 기능", "월 3회 예약 가능", "일반 리뷰 작성", "기본 알림"],
     },
     {
       name: "베이직",
@@ -78,11 +72,7 @@ export default function SubscriptionPage() {
   };
 
   const handleCancel = () => {
-    if (
-      confirm(
-        "정말로 구독을 취소하시겠습니까? 다음 결제일부터는 혜택을 이용하실 수 없습니다.",
-      )
-    ) {
+    if (confirm("정말로 구독을 취소하시겠습니까? 다음 결제일부터는 혜택을 이용하실 수 없습니다.")) {
       setSelectedPlan("무료");
       alert("구독 취소가 완료되었습니다.");
     }
@@ -92,9 +82,7 @@ export default function SubscriptionPage() {
     <section className="rounded-xl bg-white p-8 shadow-sm border border-gray-100">
       <div className="mb-8">
         <h2 className="text-xl font-medium">구독 관리</h2>
-        <p className="mt-0.5 text-sm text-gray-600">
-          나에게 맞는 플랜을 선택하세요
-        </p>
+        <p className="mt-0.5 text-sm text-gray-600">나에게 맞는 플랜을 선택하세요</p>
       </div>
 
       <div className="mb-10 rounded-xl bg-blue-50 p-6 border border-blue-100 grid">
@@ -113,9 +101,7 @@ export default function SubscriptionPage() {
           </div>
         )}
         {selectedPlan === "무료" && (
-          <p className="text-sm text-gray-600 italic mt-2">
-            무료로 잇츠파인을 이용 중입니다
-          </p>
+          <p className="text-sm text-gray-600 italic mt-2">무료로 잇츠파인을 이용 중입니다</p>
         )}
       </div>
 
@@ -183,9 +169,7 @@ export default function SubscriptionPage() {
               <div className="mb-6">
                 <p className="text-md font-medium text-gray-900">{plan.name}</p>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl text-gray-900">
-                    ₩{plan.price.toLocaleString()}
-                  </span>
+                  <span className="text-3xl text-gray-900">₩{plan.price.toLocaleString()}</span>
                   <span className="text-gray-500">
                     / {billingCycle === "monthly" ? "월" : "년"}
                   </span>
@@ -194,10 +178,7 @@ export default function SubscriptionPage() {
 
               <ul className="mb-8 flex-1 space-y-4">
                 {plan.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-center gap-3 text-sm text-gray-600"
-                  >
+                  <li key={feature} className="flex items-center gap-3 text-sm text-gray-600">
                     <Check size={18} className="text-blue-500" />
                     {feature}
                   </li>
@@ -227,9 +208,7 @@ export default function SubscriptionPage() {
         <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
           <div>
             <h4 className="text-lg font-semibold text-gray-900">구독 관리</h4>
-            <p className="mt-1 text-sm text-gray-500">
-              구독을 일시정지하거나 취소할 수 있습니다
-            </p>
+            <p className="mt-1 text-sm text-gray-500">구독을 일시정지하거나 취소할 수 있습니다</p>
           </div>
           <div className="flex gap-3">
             <button

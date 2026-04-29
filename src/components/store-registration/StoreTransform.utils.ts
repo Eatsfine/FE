@@ -1,4 +1,5 @@
 import type { BusinessHour, Day, RequestStoreCreateDto } from "@/types/store";
+
 import type { StoreInfoFormValues } from "./StoreInfo.schema";
 
 const formatSido = (sido: string): string => {
@@ -31,10 +32,7 @@ const formatTimeToBackend = (timeStr: string | undefined): string => {
   return timeStr;
 };
 
-const formatCoordinate = (
-  value: number | string | undefined,
-  name: string,
-): number => {
+const formatCoordinate = (value: number | string | undefined, name: string): number => {
   if (value == null || value === undefined || value === "") {
     throw new Error(`${name} 정보가 누락되었습니다. 주소를 다시 검색해주세요.`);
   }
@@ -58,8 +56,7 @@ export const transformToRegister = (
     longitude,
   } = step2Data;
 
-  const fullAddress =
-    detailAddress && address ? `${address} ${detailAddress}` : address || "";
+  const fullAddress = detailAddress && address ? `${address} ${detailAddress}` : address || "";
 
   const weekDays: Day[] = [
     "MONDAY",

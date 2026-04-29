@@ -1,6 +1,7 @@
-import { confirmPayment } from "@/api/endpoints/payments";
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+import { confirmPayment } from "@/api/endpoints/payments";
 
 export default function SuccessPage() {
   const [sp] = useSearchParams();

@@ -1,3 +1,8 @@
+import axios from "axios";
+import { X } from "lucide-react";
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import CompleteModal from "@/components/store-registration/CompleteModal";
 import ConfirmModal from "@/components/store-registration/ConfirmModal";
 import type { MenuFormValues } from "@/components/store-registration/Menu.schema";
@@ -11,10 +16,6 @@ import { transformToRegister } from "@/components/store-registration/StoreTransf
 import { useMenuCreate, useMenuImage } from "@/hooks/queries/useMenu";
 import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
 import { getErrorMessage } from "@/utils/error";
-import axios from "axios";
-import { X } from "lucide-react";
-import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 type Step1Data = {
   name: string;
@@ -54,21 +55,15 @@ export default function StoreRegistrationPage() {
 
   const TOTAL_STEPS = 3;
 
-  const handleStep2Change = useCallback(
-    (isValid: boolean, data: StoreInfoFormValues) => {
-      setStep2Data(data);
-      setIsStep2Valid(isValid);
-    },
-    [],
-  );
+  const handleStep2Change = useCallback((isValid: boolean, data: StoreInfoFormValues) => {
+    setStep2Data(data);
+    setIsStep2Valid(isValid);
+  }, []);
 
-  const handleStep3Change = useCallback(
-    (isValid: boolean, data: MenuFormValues) => {
-      setStep3Data(data);
-      setIsStep3Valid(isValid);
-    },
-    [],
-  );
+  const handleStep3Change = useCallback((isValid: boolean, data: MenuFormValues) => {
+    setStep3Data(data);
+    setIsStep3Valid(isValid);
+  }, []);
 
   const handleNext = async () => {
     if (currentStep < TOTAL_STEPS) {
@@ -207,16 +202,10 @@ export default function StoreRegistrationPage() {
           />
         )}
         {currentStep === 2 && (
-          <StepStoreInfo
-            defaultValues={step2Data}
-            onChange={handleStep2Change}
-          />
+          <StepStoreInfo defaultValues={step2Data} onChange={handleStep2Change} />
         )}
         {currentStep === 3 && (
-          <StepMenuRegistration
-            defaultValues={step3Data}
-            onChange={handleStep3Change}
-          />
+          <StepMenuRegistration defaultValues={step3Data} onChange={handleStep3Change} />
         )}
       </main>
 

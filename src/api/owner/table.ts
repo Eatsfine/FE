@@ -1,6 +1,8 @@
-import { api } from "../axios";
-import type { ApiResponse } from "@/types/api";
 import type { AxiosProgressEvent } from "axios";
+
+import type { ApiResponse } from "@/types/api";
+
+import { api } from "../axios";
 
 interface UploadTableImageResult {
   tableId: number;
@@ -49,11 +51,7 @@ export const deleteTableImage = (
   return api.delete(`/api/v1/stores/${storeId}/tables/${tableId}/table-image`);
 };
 
-export const patchTableInfo = (
-  storeId: number,
-  tableId: number,
-  body: PatchTableRequest,
-) =>
+export const patchTableInfo = (storeId: number, tableId: number, body: PatchTableRequest) =>
   api.patch<ApiResponse<{ updatedTables?: UpdatedTable[] }>>(
     `/api/v1/stores/${storeId}/tables/${tableId}`,
     body,

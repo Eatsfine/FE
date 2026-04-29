@@ -1,6 +1,7 @@
+import { CircleCheck } from "lucide-react";
+
 import { useInView } from "@/hooks/common/useInView";
 import { cn } from "@/lib/utils";
-import { CircleCheck } from "lucide-react";
 
 const items = [
   "원하는 자리를 미리 선택하고 예약",
@@ -19,9 +20,7 @@ export default function ForUserSection() {
           <div
             className={cn(
               "transition-all duration-900 ease-out",
-              inView
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-20",
+              inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-20",
             )}
           >
             <span className="inline-block bg-[#E3F2FD] px-4 py-2 rounded-full mb-6 text-sm tracking-wide font-normal">
@@ -44,9 +43,7 @@ export default function ForUserSection() {
                   className={cn(
                     "flex gap-4",
                     "transition-all duration-900 ease-out",
-                    inView
-                      ? "opacity-100 translate-x-0"
-                      : "opacity-0 -translate-x-20",
+                    inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-20",
                   )}
                   style={{
                     transitionDelay: inView ? `${200 + idx * 120}ms` : "0ms",

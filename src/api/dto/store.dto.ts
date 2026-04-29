@@ -1,9 +1,4 @@
-export type CategoryDTO =
-  | "KOREAN"
-  | "CHINESE"
-  | "JAPANESE"
-  | "WESTERN"
-  | "CAFE";
+export type CategoryDTO = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
 export type DayDTO =
   | "MONDAY"

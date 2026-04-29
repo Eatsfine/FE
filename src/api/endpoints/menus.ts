@@ -1,4 +1,5 @@
 import type { MenuCategory, MenuItem } from "@/types/menus";
+
 import { api } from "../axios";
 
 type ApiResult<T> = {
@@ -24,9 +25,7 @@ type MenuListResult = {
 };
 
 export async function getMenus(storeId: string): Promise<MenuItem[]> {
-  const { data } = await api.get<ApiResult<MenuListResult>>(
-    `/api/v1/stores/${storeId}/menus`,
-  );
+  const { data } = await api.get<ApiResult<MenuListResult>>(`/api/v1/stores/${storeId}/menus`);
   if (!data?.isSuccess) {
     throw {
       status: 0,

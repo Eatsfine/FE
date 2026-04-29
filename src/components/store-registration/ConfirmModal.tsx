@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -5,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { ReactNode } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -39,18 +40,14 @@ export default function ConfirmModal({
       <DialogContent showCloseButton={false} className="sm:max-w-[440px]">
         <DialogHeader className="flex flex-col items-center justify-center text-center">
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="text-center mt-2">
-            {description}
-          </DialogDescription>
+          <DialogDescription className="text-center mt-2">{description}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-row items-center justify-center w-full gap-6 mt-4">
           <button
             type="button"
             onClick={onConfirm}
             className={`flex-1 py-2 text-white rounded-lg transition-colors cursor-pointer ${
-              variant === "danger"
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-blue-500 hover:bg-blue-600"
+              variant === "danger" ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
             }`}
           >
             {confirmLabel}

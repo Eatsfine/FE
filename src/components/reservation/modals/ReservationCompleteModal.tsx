@@ -1,3 +1,6 @@
+import { CircleCheck } from "lucide-react";
+import { useEffect } from "react";
+
 import { useModalPresence } from "@/hooks/common/useModalPresence";
 import { cn } from "@/lib/utils";
 import type { ReservationDraft } from "@/types/restaurant";
@@ -5,8 +8,6 @@ import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { toHHmm } from "@/utils/time";
-import { CircleCheck } from "lucide-react";
-import { useEffect } from "react";
 
 type Props = {
   open: boolean;

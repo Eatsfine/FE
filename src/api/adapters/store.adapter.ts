@@ -1,5 +1,5 @@
-import type { BreakTime, RestaurantDetail } from "@/types/store";
 import type { StoreDetailDataDTO } from "@/api/dto/store.dto";
+import type { BreakTime, RestaurantDetail } from "@/types/store";
 
 export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);
@@ -26,10 +26,7 @@ export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   };
 }
 
-function toBreakTime(
-  start?: string | null,
-  end?: string | null,
-): BreakTime | undefined {
+function toBreakTime(start?: string | null, end?: string | null): BreakTime | undefined {
   if (!start || !end) return undefined;
   return { start, end };
 }
