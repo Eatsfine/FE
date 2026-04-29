@@ -45,5 +45,8 @@ export async function confirmPayment(body: {
   amount: number;
 }) {
   const res = await api.post<ApiEnvelope<PaymentConfirmResult>>("/api/v1/payments/confirm", body);
+  if (!res.data?.isSuccess) {
+    throw new Error(res.data?.message ?? "결제 승인에 실패했습니다.");
+  }
   return res.data.result;
 }

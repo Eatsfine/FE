@@ -176,13 +176,24 @@ export default function SupportModal({ isOpen, onClose, onComplete }: SupportMod
               </Label>
               <textarea
                 id="content"
+                aria-invalid={!!errors.content}
+                aria-describedby={errors.content ? "support-content-error" : undefined}
                 rows={6}
                 placeholder="문의하실 내용을 자세히 입력하세요"
                 maxLength={2000}
                 className={inputStyle + " resize-none"}
                 {...register("content")}
               ></textarea>
-              {errors.content && <p className="text-sm text-red-500">{errors.content.message}</p>}
+              {errors.content && (
+                <p
+                  id="support-content-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="text-sm text-red-500"
+                >
+                  {errors.content.message}
+                </p>
+              )}
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

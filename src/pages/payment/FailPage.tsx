@@ -71,7 +71,8 @@ export default function FailPage() {
                   상세 정보 보기
                 </summary>
                 <div className="mt-2 text-xs text-gray-500 break-all space-y-1">
-                  {code ? `code: ${code}` : null};{message ? `message: ${message}` : null};
+                  {code && <div>{`code: ${code}`}</div>}
+                  {message && <div>{`message: ${message}`}</div>}
                 </div>
               </details>
             ) : null}

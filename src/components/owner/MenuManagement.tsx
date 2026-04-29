@@ -49,7 +49,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
 
   const mapServerToLocal = (s: ServerMenu, restaurantId?: string): MenuItem => ({
-    id: String(s.menuId ?? `MENU_${Date.now()}`),
+    id: String(s.menuId ?? `MENU_${crypto.randomUUID()}`),
     restaurantId: restaurantId ?? "",
     name: s.name ?? "",
     description: s.description ?? "",

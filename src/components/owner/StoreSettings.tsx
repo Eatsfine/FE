@@ -396,7 +396,7 @@ const StoreSettings: React.FC<StoreSettingsProps> = ({ storeId }) => {
         <button
           onClick={async () => {
             if (!isValid()) {
-              alert("가게 이름, 설명, 전화번호, 이메일, 주소는 필수 입력 항목입니다.");
+              alert("가게 이름, 설명, 전화번호는 필수 입력 항목입니다.");
               return;
             }
 

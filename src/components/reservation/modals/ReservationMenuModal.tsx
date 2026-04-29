@@ -7,11 +7,10 @@ import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { cn } from "@/lib/utils";
 import {
-  type MenuCategory,
-  MenuCategoryLabel,
   type MenuItem,
   type SelectedMenu,
   type UiCategory,
+  UiMenuCategoryLabel,
 } from "@/types/menus";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
@@ -180,10 +179,10 @@ export default function ReservationMenuModal({
               아직 등록된 메뉴가 없어요
             </div>
           ) : (
-            (["MAIN", "SIDE", "BEVERAGE", "ALCOHOL"] as MenuCategory[]).map((cat) => {
+            (["MAIN", "SIDE", "BEVERAGE", "ALCOHOL", "OTHER"] as UiCategory[]).map((cat) => {
               const list = grouped[cat];
               if (list.length === 0) return null;
-              const safeLabel = MenuCategoryLabel[cat] ?? "기타";
+              const safeLabel = UiMenuCategoryLabel[cat] ?? "기타";
 
               return (
                 <section key={cat} className="space-y-3">

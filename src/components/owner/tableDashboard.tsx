@@ -682,17 +682,20 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
                           ) : (
                             <>
                               {table.numValue}번 테이블
-                              <Pencil
-                                size={12}
-                                className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                              <button
+                                type="button"
+                                aria-label="테이블 번호 수정"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   updateTable(id, { isEditingNum: true });
                                 }}
-                                aria-label="테이블 번호 수정"
-                                role="button"
-                                tabIndex={0}
-                              />
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Pencil
+                                  size={12}
+                                  className="text-orange-400 fill-orange-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                                />
+                              </button>
                             </>
                           )}
                         </div>

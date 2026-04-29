@@ -54,8 +54,6 @@ export default function PaymentModal({
     return calcMenuTotal(menus, draft.selectedMenus);
   }, [menus, draft.selectedMenus]);
 
-  const amount = booking?.totalDeposit ?? 0;
-
   const paymentMethodWidgetRef = useRef<PaymentMethodWidgetInstance | null>(null);
   const agreementWidgetRef = useRef<AgreementWidgetInstance | null>(null);
 
@@ -74,7 +72,8 @@ export default function PaymentModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   const userId = useUserId();
-  const [_payAmount, setPayAmount] = useState<number>(booking?.totalDeposit ?? 0);
+  const [payAmount, setPayAmount] = useState<number>(booking?.totalDeposit ?? 0);
+  const amount = payAmount;
   useEffect(() => {
     setPayAmount(booking?.totalDeposit ?? 0);
   }, [booking?.totalDeposit]);

@@ -56,6 +56,9 @@ type ChangePasswordResponse = {
 };
 export async function putChangePassword(body: ChangePasswordRequest) {
   const res = await api.put<ApiEnvelope<ChangePasswordResponse>>("/api/v1/member/password", body);
+  if (!res.data?.isSuccess) {
+    throw new Error(res.data.message ?? "비밀번호 변경에 실패했습니다");
+  }
   return res.data.result;
 }
 

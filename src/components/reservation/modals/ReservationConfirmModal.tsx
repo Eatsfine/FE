@@ -165,7 +165,7 @@ export default function ReservationConfirmModal({
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
             <div className="text-gray-800 mt-1 font-semibold">
-              예약금: {isCalculating ? "계산중 .." : `${formatKrw(depositAmount)}원`}
+              예약금: {isCalculating ? "계산 중 .." : `${formatKrw(depositAmount)}원`}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)
@@ -189,7 +189,7 @@ export default function ReservationConfirmModal({
               onClick={onClickConfirm}
               disabled={createBookingMutation.isPending}
             >
-              {createBookingMutation.isPending ? "예약 생성중" : "예약금 결제하기"}
+              {createBookingMutation.isPending ? "예약 생성 중" : "예약금 결제하기"}
             </button>
           </div>
         </div>

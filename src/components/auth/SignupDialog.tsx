@@ -135,11 +135,22 @@ export function SignupDialog({ isOpen, onClose, onSwitchToLogin }: SignupDialogP
               <Input
                 id="signup-email"
                 type="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "signup-email-error" : undefined}
                 placeholder="example@email.com"
                 className="h-12"
                 {...register("email")}
               />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              {errors.email && (
+                <p
+                  id="signup-email-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="text-sm text-red-500"
+                >
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -162,7 +173,14 @@ export function SignupDialog({ isOpen, onClose, onSwitchToLogin }: SignupDialogP
                 )}
               />
               {errors.phoneNumber && (
-                <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>
+                <p
+                  id="signup-phone-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="text-sm text-red-500"
+                >
+                  {errors.phoneNumber.message}
+                </p>
               )}
             </div>
 
@@ -175,7 +193,16 @@ export function SignupDialog({ isOpen, onClose, onSwitchToLogin }: SignupDialogP
                 className="h-12"
                 {...register("password")}
               />
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+              {errors.password && (
+                <p
+                  id="signup-password-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="text-sm text-red-500"
+                >
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
