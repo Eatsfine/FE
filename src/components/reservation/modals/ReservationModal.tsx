@@ -1,26 +1,28 @@
+import { CalendarIcon, Clock3, Users, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
+import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { cn } from "@/lib/utils";
 import {
-  SEATS,
   type ReservationDraft,
   type SeatLayout,
+  SEATS,
   type SeatType,
   type TablePref,
 } from "@/types/restaurant";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarIcon, Clock3, Users, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { Calendar } from "../../ui/calendar";
-import { Button } from "../../ui/button";
-import { startOfTodayInKst, toYmd } from "@/utils/date";
-import TableMap from "../parts/TableMap";
-import { useConfirmClose } from "@/hooks/common/useConfirmClose";
-import { useDepositRate } from "@/hooks/reservation/useDepositRate";
-import { useAvailableTimes } from "@/hooks/reservation/useAvailableTimes";
-import { useAvailableTables } from "@/hooks/reservation/useAvailableTables";
-import { seatsTypeToSeatType } from "@/utils/reservation";
 import type { RestaurantDetail } from "@/types/store";
-import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { startOfTodayInKst, toYmd } from "@/utils/date";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
+import { seatsTypeToSeatType } from "@/utils/reservation";
+
+import { Button } from "../../ui/button";
+import { Calendar } from "../../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import TableMap from "../parts/TableMap";
 
 type Props = {
   open: boolean;
@@ -110,8 +112,7 @@ export default function ReservationModal({
       gridCols: data.cols,
       tables: data.tables.map((t) => ({
         id: t.tableId,
-        tableNo:
-          parseInt((t.tableNumber ?? "").replace(/\D/g, ""), 10) || t.tableId,
+        tableNo: parseInt((t.tableNumber ?? "").replace(/\D/g, ""), 10) || t.tableId,
         seatType: seatsTypeToSeatType(t.seatsType),
         minPeople: 1,
         maxPeople: t.tableSeats,
@@ -147,14 +148,10 @@ export default function ReservationModal({
   }, [timesQuery.data]);
 
   const timeUi = useMemo(() => {
-    if (!dateYmd)
-      return { msg: "날짜를 먼저 선택해주세요", times: [] as string[] };
-    if (timesQuery.isLoading)
-      return { msg: "예약 가능시간 기다리는중..", times: [] };
-    if (timesQuery.isError)
-      return { msg: "휴무일 입니다. 다른 날짜를 선택해주세요", times: [] };
-    if (times.length === 0)
-      return { msg: "예약 가능한 시간이 없어요", times: [] };
+    if (!dateYmd) return { msg: "날짜를 먼저 선택해주세요", times: [] as string[] };
+    if (timesQuery.isLoading) return { msg: "예약 가능시간 기다리는중..", times: [] };
+    if (timesQuery.isError) return { msg: "휴무일 입니다. 다른 날짜를 선택해주세요", times: [] };
+    if (times.length === 0) return { msg: "예약 가능한 시간이 없어요", times: [] };
     return { msg: null as string | null, times };
   }, [dateYmd, timesQuery.isLoading, timesQuery.isError, times]);
 
@@ -168,8 +165,7 @@ export default function ReservationModal({
   const prevDepsRef = useRef({ people, date, time });
   useEffect(() => {
     const prev = prevDepsRef.current;
-    const changed =
-      prev.people !== people || prev.date !== date || prev.time !== time;
+    const changed = prev.people !== people || prev.date !== date || prev.time !== time;
     prevDepsRef.current = { people, date, time };
     if (!changed) return;
     const raf = requestAnimationFrame(() => {
@@ -203,9 +199,7 @@ export default function ReservationModal({
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="min-w-0">
             <h2 className="text-xl truncate font-medium">{restaurant.name} </h2>
-            <p className="text-sm text-muted-foreground truncate">
-              {restaurant.address}
-            </p>
+            <p className="text-sm text-muted-foreground truncate">{restaurant.address}</p>
           </div>
           <button
             type="button"
@@ -279,9 +273,7 @@ export default function ReservationModal({
               <Clock3 className="h-5 w-5" />
               시간대
             </div>
-            {timeUi.msg ? (
-              <p className="text-muted-foreground">{timeUi.msg}</p>
-            ) : null}
+            {timeUi.msg ? <p className="text-muted-foreground">{timeUi.msg}</p> : null}
             <div className="flex flex-wrap gap-2">
               {timeUi.times.map((t) => {
                 const active = time === t;
@@ -331,9 +323,7 @@ export default function ReservationModal({
               })}
             </div>
             {noAvailableSeats ? (
-              <p className="text-muted-foreground">
-                예약 가능한 좌석이 없어요.{" "}
-              </p>
+              <p className="text-muted-foreground">예약 가능한 좌석이 없어요. </p>
             ) : null}
           </div>
           <div className="mt-6 space-y-2">
@@ -344,14 +334,10 @@ export default function ReservationModal({
               </p>
             )}
             {!layout && canQueryTables && !availableTablesQuery.isLoading && (
-              <p className="text-sm text-muted-foreground">
-                테이블 배치 정보가 없어요.
-              </p>
+              <p className="text-sm text-muted-foreground">테이블 배치 정보가 없어요.</p>
             )}
             {!layout && canQueryTables && availableTablesQuery.isLoading && (
-              <p className="text-sm text-muted-foreground">
-                테이블 정보를 불러오는중..
-              </p>
+              <p className="text-sm text-muted-foreground">테이블 정보를 불러오는중..</p>
             )}
             {layout && canQueryTables && !noAvailableSeats && (
               <div className="overflow-x-auto">
@@ -392,9 +378,7 @@ export default function ReservationModal({
                     ) : null}
                   </span>
                   <div>
-                    <div className="text-md font-medium">
-                      테이블 떨어져도 상관없어요
-                    </div>
+                    <div className="text-md font-medium">테이블 떨어져도 상관없어요</div>
                     <div className="text-sm text-muted-foreground">
                       인원이 많을 경우 여러 테이블로 나누어 앉을 수 있습니다
                     </div>
@@ -430,13 +414,11 @@ export default function ReservationModal({
             <div className="rounded-lg p-4 text-md border-2 border-blue-500 text-blue-500 bg-blue-50 space-y-1">
               <div className="flex items-center justify-between">
                 <span>사전결제</span>
-                <span className="font-semibold">
-                  {Math.round(depositRate * 100)}% 정책
-                </span>
+                <span className="font-semibold">{Math.round(depositRate * 100)}% 정책</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                예약금은 <b>메뉴 선택 후</b> 메뉴 총액의{" "}
-                <b>{Math.round(depositRate * 100)}%</b>로 계산됩니다.
+                예약금은 <b>메뉴 선택 후</b> 메뉴 총액의 <b>{Math.round(depositRate * 100)}%</b>로
+                계산됩니다.
               </p>
               <p className="text-xs text-muted-foreground">
                 예약 확정을 위해 예약금 결제가 필요합니다.
@@ -451,8 +433,7 @@ export default function ReservationModal({
             onClick={() => {
               if (!date || !time || !selectedTableId || !seatType) return;
               const selectedTableNo =
-                layout?.tables.find((t) => t.id === selectedTableId)?.tableNo ??
-                null;
+                layout?.tables.find((t) => t.id === selectedTableId)?.tableNo ?? null;
               onClickConfirm({
                 people,
                 date,

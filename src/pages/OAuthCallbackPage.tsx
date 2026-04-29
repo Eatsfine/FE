@@ -1,6 +1,7 @@
+import { Loader2 } from "lucide-react";
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+
 import { useAuthActions } from "@/stores/useAuthStore";
 
 const OAuthCallbackPage: React.FC = () => {
@@ -31,9 +32,7 @@ const OAuthCallbackPage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          로그인 처리 중...
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">로그인 처리 중...</h2>
         <p className="text-gray-500 leading-relaxed">
           잠시만 기다려 주시면
           <br />

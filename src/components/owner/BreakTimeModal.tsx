@@ -1,5 +1,5 @@
+import { Clock, X } from "lucide-react";
 import React, { useState } from "react";
-import { X, Clock } from "lucide-react";
 
 export interface BreakTime {
   start: string;
@@ -13,12 +13,7 @@ interface Props {
   onConfirm: (breakTime: BreakTime) => void;
 }
 
-const BreakTimeModal: React.FC<Props> = ({
-  openTime,
-  closeTime,
-  onClose,
-  onConfirm,
-}) => {
+const BreakTimeModal: React.FC<Props> = ({ openTime, closeTime, onClose, onConfirm }) => {
   const [start, setStart] = useState("14:00");
   const [end, setEnd] = useState("15:00");
 
@@ -51,10 +46,7 @@ const BreakTimeModal: React.FC<Props> = ({
           <X />
         </button>
 
-        <div
-          id="breaktime-modal-title"
-          className="flex items-center gap-2 font-bold text-lg mb-4"
-        >
+        <div id="breaktime-modal-title" className="flex items-center gap-2 font-bold text-lg mb-4">
           <Clock className="text-orange-500" /> 브레이크 타임 설정
         </div>
 

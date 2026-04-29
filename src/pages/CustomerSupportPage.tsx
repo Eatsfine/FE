@@ -1,8 +1,9 @@
+import { ChevronLeft, CircleHelp } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import SupportContact from "@/components/customer-support/SupportContact";
 import SupportFAQ from "@/components/customer-support/SupportFAQ";
 import SupportHero from "@/components/customer-support/SupportHero";
-import { ChevronLeft, CircleHelp } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export default function CustomerSupportPage() {
   return (
@@ -27,9 +28,7 @@ export default function CustomerSupportPage() {
 
       <footer className="bg-gray-900 text-gray-400">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-16 py-8">
-          <p className="text-center break-keep">
-            © 2026 Eatsfine. All rights reserved.
-          </p>
+          <p className="text-center break-keep">© 2026 Eatsfine. All rights reserved.</p>
         </div>
       </footer>
     </div>

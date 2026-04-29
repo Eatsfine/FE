@@ -1,9 +1,7 @@
-import {
-  getAvailableTables,
-  type GetAvailableTablesParams,
-} from "@/api/endpoints/reservations";
-import { queryKeys } from "@/query/keys";
 import { useQuery } from "@tanstack/react-query";
+
+import { getAvailableTables, type GetAvailableTablesParams } from "@/api/endpoints/reservations";
+import { queryKeys } from "@/query/keys";
 
 export function useAvailableTables(params: GetAvailableTablesParams | null) {
   return useQuery({

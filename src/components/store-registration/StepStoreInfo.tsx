@@ -1,17 +1,16 @@
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { Label } from "../ui/label";
-import { StoreInfoSchema, type StoreInfoFormValues } from "./StoreInfo.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { phoneNumber } from "@/utils/phoneNumber";
-import DaumPostcodeEmbed from "react-daum-postcode";
-import { loadKakaoMapSdk } from "@/lib/kakao";
 import { Upload, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import DaumPostcodeEmbed from "react-daum-postcode";
+import { Controller, useForm, useWatch } from "react-hook-form";
+
+import { loadKakaoMapSdk } from "@/lib/kakao";
+import type { KakaoAddressSearchResult, KakaoAddressSearchStatus } from "@/types/kakao";
 import type { AddressSearchResult } from "@/types/store";
-import type {
-  KakaoAddressSearchResult,
-  KakaoAddressSearchStatus,
-} from "@/types/kakao";
+import { phoneNumber } from "@/utils/phoneNumber";
+
+import { Label } from "../ui/label";
+import { type StoreInfoFormValues, StoreInfoSchema } from "./StoreInfo.schema";
 
 interface StepStoreInfoProps {
   defaultValues: Partial<StoreInfoFormValues>;
@@ -27,10 +26,7 @@ const DAYS = [
   { label: "일", value: "SUNDAY" },
 ];
 
-export default function StepStoreInfo({
-  defaultValues,
-  onChange,
-}: StepStoreInfoProps) {
+export default function StepStoreInfo({ defaultValues, onChange }: StepStoreInfoProps) {
   const [isOpenPostcode, setIsOpenPostcode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -134,8 +130,7 @@ export default function StepStoreInfo({
     if (data.addressType === "R") {
       if (data.bname !== "") extraAddress += data.bname;
       if (data.buildingName !== "")
-        extraAddress +=
-          extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+        extraAddress += extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
       fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
     }
 
@@ -151,10 +146,7 @@ export default function StepStoreInfo({
 
       geocoder.addressSearch(
         fullAddress,
-        (
-          result: KakaoAddressSearchResult[],
-          status: KakaoAddressSearchStatus,
-        ) => {
+        (result: KakaoAddressSearchResult[], status: KakaoAddressSearchStatus) => {
           if (status === maps.services.Status.OK) {
             const lat = parseFloat(result[0].y);
             const lng = parseFloat(result[0].x);
@@ -182,17 +174,13 @@ export default function StepStoreInfo({
 
   const mainImageError = errors.mainImage;
   const mainImageErrorMessage =
-    typeof mainImageError?.message === "string"
-      ? mainImageError.message
-      : undefined;
+    typeof mainImageError?.message === "string" ? mainImageError.message : undefined;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h3 className="text-gray-900 mb-2 font-bold">가게 정보 입력</h3>
-        <p className="text-gray-600 text-sm">
-          고객에게 보여질 가게 정보를 입력해주세요.
-        </p>
+        <p className="text-gray-600 text-sm">고객에게 보여질 가게 정보를 입력해주세요.</p>
       </div>
 
       <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
@@ -210,9 +198,7 @@ export default function StepStoreInfo({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.storeName && touchedFields.storeName && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.storeName.message}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.storeName.message}</p>
             )}
           </div>
           <div>
@@ -232,18 +218,13 @@ export default function StepStoreInfo({
               <option value="CAFE">카페</option>
             </select>
             {errors.category && touchedFields.category && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.category.message}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>
             )}
           </div>
         </div>
 
         <div>
-          <Label
-            htmlFor="address"
-            className="flex flex-wrap items-baseline text-gray-700 mb-2"
-          >
+          <Label htmlFor="address" className="flex flex-wrap items-baseline text-gray-700 mb-2">
             주소
             <span className="text-red-500 mr-2">*</span>
             <span className="text-xs text-blue-600 break-keep">
@@ -269,9 +250,7 @@ export default function StepStoreInfo({
               </button>
             </div>
             {errors.address && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.address.message}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
             )}
             <input
               id="detailAddress"
@@ -308,9 +287,7 @@ export default function StepStoreInfo({
             )}
           />
           {errors.phoneNumber && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.phoneNumber.message}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</p>
           )}
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -346,11 +323,7 @@ export default function StepStoreInfo({
             name="holidays"
             control={control}
             render={({ field: { value = [], onChange } }) => (
-              <div
-                className="flex flex-wrap gap-2"
-                role="group"
-                aria-labelledby="holidays-label"
-              >
+              <div className="flex flex-wrap gap-2" role="group" aria-labelledby="holidays-label">
                 {DAYS.map((day) => {
                   const isSelected = value.includes(day.value);
                   return (
@@ -396,10 +369,7 @@ export default function StepStoreInfo({
             </select>
           </div>
           <div>
-            <Label
-              htmlFor="bookingIntervalMinutes"
-              className="block text-gray-700 mb-2"
-            >
+            <Label htmlFor="bookingIntervalMinutes" className="block text-gray-700 mb-2">
               예약 시간 간격 (분)
             </Label>
             <input
@@ -419,9 +389,7 @@ export default function StepStoreInfo({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.bookingIntervalMinutes && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.bookingIntervalMinutes.message}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.bookingIntervalMinutes.message}</p>
             )}
           </div>
         </div>
@@ -444,17 +412,11 @@ export default function StepStoreInfo({
                 className="relative w-32 h-32 border-2 border-gray-300 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
               >
                 <Upload className="size-8 text-gray-400" aria-hidden="true" />
-                <span className="text-xs text-gray-500 mt-2">
-                  이미지 업로드
-                </span>
+                <span className="text-xs text-gray-500 mt-2">이미지 업로드</span>
               </Label>
             ) : (
               <div className="relative w-32 h-32 border-2 border-gray-200 border-solid rounded-lg overflow-hidden group">
-                <img
-                  src={previewUrl}
-                  alt="미리보기"
-                  className="w-full h-full object-cover"
-                />
+                <img src={previewUrl} alt="미리보기" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
@@ -470,9 +432,7 @@ export default function StepStoreInfo({
               <p>• 최대 용량: 1MB</p>
               <p>• 형식: JPG(JPEG), PNG</p>
               {mainImageErrorMessage && (
-                <p className="text-red-500 text-xs mt-1">
-                  • {mainImageErrorMessage}
-                </p>
+                <p className="text-red-500 text-xs mt-1">• {mainImageErrorMessage}</p>
               )}
             </div>
           </div>
@@ -489,9 +449,7 @@ export default function StepStoreInfo({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
           {errors.description && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.description.message}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>
           )}
         </div>
       </form>
@@ -515,10 +473,7 @@ export default function StepStoreInfo({
               <X className="size-6" />
             </button>
             <div className="flex-1 p-4 pt-11">
-              <DaumPostcodeEmbed
-                onComplete={handleAddressComplete}
-                style={{ height: "100%" }}
-              />
+              <DaumPostcodeEmbed onComplete={handleAddressComplete} style={{ height: "100%" }} />
             </div>
           </div>
         </div>

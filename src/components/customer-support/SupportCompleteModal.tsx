@@ -1,5 +1,6 @@
 import { Send, X } from "lucide-react";
 import { useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -46,9 +47,7 @@ export default function SupportCompleteModal({
             </button>
           </div>
           {/* 스크린 리더용 설명(경고 방지) */}
-          <DialogDescription className="sr-only">
-            1:1 문의 내용 완료 모달
-          </DialogDescription>
+          <DialogDescription className="sr-only">1:1 문의 내용 완료 모달</DialogDescription>
         </DialogHeader>
         <div className="p-12 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

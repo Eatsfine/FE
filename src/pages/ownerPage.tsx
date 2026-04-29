@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import StoreSettings from "../components/owner/StoreSettings";
-import MenuManagement from "../components/owner/MenuManagement";
 import { useParams } from "react-router-dom";
+
 import TableDashboard from "@/components/owner/tableDashboard";
+
+import MenuManagement from "../components/owner/MenuManagement";
+import StoreSettings from "../components/owner/StoreSettings";
 
 type TabType = "dashboard" | "settings" | "menu";
 
@@ -18,14 +20,10 @@ const OwnerPage: React.FC = () => {
             <button
               onClick={() => setActiveTab("dashboard")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === "dashboard"
-                  ? "text-blue-600"
-                  : "text-gray-900 hover:text-gray-900"
+                activeTab === "dashboard" ? "text-blue-600" : "text-gray-900 hover:text-gray-900"
               }`}
             >
-              <div className="cursor-pointer flex items-center gap-2">
-                대시보드
-              </div>
+              <div className="cursor-pointer flex items-center gap-2">대시보드</div>
               {activeTab === "dashboard" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}
@@ -34,14 +32,10 @@ const OwnerPage: React.FC = () => {
             <button
               onClick={() => setActiveTab("settings")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === "settings"
-                  ? "text-blue-600"
-                  : "text-gray-900 hover:text-gray-900"
+                activeTab === "settings" ? "text-blue-600" : "text-gray-900 hover:text-gray-900"
               }`}
             >
-              <div className="cursor-pointer flex items-center gap-2">
-                가게 설정
-              </div>
+              <div className="cursor-pointer flex items-center gap-2">가게 설정</div>
               {activeTab === "settings" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}
@@ -50,14 +44,10 @@ const OwnerPage: React.FC = () => {
             <button
               onClick={() => setActiveTab("menu")}
               className={`pb-4 px-2 text-md transition-all relative ${
-                activeTab === "menu"
-                  ? "text-blue-600"
-                  : "text-gray-900 hover:text-gray-900"
+                activeTab === "menu" ? "text-blue-600" : "text-gray-900 hover:text-gray-900"
               }`}
             >
-              <div className="cursor-pointer flex items-center gap-2">
-                메뉴 관리
-              </div>
+              <div className="cursor-pointer flex items-center gap-2">메뉴 관리</div>
               {activeTab === "menu" && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
               )}

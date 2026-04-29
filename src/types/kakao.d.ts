@@ -46,11 +46,7 @@ declare global {
           extend: (latlng: unknown) => void;
         };
         event: {
-          addListener: (
-            target: unknown,
-            type: string,
-            handler: () => void,
-          ) => void;
+          addListener: (target: unknown, type: string, handler: () => void) => void;
         };
       };
     };

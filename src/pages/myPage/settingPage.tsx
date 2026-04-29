@@ -1,8 +1,9 @@
-import { Lock, Bell, Trash2 } from "lucide-react";
+import { Bell, Lock, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
+
 import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDiaLog";
 import { WithdrawDialog } from "@/components/auth/WithdrawDialog";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "settings.notifications.v1";
 
@@ -36,13 +37,7 @@ function ToggleButton({
   );
 }
 
-function Switch({
-  enabled,
-  onClick,
-}: {
-  enabled: boolean;
-  onClick: () => void;
-}) {
+function Switch({ enabled, onClick }: { enabled: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -82,11 +77,8 @@ type NotificationSettings = typeof defaultNotifications;
 export default function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationSettings>(
-    getInitialNotifications,
-  );
-  const [savedNotifications, setSavedNotifications] =
-    useState<NotificationSettings>(notifications);
+  const [notifications, setNotifications] = useState<NotificationSettings>(getInitialNotifications);
+  const [savedNotifications, setSavedNotifications] = useState<NotificationSettings>(notifications);
 
   const isDirty = useMemo(() => {
     return JSON.stringify(notifications) !== JSON.stringify(savedNotifications);
@@ -137,9 +129,7 @@ export default function SettingsPage() {
         <div className="flex-1 space-y-6">
           <div>
             <h3 className="font-medium text-gray-900">알림 설정</h3>
-            <p className="text-gray-500 mt-2 pb-3">
-              받고 싶은 알림을 선택하세요
-            </p>
+            <p className="text-gray-500 mt-2 pb-3">받고 싶은 알림을 선택하세요</p>
           </div>
 
           <div className="space-y-9">
@@ -167,15 +157,9 @@ export default function SettingsPage() {
             <h4 className="font-medium text-gray-900">알림 수신 방법</h4>
             <div className="grid grid-cols-[1fr_auto] items-center gap-y-5">
               <span className="text-gray-700">이메일</span>
-              <Switch
-                enabled={notifications.email}
-                onClick={() => toggleNotification("email")}
-              />
+              <Switch enabled={notifications.email} onClick={() => toggleNotification("email")} />
               <span className="text-gray-700">SMS</span>
-              <Switch
-                enabled={notifications.sms}
-                onClick={() => toggleNotification("sms")}
-              />
+              <Switch enabled={notifications.sms} onClick={() => toggleNotification("sms")} />
             </div>
           </div>
 

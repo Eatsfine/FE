@@ -1,4 +1,4 @@
-import { storeCategoryLabel, type RestaurantSummary } from "@/types/store";
+import { type RestaurantSummary, storeCategoryLabel } from "@/types/store";
 
 type Props = {
   restaurant: RestaurantSummary;
@@ -14,9 +14,7 @@ export default function RestaurantCard({ restaurant, onClick }: Props) {
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-medium text-gray-900 truncate">
-            {restaurant.name}
-          </p>
+          <p className="font-medium text-gray-900 truncate">{restaurant.name}</p>
           <p className="mt-1 text-sm text-gray-500 truncate">
             {storeCategoryLabel[restaurant.category]} • {restaurant.address}
           </p>

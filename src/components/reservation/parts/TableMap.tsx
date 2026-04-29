@@ -22,8 +22,7 @@ export default function TableMap({
     ? (layout.tables.find((t) => t.id === selectedTableId) ?? null)
     : null;
 
-  const activeSeatType: SeatType | null =
-    selectedTable?.seatType ?? seatType ?? null;
+  const activeSeatType: SeatType | null = selectedTable?.seatType ?? seatType ?? null;
 
   const shouldDimOthers = activeSeatType !== null;
 
@@ -37,8 +36,7 @@ export default function TableMap({
           <span className="h-3 w-3 border rounded bg-red-400" /> 예약 불가
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-3 w-3 border border-blue-400 rounded bg-blue-100" />{" "}
-          선택됨
+          <span className="h-3 w-3 border border-blue-400 rounded bg-blue-100" /> 선택됨
         </span>
         <span className="inline-flex items-center gap-1">
           <span className="h-3 w-3 border rounded bg-gray-300" /> 다른 좌석유형
@@ -56,13 +54,9 @@ export default function TableMap({
         {layout.tables.map((t: SeatTable) => {
           const isAvailable = availableIds.has(t.id);
           const isSelected = selectedTableId === t.id;
-          const isActiveType = activeSeatType
-            ? t.seatType === activeSeatType
-            : true;
+          const isActiveType = activeSeatType ? t.seatType === activeSeatType : true;
           const peopleText =
-            t.minPeople === t.maxPeople
-              ? `${t.minPeople}명`
-              : `${t.minPeople}~${t.maxPeople}명`;
+            t.minPeople === t.maxPeople ? `${t.minPeople}명` : `${t.minPeople}~${t.maxPeople}명`;
           return (
             <button
               key={t.id}
@@ -76,8 +70,7 @@ export default function TableMap({
               className={cn(
                 "border rounded-lg text-left px-2 py-2 transition-colors bg-white",
                 shouldDimOthers && !isActiveType && "bg-gray-300",
-                !isAvailable &&
-                  "bg-red-100 text-red-700 border-red-200 cursor-not-allowed",
+                !isAvailable && "bg-red-100 text-red-700 border-red-200 cursor-not-allowed",
                 isSelected && "bg-blue-100 border-blue-400 border-2",
                 isAvailable && "hover:brightness-95 cursor-pointer",
               )}
@@ -88,9 +81,7 @@ export default function TableMap({
             >
               <div className="text-center">
                 <div className="text-sm">{t.tableNo}번</div>
-                <div className="text-xs text-muted-foreground">
-                  {peopleText}
-                </div>
+                <div className="text-xs text-muted-foreground">{peopleText}</div>
               </div>
             </button>
           );

@@ -1,15 +1,11 @@
-import { logout } from "@/api/auth";
-import { getMemberInfo } from "@/api/endpoints/member";
-import { Button } from "@/components/ui/button";
-import {
-  useAuthStore,
-  useAuthToken,
-  useIsAuthenticated,
-  useUserId,
-} from "@/stores/useAuthStore";
 import { isAxiosError } from "axios";
 import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+
+import { logout } from "@/api/auth";
+import { getMemberInfo } from "@/api/endpoints/member";
+import { Button } from "@/components/ui/button";
+import { useAuthStore, useAuthToken, useIsAuthenticated, useUserId } from "@/stores/useAuthStore";
 
 export default function PublicLayout() {
   const nav = useNavigate();
@@ -30,9 +26,8 @@ export default function PublicLayout() {
 
         let parsedId: number | null = null;
         if (typeof rawId === "number") parsedId = rawId;
-        if (typeof rawId === "string" && /^\d+$/.test(rawId))
-          parsedId = Number(rawId);
-        if (parsedId != null && Number.isFinite(parsedId)) {
+        if (typeof rawId === "string" && /^\d+$/.test(rawId)) parsedId = Number(rawId);
+        if (parsedId != null && Number.isFinite(parsedId) && Number.isSafeInteger(parsedId)) {
           setUserId(parsedId);
         } else {
           console.warn("[member/info] invalid id:", rawId, member);

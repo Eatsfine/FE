@@ -1,7 +1,9 @@
-import type { ApiResponse } from "@/types/api";
-import { api } from "../axios";
-import type { SeatsType } from "@/types/table";
 import axios from "axios";
+
+import type { ApiResponse } from "@/types/api";
+import type { SeatsType } from "@/types/table";
+
+import { api } from "../axios";
 
 export interface LayoutTable {
   tableId: number;
@@ -42,9 +44,7 @@ interface CreateTableResponse {
   tableImageUrl: string | null;
 }
 
-export const getActiveLayout = async (
-  storeId: number,
-): Promise<LayoutResponse | null> => {
+export const getActiveLayout = async (storeId: number): Promise<LayoutResponse | null> => {
   try {
     const res = await api.get(`/api/v1/stores/${storeId}/layouts`);
     if (res.status === 200 && res.data.isSuccess) {
@@ -64,16 +64,12 @@ export const getActiveLayout = async (
   }
 };
 
-export const createLayout = async (
-  storeId: number,
-  gridCol: number,
-  gridRow: number,
-) => {
+export const createLayout = async (storeId: number, gridCol: number, gridRow: number) => {
   try {
-    const res = await api.post<ApiResponse<LayoutResponse>>(
-      `/api/v1/stores/${storeId}/layouts`,
-      { gridCol, gridRow },
-    );
+    const res = await api.post<ApiResponse<LayoutResponse>>(`/api/v1/stores/${storeId}/layouts`, {
+      gridCol,
+      gridRow,
+    });
     if (res.status === 201 || (res.status === 200 && res.data.isSuccess)) {
       return res.data.result;
     }

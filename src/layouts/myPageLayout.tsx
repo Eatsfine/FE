@@ -1,5 +1,6 @@
-import { Outlet, NavLink } from "react-router-dom";
 import { Calendar, Crown, Settings, Store, User } from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
+
 import { cn } from "@/lib/utils";
 
 const sidebarItems = [
@@ -27,17 +28,13 @@ export default function MyPageLayout() {
                 className={({ isActive }) =>
                   cn(
                     "relative flex h-12 items-center gap-3 px-5 py-7 text-md font-medium transition",
-                    isActive
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-700 hover:bg-gray-100",
+                    isActive ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-100",
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
-                    {isActive && (
-                      <span className="absolute left-0 h-full w-1 bg-blue-500" />
-                    )}
+                    {isActive && <span className="absolute left-0 h-full w-1 bg-blue-500" />}
                     <Icon size={18} />
                     <span>{label}</span>
                   </>

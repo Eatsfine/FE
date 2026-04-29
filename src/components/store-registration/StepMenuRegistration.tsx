@@ -1,8 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { MenuSchema, type MenuFormValues } from "./Menu.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import { type MenuFormValues, MenuSchema } from "./Menu.schema";
 import MenuItemInput from "./MenuItemInput";
 
 interface StepMenuRegistrationProps {
@@ -81,8 +82,7 @@ export default function StepMenuRegistration({
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-blue-800 text-sm text-center sm:text-start break-keep">
-          💡 메뉴 등록은 선택사항입니다. 관리자 페이지에서 언제든지 추가하거나
-          수정할 수 있습니다.
+          💡 메뉴 등록은 선택사항입니다. 관리자 페이지에서 언제든지 추가하거나 수정할 수 있습니다.
         </p>
       </div>
     </div>

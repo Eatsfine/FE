@@ -1,14 +1,11 @@
-import {
-  getMemberInfo,
-  patchMemberInfo,
-  putProfileImage,
-} from "@/api/endpoints/member";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Camera, Save } from "lucide-react";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
+
+import { getMemberInfo, patchMemberInfo, putProfileImage } from "@/api/endpoints/member";
 import ProfileAvatar from "@/components/profile/profileAvatar";
 import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Save } from "lucide-react";
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Form = {
   email: string;
@@ -79,9 +76,7 @@ export default function MyInfoPage() {
       await qc.invalidateQueries({ queryKey: ["memberInfo"] });
     },
     onError: () => {
-      setImageUploadError(
-        "프로필 이미지 저장에 실패했습니다. 다시 시도해주세요",
-      );
+      setImageUploadError("프로필 이미지 저장에 실패했습니다. 다시 시도해주세요");
       setDraftImageFile(originalImageFile);
       alert("프로필 이미지 저장에 실패했습니다. 다시 시도해주세요");
     },
@@ -233,9 +228,7 @@ export default function MyInfoPage() {
               }
             />
             {isEditing ? (
-              <p className="mt-1 text-sm text-muted-foreground ml-4">
-                이메일은 변경할 수 없습니다
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground ml-4">이메일은 변경할 수 없습니다</p>
             ) : null}
           </div>
 
@@ -249,9 +242,7 @@ export default function MyInfoPage() {
               value={currentForm.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               className={`w-full rounded-lg border px-4 py-3 ${
-                isEditing
-                  ? "border-gray-300 bg-white"
-                  : "border-gray-200 bg-gray-50 text-gray-500"
+                isEditing ? "border-gray-300 bg-white" : "border-gray-200 bg-gray-50 text-gray-500"
               }`}
             />
           </div>
@@ -261,15 +252,11 @@ export default function MyInfoPage() {
             <input
               disabled={!isEditing || isSaving}
               value={currentForm.phone}
-              onChange={(e) =>
-                handleChange("phone", phoneNumber(e.target.value))
-              }
+              onChange={(e) => handleChange("phone", phoneNumber(e.target.value))}
               inputMode="numeric"
               autoComplete="tel"
               className={`w-full rounded-lg border px-4 py-3 ${
-                isEditing
-                  ? "border-gray-300 bg-white"
-                  : "border-gray-200 bg-gray-50 text-gray-500"
+                isEditing ? "border-gray-300 bg-white" : "border-gray-200 bg-gray-50 text-gray-500"
               }`}
             />
           </div>

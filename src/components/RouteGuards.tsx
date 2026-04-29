@@ -1,5 +1,6 @@
-import { useAuthStore } from "@/stores/useAuthStore";
 import { Navigate, Outlet } from "react-router-dom";
+
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const PrivateRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);

@@ -1,8 +1,9 @@
-import { Store, Calendar, Star, Plus, BarChart3 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Link, useNavigate } from "react-router-dom";
+import { BarChart3, Calendar, Plus, Star, Store } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { getMyStores, type MyStore } from "@/api/owner/stores";
+import { cn } from "@/lib/utils";
 
 export default function StorePage() {
   const [shops, setShops] = useState<MyStore[]>([]);
@@ -27,17 +28,12 @@ export default function StorePage() {
     fetchStores();
   }, []);
 
-  const totalReservations = shops.reduce(
-    (sum, store) => sum + store.totalBookingCount,
-    0,
-  );
+  const totalReservations = shops.reduce((sum, store) => sum + store.totalBookingCount, 0);
 
   const averageRating =
     shops.length === 0
       ? "-"
-      : (
-          shops.reduce((sum, store) => sum + store.rating, 0) / shops.length
-        ).toFixed(1);
+      : (shops.reduce((sum, store) => sum + store.rating, 0) / shops.length).toFixed(1);
 
   const stats = [
     {
@@ -100,9 +96,7 @@ export default function StorePage() {
 
       <div className="space-y-4 mb-8">
         {isLoading && (
-          <div className="py-14 text-center text-gray-400">
-            가게 정보를 불러오는 중입니다...
-          </div>
+          <div className="py-14 text-center text-gray-400">가게 정보를 불러오는 중입니다...</div>
         )}
 
         {!isLoading && isError && (
@@ -173,8 +167,7 @@ export default function StorePage() {
           <div>
             <h4>더 많은 데이터가 필요하신가요?</h4>
             <p className="text-sm text-gray-500 mt-1">
-              프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트와 상세 분석
-              리포트를 받아보세요.
+              프리미엄 플랜으로 업그레이드하고 AI 데이터 인사이트와 상세 분석 리포트를 받아보세요.
             </p>
           </div>
         </div>

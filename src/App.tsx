@@ -1,29 +1,25 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-  type RouteObject,
-} from "react-router-dom";
-import NotFound from "./pages/NotFound";
-import Intro from "./pages/Intro";
-import SearchPage from "./pages/SearchPage";
-import CustomerSupportPage from "./pages/CustomerSupportPage";
-import PublicLayout from "./layouts/PublicLayout";
-import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
-import MyPageLayout from "./layouts/myPageLayout";
-import OAuthCallbackPage from "./pages/OAuthCallbackPage";
-import LoginErrorPage from "./pages/LoginErrorPage";
-import SuccessPage from "./pages/payment/SuccessPage";
-import FailPage from "./pages/payment/FailPage";
-import ReservationCompletePage from "./pages/ReservationCompletePage";
+import { createBrowserRouter, Navigate, type RouteObject, RouterProvider } from "react-router-dom";
+
 import { PrivateRoute } from "./components/RouteGuards";
+import MyPageLayout from "./layouts/myPageLayout";
+import PublicLayout from "./layouts/PublicLayout";
+import CustomerSupportPage from "./pages/CustomerSupportPage";
+import Intro from "./pages/Intro";
+import LoginErrorPage from "./pages/LoginErrorPage";
+import MyInfoPage from "./pages/myPage/MyInfoPage";
 import ReservationPage from "./pages/myPage/reservationPage";
 import SettingsPage from "./pages/myPage/settingPage";
-import SubscriptionPage from "./pages/myPage/subscriptionPage";
 import StorePage from "./pages/myPage/storePage";
+import StoreRegistrationPage from "./pages/myPage/StoreRegistrationPage";
+import SubscriptionPage from "./pages/myPage/subscriptionPage";
+import NotFound from "./pages/NotFound";
+import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import OwnerPage from "./pages/ownerPage";
-import MyInfoPage from "./pages/myPage/MyInfoPage";
+import FailPage from "./pages/payment/FailPage";
+import SuccessPage from "./pages/payment/SuccessPage";
+import ReservationCompletePage from "./pages/ReservationCompletePage";
+import SearchPage from "./pages/SearchPage";
 
 const myPageRoutes: RouteObject = {
   path: "/mypage",

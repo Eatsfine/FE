@@ -1,12 +1,14 @@
+import { Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import { logout } from "@/api/auth";
+import { cn } from "@/lib/utils";
+import { useIsAuthenticated } from "@/stores/useAuthStore";
+
 import { LoginDialog } from "../auth/LoginDialog";
 import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useIsAuthenticated } from "@/stores/useAuthStore";
-import { logout } from "@/api/auth";
 
 type NavItem = {
   label: string;
@@ -90,9 +92,7 @@ export default function Header() {
     ? "bg-white/90 backdrop-blur border-b border-border"
     : "bg-transparent border-b border-white/10";
 
-  const logoSrc = scrolled
-    ? "/Logo(Black no bg).svg"
-    : "/Logo(white no bg).svg";
+  const logoSrc = scrolled ? "/Logo(Black no bg).svg" : "/Logo(white no bg).svg";
 
   const brandClass = scrolled ? "text-[#191919]" : "text-white";
 
@@ -113,20 +113,12 @@ export default function Header() {
     "w-full  px-4 py-3 text-left text-lg transition-colors hover:text-[#2196F3] cursor-pointer rounded-xl";
 
   return (
-    <header
-      className={`fixed z-50 top-0 left-0 right-0 transition-all ${headerClass}`}
-    >
+    <header className={`fixed z-50 top-0 left-0 right-0 transition-all ${headerClass}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link
-            to="/"
-            className="flex items-center gap-3"
-            onClick={() => setMobileOpen(false)}
-          >
+          <Link to="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
             <img src={logoSrc} alt="잇츠파인 로고" className="w-9 h-9" />
-            <span className={`text-[24px] tracking-tight ${brandClass}`}>
-              잇츠파인
-            </span>
+            <span className={`text-[24px] tracking-tight ${brandClass}`}>잇츠파인</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8 whitespace-nowrap">
@@ -143,18 +135,10 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-3 whitespace-nowrap">
             {isAuthenticated ? (
               <>
-                <Button
-                  variant="ghost"
-                  onClick={() => nav("/mypage")}
-                  className={ghostBtnClass}
-                >
+                <Button variant="ghost" onClick={() => nav("/mypage")} className={ghostBtnClass}>
                   마이페이지
                 </Button>
-                <Button
-                  variant="ghost"
-                  onClick={handleLogout}
-                  className={ghostBtnClass}
-                >
+                <Button variant="ghost" onClick={handleLogout} className={ghostBtnClass}>
                   로그아웃
                 </Button>
               </>
@@ -167,10 +151,7 @@ export default function Header() {
                 >
                   로그인
                 </Button>
-                <Button
-                  onClick={() => setSignupOpen(true)}
-                  className={signupBtnClass}
-                >
+                <Button onClick={() => setSignupOpen(true)} className={signupBtnClass}>
                   회원가입
                 </Button>
               </>
@@ -190,12 +171,7 @@ export default function Header() {
           </button>
         </div>
       </div>
-      <div
-        className={cn(
-          "lg:hidden overflow-hidden",
-          mobileOpen ? "block" : "hidden",
-        )}
-      >
+      <div className={cn("lg:hidden overflow-hidden", mobileOpen ? "block" : "hidden")}>
         <button
           type="button"
           aria-label="메뉴 닫기"

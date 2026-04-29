@@ -1,10 +1,7 @@
 import z from "zod";
 
 export const supportSchema = z.object({
-  name: z
-    .string()
-    .min(1, "이름을 입력하세요.")
-    .max(20, "20자 이내여야 합니다."),
+  name: z.string().min(1, "이름을 입력하세요.").max(20, "20자 이내여야 합니다."),
 
   email: z
     .string()
@@ -20,13 +17,10 @@ export const supportSchema = z.object({
     "TECH_SUPPORT",
     "ETC",
   ]),
-  title: z
-    .string()
-    .min(1, { message: "제목을 입력하세요." })
-    .max(100, "100자 이내여야 합니다."),
+  title: z.string().min(1, "제목을 입력하세요.").max(100, "100자 이내여야 합니다."),
   content: z
     .string()
-    .min(1, { message: "문의하실 내용을 자세히 입력하세요." })
+    .min(1, "문의하실 내용을 자세히 입력하세요.")
     .max(2000, "2000자 이내여야 합니다."),
 });
 

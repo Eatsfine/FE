@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 interface AuthState {
@@ -64,6 +64,5 @@ export const useAuthStore = create<AuthState>()(
 
 export const useAuthActions = () => useAuthStore((state) => state.actions);
 export const useAuthToken = () => useAuthStore((state) => state.accessToken);
-export const useIsAuthenticated = () =>
-  useAuthStore((state) => state.isAuthenticated);
+export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
 export const useUserId = () => useAuthStore((s) => s.userId);

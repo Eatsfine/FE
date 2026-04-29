@@ -31,9 +31,7 @@ export const MenuSchema = z.object({
         .refine(
           (file) => {
             if (!file || typeof file === "string") return true;
-            return file instanceof File
-              ? ACCEPTED_IMAGE_TYPES.includes(file.type)
-              : true;
+            return file instanceof File ? ACCEPTED_IMAGE_TYPES.includes(file.type) : true;
           },
           {
             message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",

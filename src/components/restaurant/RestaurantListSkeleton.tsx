@@ -1,10 +1,6 @@
 import RestaurantCardSkeleton from "./RestaurantCardSkeleton";
 
-export default function RestaurantListSkeleton({
-  count = 8,
-}: {
-  count?: number;
-}) {
+export default function RestaurantListSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div
       className="border rounded-xl bg-white overflow-hidden"

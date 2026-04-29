@@ -1,9 +1,10 @@
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import MenuFormModal from "./menuFormModal";
-import { deleteMenus } from "@/api/owner/menus";
-import { getMenus, updateMenuSoldOut } from "@/api/owner/menus";
+
+import { deleteMenus, getMenus, updateMenuSoldOut } from "@/api/owner/menus";
 import type { MenuCategory, MenuItem } from "@/types/menus";
+
+import MenuFormModal from "./menuFormModal";
 
 interface MenuManagementProps {
   storeId?: string;
@@ -47,11 +48,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
 
-  const mapServerToLocal = (
-    s: ServerMenu,
-    restaurantId?: string,
-  ): MenuItem => ({
-    id: String(s.menuId ?? `MENU_${Date.now()}`),
+  const mapServerToLocal = (s: ServerMenu, restaurantId?: string): MenuItem => ({
+    id: String(s.menuId ?? `MENU_${crypto.randomUUID()}`),
     restaurantId: restaurantId ?? "",
     name: s.name ?? "",
     description: s.description ?? "",
@@ -63,9 +61,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   });
 
   useEffect(() => {
-    const STORAGE_KEY_MENU = restaurantId
-      ? `menu-items-${restaurantId}`
-      : "menu-items-temp";
+    const STORAGE_KEY_MENU = restaurantId ? `menu-items-${restaurantId}` : "menu-items-temp";
 
     const savedMenus = localStorage.getItem(STORAGE_KEY_MENU);
 
@@ -94,9 +90,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
             mapServerToLocal(menu, restaurantId),
           );
 
-          const localTempMenus = parsedSavedMenus.filter((m) =>
-            m.id.startsWith("MENU_"),
-          );
+          const localTempMenus = parsedSavedMenus.filter((m) => m.id.startsWith("MENU_"));
 
           const mergedMenus = [...serverMenus, ...localTempMenus];
 
@@ -198,14 +192,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
         const newSoldOut = res.result?.isSoldOut ?? targetSoldOut;
 
         setMenus((prev) =>
-          prev.map((m) =>
-            String(m.id) === String(id) ? { ...m, isSoldOut: newSoldOut } : m,
-          ),
+          prev.map((m) => (String(m.id) === String(id) ? { ...m, isSoldOut: newSoldOut } : m)),
         );
-        alert(
-          res.message ||
-            (newSoldOut ? "품절 처리되었습니다." : "품절 해제되었습니다."),
-        );
+        alert(res.message || (newSoldOut ? "품절 처리되었습니다." : "품절 해제되었습니다."));
       } else {
         alert("품절 상태 변경 실패: " + res.message);
       }
@@ -216,16 +205,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   };
 
   const filteredMenus =
-    activeCategory === "ALL"
-      ? menus
-      : menus.filter((menu) => menu.category === activeCategory);
+    activeCategory === "ALL" ? menus : menus.filter((menu) => menu.category === activeCategory);
 
   if (isLoading)
-    return (
-      <div className="px-8 py-10 text-gray-500 font-medium">
-        데이터를 불러오는 중...
-      </div>
-    );
+    return <div className="px-8 py-10 text-gray-500 font-medium">데이터를 불러오는 중...</div>;
   if (error) return <div className="px-8 py-10 text-red-500">{error}</div>;
 
   return (
@@ -293,9 +276,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
                   )}
                 </div>
                 <p className="text-sm text-blue-500 mb-3">
-                  {categories.find(
-                    (c) => String(c.id) === String(menu.category),
-                  )?.label || menu.category}
+                  {categories.find((c) => String(c.id) === String(menu.category))?.label ||
+                    menu.category}
                 </p>
                 <p className="flex-1 text-md text-gray-500 leading-relaxed mb-6 line-clamp-2">
                   {menu.description}
@@ -320,9 +302,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
             </div>
 
             <div className="flex justify-between items-center mt-auto">
-              <span className="text-lg text-gray-900">
-                {menu.price.toLocaleString()}원
-              </span>
+              <span className="text-lg text-gray-900">{menu.price.toLocaleString()}원</span>
 
               <button
                 onClick={() => toggleSoldOutOnServer(menu.id, !menu.isSoldOut)}
@@ -351,9 +331,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
           if (!editingMenu) return;
           setMenus((prev) =>
             prev.map((m) =>
-              m.id === editingMenu.id
-                ? { ...m, imageUrl: undefined, imageKey: undefined }
-                : m,
+              m.id === editingMenu.id ? { ...m, imageUrl: undefined, imageKey: undefined } : m,
             ),
           );
         }}

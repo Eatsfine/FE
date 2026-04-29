@@ -1,4 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Send, X } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
+import { postInquiry } from "@/api/inquiry";
 import {
   Dialog,
   DialogContent,
@@ -6,14 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { supportSchema, type SupportFormValues } from "./support.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
-import { useMutation } from "@tanstack/react-query";
-import { postInquiry } from "@/api/inquiry";
 import { getErrorMessage } from "@/utils/error";
+
+import { type SupportFormValues, supportSchema } from "./support.schema";
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -41,11 +43,7 @@ const defaultValues: SupportFormValues = {
   content: "",
 };
 
-export default function SupportModal({
-  isOpen,
-  onClose,
-  onComplete,
-}: SupportModalProps) {
+export default function SupportModal({ isOpen, onClose, onComplete }: SupportModalProps) {
   const {
     register,
     handleSubmit,
@@ -99,9 +97,7 @@ export default function SupportModal({
           </div>
 
           {/* 스크린 리더용 설명(경고 방지) */}
-          <DialogDescription className="sr-only">
-            1:1 문의 내용을 작성하는 폼
-          </DialogDescription>
+          <DialogDescription className="sr-only">1:1 문의 내용을 작성하는 폼</DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">
@@ -120,9 +116,7 @@ export default function SupportModal({
                   className={inputStyle}
                   {...register("name")}
                 />
-                {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name.message}</p>
-                )}
+                {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
               </div>
 
               {/* 이메일 */}
@@ -138,9 +132,7 @@ export default function SupportModal({
                   className={inputStyle}
                   {...register("email")}
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
             </div>
 
@@ -149,11 +141,7 @@ export default function SupportModal({
               <Label htmlFor="type" className="text-base font-medium">
                 문의 유형 <span className="text-red-500">*</span>
               </Label>
-              <select
-                id="type"
-                className={inputStyle + " cursor-pointer"}
-                {...register("type")}
-              >
+              <select id="type" className={inputStyle + " cursor-pointer"} {...register("type")}>
                 {Object.entries(SUPPORT_TYPE_LABEL).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
@@ -161,9 +149,7 @@ export default function SupportModal({
                 ))}
               </select>
               {errors.type && (
-                <p className="text-sm text-red-500 mt-1 font-medium">
-                  {errors.type.message}
-                </p>
+                <p className="text-sm text-red-500 mt-1 font-medium">{errors.type.message}</p>
               )}
             </div>
 
@@ -180,9 +166,7 @@ export default function SupportModal({
                 className={inputStyle}
                 {...register("title")}
               />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors.title.message}</p>
-              )}
+              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
             </div>
 
             {/* 문의 내용 */}
@@ -192,6 +176,8 @@ export default function SupportModal({
               </Label>
               <textarea
                 id="content"
+                aria-invalid={!!errors.content}
+                aria-describedby={errors.content ? "support-content-error" : undefined}
                 rows={6}
                 placeholder="문의하실 내용을 자세히 입력하세요"
                 maxLength={2000}
@@ -199,14 +185,20 @@ export default function SupportModal({
                 {...register("content")}
               ></textarea>
               {errors.content && (
-                <p className="text-sm text-red-500">{errors.content.message}</p>
+                <p
+                  id="support-content-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="text-sm text-red-500"
+                >
+                  {errors.content.message}
+                </p>
               )}
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 text-sm break-keep">
-                📧 문의하신 내용은 영업일 기준 24시간 이내에 이메일로
-                답변드립니다.
+                📧 문의하신 내용은 영업일 기준 24시간 이내에 이메일로 답변드립니다.
               </p>
             </div>
 

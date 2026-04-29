@@ -1,5 +1,6 @@
+import { Check, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { X, Check } from "lucide-react";
+
 import type { CreateTableRequest } from "@/api/owner/storeLayout";
 import type { SeatsType } from "@/types/table";
 
@@ -39,15 +40,11 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
     }
 
     if (gridX < 1 || gridX > gridCols || gridY < 1 || gridY > gridRows) {
-      alert(
-        `좌표가 배치도 범위를 벗어났습니다. (1~${gridCols}, 1~${gridRows})`,
-      );
+      alert(`좌표가 배치도 범위를 벗어났습니다. (1~${gridCols}, 1~${gridRows})`);
       return;
     }
 
-    const isOccupied = existingTables.some(
-      (t) => t.gridX === gridX && t.gridY === gridY,
-    );
+    const isOccupied = existingTables.some((t) => t.gridX === gridX && t.gridY === gridY);
     if (isOccupied) {
       alert("해당 좌표에 이미 테이블이 있습니다.");
       return;
@@ -75,11 +72,7 @@ const AddTableModal: React.FC<AddTableModalProps> = ({
         className="bg-white p-6 rounded-lg w-80 relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          className="absolute top-2 right-2"
-          onClick={onClose}
-          aria-label="모달 닫기"
-        >
+        <button className="absolute top-2 right-2" onClick={onClose} aria-label="모달 닫기">
           <X />
         </button>
         <h3 id="modal-title" className="text-lg mb-4">

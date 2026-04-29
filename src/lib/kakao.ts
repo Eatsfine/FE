@@ -7,9 +7,7 @@ export function loadKakaoMapSdk(): Promise<void> {
 
   const key = import.meta.env.VITE_KAKAO_JS_KEY as string | undefined;
   if (!key) {
-    return Promise.reject(
-      new Error("VITE_KAKAO_JS_KEY가 .env에 없습니다. (.env 확인)"),
-    );
+    return Promise.reject(new Error("VITE_KAKAO_JS_KEY가 .env에 없습니다. (.env 확인)"));
   }
 
   loadingPromise = new Promise<void>((resolve, reject) => {

@@ -1,6 +1,6 @@
+import { AlertCircle, Home } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Home } from "lucide-react";
 
 const LoginErrorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,9 +17,7 @@ const LoginErrorPage: React.FC = () => {
           </div>
         </div>
         <h1 className="text-5xl font-bold text-red-600 mb-4">Error</h1>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-          로그인에 실패했습니다
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-3">로그인에 실패했습니다</h2>
         <p className="text-gray-500 mb-10 leading-relaxed">
           소셜 로그인 연결 중 문제가 발생했습니다.
           <br />

@@ -1,18 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "@/components/ui/label";
+import axios from "axios";
 import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-  BusinessAuthSchema,
-  type BusinessAuthFormValues,
-} from "./BusinessAuth.schema";
+import { useNavigate } from "react-router-dom";
+
+import { logout } from "@/api/auth";
+import { Label } from "@/components/ui/label";
 import { useVerifyOwner } from "@/hooks/queries/useAuth";
 import { getErrorMessage } from "@/utils/error";
-import { useNavigate } from "react-router-dom";
-import { logout } from "@/api/auth";
+
+import { type BusinessAuthFormValues, BusinessAuthSchema } from "./BusinessAuth.schema";
 import ConfirmModal from "./ConfirmModal";
-import axios from "axios";
 
 interface StepBusinessAuthProps {
   defaultValues: {
@@ -29,15 +28,10 @@ interface StepBusinessAuthProps {
   }) => void;
 }
 
-export default function StepBusinessAuth({
-  defaultValues,
-  onComplete,
-}: StepBusinessAuthProps) {
+export default function StepBusinessAuth({ defaultValues, onComplete }: StepBusinessAuthProps) {
   const { mutate: verifyOwner, isPending } = useVerifyOwner();
 
-  const [pendingData, setPendingData] = useState<BusinessAuthFormValues | null>(
-    null,
-  );
+  const [pendingData, setPendingData] = useState<BusinessAuthFormValues | null>(null);
 
   const [isVerified, setIsVerified] = useState(defaultValues.isVerified);
   const isMountedRef = useRef(true);
@@ -74,9 +68,7 @@ export default function StepBusinessAuth({
         nav("/", { replace: true });
       },
       onError: (error) => {
-        const serverCode = axios.isAxiosError(error)
-          ? error.response?.data?.code
-          : undefined;
+        const serverCode = axios.isAxiosError(error) ? error.response?.data?.code : undefined;
         if (serverCode === "OWNER409") {
           setPendingData(data);
           return;
@@ -135,9 +127,7 @@ export default function StepBusinessAuth({
       >
         <div>
           <h3 className="text-gray-900 mb-2">사업자등록번호 인증</h3>
-          <p className="text-gray-600 text-sm">
-            사업자등록번호를 입력하고 인증을 진행해주세요.
-          </p>
+          <p className="text-gray-600 text-sm">사업자등록번호를 입력하고 인증을 진행해주세요.</p>
         </div>
         <div className="space-y-3">
           <div>
@@ -164,27 +154,18 @@ export default function StepBusinessAuth({
               placeholder="대표자명을 입력해주세요."
               maxLength={20}
               aria-required="true"
-              aria-describedby={
-                errors.name && touchedFields.name ? "name-error" : undefined
-              }
+              aria-describedby={errors.name && touchedFields.name ? "name-error" : undefined}
               aria-invalid={!!(errors.name && touchedFields.name)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && touchedFields.name && (
-              <p
-                id="name-error"
-                role="alert"
-                className="text-red-500 text-xs mt-2"
-              >
+              <p id="name-error" role="alert" className="text-red-500 text-xs mt-2">
                 {errors.name.message}
               </p>
             )}
           </div>
           <div>
-            <Label
-              htmlFor="businessNumber"
-              className="block text-gray-700 mb-2"
-            >
+            <Label htmlFor="businessNumber" className="block text-gray-700 mb-2">
               사업자등록번호 <span className="text-red-500">*</span>
             </Label>
             <input
@@ -213,17 +194,11 @@ export default function StepBusinessAuth({
                   ? "businessNumber-error"
                   : undefined
               }
-              aria-invalid={
-                !!(errors.businessNumber && touchedFields.businessNumber)
-              }
+              aria-invalid={!!(errors.businessNumber && touchedFields.businessNumber)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.businessNumber && touchedFields.businessNumber && (
-              <p
-                id="businessNumber-error"
-                role="alert"
-                className="text-red-500 text-xs mt-2"
-              >
+              <p id="businessNumber-error" role="alert" className="text-red-500 text-xs mt-2">
                 {errors.businessNumber.message}
               </p>
             )}
@@ -255,19 +230,13 @@ export default function StepBusinessAuth({
               maxLength={8}
               aria-required="true"
               aria-describedby={
-                errors.startDate && touchedFields.startDate
-                  ? "startDate-error"
-                  : undefined
+                errors.startDate && touchedFields.startDate ? "startDate-error" : undefined
               }
               aria-invalid={!!(errors.startDate && touchedFields.startDate)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
             {errors.startDate && touchedFields.startDate && (
-              <p
-                id="startDate-error"
-                role="alert"
-                className="text-red-500 text-xs mt-2"
-              >
+              <p id="startDate-error" role="alert" className="text-red-500 text-xs mt-2">
                 {errors.startDate.message}
               </p>
             )}
@@ -294,9 +263,7 @@ export default function StepBusinessAuth({
           className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
         >
           {isPending ? (
-            <span className="flex items-center justify-center gap-2">
-              확인 중...
-            </span>
+            <span className="flex items-center justify-center gap-2">확인 중...</span>
           ) : isVerified ? (
             "인증 완료"
           ) : (

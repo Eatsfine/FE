@@ -17,10 +17,7 @@ type PaymentRequestResult = {
 };
 
 export async function requestPayment(body: { bookingId: number }) {
-  const res = await api.post<ApiEnvelope<PaymentRequestResult>>(
-    `/api/v1/payments/request`,
-    body,
-  );
+  const res = await api.post<ApiEnvelope<PaymentRequestResult>>(`/api/v1/payments/request`, body);
   if (!res.data?.isSuccess) {
     throw {
       status: 0,
@@ -47,9 +44,9 @@ export async function confirmPayment(body: {
   orderId: string;
   amount: number;
 }) {
-  const res = await api.post<ApiEnvelope<PaymentConfirmResult>>(
-    "/api/v1/payments/confirm",
-    body,
-  );
+  const res = await api.post<ApiEnvelope<PaymentConfirmResult>>("/api/v1/payments/confirm", body);
+  if (!res.data?.isSuccess) {
+    throw new Error(res.data?.message ?? "결제 승인에 실패했습니다.");
+  }
   return res.data.result;
 }

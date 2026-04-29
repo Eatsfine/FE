@@ -1,19 +1,19 @@
-import { putChangePassword } from "@/api/endpoints/member";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { putChangePassword } from "@/api/endpoints/member";
+
 import { Button } from "../ui/button";
-import { X } from "lucide-react";
-import axios from "axios";
 
 const schema = z
   .object({
     currentPassword: z.string().min(1, "현재 비밀번호를 입력해주세요"),
     newPassword: z.string().min(8, "비밀번호는 8자 이상이어야 합니다"),
-    newPasswordConfirm: z
-      .string()
-      .min(1, "변경하실 비밀번호를 한번더 눌러주세요"),
+    newPasswordConfirm: z.string().min(1, "변경하실 비밀번호를 한번더 눌러주세요"),
   })
   .refine((v) => v.newPassword === v.newPasswordConfirm, {
     message: "새 비밀번호와 확인이 일치하지 않습니다.",
@@ -119,9 +119,7 @@ export function ChangePasswordDialog({
               disabled={isPending}
             />
             {form.formState.errors.newPassword && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.newPassword.message}
-              </p>
+              <p className="text-sm text-red-500">{form.formState.errors.newPassword.message}</p>
             )}
           </div>
           <div className="space-y-1">

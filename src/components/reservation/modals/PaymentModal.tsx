@@ -1,21 +1,23 @@
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
+import { X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { requestPayment } from "@/api/endpoints/payments";
+import type { CreateBookingResult } from "@/api/endpoints/reservations";
+import { useConfirmClose } from "@/hooks/common/useConfirmClose";
+import { useModalPresence } from "@/hooks/common/useModalPresence";
+import { useDepositRate } from "@/hooks/reservation/useDepositRate";
+import { useMenus } from "@/hooks/reservation/useMenus";
+import { cn } from "@/lib/utils";
+import { useUserId } from "@/stores/useAuthStore";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { formatKrw } from "@/utils/money";
-import { Button } from "../../ui/button";
-import { X } from "lucide-react";
-import { useMenus } from "@/hooks/reservation/useMenus";
-import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { calcMenuTotal } from "@/utils/menu";
-import { useConfirmClose } from "@/hooks/common/useConfirmClose";
-import type { CreateBookingResult } from "@/api/endpoints/reservations";
-import { requestPayment } from "@/api/endpoints/payments";
-import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
-import { useNavigate } from "react-router-dom";
-import { useUserId } from "@/stores/useAuthStore";
-import { useModalPresence } from "@/hooks/common/useModalPresence";
-import { cn } from "@/lib/utils";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
+import { formatKrw } from "@/utils/money";
+
+import { Button } from "../../ui/button";
 
 type Props = {
   open: boolean;
@@ -29,13 +31,9 @@ type Props = {
 type TossPaymentsInstance = Awaited<ReturnType<typeof loadTossPayments>>;
 type TossWidgetsInstance = ReturnType<TossPaymentsInstance["widgets"]>;
 
-type PaymentMethodWidgetInstance = Awaited<
-  ReturnType<TossWidgetsInstance["renderPaymentMethods"]>
->;
+type PaymentMethodWidgetInstance = Awaited<ReturnType<TossWidgetsInstance["renderPaymentMethods"]>>;
 
-type AgreementWidgetInstance = Awaited<
-  ReturnType<TossWidgetsInstance["renderAgreement"]>
->;
+type AgreementWidgetInstance = Awaited<ReturnType<TossWidgetsInstance["renderAgreement"]>>;
 
 export default function PaymentModal({
   open,
@@ -56,11 +54,7 @@ export default function PaymentModal({
     return calcMenuTotal(menus, draft.selectedMenus);
   }, [menus, draft.selectedMenus]);
 
-  const amount = booking?.totalDeposit ?? 0;
-
-  const paymentMethodWidgetRef = useRef<PaymentMethodWidgetInstance | null>(
-    null,
-  );
+  const paymentMethodWidgetRef = useRef<PaymentMethodWidgetInstance | null>(null);
   const agreementWidgetRef = useRef<AgreementWidgetInstance | null>(null);
 
   const widgetsRef = useRef<TossWidgetsInstance | null>(null);
@@ -78,9 +72,8 @@ export default function PaymentModal({
 
   const handleRequestClose = useConfirmClose(onClose);
   const userId = useUserId();
-  const [_payAmount, setPayAmount] = useState<number>(
-    booking?.totalDeposit ?? 0,
-  );
+  const [payAmount, setPayAmount] = useState<number>(booking?.totalDeposit ?? 0);
+  const amount = payAmount;
   useEffect(() => {
     setPayAmount(booking?.totalDeposit ?? 0);
   }, [booking?.totalDeposit]);
@@ -102,9 +95,7 @@ export default function PaymentModal({
         if (agreementContainer) {
           agreementContainer.innerHTML = "";
         }
-        const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as
-          | string
-          | undefined;
+        const clientKey = import.meta.env.VITE_TOSS_CLIENT_KEY as string | undefined;
         if (!clientKey) throw new Error("VITE_TOSS_CLIENT_KEY가 없습니다.");
         if (!userId) {
           throw new Error("로그인 정보가 없어 결제를 진행할 수 없습니다.");
@@ -242,9 +233,7 @@ export default function PaymentModal({
           </div>
           <div className="border rounded-xl p-4 space-y-1">
             <div className="text-sm text-muted-foreground">결제 금액</div>
-            <div className="mt-1 text-xl font-semibold">
-              {formatKrw(amount)}원
-            </div>
+            <div className="mt-1 text-xl font-semibold">{formatKrw(amount)}원</div>
             <p className="text-xs text-muted-foreground">
               메뉴 총액 {formatKrw(menuTotal)}원 * {Math.round(rate * 100)}%
             </p>

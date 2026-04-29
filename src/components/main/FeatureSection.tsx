@@ -1,5 +1,7 @@
-import { useInView } from "@/hooks/common/useInView";
 import { MapPin, Search, Star, Store } from "lucide-react";
+
+import { useInView } from "@/hooks/common/useInView";
+
 import FeatureCard from "./FeatureCard";
 
 export default function FeatureSection() {
@@ -37,20 +39,14 @@ export default function FeatureSection() {
   });
 
   const animBase = "transition-all duration-900 ease-out";
-  const animState = inView
-    ? "opacity-100 translate-y-0"
-    : "opacity-0 translate-y-20";
+  const animState = inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20";
 
   return (
     <section ref={sectionRef} id="feature" className="py-32 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-5xl leading-[1.3] tracking-tight mb-6">
-            모든 것이 한 곳에
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            잇츠파인의 4가지 핵심 기능을 경험해보세요
-          </p>
+          <h2 className="text-5xl leading-[1.3] tracking-tight mb-6">모든 것이 한 곳에</h2>
+          <p className="text-xl text-muted-foreground">잇츠파인의 4가지 핵심 기능을 경험해보세요</p>
         </div>
         <div className="grid md:grid-cols-2 gap-8">
           {cards.map((c, idx) => (

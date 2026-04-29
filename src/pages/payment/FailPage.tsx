@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { HelpCircle, XCircle } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+import { Button } from "@/components/ui/button";
 
 function humanizeFail(code?: string | null, message?: string | null) {
   if (message && message.trim().length > 0) return message;
@@ -27,10 +28,7 @@ export default function FailPage() {
   const message = sp.get("message") ?? sp.get("errorMessage");
 
   const bookingId = sp.get("bookingId");
-  const displayMessage = useMemo(
-    () => humanizeFail(code, message),
-    [code, message],
-  );
+  const displayMessage = useMemo(() => humanizeFail(code, message), [code, message]);
 
   const goReservations = () => {
     if (bookingId) {
@@ -66,25 +64,22 @@ export default function FailPage() {
         <div className="mt-6 space-y-5">
           <div className="rounded-xl bg-gray-50 p-4 space-y-2">
             <div className="text-sm font-semibold">실패 사유</div>
-            <div className="text-gray-700 leading-relaxed">
-              {displayMessage}
-            </div>
+            <div className="text-gray-700 leading-relaxed">{displayMessage}</div>
             {code || message ? (
               <details className="mt-3">
                 <summary className="text-sm text-gray-500 hover:text-gray-700 transition cursor-pointer">
                   상세 정보 보기
                 </summary>
                 <div className="mt-2 text-xs text-gray-500 break-all space-y-1">
-                  {code ? `code: ${code}` : null};
-                  {message ? `message: ${message}` : null};
+                  {code && <div>{`code: ${code}`}</div>}
+                  {message && <div>{`message: ${message}`}</div>}
                 </div>
               </details>
             ) : null}
           </div>
 
           <div className="text-xs text-gray-500 leading-relaxed text-center">
-            결제창에서 취소했거나, 네트워크 상태에 따라 결제가 완료되지 않을 수
-            있습니다.
+            결제창에서 취소했거나, 네트워크 상태에 따라 결제가 완료되지 않을 수 있습니다.
             <br />
             문제가 반복되면 고객센터로 문의해주세요.
           </div>

@@ -18,9 +18,7 @@ type AvailableTimesResult = {
   availableTimes: string[];
 };
 
-export async function getAvailableTimes(
-  params: GetAvailableTimesParams,
-): Promise<string[]> {
+export async function getAvailableTimes(params: GetAvailableTimesParams): Promise<string[]> {
   const { storeId, ...query } = params;
 
   const { data } = await api.get<ApiResult<AvailableTimesResult>>(

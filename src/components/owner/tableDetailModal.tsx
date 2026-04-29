@@ -1,38 +1,32 @@
-import React, { useEffect, useState } from "react";
+import axios, { type AxiosProgressEvent } from "axios";
 import {
-  X,
-  User,
-  Calendar,
-  Clock,
-  Pencil,
-  Check,
+  AlertCircle,
   ArrowLeft,
+  Calendar,
+  Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
+  Clock,
+  Pencil,
+  User,
+  X,
   XCircle,
-  AlertCircle,
 } from "lucide-react";
-import type { BreakTime } from "./BreakTimeModal";
+import React, { useEffect, useState } from "react";
+
+import type { Slot, SlotStatus, UpdateSlotRequest } from "@/api/owner/reservation";
 import {
+  cancelBookingByOwner,
+  getBookingDetail,
   getTableSlots,
   updateTableSlotStatus,
-  getBookingDetail,
 } from "@/api/owner/reservation";
-import type {
-  Slot,
-  SlotStatus,
-  UpdateSlotRequest,
-} from "@/api/owner/reservation";
-import {
-  deleteTableImage,
-  patchTableInfo,
-  uploadTableImage,
-} from "@/api/owner/table";
-import { cancelBookingByOwner } from "@/api/owner/reservation";
+import { deleteTableImage, patchTableInfo, uploadTableImage } from "@/api/owner/table";
 import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
-import axios, { type AxiosProgressEvent } from "axios";
 import { getErrorMessage } from "@/utils/error";
+
+import type { BreakTime } from "./BreakTimeModal";
 
 interface TableInfo {
   minCapacity: number;
@@ -88,15 +82,11 @@ const TableDetailModal: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(
-    null,
-  );
+  const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showBookingDetail, setShowBookingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
-  const [bookingDetailBookingId, setBookingDetailBookingId] = useState<
-    number | null
-  >(null);
+  const [bookingDetailBookingId, setBookingDetailBookingId] = useState<number | null>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -128,10 +118,8 @@ const TableDetailModal: React.FC<Props> = ({
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const changeMonth = (offset: number) =>
-    setViewDate(new Date(year, month + offset, 1));
-  const handleBack = () =>
-    step === "SLOTS" ? setStep("CALENDAR") : setStep("DETAIL");
+  const changeMonth = (offset: number) => setViewDate(new Date(year, month + offset, 1));
+  const handleBack = () => (step === "SLOTS" ? setStep("CALENDAR") : setStep("DETAIL"));
 
   const toMinutes = (time: string) => {
     const [hour, minute] = time.split(":").map(Number);
@@ -140,16 +128,11 @@ const TableDetailModal: React.FC<Props> = ({
 
   const isBreakTime = (time: string, breakTimes: BreakTime[]) => {
     const target = toMinutes(time);
-    return breakTimes.some(
-      (bt) => target >= toMinutes(bt.start) && target < toMinutes(bt.end),
-    );
+    return breakTimes.some((bt) => target >= toMinutes(bt.start) && target < toMinutes(bt.end));
   };
 
   const isCapacityValid =
-    Number.isFinite(tempMin) &&
-    Number.isFinite(tempMax) &&
-    tempMin > 0 &&
-    tempMax >= tempMin;
+    Number.isFinite(tempMin) && Number.isFinite(tempMax) && tempMin > 0 && tempMax >= tempMin;
   const confirmCapacity = async () => {
     if (!isCapacityValid) return;
 
@@ -188,8 +171,7 @@ const TableDetailModal: React.FC<Props> = ({
       const res = await getTableSlots(storeId, tableId, formatDate(date));
       setSlots(res.data.result.slots);
     } catch (error: unknown) {
-      const message =
-        getErrorMessage(error) || "예약 정보를 불러오지 못했습니다";
+      const message = getErrorMessage(error) || "예약 정보를 불러오지 못했습니다";
       setError(message);
     } finally {
       setLoading(false);
@@ -216,9 +198,7 @@ const TableDetailModal: React.FC<Props> = ({
         amount: result.amount,
       });
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       const message = getErrorMessage(error);
       if (status === 403) setDetailError("접근 권한이 없습니다.");
       else if (status === 404) setDetailError("해당 예약을 찾을 수 없습니다.");
@@ -242,8 +222,7 @@ const TableDetailModal: React.FC<Props> = ({
       return;
     }
 
-    const nextStatus: SlotStatus =
-      slot.status === "AVAILABLE" ? "BLOCKED" : "AVAILABLE";
+    const nextStatus: SlotStatus = slot.status === "AVAILABLE" ? "BLOCKED" : "AVAILABLE";
 
     try {
       setLoading(true);
@@ -258,9 +237,7 @@ const TableDetailModal: React.FC<Props> = ({
 
       await fetchSlots(selectedFullDate);
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       if (status === 404 && nextStatus === "AVAILABLE") {
         await fetchSlots(selectedFullDate);
         return;
@@ -303,8 +280,7 @@ const TableDetailModal: React.FC<Props> = ({
         tableId,
         selectedFile,
         (ev: AxiosProgressEvent) => {
-          if (ev.total)
-            setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
+          if (ev.total) setUploadProgress(Math.round((ev.loaded / ev.total) * 100));
         },
       );
       const newUrl = res.data.result.tableImageUrl;
@@ -346,8 +322,7 @@ const TableDetailModal: React.FC<Props> = ({
         alert("이미지 삭제 실패: " + (res.data.message ?? "알 수 없는 오류"));
       }
     } catch (error: unknown) {
-      const message =
-        getErrorMessage(error) || "이미지 삭제 중 오류가 발생했습니다";
+      const message = getErrorMessage(error) || "이미지 삭제 중 오류가 발생했습니다";
       alert(message);
     }
   };
@@ -371,9 +346,7 @@ const TableDetailModal: React.FC<Props> = ({
       setBookingDetail(null);
       if (selectedFullDate) fetchSlots(selectedFullDate);
     } catch (error: unknown) {
-      const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : undefined;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
 
       if (status === 403) {
         alert("접근 권한이 없습니다");
@@ -476,9 +449,7 @@ const TableDetailModal: React.FC<Props> = ({
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center border-dashed">
                     <span className="text-5xl">🪑</span>
-                    <p className="text-gray-400 text-md mt-2">
-                      등록된 이미지가 없습니다
-                    </p>
+                    <p className="text-gray-400 text-md mt-2">등록된 이미지가 없습니다</p>
                   </div>
                 )}
               </div>
@@ -509,11 +480,7 @@ const TableDetailModal: React.FC<Props> = ({
 
                 {previewUrl && (
                   <div className="w-24 h-24 border rounded-lg overflow-hidden">
-                    <img
-                      src={previewUrl}
-                      alt="프리뷰"
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={previewUrl} alt="프리뷰" className="w-full h-full object-cover" />
                   </div>
                 )}
 
@@ -565,10 +532,7 @@ const TableDetailModal: React.FC<Props> = ({
                       >
                         <Check size={18} strokeWidth={3} />
                       </button>
-                      <button
-                        onClick={() => setIsEditing(false)}
-                        className="text-red-400"
-                      >
+                      <button onClick={() => setIsEditing(false)} className="text-red-400">
                         <X size={18} />
                       </button>
                     </div>
@@ -593,9 +557,7 @@ const TableDetailModal: React.FC<Props> = ({
               <div className="flex items-center gap-3">
                 <div className="flex-1 bg-gray-50 border p-4 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">테이블 유형</p>
-                  <p className="font-semibold">
-                    {SEATS_TYPE_LABEL[tableInfo.seatsType]}
-                  </p>
+                  <p className="font-semibold">{SEATS_TYPE_LABEL[tableInfo.seatsType]}</p>
                 </div>
               </div>
 
@@ -609,9 +571,7 @@ const TableDetailModal: React.FC<Props> = ({
               <div className="bg-green-50/50 border border-green-100 p-4 rounded-lg flex items-center gap-4">
                 <Clock size={20} className="text-green-500" />
                 <div>
-                  <p className="text-lg text-green-900 mb-0.5">
-                    예약 가능한 시간대
-                  </p>
+                  <p className="text-lg text-green-900 mb-0.5">예약 가능한 시간대</p>
                   <p className="text-lg text-green-900 leading-tight">
                     {slots.filter((s) => s.isAvailable).length}개 예약 가능
                   </p>
@@ -620,18 +580,14 @@ const TableDetailModal: React.FC<Props> = ({
 
               <div className="bg-gray-50/50 border border-gray-100 p-4 rounded-lg gap-4">
                 <div>
-                  <p className="text-lg text-gray-900 mb-1">
-                    테이블 타입 및 좌석 정보
-                  </p>
+                  <p className="text-lg text-gray-900 mb-1">테이블 타입 및 좌석 정보</p>
                 </div>
                 <div className="w-40">
                   <div
                     className={`flex items-center gap-1.5 px-2 py-2 rounded-lg border ${tableTypeStyle[tableType].bg} ${tableTypeStyle[tableType].border}`}
                   >
                     <span className="text-lg">🎉</span>
-                    <span
-                      className={`text-sm ${tableTypeStyle[tableType].text}`}
-                    >
+                    <span className={`text-sm ${tableTypeStyle[tableType].text}`}>
                       {tableTypeStyle[tableType].label}
                     </span>
                   </div>
@@ -674,10 +630,7 @@ const TableDetailModal: React.FC<Props> = ({
               </div>
               <div className="grid grid-cols-7 gap-2">
                 {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-                  <span
-                    key={d}
-                    className="text-center text-sm text-gray-400 mb-1"
-                  >
+                  <span key={d} className="text-center text-sm text-gray-400 mb-1">
                     {d}
                   </span>
                 ))}
@@ -691,15 +644,7 @@ const TableDetailModal: React.FC<Props> = ({
                   const isTodayFlag = dateObj.getTime() === today.getTime();
 
                   const weekDay = dateObj.getDay();
-                  const weekDayKorean = [
-                    "일",
-                    "월",
-                    "화",
-                    "수",
-                    "목",
-                    "금",
-                    "토",
-                  ][weekDay];
+                  const weekDayKorean = ["일", "월", "화", "수", "목", "금", "토"][weekDay];
 
                   const isClosedDay = closedDays.includes(weekDayKorean);
 
@@ -722,16 +667,8 @@ const TableDetailModal: React.FC<Props> = ({
                       }`}
                     >
                       <span className="text-sm">{day}</span>
-                      {isTodayFlag && (
-                        <span className="text-[9px] mt-0.5 opacity-90">
-                          오늘
-                        </span>
-                      )}
-                      {isClosedDay && (
-                        <span className="text-[10px] text-red-500 mt-0.5">
-                          휴무
-                        </span>
-                      )}
+                      {isTodayFlag && <span className="text-[9px] mt-0.5 opacity-90">오늘</span>}
+                      {isClosedDay && <span className="text-[10px] text-red-500 mt-0.5">휴무</span>}
                     </button>
                   );
                 })}
@@ -743,9 +680,7 @@ const TableDetailModal: React.FC<Props> = ({
                     <Calendar className="mr-2" />
                     날짜를 선택하여 예약 시간대를 관리하세요
                   </p>
-                  <p className="text-sm text-gray-900 mb-1 ml-8">
-                    과거 날짜는 선택할 수 없습니다
-                  </p>
+                  <p className="text-sm text-gray-900 mb-1 ml-8">과거 날짜는 선택할 수 없습니다</p>
                 </div>
               </div>
             </div>
@@ -759,9 +694,7 @@ const TableDetailModal: React.FC<Props> = ({
                 </div>
               )}
 
-              {error && (
-                <div className="py-6 text-center text-red-500">{error}</div>
-              )}
+              {error && <div className="py-6 text-center text-red-500">{error}</div>}
 
               {showBookingDetail && (
                 <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm mb-2">
@@ -776,15 +709,10 @@ const TableDetailModal: React.FC<Props> = ({
                         <div className="mt-2">
                           <p className="text-sm text-gray-800">
                             예약자:{" "}
-                            <span className="font-semibold">
-                              {bookingDetail.bookerName}
-                            </span>
+                            <span className="font-semibold">{bookingDetail.bookerName}</span>
                           </p>
                           <p className="text-sm text-gray-800 mt-1">
-                            인원:{" "}
-                            <span className="font-semibold">
-                              {bookingDetail.partySize}명
-                            </span>
+                            인원: <span className="font-semibold">{bookingDetail.partySize}명</span>
                           </p>
                           <p className="text-sm text-gray-800 mt-1">
                             결제된 예약금:{" "}
@@ -794,9 +722,7 @@ const TableDetailModal: React.FC<Props> = ({
                           </p>
                         </div>
                       ) : (
-                        <p className="text-gray-500 mt-2">
-                          상세 정보가 없습니다.
-                        </p>
+                        <p className="text-gray-500 mt-2">상세 정보가 없습니다.</p>
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-2">

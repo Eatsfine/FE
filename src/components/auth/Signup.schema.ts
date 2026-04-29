@@ -28,8 +28,7 @@ export const signupSchema = z
       .min(8, { message: "비밀번호는 8자 이상이어야 합니다." })
       .max(20, { message: "비밀번호는 20자 이하여야 합니다." })
       .regex(/^[a-zA-Z0-9!@#$%^&*]+$/, {
-        message:
-          "비밀번호는 영문, 숫자, 특수문자(! @ # $ % ^ & *)만 사용 가능합니다.",
+        message: "비밀번호는 영문, 숫자, 특수문자(! @ # $ % ^ & *)만 사용 가능합니다.",
       })
       .refine(
         (value) => {
@@ -37,9 +36,7 @@ export const signupSchema = z
           const hasNumber = /\d/.test(value);
           const hasSpecial = /[!@#$%^&*]/.test(value);
 
-          const validCount = [hasLetter, hasNumber, hasSpecial].filter(
-            (v) => v,
-          ).length;
+          const validCount = [hasLetter, hasNumber, hasSpecial].filter((v) => v).length;
 
           return validCount >= 2;
         },
@@ -55,9 +52,7 @@ export const signupSchema = z
       message: "필수 약관에 동의해주세요.",
     }),
 
-    privacyConsent: z
-      .boolean()
-      .refine((v) => v === true, { message: "필수 약관에 동의해주세요." }),
+    privacyConsent: z.boolean().refine((v) => v === true, { message: "필수 약관에 동의해주세요." }),
 
     marketingConsent: z.boolean().default(false),
   })

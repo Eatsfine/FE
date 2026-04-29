@@ -1,20 +1,22 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
-  DialogHeader,
   DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { type LoginFormValues, loginSchema } from "./Login.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useEmailLogin } from "@/hooks/queries/useAuth";
 import { getErrorMessage } from "@/utils/error";
+
+import { type LoginFormValues, loginSchema } from "./Login.schema";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -22,11 +24,7 @@ interface LoginDialogProps {
   onSwitchToSignup: () => void;
 }
 
-export function LoginDialog({
-  isOpen,
-  onClose,
-  onSwitchToSignup,
-}: LoginDialogProps) {
+export function LoginDialog({ isOpen, onClose, onSwitchToSignup }: LoginDialogProps) {
   const emailLoginMutation = useEmailLogin();
 
   const [showEmailLogin, setShowEmailLogin] = useState(false);
@@ -92,11 +90,7 @@ export function LoginDialog({
                   className="w-full h-12 text-base cursor-pointer"
                   onClick={() => handleSocialLogin("google")}
                 >
-                  <img
-                    src="/icons/google.svg"
-                    alt="Google Logo"
-                    className="w-5 h-5 mr-3"
-                  />
+                  <img src="/icons/google.svg" alt="Google Logo" className="w-5 h-5 mr-3" />
                   구글로 계속하기
                 </Button>
 
@@ -106,11 +100,7 @@ export function LoginDialog({
                   className="w-full h-12 text-base bg-[#FEE500] hover:bg-[#E6CF00] border-0 cursor-pointer text-black"
                   onClick={() => handleSocialLogin("kakao")}
                 >
-                  <img
-                    src="/icons/kakao.svg"
-                    alt="Kakao Logo"
-                    className="w-5 h-5 mr-3"
-                  />
+                  <img src="/icons/kakao.svg" alt="Kakao Logo" className="w-5 h-5 mr-3" />
                   카카오톡으로 계속하기
                 </Button>
               </div>
@@ -133,10 +123,7 @@ export function LoginDialog({
             </>
           ) : (
             <>
-              <form
-                onSubmit={handleSubmit(handleEmailLogin)}
-                className="space-y-4"
-              >
+              <form onSubmit={handleSubmit(handleEmailLogin)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">이메일</Label>
                   <Input
@@ -146,11 +133,7 @@ export function LoginDialog({
                     className="h-12"
                     {...register("email")}
                   />
-                  {errors.email && (
-                    <p className="text-sm text-red-500">
-                      {errors.email.message}
-                    </p>
-                  )}
+                  {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -163,9 +146,7 @@ export function LoginDialog({
                     {...register("password")}
                   />
                   {errors.password && (
-                    <p className="text-sm text-red-500">
-                      {errors.password.message}
-                    </p>
+                    <p className="text-sm text-red-500">{errors.password.message}</p>
                   )}
                 </div>
 

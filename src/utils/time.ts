@@ -1,14 +1,11 @@
-export function toHHmm(
-  input: { hour?: number; minute?: number } | string | undefined | null,
-) {
+export function toHHmm(input: { hour?: number; minute?: number } | string | undefined | null) {
   if (!input) return undefined;
 
   if (typeof input === "string") {
     const s = input.trim();
     if (!s) return undefined;
 
-    if (s.includes("undefined") || s.includes("NaN") || s.includes("null"))
-      return undefined;
+    if (s.includes("undefined") || s.includes("NaN") || s.includes("null")) return undefined;
     const m = s.match(/^(\d{1,2}):(\d{1,2})(?::\d{1,2})?$/);
     if (!m) return undefined;
     const hh = Number(m[1]);

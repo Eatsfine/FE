@@ -1,8 +1,10 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { isApiResponse, normalizeApiError } from "./api.error";
-import type { ApiError } from "@/types/api";
-import { clearAuth, postRefresh } from "./auth";
+
 import { useAuthStore } from "@/stores/useAuthStore";
+import type { ApiError } from "@/types/api";
+
+import { isApiResponse, normalizeApiError } from "./api.error";
+import { clearAuth, postRefresh } from "./auth";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string | undefined,
@@ -48,8 +50,7 @@ api.interceptors.response.use(
     const data = res.data;
     if (isApiResponse(data)) {
       const responseData: ApiResponseWithFlags = data;
-      const failed =
-        responseData.success === false || responseData.isSuccess === false;
+      const failed = responseData.success === false || responseData.isSuccess === false;
 
       if (failed) {
         return Promise.reject({
@@ -86,10 +87,7 @@ api.interceptors.response.use(
       }
       // 이미 재시도한 요청이거나, 재발급 요청 자체가 실패인 경우 -> 로그아웃
 
-      if (
-        originalRequest._retry ||
-        originalRequest.url?.includes("/api/auth/reissue")
-      ) {
+      if (originalRequest._retry || originalRequest.url?.includes("/api/auth/reissue")) {
         clearAuth();
         return Promise.reject(apiError);
       }

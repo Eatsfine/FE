@@ -36,10 +36,7 @@ export async function patchMemberInfo(body: PatchMemberInfo) {
 export async function putProfileImage(file: File) {
   const formData = new FormData();
   formData.append("profileImage", file);
-  const res = await api.put<ApiEnvelope<string>>(
-    "/api/v1/member/profile-image",
-    formData,
-  );
+  const res = await api.put<ApiEnvelope<string>>("/api/v1/member/profile-image", formData);
   if (!res.data.isSuccess) {
     throw new Error(res.data.message ?? "프로필 업로드 실패");
   }
@@ -58,10 +55,10 @@ type ChangePasswordResponse = {
   message: string;
 };
 export async function putChangePassword(body: ChangePasswordRequest) {
-  const res = await api.put<ApiEnvelope<ChangePasswordResponse>>(
-    "/api/v1/member/password",
-    body,
-  );
+  const res = await api.put<ApiEnvelope<ChangePasswordResponse>>("/api/v1/member/password", body);
+  if (!res.data?.isSuccess) {
+    throw new Error(res.data.message ?? "비밀번호 변경에 실패했습니다");
+  }
   return res.data.result;
 }
 

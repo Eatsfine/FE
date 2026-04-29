@@ -1,12 +1,6 @@
 import { z } from "zod";
 
-const StoreCategoryEnum = z.enum([
-  "KOREAN",
-  "CHINESE",
-  "JAPANESE",
-  "WESTERN",
-  "CAFE",
-]);
+const StoreCategoryEnum = z.enum(["KOREAN", "CHINESE", "JAPANESE", "WESTERN", "CAFE"]);
 
 const DepositRateEnum = z.enum(["TEN", "TWENTY", "THIRTY", "FORTY", "FIFTY"]);
 
@@ -47,9 +41,7 @@ export const StoreInfoSchema = z
         }
         return Number(val);
       },
-      z
-        .number()
-        .min(30, { message: "예약 시간 간격은 최소 30분이어야 합니다." }),
+      z.number().min(30, { message: "예약 시간 간격은 최소 30분이어야 합니다." }),
     ),
 
     openTime: z.string().min(1),
@@ -63,17 +55,12 @@ export const StoreInfoSchema = z
       .refine((file) => file === undefined || file.size <= MAX_FILE_SIZE, {
         message: "이미지 크기는 1MB 이하여야 합니다.",
       })
-      .refine(
-        (file) =>
-          file === undefined || ACCEPTED_IMAGE_TYPES.includes(file.type),
-        {
-          message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
-        },
-      ),
+      .refine((file) => file === undefined || ACCEPTED_IMAGE_TYPES.includes(file.type), {
+        message: ".jpg, .png 형식의 이미지만 업로드 가능합니다.",
+      }),
   })
   .refine((data) => data.latitude !== 0 && data.longitude !== 0, {
-    message:
-      "선택하신 주소는 위치 확인이 어렵습니다. 정확한 주소를 다시 선택하세요.",
+    message: "선택하신 주소는 위치 확인이 어렵습니다. 정확한 주소를 다시 선택하세요.",
     path: ["address"],
   });
 

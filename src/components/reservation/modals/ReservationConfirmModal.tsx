@@ -1,3 +1,5 @@
+import { X } from "lucide-react";
+
 import type { CreateBookingResult } from "@/api/endpoints/reservations.ts";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useModalPresence } from "@/hooks/common/useModalPresence";
@@ -15,7 +17,6 @@ import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { formatKrw } from "@/utils/money";
 import { calcDeposit } from "@/utils/payment";
 import { tablePrefLabel } from "@/utils/reservation";
-import { X } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -164,8 +165,7 @@ export default function ReservationConfirmModal({
             <div className="text-sm text-gray-500">결제 유형</div>
             <div className="text-blue-700">사전 결제</div>
             <div className="text-gray-800 mt-1 font-semibold">
-              예약금:{" "}
-              {isCalculating ? "계산중 .." : `${formatKrw(depositAmount)}원`}
+              예약금: {isCalculating ? "계산 중 .." : `${formatKrw(depositAmount)}원`}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               예약 확정을 위해 예약금 결제가 필요합니다.(노쇼 방지 목적)
@@ -174,9 +174,7 @@ export default function ReservationConfirmModal({
               예약 취소시 예약금은 환불이 어렵습니다.
             </p>
           </div>
-          <p className="text-gray-700 text-center">
-            위 내용으로 예약을 진행할까요?
-          </p>
+          <p className="text-gray-700 text-center">위 내용으로 예약을 진행할까요?</p>
           <div className="flex gap-3">
             <button
               className="flex-1 border rounded-xl py-3 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -191,9 +189,7 @@ export default function ReservationConfirmModal({
               onClick={onClickConfirm}
               disabled={createBookingMutation.isPending}
             >
-              {createBookingMutation.isPending
-                ? "예약 생성중"
-                : "예약금 결제하기"}
+              {createBookingMutation.isPending ? "예약 생성 중" : "예약금 결제하기"}
             </button>
           </div>
         </div>
