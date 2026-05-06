@@ -1,14 +1,8 @@
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import {
-  createMenus,
-  deleteMenuImage,
-  type MenuUpdateItem,
-  updateMenu,
-  uploadMenuImage,
-} from "@/api/owner/menus";
-import type { MenuCategory, MenuItem } from "@/types/menus";
+import { createMenus, deleteMenuImage, updateMenu, uploadMenuImage } from "@/api/owner/menus";
+import type { MenuCategory, MenuItem, MenuUpdateItem } from "@/types/menus";
 
 interface MenuFormModalProps {
   isOpen: boolean;

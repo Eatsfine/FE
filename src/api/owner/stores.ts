@@ -1,56 +1,14 @@
 import { api } from "@/api/axios";
 import type { ApiResponse } from "@/types/api";
-import type { UpdateStoreResponse } from "@/types/store";
-
-interface StoreDetail {
-  storeId: number;
-  storeName: string;
-  description: string;
-  address: string;
-  phone: string;
-  businessHours?: BusinessHour[];
-  isApproved: boolean;
-  rating?: number;
-  reviewCount?: number;
-}
-
-interface BusinessHour {
-  day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
-  openTime: string | null;
-  closeTime: string | null;
-  isClosed: boolean;
-}
-
-export interface MyStore {
-  storeId: number;
-  storeName: string;
-  address: string;
-  category: string;
-  rating: number;
-  totalBookingCount: number;
-  reviewCount: number;
-  mainImageUrl: string;
-  isOpenNow: boolean;
-}
-
-interface MyStoreResponse {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: {
-    stores: MyStore[];
-  };
-}
-
-export interface TableImage {
-  tableImageId: number;
-  tableImageUrl: string;
-}
-
-interface TableImagesResponse {
-  storeId: number;
-  tableImages: TableImage[];
-}
+import type {
+  BusinessHour,
+  MyStore,
+  MyStoreResponse,
+  StoreDetail,
+  TableImage,
+  TableImagesResponse,
+  UpdateStoreResponse,
+} from "@/types/store";
 
 export function getStore(storeId: number | string) {
   return api.get<ApiResponse<StoreDetail>>(`/api/v1/stores/${storeId}`);

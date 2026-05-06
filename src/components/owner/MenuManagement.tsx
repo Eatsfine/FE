@@ -15,7 +15,7 @@ interface Category {
   label: string;
 }
 
-type ServerMenu = {
+type MenuDraft = {
   menuId?: number | string;
   name?: string;
   description?: string;
@@ -48,7 +48,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
 
-  const mapServerToLocal = (s: ServerMenu, restaurantId?: string): MenuItem => ({
+  const mapServerToLocal = (s: MenuDraft, restaurantId?: string): MenuItem => ({
     id: String(s.menuId ?? `MENU_${crypto.randomUUID()}`),
     restaurantId: restaurantId ?? "",
     name: s.name ?? "",
@@ -86,7 +86,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ storeId }) => {
       try {
         const res = await getMenus(restaurantId);
         if (res.isSuccess && res.result && Array.isArray(res.result.menus)) {
-          const serverMenus = (res.result.menus as ServerMenu[]).map((menu) =>
+          const serverMenus = (res.result.menus as MenuDraft[]).map((menu) =>
             mapServerToLocal(menu, restaurantId),
           );
 

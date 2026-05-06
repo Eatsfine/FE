@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-import type { CreateTableRequest } from "@/api/owner/storeLayout";
+import type { CreateTableRequest } from "@/types/layout";
 import type { SeatsType } from "@/types/table";
 
 interface AddTableModalProps {

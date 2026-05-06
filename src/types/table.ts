@@ -7,3 +7,27 @@ export const SEATS_TYPE_LABEL: Record<SeatsType, string> = {
   BAR: "바 좌석",
   OUTDOOR: "야외석",
 };
+
+export interface UploadTableImageResult {
+  tableId: number;
+  tableImageUrl: string;
+}
+
+export interface DeleteTableImageResult {
+  tableId: number;
+}
+
+export interface PatchTableRequest {
+  tableNumber?: string;
+  minSeatCount?: number;
+  maxSeatCount?: number;
+  seatsType?: SeatsType;
+}
+
+export interface UpdatedTable {
+  tableId: number;
+  tableNumber: string;
+  minSeatCount: number;
+  maxSeatCount: number;
+  seatsType: string;
+}

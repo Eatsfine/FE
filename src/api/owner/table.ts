@@ -1,32 +1,14 @@
 import type { AxiosProgressEvent } from "axios";
 
 import type { ApiResponse } from "@/types/api";
+import type {
+  DeleteTableImageResult,
+  PatchTableRequest,
+  UpdatedTable,
+  UploadTableImageResult,
+} from "@/types/table";
 
 import { api } from "../axios";
-
-interface UploadTableImageResult {
-  tableId: number;
-  tableImageUrl: string;
-}
-
-interface DeleteTableImageResult {
-  tableId: number;
-}
-
-export interface PatchTableRequest {
-  tableNumber?: string;
-  minSeatCount?: number;
-  maxSeatCount?: number;
-  seatsType?: "GENERAL" | "WINDOW" | "ROOM" | "BAR" | "OUTDOOR";
-}
-
-export interface UpdatedTable {
-  tableId: number;
-  tableNumber: string;
-  minSeatCount: number;
-  maxSeatCount: number;
-  seatsType: string;
-}
 
 export const uploadTableImage = (
   storeId: number,

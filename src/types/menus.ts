@@ -57,3 +57,75 @@ export type ResponseMenuImageDto = {
   imageKey: string;
   imageUrl: string;
 };
+
+export interface ServerMenu {
+  menuId: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  category?: string | null;
+  imageUrl?: string | null;
+  isSoldOut?: boolean;
+}
+
+export interface GetMenusResult {
+  menus: ServerMenu[];
+}
+
+export interface MenuUpdateItem {
+  name: string;
+  description?: string;
+  price: number;
+  category: string;
+  imageKey?: string;
+}
+
+export interface MenuUpdateResult {
+  menuId: number;
+  name: string;
+  description?: string;
+  price: number;
+  category?: string;
+  imageUrl?: string;
+}
+
+export interface MenuCreateItem {
+  name: string;
+  description?: string;
+  price: number;
+  category: string;
+  imageKey?: string;
+}
+
+export interface MenuCreateResult {
+  menus: {
+    menuId: number;
+    name: string;
+    description?: string;
+    price: number;
+    category?: string;
+    imageUrl?: string;
+    imageKey?: string;
+  }[];
+}
+
+export interface DeleteMenusResponse {
+  isSuccess: boolean;
+  code: string;
+  result: { deletedMenuIds: number[] };
+  message: string;
+}
+
+export type MenuDto = {
+  menuId: number;
+  name: string;
+  description?: string;
+  price: number;
+  category: MenuCategory | string;
+  imageUrl?: string;
+  isSoldOut: boolean;
+};
+
+export type MenuListResult = {
+  menus: MenuDto[];
+};

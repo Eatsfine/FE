@@ -1,27 +1,19 @@
+import type { ApiResponse } from "@/types/api";
+import type {
+  AvailableTablesResult,
+  AvailableTimesResult,
+  CreateBookingBody,
+  CreateBookingResult,
+  GetAvailableTablesParams,
+  GetAvailableTimesParams,
+} from "@/types/reservation";
+
 import { api } from "../axios";
-
-type ApiResult<T> = {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: T;
-};
-
-type GetAvailableTimesParams = {
-  storeId: string | number;
-  date: string;
-  partySize: number;
-  isSplitAccepted: boolean;
-};
-
-type AvailableTimesResult = {
-  availableTimes: string[];
-};
 
 export async function getAvailableTimes(params: GetAvailableTimesParams): Promise<string[]> {
   const { storeId, ...query } = params;
 
-  const { data } = await api.get<ApiResult<AvailableTimesResult>>(
+  const { data } = await api.get<ApiResponse<AvailableTimesResult>>(
     `/api/v1/stores/${storeId}/bookings/available-times`,
     { params: query },
   );
@@ -36,36 +28,9 @@ export async function getAvailableTimes(params: GetAvailableTimesParams): Promis
   return data.result?.availableTimes ?? [];
 }
 
-type SeatsTypes = "WINDOW" | "GENERAL" | string;
-
-type AvailableTable = {
-  tableId: number;
-  tableNumber: string;
-  tableSeats: number;
-  seatsType: SeatsTypes;
-  gridX: number;
-  gridY: number;
-  widthSpan: number;
-  heightSpan: number;
-};
-export type GetAvailableTablesParams = {
-  storeId: string | number;
-  date: string;
-  time: string;
-  partySize: number;
-  isSplitAccepted: boolean;
-  seatsType?: string;
-};
-
-type AvailableTablesResult = {
-  rows: number;
-  cols: number;
-  tables: AvailableTable[];
-};
-
 export async function getAvailableTables(params: GetAvailableTablesParams) {
   const { storeId, ...query } = params;
-  const { data } = await api.get<ApiResult<AvailableTablesResult>>(
+  const { data } = await api.get<ApiResponse<AvailableTablesResult>>(
     `/api/v1/stores/${storeId}/bookings/available-tables`,
     { params: query },
   );
@@ -80,33 +45,12 @@ export async function getAvailableTables(params: GetAvailableTablesParams) {
   return data.result;
 }
 
-type CreateBookingBody = {
-  date: string;
-  time: string;
-  partySize: number;
-  tableIds: number[];
-  menuItems: { menuId: number; quantity: number }[];
-  isSplitAccepted: boolean;
-};
-
-export type CreateBookingResult = {
-  bookingId: number;
-  status: "PENDING" | "CONFIRMED" | string;
-  storeName: string;
-  date: string;
-  time: string;
-  partySize: number;
-  totalDeposit: number;
-  paymentId?: number;
-  orderId: string;
-};
-
 export async function createBooking(params: {
   storeId: string | number;
   body: CreateBookingBody;
 }): Promise<CreateBookingResult> {
   const { storeId, body } = params;
-  const { data } = await api.post<ApiResult<CreateBookingResult>>(
+  const { data } = await api.post<ApiResponse<CreateBookingResult>>(
     `/api/v1/stores/${storeId}/bookings`,
     body,
   );

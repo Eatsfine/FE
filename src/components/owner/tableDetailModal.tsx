@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import type { Slot, SlotStatus, UpdateSlotRequest } from "@/api/owner/reservation";
 import {
   cancelBookingByOwner,
   getBookingDetail,
@@ -23,10 +22,10 @@ import {
   updateTableSlotStatus,
 } from "@/api/owner/reservation";
 import { deleteTableImage, patchTableInfo, uploadTableImage } from "@/api/owner/table";
+import type { BookingDetailResult, Slot, SlotStatus, UpdateSlotRequest } from "@/types/reservation";
+import type { BreakTime } from "@/types/store";
 import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
 import { getErrorMessage } from "@/utils/error";
-
-import type { BreakTime } from "./BreakTimeModal";
 
 interface TableInfo {
   minCapacity: number;
@@ -52,12 +51,6 @@ interface Props {
 
 type Step = "DETAIL" | "CALENDAR" | "SLOTS";
 
-type BookingDetail = {
-  bookerName: string;
-  partySize: number;
-  amount: number;
-};
-
 const TableDetailModal: React.FC<Props> = ({
   storeId,
   tableNumber,
@@ -82,7 +75,7 @@ const TableDetailModal: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null);
+  const [bookingDetail, setBookingDetail] = useState<BookingDetailResult | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showBookingDetail, setShowBookingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);

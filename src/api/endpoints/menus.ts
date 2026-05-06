@@ -1,31 +1,10 @@
-import type { MenuCategory, MenuItem } from "@/types/menus";
+import type { ApiResponse } from "@/types/api";
+import type { MenuCategory, MenuItem, MenuListResult } from "@/types/menus";
 
 import { api } from "../axios";
 
-type ApiResult<T> = {
-  isSuccess?: boolean;
-  success?: boolean;
-  code?: string;
-  message?: string;
-  result: T;
-};
-
-type MenuDto = {
-  menuId: number;
-  name: string;
-  description?: string;
-  price: number;
-  category: MenuCategory | string;
-  imageUrl?: string;
-  isSoldOut: boolean;
-};
-
-type MenuListResult = {
-  menus: MenuDto[];
-};
-
 export async function getMenus(storeId: string): Promise<MenuItem[]> {
-  const { data } = await api.get<ApiResult<MenuListResult>>(`/api/v1/stores/${storeId}/menus`);
+  const { data } = await api.get<ApiResponse<MenuListResult>>(`/api/v1/stores/${storeId}/menus`);
   if (!data?.isSuccess) {
     throw {
       status: 0,

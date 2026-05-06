@@ -1,8 +1,6 @@
-import type {
-  ResponseInquiryDTO,
-  SupportFormValues,
-} from "@/components/customer-support/support.schema";
+import type { SupportFormValues } from "@/components/customer-support/support.schema";
 import type { ApiResponse } from "@/types/api";
+import type { ResponseInquiryDTO } from "@/types/inquiry";
 
 import { api } from "./axios";
 

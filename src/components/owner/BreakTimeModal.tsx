@@ -1,10 +1,7 @@
 import { Clock, X } from "lucide-react";
 import React, { useState } from "react";
 
-export interface BreakTime {
-  start: string;
-  end: string;
-}
+import type { BreakTime } from "@/types/store";
 
 interface Props {
   openTime: string;

@@ -25,8 +25,3 @@ export const supportSchema = z.object({
 });
 
 export type SupportFormValues = z.infer<typeof supportSchema>;
-
-export interface ResponseInquiryDTO {
-  id: number;
-  createdAt: string;
-}

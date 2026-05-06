@@ -1,42 +1,13 @@
 import type { ApiResponse } from "@/types/api";
+import type {
+  BookingDetailResult,
+  GetSlotsResult,
+  PatchBreakTimeRequest,
+  UpdateSlotRequest,
+  UpdateSlotResult,
+} from "@/types/reservation";
 
 import { api } from "../axios";
-
-export interface Slot {
-  time: string;
-  status: "AVAILABLE" | "BOOKED" | "BLOCKED";
-  isAvailable: boolean;
-  bookingId: number | null;
-}
-
-interface GetSlotsResult {
-  slots: Slot[];
-}
-
-export type SlotStatus = "AVAILABLE" | "BLOCKED";
-
-export interface UpdateSlotRequest {
-  targetDate: string;
-  startTime: string;
-  status: SlotStatus;
-}
-
-interface UpdateSlotResult {
-  targetDate: string;
-  startTime: string;
-  status: SlotStatus;
-}
-
-interface PatchBreakTimeRequest {
-  breakStartTime: string;
-  breakEndTime: string;
-}
-
-interface BookingDetailResult {
-  bookerName: string;
-  partySize: number;
-  amount: number;
-}
 
 export const getTableSlots = (storeId: number, tableId: number, date: string) =>
   api.get<ApiResponse<GetSlotsResult>>(`/api/v1/stores/${storeId}/tables/${tableId}/slots`, {

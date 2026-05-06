@@ -117,3 +117,107 @@ export type AddressSearchResult = {
   sido: string;
   sigungu: string;
 };
+
+export interface StoreDetail {
+  storeId: number;
+  storeName: string;
+  description: string;
+  address: string;
+  phone: string;
+  businessHours?: BusinessHour[];
+  isApproved: boolean;
+  rating?: number;
+  reviewCount?: number;
+}
+
+export interface MyStore {
+  storeId: number;
+  storeName: string;
+  address: string;
+  category: string;
+  rating: number;
+  totalBookingCount: number;
+  reviewCount: number;
+  mainImageUrl: string;
+  isOpenNow: boolean;
+}
+
+export interface MyStoreResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    stores: MyStore[];
+  };
+}
+
+export interface TableImage {
+  tableImageId: number;
+  tableImageUrl: string;
+}
+
+export interface TableImagesResponse {
+  storeId: number;
+  tableImages: TableImage[];
+}
+
+export type StoreDetailDataDTO = {
+  storeId: number | string;
+  storeName: string;
+  description: string;
+  address: string;
+  phone: string;
+  category: Category;
+  rating: number;
+  reviewCount: number | null;
+  mainImageUrl?: string | null;
+  tableImageUrls: string[] | null;
+  businessHours: BusinessHour[] | null;
+  breakStartTime?: string | null;
+  breakEndTime?: string | null;
+  isOpenNow?: boolean;
+
+  depositAmount: number;
+  depositRate?: number | null;
+};
+
+export type SearchStoreParams = {
+  keyword: string;
+  lat: number;
+  lng: number;
+  radius?: number;
+  category?: Category;
+  sort?: "DISTANCE" | "RATING";
+  page?: number;
+  limit?: number;
+  sido?: string;
+  sigungu?: string;
+  bname?: string;
+};
+
+export type ApiStoreSummary = {
+  storeId: number;
+  name: string;
+  address: string;
+  category: Category;
+  rating: number | null;
+  reviewCount: number | null;
+  distance?: number | null;
+  mainImageUrl?: string | null;
+  isOpenNow?: boolean | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  lat?: number | string | null;
+  lng?: number | string | null;
+};
+
+export interface SearchStoresResult {
+  stores: ApiStoreSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}

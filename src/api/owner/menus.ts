@@ -1,66 +1,16 @@
 import axios from "axios";
 
 import type { ApiResponse } from "@/types/api";
+import type {
+  DeleteMenusResponse,
+  GetMenusResult,
+  MenuCreateItem,
+  MenuCreateResult,
+  MenuUpdateItem,
+  MenuUpdateResult,
+} from "@/types/menus";
 
 import { api } from "../axios";
-
-interface ServerMenu {
-  menuId: number;
-  name: string;
-  description?: string | null;
-  price: number;
-  category?: string | null;
-  imageUrl?: string | null;
-  isSoldOut?: boolean;
-}
-
-interface GetMenusResult {
-  menus: ServerMenu[];
-}
-
-export interface MenuUpdateItem {
-  name: string;
-  description?: string;
-  price: number;
-  category: string;
-  imageKey?: string;
-}
-
-interface MenuUpdateResult {
-  menuId: number;
-  name: string;
-  description?: string;
-  price: number;
-  category?: string;
-  imageUrl?: string;
-}
-
-interface MenuCreateItem {
-  name: string;
-  description?: string;
-  price: number;
-  category: string;
-  imageKey?: string;
-}
-
-interface MenuCreateResult {
-  menus: {
-    menuId: number;
-    name: string;
-    description?: string;
-    price: number;
-    category?: string;
-    imageUrl?: string;
-    imageKey?: string;
-  }[];
-}
-
-interface DeleteMenusResponse {
-  isSuccess: boolean;
-  code: string;
-  result: { deletedMenuIds: number[] };
-  message: string;
-}
 
 export async function getMenus(storeId: string | number) {
   const res = await api.get<ApiResponse<GetMenusResult>>(`/api/v1/stores/${storeId}/menus`);

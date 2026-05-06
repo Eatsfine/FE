@@ -1,23 +1,10 @@
+import type { ApiResponse } from "@/types/api";
+import type { PaymentConfirmResult, PaymentRequestResult } from "@/types/payment";
+
 import { api } from "../axios";
 
-type ApiEnvelope<T> = {
-  isSuccess?: boolean;
-  success?: boolean;
-  code?: string;
-  message?: string;
-  result: T;
-};
-
-type PaymentRequestResult = {
-  paymentId: number;
-  bookingId: number;
-  orderId: string;
-  amount: number;
-  requestedAt: string;
-};
-
 export async function requestPayment(body: { bookingId: number }) {
-  const res = await api.post<ApiEnvelope<PaymentRequestResult>>(`/api/v1/payments/request`, body);
+  const res = await api.post<ApiResponse<PaymentRequestResult>>(`/api/v1/payments/request`, body);
   if (!res.data?.isSuccess) {
     throw {
       status: 0,
@@ -28,23 +15,12 @@ export async function requestPayment(body: { bookingId: number }) {
   return res.data.result;
 }
 
-type PaymentConfirmResult = {
-  paymentId: number;
-  status: string;
-  approvedAt: string;
-  orderId: string;
-  amount: number;
-  paymentMethod: string;
-  paymentProvider: string;
-  receiptUrl: string;
-};
-
 export async function confirmPayment(body: {
   paymentKey: string;
   orderId: string;
   amount: number;
 }) {
-  const res = await api.post<ApiEnvelope<PaymentConfirmResult>>("/api/v1/payments/confirm", body);
+  const res = await api.post<ApiResponse<PaymentConfirmResult>>("/api/v1/payments/confirm", body);
   if (!res.data?.isSuccess) {
     throw new Error(res.data?.message ?? "결제 승인에 실패했습니다.");
   }

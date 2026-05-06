@@ -2,8 +2,9 @@ import { BarChart3, Calendar, Plus, Star, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { getMyStores, type MyStore } from "@/api/owner/stores";
+import { getMyStores } from "@/api/owner/stores";
 import { cn } from "@/lib/utils";
+import type { MyStore } from "@/types/store";
 
 export default function StorePage() {
   const [shops, setShops] = useState<MyStore[]>([]);
