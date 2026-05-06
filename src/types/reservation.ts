@@ -57,14 +57,14 @@ export interface AvailableTable {
   widthSpan: number;
   heightSpan: number;
 }
-export interface GetAvailableTablesParams {
+export type GetAvailableTablesParams = {
   storeId: string | number;
   date: string;
   time: string;
   partySize: number;
   isSplitAccepted: boolean;
   seatsType?: string;
-}
+};
 
 export interface AvailableTablesResult {
   rows: number;
