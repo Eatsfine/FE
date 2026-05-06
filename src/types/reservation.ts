@@ -34,20 +34,20 @@ export interface BookingDetailResult {
   amount: number;
 }
 
-export type GetAvailableTimesParams = {
+export interface GetAvailableTimesParams {
   storeId: string | number;
   date: string;
   partySize: number;
   isSplitAccepted: boolean;
-};
+}
 
-export type AvailableTimesResult = {
+export interface AvailableTimesResult {
   availableTimes: string[];
-};
+}
 
 export type SeatsTypes = "WINDOW" | "GENERAL" | string;
 
-export type AvailableTable = {
+export interface AvailableTable {
   tableId: number;
   tableNumber: string;
   tableSeats: number;
@@ -56,32 +56,32 @@ export type AvailableTable = {
   gridY: number;
   widthSpan: number;
   heightSpan: number;
-};
-export type GetAvailableTablesParams = {
+}
+export interface GetAvailableTablesParams {
   storeId: string | number;
   date: string;
   time: string;
   partySize: number;
   isSplitAccepted: boolean;
   seatsType?: string;
-};
+}
 
-export type AvailableTablesResult = {
+export interface AvailableTablesResult {
   rows: number;
   cols: number;
   tables: AvailableTable[];
-};
+}
 
-export type CreateBookingBody = {
+export interface CreateBookingBody {
   date: string;
   time: string;
   partySize: number;
   tableIds: number[];
   menuItems: { menuId: number; quantity: number }[];
   isSplitAccepted: boolean;
-};
+}
 
-export type CreateBookingResult = {
+export interface CreateBookingResult {
   bookingId: number;
   status: "PENDING" | "CONFIRMED" | string;
   storeName: string;
@@ -91,4 +91,4 @@ export type CreateBookingResult = {
   totalDeposit: number;
   paymentId?: number;
   orderId: string;
-};
+}

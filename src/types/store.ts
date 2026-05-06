@@ -9,12 +9,12 @@ export type Day =
   | "SATURDAY"
   | "SUNDAY";
 
-export type Location = {
+export interface Location {
   lat: number;
   lng: number;
-};
+}
 
-export type RestaurantSummary = {
+export interface RestaurantSummary {
   id: number;
   name: string;
   address: string;
@@ -25,21 +25,21 @@ export type RestaurantSummary = {
   thumbnailUrl?: string;
   isOpenNow?: boolean;
   location?: Location;
-};
+}
 
-export type BusinessHour = {
+export interface BusinessHour {
   day: Day;
   openTime: string | null;
   closeTime: string | null;
   isClosed: boolean;
-};
+}
 
-export type BreakTime = {
+export interface BreakTime {
   start: string;
   end: string;
-};
+}
 
-export type RestaurantDetail = {
+export interface RestaurantDetail {
   id: number;
   name: string;
   description: string;
@@ -56,7 +56,7 @@ export type RestaurantDetail = {
   isOpenNow?: boolean;
   location?: Location;
   depositRate?: number;
-};
+}
 
 export const storeCategoryLabel: Record<Category, string> = {
   KOREAN: "한식",
@@ -68,13 +68,13 @@ export const storeCategoryLabel: Record<Category, string> = {
 
 export type DepositRate = "TEN" | "TWENTY" | "THIRTY" | "FORTY" | "FIFTY";
 
-export type BusinessNumberDto = {
+export interface BusinessNumberDto {
   name: string;
   businessNumber: string;
   startDate: string;
-};
+}
 
-export type RequestStoreCreateDto = {
+export interface RequestStoreCreateDto {
   storeName: string;
   businessNumberDto?: BusinessNumberDto;
   description?: string;
@@ -89,34 +89,36 @@ export type RequestStoreCreateDto = {
   depositRate: DepositRate;
   bookingIntervalMinutes: number;
   businessHours: BusinessHour[];
-};
+}
 
-export type ResponseStoreCreateDto = { storeId: number };
+export interface ResponseStoreCreateDto {
+  storeId: number;
+}
 
-export type RequestMainImageDto = {
+export interface RequestMainImageDto {
   mainImage: File;
-};
+}
 
-export type ResponseMainImageDto = {
+export interface ResponseMainImageDto {
   storeId: number;
   mainImageUrl: string;
-};
+}
 
-export type UpdateStoreResponse = {
+export interface UpdateStoreResponse {
   storeId: number;
   storeName: string;
   description: string;
   phoneNumber: string;
-};
+}
 
-export type AddressSearchResult = {
+export interface AddressSearchResult {
   address: string;
   addressType: string;
   bname: string;
   buildingName: string;
   sido: string;
   sigungu: string;
-};
+}
 
 export interface StoreDetail {
   storeId: number;
@@ -161,7 +163,7 @@ export interface TableImagesResponse {
   tableImages: TableImage[];
 }
 
-export type StoreDetailDataDTO = {
+export interface StoreDetailDataDTO {
   storeId: number | string;
   storeName: string;
   description: string;
@@ -179,9 +181,9 @@ export type StoreDetailDataDTO = {
 
   depositAmount: number;
   depositRate?: number | null;
-};
+}
 
-export type SearchStoreParams = {
+export interface SearchStoreParams {
   keyword: string;
   lat: number;
   lng: number;
@@ -193,9 +195,9 @@ export type SearchStoreParams = {
   sido?: string;
   sigungu?: string;
   bname?: string;
-};
+}
 
-export type ApiStoreSummary = {
+export interface ApiStoreSummary {
   storeId: number;
   name: string;
   address: string;
@@ -209,7 +211,7 @@ export type ApiStoreSummary = {
   longitude?: number | string | null;
   lat?: number | string | null;
   lng?: number | string | null;
-};
+}
 
 export interface SearchStoresResult {
   stores: ApiStoreSummary[];

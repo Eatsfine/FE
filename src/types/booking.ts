@@ -22,12 +22,12 @@ export interface BookingResponse {
   isLast: boolean;
 }
 
-export type GetBookingParams = {
+export interface GetBookingParams {
   page: number;
   status?: ApiBookingStatus;
-};
+}
 
-export type BookingListItem = {
+export interface BookingListItem {
   bookingId: number;
   storeName: string;
   storeAddress: string;
@@ -43,15 +43,15 @@ export type BookingListItem = {
   amount: number;
   paymentMethod: string;
   status: ApiBookingStatus;
-};
+}
 
-export type UserBookingsResult = {
+export interface UserBookingsResult {
   bookingList: BookingListItem[];
   listSize: number;
   totalPage: number;
   totalElements: number;
   isFirst: boolean;
   isLast: boolean;
-};
+}
 
 export type UserBookingItem = BookingListItem;

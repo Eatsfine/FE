@@ -18,7 +18,7 @@ import { formatKrw } from "@/utils/money";
 import { calcDeposit } from "@/utils/payment";
 import { tablePrefLabel } from "@/utils/reservation";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   onBack: () => void;
@@ -26,7 +26,7 @@ type Props = {
   restaurant: RestaurantDetail;
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
-};
+}
 
 export default function ReservationConfirmModal({
   open,

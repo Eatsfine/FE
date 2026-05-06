@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 
-type Props = {
+interface Props {
   title: string;
   desc: string;
   icon: ReactNode;
   iconBg: string;
   className?: string;
   style?: React.CSSProperties;
-};
+}
 
 export default function FeatureCard({ title, desc, icon, iconBg, className, style }: Props) {
   return (

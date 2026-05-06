@@ -1,24 +1,24 @@
-export type MemberInfo = {
+export interface MemberInfo {
   id: number;
   profileImage: string | null;
   email: string;
   name: string;
   phoneNumber: string;
-};
+}
 
-export type PatchMemberInfo = {
+export interface PatchMemberInfo {
   name: string;
   phoneNumber: string;
-};
+}
 
-export type ChangePasswordRequest = {
+export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
   newPasswordConfirm: string;
-};
+}
 
-export type ChangePasswordResponse = {
+export interface ChangePasswordResponse {
   change: boolean;
   changeAt: string;
   message: string;
-};
+}

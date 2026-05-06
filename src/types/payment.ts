@@ -1,14 +1,14 @@
 export type { DepositRate } from "@/types/store";
 
-export type PaymentRequestResult = {
+export interface PaymentRequestResult {
   paymentId: number;
   bookingId: number;
   orderId: string;
   amount: number;
   requestedAt: string;
-};
+}
 
-export type PaymentConfirmResult = {
+export interface PaymentConfirmResult {
   paymentId: number;
   status: string;
   approvedAt: string;
@@ -17,4 +17,4 @@ export type PaymentConfirmResult = {
   paymentMethod: string;
   paymentProvider: string;
   receiptUrl: string;
-};
+}

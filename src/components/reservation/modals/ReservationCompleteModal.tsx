@@ -9,13 +9,13 @@ import { toYmd } from "@/utils/date";
 import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 import { toHHmm } from "@/utils/time";
 
-type Props = {
+interface Props {
   open: boolean;
   restaurant: Pick<RestaurantDetail, "name">;
   draft: Pick<ReservationDraft, "people" | "date" | "time">;
   onClose: () => void;
   autoCloseMs?: number;
-};
+}
 
 export default function ReservationCompleteModal({
   open,

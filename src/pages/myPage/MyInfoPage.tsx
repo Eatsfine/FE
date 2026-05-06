@@ -7,11 +7,11 @@ import ProfileAvatar from "@/components/profile/profileAvatar";
 import { Button } from "@/components/ui/button";
 import { phoneNumber } from "@/utils/phoneNumber";
 
-type Form = {
+interface Form {
   email: string;
   nickname: string;
   phone: string;
-};
+}
 
 export default function MyInfoPage() {
   const qc = useQueryClient();

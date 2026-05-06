@@ -19,7 +19,7 @@ import { formatKrw } from "@/utils/money";
 
 import { Button } from "../../ui/button";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   onOpenChange: (open: boolean) => void;
@@ -27,7 +27,7 @@ type Props = {
   restaurant: RestaurantDetail;
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
-};
+}
 type TossPaymentsInstance = Awaited<ReturnType<typeof loadTossPayments>>;
 type TossWidgetsInstance = ReturnType<TossPaymentsInstance["widgets"]>;
 

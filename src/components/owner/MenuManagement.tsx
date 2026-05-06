@@ -15,7 +15,7 @@ interface Category {
   label: string;
 }
 
-type MenuDraft = {
+interface MenuDraft {
   menuId?: number | string;
   name?: string;
   description?: string;
@@ -25,7 +25,7 @@ type MenuDraft = {
   imageKey?: string;
   isSoldOut?: boolean;
   isActive?: boolean;
-};
+}
 
 type CategoryType = "ALL" | MenuCategory;
 
