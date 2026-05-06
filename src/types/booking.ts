@@ -13,13 +13,16 @@ export interface Booking {
   status: ApiBookingStatus;
 }
 
-export interface BookingResponse {
-  bookingList: Booking[];
+export interface Pagination {
   listSize: number;
   totalPage: number;
   totalElements: number;
   isFirst: boolean;
   isLast: boolean;
+}
+
+export interface BookingResponse extends Pagination {
+  bookingList: Booking[];
 }
 
 export interface GetBookingParams {
@@ -45,13 +48,8 @@ export interface BookingListItem {
   status: ApiBookingStatus;
 }
 
-export interface UserBookingsResult {
+export interface UserBookingsResult extends Pagination {
   bookingList: BookingListItem[];
-  listSize: number;
-  totalPage: number;
-  totalElements: number;
-  isFirst: boolean;
-  isLast: boolean;
 }
 
 export type UserBookingItem = BookingListItem;
