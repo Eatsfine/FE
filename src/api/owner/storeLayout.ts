@@ -1,48 +1,9 @@
 import axios from "axios";
 
 import type { ApiResponse } from "@/types/api";
-import type { SeatsType } from "@/types/table";
+import type { CreateTableRequest, CreateTableResponse, LayoutResponse } from "@/types/layout";
 
 import { api } from "../axios";
-
-export interface LayoutTable {
-  tableId: number;
-  tableNumber: string;
-  minSeatCount: number;
-  maxSeatCount: number;
-  gridX: number;
-  gridY: number;
-  widthSpan: number;
-  heightSpan: number;
-  tableImageUrl: string | null;
-  seatsType: SeatsType;
-}
-
-interface LayoutResponse {
-  layoutId: number;
-  totalTableCount: number;
-  gridInfo: { gridCol: number; gridRow: number };
-  tables: LayoutTable[];
-}
-
-export interface CreateTableRequest {
-  gridX: number;
-  gridY: number;
-  minSeatCount: number;
-  maxSeatCount: number;
-  seatsType: SeatsType;
-}
-
-interface CreateTableResponse {
-  tableId: number;
-  tableNumber: string;
-  minSeatCount: number;
-  maxSeatCount: number;
-  seatsType: string;
-  gridX: number;
-  gridY: number;
-  tableImageUrl: string | null;
-}
 
 export const getActiveLayout = async (storeId: number): Promise<LayoutResponse | null> => {
   try {

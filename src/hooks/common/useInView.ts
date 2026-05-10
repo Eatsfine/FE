@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-type Options = {
+interface Options {
   threshold?: number | number[];
   rootMargin?: string;
   once?: boolean;
-};
+}
 
 export function useInView<T extends HTMLElement = HTMLElement>({
   threshold = 0.3,

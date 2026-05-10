@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type ReservationStatus = "전체" | "예정된 예약" | "방문 완료" | "취소된 예약";
 
-type Reservation = {
+interface Reservation {
   id: number;
   shopName: string;
   status: "예약 확정" | "방문 완료" | "취소됨";
@@ -17,7 +17,7 @@ type Reservation = {
   payment: string;
   method: string;
   step: string;
-};
+}
 
 export default function ReservationPage() {
   const [activeTab, setActiveTab] = useState<ReservationStatus>("전체");
@@ -53,7 +53,9 @@ export default function ReservationPage() {
         shopName: b.storeName,
         address: b.storeAddress,
         date: b.bookingDate,
-        time: b.bookingTime ?? "--:--",
+        time: b.bookingTime
+          ? `${String(b.bookingTime.hour).padStart(2, "0")}:${String(b.bookingTime.minute).padStart(2, "0")}`
+          : "--:--",
         people: b.partySize?.toString() ?? "0",
         payment: `${b.amount?.toLocaleString() ?? 0}원`,
         method: b.paymentMethod ?? "-",

@@ -1,3 +1,5 @@
+import type { ApiResponse } from "./api";
+
 export type Category = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
 export type Day =
@@ -9,12 +11,12 @@ export type Day =
   | "SATURDAY"
   | "SUNDAY";
 
-export type Location = {
+export interface Location {
   lat: number;
   lng: number;
-};
+}
 
-export type RestaurantSummary = {
+export interface RestaurantSummary {
   id: number;
   name: string;
   address: string;
@@ -25,21 +27,21 @@ export type RestaurantSummary = {
   thumbnailUrl?: string;
   isOpenNow?: boolean;
   location?: Location;
-};
+}
 
-export type BusinessHour = {
+export interface BusinessHour {
   day: Day;
   openTime: string | null;
   closeTime: string | null;
   isClosed: boolean;
-};
+}
 
-export type BreakTime = {
+export interface BreakTime {
   start: string;
   end: string;
-};
+}
 
-export type RestaurantDetail = {
+export interface RestaurantDetail {
   id: number;
   name: string;
   description: string;
@@ -56,7 +58,7 @@ export type RestaurantDetail = {
   isOpenNow?: boolean;
   location?: Location;
   depositRate?: number;
-};
+}
 
 export const storeCategoryLabel: Record<Category, string> = {
   KOREAN: "한식",
@@ -68,13 +70,13 @@ export const storeCategoryLabel: Record<Category, string> = {
 
 export type DepositRate = "TEN" | "TWENTY" | "THIRTY" | "FORTY" | "FIFTY";
 
-export type BusinessNumberDto = {
+export interface BusinessNumberDto {
   name: string;
   businessNumber: string;
   startDate: string;
-};
+}
 
-export type RequestStoreCreateDto = {
+export interface RequestStoreCreateDto {
   storeName: string;
   businessNumberDto?: BusinessNumberDto;
   description?: string;
@@ -89,31 +91,128 @@ export type RequestStoreCreateDto = {
   depositRate: DepositRate;
   bookingIntervalMinutes: number;
   businessHours: BusinessHour[];
-};
+}
 
-export type ResponseStoreCreateDto = { storeId: number };
+export interface ResponseStoreCreateDto {
+  storeId: number;
+}
 
-export type RequestMainImageDto = {
+export interface RequestMainImageDto {
   mainImage: File;
-};
+}
 
-export type ResponseMainImageDto = {
+export interface ResponseMainImageDto {
   storeId: number;
   mainImageUrl: string;
-};
+}
 
-export type UpdateStoreResponse = {
+export interface UpdateStoreResponse {
   storeId: number;
   storeName: string;
   description: string;
   phoneNumber: string;
-};
+}
 
-export type AddressSearchResult = {
+export interface AddressSearchResult {
   address: string;
   addressType: string;
   bname: string;
   buildingName: string;
   sido: string;
   sigungu: string;
-};
+}
+
+export interface StoreDetail {
+  storeId: number;
+  storeName: string;
+  description: string;
+  address: string;
+  phone: string;
+  businessHours?: BusinessHour[];
+  isApproved: boolean;
+  rating?: number;
+  reviewCount?: number;
+}
+
+export interface MyStore {
+  storeId: number;
+  storeName: string;
+  address: string;
+  category: Category;
+  rating: number;
+  totalBookingCount: number;
+  reviewCount: number;
+  mainImageUrl: string;
+  isOpenNow: boolean;
+}
+
+export type MyStoreResponse = ApiResponse<{ stores: MyStore[] }>;
+
+export interface TableImage {
+  tableImageId: number;
+  tableImageUrl: string;
+}
+
+export interface TableImagesResponse {
+  storeId: number;
+  tableImages: TableImage[];
+}
+
+export interface StoreDetailDataDTO {
+  storeId: number | string;
+  storeName: string;
+  description: string;
+  address: string;
+  phone: string;
+  category: Category;
+  rating: number;
+  reviewCount: number | null;
+  mainImageUrl?: string | null;
+  tableImageUrls: string[] | null;
+  businessHours: BusinessHour[] | null;
+  breakStartTime?: string | null;
+  breakEndTime?: string | null;
+  isOpenNow?: boolean;
+
+  depositAmount: number;
+  depositRate?: number | null;
+}
+
+export interface SearchStoreParams {
+  keyword: string;
+  lat: number;
+  lng: number;
+  radius?: number;
+  category?: Category;
+  sort?: "DISTANCE" | "RATING";
+  page?: number;
+  limit?: number;
+  sido?: string;
+  sigungu?: string;
+  bname?: string;
+}
+
+export interface ApiStoreSummary {
+  storeId: number;
+  name: string;
+  address: string;
+  category: Category;
+  rating: number | null;
+  reviewCount: number | null;
+  distance?: number | null;
+  mainImageUrl?: string | null;
+  isOpenNow?: boolean | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+}
+
+export interface SearchStoresResult {
+  stores: ApiStoreSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}

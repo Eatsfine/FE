@@ -1,7 +1,12 @@
 import type { RestaurantSummary } from "./store";
 
-export type LatLng = { lat: number; lng: number };
-export type MarkerWithLocation = RestaurantSummary & { location: LatLng };
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+export interface MarkerWithLocation extends RestaurantSummary {
+  location: LatLng;
+}
 
 type KakaoMaps = NonNullable<NonNullable<Window["kakao"]>["maps"]>;
 export type KaKaoMapInstance = InstanceType<KakaoMaps["Map"]>;

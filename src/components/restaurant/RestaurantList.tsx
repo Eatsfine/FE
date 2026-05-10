@@ -2,10 +2,10 @@ import type { RestaurantSummary } from "@/types/store";
 
 import RestaurantCard from "./RestaurantCard";
 
-type Props = {
+interface Props {
   restaurants: RestaurantSummary[];
   onSelect: (restaurant: RestaurantSummary) => void;
-};
+}
 
 export default function RestaurantList({ restaurants, onSelect }: Props) {
   return (

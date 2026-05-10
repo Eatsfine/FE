@@ -1,33 +1,6 @@
+import type { ApiBookingStatus, BookingResponse, GetBookingParams } from "@/types/booking";
+
 import { api } from "./axios";
-
-type ApiBookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELED";
-
-interface Booking {
-  bookingId: number;
-  storeName: string;
-  storeAddress: string;
-  bookingDate: string;
-  bookingTime: string;
-  partySize: number;
-  tableNumbers: string;
-  amount: number | null;
-  paymentMethod: string;
-  status: ApiBookingStatus;
-}
-
-interface BookingResponse {
-  bookingList: Booking[];
-  listSize: number;
-  totalPage: number;
-  totalElements: number;
-  isFirst: boolean;
-  isLast: boolean;
-}
-
-type GetBookingParams = {
-  page: number;
-  status?: ApiBookingStatus;
-};
 
 export const getBookings = async (
   status?: ApiBookingStatus,

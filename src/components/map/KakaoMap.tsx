@@ -10,7 +10,7 @@ import type {
 } from "@/types/map";
 import type { RestaurantSummary } from "@/types/store";
 
-type Props = {
+interface Props {
   center: LatLng;
   markers: RestaurantSummary[];
   selectedId?: number | null;
@@ -18,7 +18,7 @@ type Props = {
   className?: string;
   defaultLevel?: number;
   selectedLevel?: number;
-};
+}
 const toNum = (v: unknown) => {
   const n = typeof v === "string" ? parseFloat(v) : Number(v);
   return Number.isFinite(n) ? n : null;

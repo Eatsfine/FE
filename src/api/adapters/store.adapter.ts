@@ -1,5 +1,4 @@
-import type { StoreDetailDataDTO } from "@/api/dto/store.dto";
-import type { BreakTime, RestaurantDetail } from "@/types/store";
+import type { BreakTime, RestaurantDetail, StoreDetailDataDTO } from "@/types/store";
 
 export function toRestaurantDetail(dto: StoreDetailDataDTO): RestaurantDetail {
   const breakTime = toBreakTime(dto.breakStartTime, dto.breakEndTime);

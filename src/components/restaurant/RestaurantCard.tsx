@@ -1,9 +1,9 @@
 import { type RestaurantSummary, storeCategoryLabel } from "@/types/store";
 
-type Props = {
+interface Props {
   restaurant: RestaurantSummary;
   onClick: () => void;
-};
+}
 
 export default function RestaurantCard({ restaurant, onClick }: Props) {
   return (

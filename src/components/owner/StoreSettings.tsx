@@ -5,12 +5,11 @@ import {
   deleteTableImages,
   getStore,
   getTableImages,
-  type TableImage,
   updateBusinessHours,
   updateStore,
   uploadTableImages,
 } from "@/api/owner/stores";
-import type { Day } from "@/types/store";
+import type { Day, TableImage } from "@/types/store";
 
 interface StoreSettingsProps {
   storeId?: string;

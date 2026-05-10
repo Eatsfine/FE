@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
 import type { SeatLayout, SeatTable, SeatType } from "@/types/restaurant";
 
-type Props = {
+interface Props {
   layout: SeatLayout;
   availableIds: Set<number>;
   selectedTableId: number | null;
   seatType: SeatType | null;
   onSelectTable: (tableId: number) => void;
   onSelectSeatType: (seatType: SeatType) => void;
-};
+}
 
 export default function TableMap({
   layout,

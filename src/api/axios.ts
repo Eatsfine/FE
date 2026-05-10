@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { ApiError } from "@/types/api";
+import type { ApiError, ApiResponseWithFlags } from "@/types/api";
 
 import { isApiResponse, normalizeApiError } from "./api.error";
 import { clearAuth, postRefresh } from "./auth";
@@ -37,13 +37,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 
 let refreshPromise: ReturnType<typeof postRefresh> | null = null;
-
-type ApiResponseWithFlags = {
-  code?: string;
-  message?: string;
-  success?: boolean;
-  isSuccess?: boolean;
-};
 
 api.interceptors.response.use(
   (res) => {

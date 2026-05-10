@@ -17,12 +17,12 @@ import { useMenuCreate, useMenuImage } from "@/hooks/queries/useMenu";
 import { useMainImage, useRegisterStore } from "@/hooks/queries/useStore";
 import { getErrorMessage } from "@/utils/error";
 
-type Step1Data = {
+interface Step1Data {
   name: string;
   businessNumber: string;
   startDate: string;
   isVerified: boolean;
-};
+}
 
 export default function StoreRegistrationPage() {
   const { mutateAsync: registerStore } = useRegisterStore();

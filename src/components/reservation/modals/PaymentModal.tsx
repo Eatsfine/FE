@@ -4,13 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { requestPayment } from "@/api/endpoints/payments";
-import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useModalPresence } from "@/hooks/common/useModalPresence";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { cn } from "@/lib/utils";
 import { useUserId } from "@/stores/useAuthStore";
+import type { CreateBookingResult } from "@/types/reservation";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { calcMenuTotal } from "@/utils/menu";
@@ -19,7 +19,7 @@ import { formatKrw } from "@/utils/money";
 
 import { Button } from "../../ui/button";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   onOpenChange: (open: boolean) => void;
@@ -27,7 +27,7 @@ type Props = {
   restaurant: RestaurantDetail;
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
-};
+}
 type TossPaymentsInstance = Awaited<ReturnType<typeof loadTossPayments>>;
 type TossWidgetsInstance = ReturnType<TossPaymentsInstance["widgets"]>;
 

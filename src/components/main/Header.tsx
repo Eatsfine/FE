@@ -10,10 +10,10 @@ import { LoginDialog } from "../auth/LoginDialog";
 import { SignupDialog } from "../auth/SignupDialog";
 import { Button } from "../ui/button";
 
-type NavItem = {
+interface NavItem {
   label: string;
   href: string;
-};
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);

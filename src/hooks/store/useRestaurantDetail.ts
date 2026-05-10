@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import { toRestaurantDetail } from "@/api/adapters/store.adapter";
 import { api } from "@/api/axios";
-import type { StoreDetailDataDTO } from "@/api/dto/store.dto";
 import { queryKeys } from "@/query/keys";
+import type { StoreDetailDataDTO } from "@/types/store";
 
 export function useRestaurantDetail(storeId: number | null) {
   return useQuery({

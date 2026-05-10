@@ -53,11 +53,9 @@ declare global {
   }
 }
 
-export {};
-
 export type KakaoAddressSearchStatus = "OK" | "ZERO_RESULT" | "ERROR";
 
-export type KakaoAddressSearchResult = {
+export interface KakaoAddressSearchResult {
   x: string;
   y: string;
-};
+}

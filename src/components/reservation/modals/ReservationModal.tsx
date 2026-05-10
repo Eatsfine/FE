@@ -24,13 +24,13 @@ import { Calendar } from "../../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import TableMap from "../parts/TableMap";
 
-type Props = {
+interface Props {
   open: boolean;
   restaurant: RestaurantDetail;
   initialDraft?: ReservationDraft;
   onClickConfirm: (draft: ReservationDraft) => void;
   onClose: () => void;
-};
+}
 
 const PEOPLE = [1, 2, 3, 4, 5, 6, 7, 8];
 

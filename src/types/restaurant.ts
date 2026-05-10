@@ -4,7 +4,7 @@ export const SEATS = ["일반석", "창가석", "룸/프라이빗", "바(Bar)석
 export type SeatType = (typeof SEATS)[number];
 export type TablePref = "split_ok" | "one_table";
 
-export type ReservationDraft = {
+export interface ReservationDraft {
   people: number;
   date: Date;
   time?: string;
@@ -13,9 +13,9 @@ export type ReservationDraft = {
   tableId: number;
   tableNo: number | null;
   selectedMenus: SelectedMenu[];
-};
+}
 
-export type SeatTable = {
+export interface SeatTable {
   id: number;
   tableNo: number;
   minPeople: number;
@@ -24,10 +24,10 @@ export type SeatTable = {
   gridX: number;
   gridY: number;
   imageUrl?: string;
-};
+}
 
-export type SeatLayout = {
+export interface SeatLayout {
   gridCols: number;
   gridRows: number;
   tables: SeatTable[];
-};
+}

@@ -22,14 +22,14 @@ import { calcDeposit } from "@/utils/payment";
 
 import { Button } from "../../ui/button";
 
-type Props = {
+interface Props {
   open: boolean;
   restaurant: RestaurantDetail;
   onConfirm: (draft: ReservationDraft) => void;
   onBack: () => void;
   onClose: () => void;
   draft: ReservationDraft;
-};
+}
 
 export default function ReservationMenuModal({
   open,

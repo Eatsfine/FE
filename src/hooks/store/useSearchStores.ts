@@ -1,53 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/axios";
-import type { Category, RestaurantSummary } from "@/types/store";
-
-type Params = {
-  keyword: string;
-  lat: number;
-  lng: number;
-  radius?: number;
-  category?: "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
-  sort?: "DISTANCE" | "RATING";
-  page?: number;
-  limit?: number;
-  sido?: string;
-  sigungu?: string;
-  bname?: string;
-};
-
-type ApiStoreSummary = {
-  storeId: number;
-  name: string;
-  address: string;
-  category: Category;
-  rating: number | null;
-  reviewCount: number | null;
-  distance?: number | null;
-  mainImageUrl?: string | null;
-  isOpenNow?: boolean | null;
-  latitude?: number | string | null;
-  longitude?: number | string | null;
-  lat?: number | string | null;
-  lng?: number | string | null;
-};
-
-type ApiResponse = {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: {
-    stores: ApiStoreSummary[];
-    pagination: {
-      page: number;
-      limit: number;
-      totalCount: number;
-      totalPages: number;
-      hasNext: boolean;
-    };
-  };
-};
+import type { ApiResponse } from "@/types/api";
+import type {
+  ApiStoreSummary,
+  RestaurantSummary,
+  SearchStoreParams,
+  SearchStoresResult,
+} from "@/types/store";
 
 const toNum = (v: unknown): number | undefined => {
   if (v == null) return undefined;
@@ -56,8 +16,8 @@ const toNum = (v: unknown): number | undefined => {
 };
 
 function toSummary(s: ApiStoreSummary): RestaurantSummary {
-  const lat = toNum(s.latitude ?? s.lat);
-  const lng = toNum(s.longitude ?? s.lng);
+  const lat = toNum(s.latitude);
+  const lng = toNum(s.longitude);
   return {
     id: s.storeId,
     name: s.name,
@@ -72,7 +32,7 @@ function toSummary(s: ApiStoreSummary): RestaurantSummary {
   };
 }
 
-export function useSearchStores(params: Params | null) {
+export function useSearchStores(params: SearchStoreParams | null) {
   return useQuery({
     queryKey: ["searchStores", params],
     enabled: !!params && !!params.keyword,
@@ -92,7 +52,7 @@ export function useSearchStores(params: Params | null) {
       if (params.sigungu) cleanParams.sigungu = params.sigungu;
       if (params.bname) cleanParams.bname = params.bname;
 
-      const res = await api.get<ApiResponse>("/api/v1/stores/search", {
+      const res = await api.get<ApiResponse<SearchStoresResult>>("/api/v1/stores/search", {
         params: cleanParams,
       });
 

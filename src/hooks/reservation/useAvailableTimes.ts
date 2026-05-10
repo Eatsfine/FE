@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getAvailableTimes } from "@/api/endpoints/reservations";
 import { queryKeys } from "@/query/keys";
 
-type AvailableTimesInput = {
+interface AvailableTimesInput {
   storeId?: string | number;
   date?: string;
   partySize?: number;
   isSplitAccepted?: boolean;
-};
+}
 
 export function useAvailableTimes(input: AvailableTimesInput) {
   const { storeId, date, partySize, isSplitAccepted } = input;

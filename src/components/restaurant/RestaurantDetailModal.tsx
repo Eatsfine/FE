@@ -9,7 +9,7 @@ import { backdropMotionClass, panelMotionClass } from "@/utils/modalMotion";
 
 import { Button } from "../ui/button";
 
-type Props = {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   status: "idle" | "loading" | "success" | "error";
@@ -17,7 +17,7 @@ type Props = {
   errorMessage?: string;
   onRetry?: () => void;
   onClickReserve: () => void;
-};
+}
 
 const DAY_LABEL: Record<Day, string> = {
   MONDAY: "월",

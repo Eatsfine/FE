@@ -1,12 +1,12 @@
 import { X } from "lucide-react";
 
-import type { CreateBookingResult } from "@/api/endpoints/reservations.ts";
 import { useConfirmClose } from "@/hooks/common/useConfirmClose";
 import { useModalPresence } from "@/hooks/common/useModalPresence";
 import { useCreateBooking } from "@/hooks/reservation/useCreateBooking";
 import { useDepositRate } from "@/hooks/reservation/useDepositRate";
 import { useMenus } from "@/hooks/reservation/useMenus";
 import { cn } from "@/lib/utils";
+import type { CreateBookingResult } from "@/types/reservation";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantDetail } from "@/types/store";
 import { toYmd } from "@/utils/date";
@@ -18,7 +18,7 @@ import { formatKrw } from "@/utils/money";
 import { calcDeposit } from "@/utils/payment";
 import { tablePrefLabel } from "@/utils/reservation";
 
-type Props = {
+interface Props {
   open: boolean;
   onClose: () => void;
   onBack: () => void;
@@ -26,7 +26,7 @@ type Props = {
   restaurant: RestaurantDetail;
   draft: ReservationDraft;
   booking: CreateBookingResult | null;
-};
+}
 
 export default function ReservationConfirmModal({
   open,

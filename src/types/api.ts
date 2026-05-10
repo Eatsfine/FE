@@ -10,3 +10,10 @@ export interface ApiError {
   code?: string;
   message: string;
 }
+
+export interface ApiResponseWithFlags {
+  code?: string;
+  message?: string;
+  success?: boolean;
+  isSuccess?: boolean;
+}

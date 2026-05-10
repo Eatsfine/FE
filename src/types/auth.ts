@@ -1,4 +1,4 @@
-export type RequestSignupDto = {
+export interface RequestSignupDto {
   name: string;
   email: string;
   password: string;
@@ -7,36 +7,36 @@ export type RequestSignupDto = {
   tosConsent: boolean;
   privacyConsent: boolean;
   marketingConsent: boolean;
-};
+}
 
-export type ResponseSignupDto = {
+export interface ResponseSignupDto {
   id: number;
   createdAt: string;
-};
+}
 
-export type RequestLoginDto = {
+export interface RequestLoginDto {
   email: string;
   password: string;
-};
+}
 
-export type ResponseLoginDto = {
+export interface ResponseLoginDto {
   id: number;
   accessToken: string;
   refreshToken: string | null;
-};
+}
 
 export type ResponseLogoutDto = string;
 
-export type ResponseRefreshDto = {
+export interface ResponseRefreshDto {
   accessToken: string;
-};
+}
 
-export type RequestVerifyOwnerDto = {
+export interface RequestVerifyOwnerDto {
   businessNumber: string;
   startDate: string;
-};
+}
 
-export type ResponseVerifyOwnerDto = {
+export interface ResponseVerifyOwnerDto {
   businessNumber: string;
   startDate: string;
-};
+}

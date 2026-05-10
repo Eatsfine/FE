@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import type { CreateBookingResult } from "@/api/endpoints/reservations";
 import KakaoMap from "@/components/map/KakaoMap";
 import PaymentModal from "@/components/reservation/modals/PaymentModal";
 import ReservationConfirmMoodal from "@/components/reservation/modals/ReservationConfirmModal";
@@ -14,6 +13,7 @@ import { useRestaurantDetail } from "@/hooks/store/useRestaurantDetail";
 import { useSearchStores } from "@/hooks/store/useSearchStores";
 import type { KakaoAddressSearchResult, KakaoAddressSearchStatus } from "@/types/kakao";
 import type { LatLng } from "@/types/map";
+import type { CreateBookingResult } from "@/types/reservation";
 import type { ReservationDraft } from "@/types/restaurant";
 import type { RestaurantSummary } from "@/types/store";
 import { toHHmm } from "@/utils/time";

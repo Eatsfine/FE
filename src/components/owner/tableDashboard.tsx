@@ -3,20 +3,20 @@ import { Check, Clock, Lightbulb, Pencil, Plus, Store, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { patchBreakTime } from "@/api/owner/reservation";
+import { createLayout, createTable, deleteTable, getActiveLayout } from "@/api/owner/storeLayout";
+import { patchTableInfo } from "@/api/owner/table";
+import type { CreateTableRequest, LayoutTable } from "@/types/layout";
+import type { BreakTime } from "@/types/store";
 import {
-  createLayout,
-  createTable,
-  type CreateTableRequest,
-  deleteTable,
-  getActiveLayout,
-  type LayoutTable,
-} from "@/api/owner/storeLayout";
-import { patchTableInfo, type PatchTableRequest, type UpdatedTable } from "@/api/owner/table";
-import { SEATS_TYPE_LABEL, type SeatsType } from "@/types/table";
+  type PatchTableRequest,
+  SEATS_TYPE_LABEL,
+  type SeatsType,
+  type UpdatedTable,
+} from "@/types/table";
 import { getErrorMessage } from "@/utils/error";
 
 import AddTableModal from "./AddTableModal";
-import BreakTimeModal, { type BreakTime } from "./BreakTimeModal";
+import BreakTimeModal from "./BreakTimeModal";
 import TableCreateModal from "./TableCreateModal";
 import TableDetailModal from "./tableDetailModal";
 
@@ -241,7 +241,7 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
             })),
           );
 
-          setTableData(mapTablesFromApi(layout.tables, layout.gridInfo.gridCol, tableData));
+          setTableData((prev) => mapTablesFromApi(layout.tables, layout.gridInfo.gridCol, prev));
           setCreateModalOpen(false);
         } else {
           setCreateModalOpen(true);
@@ -253,7 +253,8 @@ const TableDashboard: React.FC<TableDashboardProps> = ({ storeId, storeName }) =
     };
 
     fetchLayout();
-  }, [storeId, tableData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeId]);
 
   const handleCreateLayout = async (columns: number, rows: number) => {
     if (!storeId) return;

@@ -1,4 +1,4 @@
-export type MenuItem = {
+export interface MenuItem {
   id: string;
   restaurantId: string;
   name: string;
@@ -11,12 +11,12 @@ export type MenuItem = {
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
-};
+}
 
-export type SelectedMenu = {
+export interface SelectedMenu {
   menuId: string;
   quantity: number;
-};
+}
 
 export type MenuCategory = "MAIN" | "SIDE" | "BEVERAGE" | "ALCOHOL";
 
@@ -33,27 +33,99 @@ export const UiMenuCategoryLabel: Record<UiCategory, string> = {
   OTHER: "기타",
 };
 
-export type MenuCreateItemDto = {
+export interface MenuCreateItemDto {
   name: string;
   description?: string;
   price: number;
   category: MenuCategory;
   imageKey?: string;
-};
+}
 
-export type RequestMenuCreateDto = {
+export interface RequestMenuCreateDto {
   menus: MenuCreateItemDto[];
-};
+}
 
-export type ResponseMenuCreateDto = {
+export interface ResponseMenuCreateDto {
   menus: MenuCreateItemDto[];
-};
+}
 
-export type RequestMenuImageDto = {
+export interface RequestMenuImageDto {
   image: File;
-};
+}
 
-export type ResponseMenuImageDto = {
+export interface ResponseMenuImageDto {
   imageKey: string;
   imageUrl: string;
-};
+}
+
+export interface ServerMenu {
+  menuId: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  category?: string | null;
+  imageUrl?: string | null;
+  isSoldOut?: boolean;
+}
+
+export interface GetMenusResult {
+  menus: ServerMenu[];
+}
+
+export interface MenuUpdateItem {
+  name: string;
+  description?: string;
+  price: number;
+  category: string;
+  imageKey?: string;
+}
+
+export interface MenuUpdateResult {
+  menuId: number;
+  name: string;
+  description?: string;
+  price: number;
+  category?: string;
+  imageUrl?: string;
+}
+
+export interface MenuCreateItem {
+  name: string;
+  description?: string;
+  price: number;
+  category: string;
+  imageKey?: string;
+}
+
+export interface MenuCreateResult {
+  menus: {
+    menuId: number;
+    name: string;
+    description?: string;
+    price: number;
+    category?: string;
+    imageUrl?: string;
+    imageKey?: string;
+  }[];
+}
+
+export interface DeleteMenusResponse {
+  isSuccess: boolean;
+  code: string;
+  result: { deletedMenuIds: number[] };
+  message: string;
+}
+
+export interface MenuDto {
+  menuId: number;
+  name: string;
+  description?: string;
+  price: number;
+  category: MenuCategory | string;
+  imageUrl?: string;
+  isSoldOut: boolean;
+}
+
+export interface MenuListResult {
+  menus: MenuDto[];
+}
