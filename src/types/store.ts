@@ -1,3 +1,5 @@
+import type { ApiResponse } from "./api";
+
 export type Category = "KOREAN" | "CHINESE" | "JAPANESE" | "WESTERN" | "CAFE";
 
 export type Day =
@@ -136,7 +138,7 @@ export interface MyStore {
   storeId: number;
   storeName: string;
   address: string;
-  category: string;
+  category: Category;
   rating: number;
   totalBookingCount: number;
   reviewCount: number;
@@ -144,14 +146,7 @@ export interface MyStore {
   isOpenNow: boolean;
 }
 
-export interface MyStoreResponse {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: {
-    stores: MyStore[];
-  };
-}
+export type MyStoreResponse = ApiResponse<{ stores: MyStore[] }>;
 
 export interface TableImage {
   tableImageId: number;
@@ -209,8 +204,6 @@ export interface ApiStoreSummary {
   isOpenNow?: boolean | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
-  lat?: number | string | null;
-  lng?: number | string | null;
 }
 
 export interface SearchStoresResult {

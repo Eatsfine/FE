@@ -7,8 +7,8 @@ export interface MemberInfo {
 }
 
 export interface PatchMemberInfo {
-  name: string;
-  phoneNumber: string;
+  name?: string;
+  phoneNumber?: string;
 }
 
 export interface ChangePasswordRequest {

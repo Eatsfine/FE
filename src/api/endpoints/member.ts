@@ -18,6 +18,9 @@ export async function getMemberInfo() {
 
 export async function patchMemberInfo(body: PatchMemberInfo) {
   const res = await api.patch<ApiResponse<string>>("/api/v1/member/info", body);
+  if (!res.data?.isSuccess) {
+    throw new Error(res.data?.message ?? "회원정보 수정 실패");
+  }
   return res.data.result;
 }
 

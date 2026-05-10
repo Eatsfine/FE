@@ -1,18 +1,5 @@
 export type ApiBookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELED";
 
-export interface Booking {
-  bookingId: number;
-  storeName: string;
-  storeAddress: string;
-  bookingDate: string;
-  bookingTime: string;
-  partySize: number;
-  tableNumbers: string;
-  amount: number | null;
-  paymentMethod: string;
-  status: ApiBookingStatus;
-}
-
 export interface Pagination {
   listSize: number;
   totalPage: number;
@@ -22,7 +9,7 @@ export interface Pagination {
 }
 
 export interface BookingResponse extends Pagination {
-  bookingList: Booking[];
+  bookingList: BookingListItem[];
 }
 
 export interface GetBookingParams {
@@ -43,7 +30,7 @@ export interface BookingListItem {
   };
   partySize: number;
   tableNumbers: string;
-  amount: number;
+  amount: number | null;
   paymentMethod: string;
   status: ApiBookingStatus;
 }

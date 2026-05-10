@@ -16,8 +16,8 @@ const toNum = (v: unknown): number | undefined => {
 };
 
 function toSummary(s: ApiStoreSummary): RestaurantSummary {
-  const lat = toNum(s.latitude ?? s.lat);
-  const lng = toNum(s.longitude ?? s.lng);
+  const lat = toNum(s.latitude);
+  const lng = toNum(s.longitude);
   return {
     id: s.storeId,
     name: s.name,

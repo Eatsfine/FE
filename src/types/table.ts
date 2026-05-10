@@ -29,5 +29,5 @@ export interface UpdatedTable {
   tableNumber: string;
   minSeatCount: number;
   maxSeatCount: number;
-  seatsType: string;
+  seatsType: SeatsType;
 }
