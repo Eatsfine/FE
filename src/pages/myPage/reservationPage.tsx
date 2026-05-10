@@ -53,7 +53,9 @@ export default function ReservationPage() {
         shopName: b.storeName,
         address: b.storeAddress,
         date: b.bookingDate,
-        time: b.bookingTime ?? "--:--",
+        time: b.bookingTime
+          ? `${String(b.bookingTime.hour).padStart(2, "0")}:${String(b.bookingTime.minute).padStart(2, "0")}`
+          : "--:--",
         people: b.partySize?.toString() ?? "0",
         payment: `${b.amount?.toLocaleString() ?? 0}원`,
         method: b.paymentMethod ?? "-",
