@@ -20,6 +20,10 @@
   --text-tertiary: #b3b0a8;
   --text-secondary: #e6e3de;
   --text-primary: #faf8f4;
+
+  --radius-10: 10px;
+  --radius-15: 15px;
+  --radius-20: 20px;
 }
 
 @theme {
@@ -42,4 +46,8 @@
   --color-text-tertiary: var(--text-tertiary);
   --color-text-secondary: var(--text-secondary);
   --color-text-primary: var(--text-primary);
+
+  --radius-10: var(--radius-10);
+  --radius-20: var(--radius-20);
+  --radius-30: var(--radius-30);
 }
