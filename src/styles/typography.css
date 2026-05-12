@@ -28,7 +28,7 @@
 
 @theme {
   /*font family*/
-  --font-koerean: var(--font-korean);
+  --font-korean: var(--font-korean);
   --font-body-en: var(--font-body-en);
   --font-title-en: var(--font-title-en);
 
@@ -41,6 +41,12 @@
   --text-body2: var(--text-body2);
   --text-label: var(--text-label);
   --text-caption: var(--text-caption);
+
+  /*font weight*/
+  --font-weight-bold: var(--font-weight-bold);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-regular: var(--font-weight-regular);
 }
 
 @layer utilities {
