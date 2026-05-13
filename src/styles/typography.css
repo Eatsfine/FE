@@ -1,0 +1,93 @@
+/*폰트정리*/
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap");
+
+:root {
+  /*font family*/
+  --font-korean: "Noto Serif KR", serif;
+  --font-body-en: "Noto Serif", serif;
+  --font-title-en: "Bodoni Moda", serif;
+
+  /*typography*/
+  --text-hero: 56px;
+  --text-heading1: 40px;
+  --text-heading2: 32px;
+  --text-heading3: 24px;
+  --text-body1: 22px;
+  --text-body2: 18px;
+  --text-label: 14px;
+  --text-caption: 12px;
+
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-regular: 400;
+}
+
+@theme {
+  /*font family*/
+  --font-korean: var(--font-korean);
+  --font-body-en: var(--font-body-en);
+  --font-title-en: var(--font-title-en);
+
+  /*font size*/
+  --text-hero: var(--text-hero);
+  --text-heading1: var(--text-heading1);
+  --text-heading2: var(--text-heading2);
+  --text-heading3: var(--text-heading3);
+  --text-body1: var(--text-body1);
+  --text-body2: var(--text-body2);
+  --text-label: var(--text-label);
+  --text-caption: var(--text-caption);
+
+  /*font weight*/
+  --font-weight-bold: var(--font-weight-bold);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-regular: var(--font-weight-regular);
+}
+
+@layer utilities {
+  .font-hero {
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 140%;
+  }
+  .font-heading1 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 130%;
+  }
+  .font-heading2 {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 130%;
+  }
+  .font-heading3 {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 130%;
+  }
+  .font-body1 {
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 130%;
+  }
+  .font-body2 {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 130%;
+  }
+  .font-label {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 140%;
+  }
+  .font-caption {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 130%;
+  }
+}
