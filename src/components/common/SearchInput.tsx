@@ -1,10 +1,5 @@
 import React, { forwardRef } from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from "@/lib/utils";
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   wrapperClassName?: string;
@@ -17,9 +12,11 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div className={cn("group relative w-full", wrapperClassName)}>
         <input
           ref={ref}
-          type="text"
+          type="search"
+          aria-label="검색"
           className={cn(
             "w-full bg-white-1/5 border-b-2 border-white-1/20 text-white-1 px-4 py-4 pl-12 focus:outline-none focus:border-gold-1 focus:bg-white-1/10 transition-all duration-300 font-light placeholder:text-white-1/40",
+            "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
             className,
           )}
           {...props}

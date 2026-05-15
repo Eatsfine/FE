@@ -1,12 +1,7 @@
 import React, { forwardRef } from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { cn } from "@/lib/utils";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export interface RestaurantCardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface RestaurantCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   image: string;
   name: string;
   rating: string | number;
@@ -14,10 +9,17 @@ export interface RestaurantCardProps extends React.HTMLAttributes<HTMLDivElement
   location: string;
 }
 
-export const RestaurantCard = forwardRef<HTMLDivElement, RestaurantCardProps>(
+export const RestaurantCard = forwardRef<HTMLButtonElement, RestaurantCardProps>(
   ({ image, name, rating, category, location, className, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn("group cursor-pointer", className)} {...props}>
+      <button
+        ref={ref}
+        className={cn(
+          "group cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-gold-1 focus:ring-offset-2",
+          className,
+        )}
+        {...props}
+      >
         <div className="relative overflow-hidden aspect-[4/3] mb-6">
           <img
             src={image}
@@ -26,7 +28,13 @@ export const RestaurantCard = forwardRef<HTMLDivElement, RestaurantCardProps>(
           />
           <div className="absolute inset-0 bg-black-1/20 group-hover:bg-transparent transition-colors duration-500" />
           <div className="absolute top-4 right-4 bg-black-1/80 backdrop-blur-sm px-3 py-1 flex items-center gap-1">
-            <svg className="w-3 h-3 text-gold-1" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              className="w-3 h-3 text-gold-1"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+              focusable="false"
+            >
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
             <span className="text-white-1 text-xs font-light tracking-wider">{rating}</span>
@@ -51,6 +59,8 @@ export const RestaurantCard = forwardRef<HTMLDivElement, RestaurantCardProps>(
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -61,7 +71,7 @@ export const RestaurantCard = forwardRef<HTMLDivElement, RestaurantCardProps>(
             </svg>
           </div>
         </div>
-      </div>
+      </button>
     );
   },
 );

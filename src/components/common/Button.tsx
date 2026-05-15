@@ -1,11 +1,6 @@
 import React, { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   "cursor-pointer relative inline-flex items-center justify-center overflow-hidden rounded-full uppercase tracking-widest transition-all",
@@ -35,9 +30,14 @@ interface ButtonProps
 }
 
 export const BaseButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant, size, className, children, ...props }, ref) => {
+  ({ variant, size, className, children, type = "button", ...props }, ref) => {
     return (
-      <button ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props}>
+      <button
+        ref={ref}
+        type={type}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
         <span className="relative z-10">{children}</span>
       </button>
     );
