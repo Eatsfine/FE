@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import { queryClient } from "@/query/queryClient.ts";
 
 import App from "./App.tsx";
+import "./styles/theme.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
