@@ -1,5 +1,7 @@
 /*컬러 정리*/
 
+@import "tailwindcss";
+
 :root {
   --black-1: #121212;
   --black-2: #1a1a1a;
