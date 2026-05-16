@@ -15,6 +15,7 @@ export const RestaurantCard = forwardRef<HTMLButtonElement, RestaurantCardProps>
     return (
       <button
         ref={ref}
+        type="button"
         className={cn(
           "group cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-gold-1 focus:ring-offset-2",
           className,
